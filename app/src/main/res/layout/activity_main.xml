@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -496,6 +497,113 @@
                 android:layout_margin="2dp"
                 android:text="회생제동: 하이" />
         </GridLayout>
+<View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:layout_marginVertical="12dp"
+    android:background="#333333" />
 
-    </LinearLayout>
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="🖥️ 분할 화면 실행"
+    android:textColor="#FFFFFF"
+    android:textSize="16sp"
+    android:textStyle="bold" />
+
+<RadioGroup
+    android:id="@+id/rgSplitMode"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RadioButton
+        android:id="@+id/rbTwoApps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2분할"
+        android:checked="true"/>
+
+    <RadioButton
+        android:id="@+id/rbThreeLeftStack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="3분할 (좌측 스택)"/>
+
+    <RadioButton
+        android:id="@+id/rbThreeRightStack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="3분할 (우측 스택)"/>
+</RadioGroup>
+
+<TextView
+    android:id="@+id/tvRatio1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="좌/우 분할 비율"/>
+
+<SeekBar
+    android:id="@+id/sbRatio1"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:max="100"
+    android:progress="50"/>
+
+<LinearLayout
+    android:id="@+id/layoutRatio2Container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvRatio2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="상하 분할 비율"/>
+
+    <SeekBar
+        android:id="@+id/sbRatio2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="50"/>
+</LinearLayout>
+
+<Button
+    android:id="@+id/btnSelectApp1"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="앱1 선택"/>
+
+<Button
+    android:id="@+id/btnSelectApp2"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="앱2 선택"/>
+
+<Button
+    android:id="@+id/btnSelectApp3"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="앱3 선택"/>
+
+<EditText
+    android:id="@+id/etShortcutName"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="바로가기 이름"/>
+
+<Button
+    android:id="@+id/btnLaunchSplitNow"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="즉시 실행"/>
+
+<Button
+    android:id="@+id/btnCreateShortcut"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="홈 화면 바로가기 생성" />
+ 
+</LinearLayout>
 </ScrollView>
