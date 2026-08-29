@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -89,21 +90,21 @@ class MainActivity : AppCompatActivity() {
             when (checkedId) {
                 R.id.rbTwoApps -> {
                     selectedSplitMode = SplitMode.TWO_APPS_HORIZONTAL
-                    layoutRatio2Container.visibility = LinearLayout.GONE
-                    btnSelectApp3.visibility = Button.GONE
+                    layoutRatio2Container.visibility = View.GONE
+                    btnSelectApp3.visibility = View.GONE
                     tvRatio1.text = "좌/우 비율: ${sbRatio1.progress}% : ${100 - sbRatio1.progress}%"
                 }
                 R.id.rbThreeLeftStack -> {
                     selectedSplitMode = SplitMode.THREE_APPS_LEFT_STACKED
-                    layoutRatio2Container.visibility = LinearLayout.VISIBLE
-                    btnSelectApp3.visibility = Button.VISIBLE
+                    layoutRatio2Container.visibility = View.VISIBLE
+                    btnSelectApp3.visibility = View.VISIBLE
                     tvRatio1.text = "좌/우 비율: ${sbRatio1.progress}% : ${100 - sbRatio1.progress}%"
                     tvRatio2.text = "좌측 상/하 비율: ${sbRatio2.progress}% : ${100 - sbRatio2.progress}%"
                 }
                 R.id.rbThreeRightStack -> {
                     selectedSplitMode = SplitMode.THREE_APPS_RIGHT_STACKED
-                    layoutRatio2Container.visibility = LinearLayout.VISIBLE
-                    btnSelectApp3.visibility = Button.VISIBLE
+                    layoutRatio2Container.visibility = View.VISIBLE
+                    btnSelectApp3.visibility = View.VISIBLE
                     tvRatio1.text = "좌/우 비율: ${sbRatio1.progress}% : ${100 - sbRatio1.progress}%"
                     tvRatio2.text = "우측 상/하 비율: ${sbRatio2.progress}% : ${100 - sbRatio2.progress}%"
                 }
