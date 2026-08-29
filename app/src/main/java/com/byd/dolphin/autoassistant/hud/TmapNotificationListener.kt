@@ -34,7 +34,7 @@ class TmapNotificationListener : NotificationListenerService() {
         // 1. 턴 거리 파싱 (m / km)
         var turnDistance = 0
         var distanceStr = ""
-        val distMatch = Regex("([0-9.]+)\s*(m|km)", RegexOption.IGNORE_CASE).find(combined)
+        val distMatch = Regex("([0-9.]+)\\s*(m|km)", RegexOption.IGNORE_CASE).find(combined)
         if (distMatch != null) {
             val num = distMatch.groupValues[1].toDoubleOrNull() ?: 0.0
             val unit = distMatch.groupValues[2].lowercase()
@@ -56,7 +56,7 @@ class TmapNotificationListener : NotificationListenerService() {
 
         // 3. 과속 제한속도 파싱
         var speedLimit = 0
-        val limitMatch = Regex("(?:제한|과속|단속)\s*([0-9]{2,3})").find(combined)
+        val limitMatch = Regex("(?:제한|과속|단속)\\s*([0-9]{2,3})").find(combined)
         if (limitMatch != null) {
             speedLimit = limitMatch.groupValues[1].toIntOrNull() ?: 0
         }
