@@ -522,10 +522,8 @@ class MainActivity : AppCompatActivity() {
         val actionTypes = arrayOf("0.x초 정밀 딜레이 추가", "설치된 앱 실행", "미디어 자동 재생(Play)", "에어컨 온도/풍량 제어", "전체 실내등 제어", "통합 성에제거 제어")
 
         AlertDialog.Builder(this)
-            .setTitle(
-    "규칙: ${rule.name}\n(현재 추가된 단계: ${rule.actions.size}개)"
-(현재 추가된 단계: " + rule.actions.size + "개)")
-            .setItems(actionTypes) { _, which ->
+    .setTitle("규칙: ${rule.name}\n(현재 추가된 단계: ${rule.actions.size}개)")
+    .setItems(actionTypes) { _, which ->
                 when (which) {
                     0 -> {
                         val etDelay = EditText(this).apply {
