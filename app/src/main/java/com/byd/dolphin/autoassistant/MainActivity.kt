@@ -467,8 +467,7 @@ class MainActivity : AppCompatActivity() {
             }.joinToString(" ➔ ")
 
             val tvActs = TextView(this).apply {
-                text = "⚡ 실행 단계:
-" + actionsDesc
+                text = "⚡ 실행 단계:" + actionsDesc
                 setTextColor(android.graphics.Color.parseColor("#CCCCCC"))
                 textSize = 12f
             }
@@ -498,8 +497,7 @@ class MainActivity : AppCompatActivity() {
                 addView(etName)
 
                 val tvTrigLabel = TextView(this@MainActivity).apply {
-                    text = "
-[트리거(발동 조건) 선택]:"
+                    text = "[트리거(발동 조건) 선택]:"
                     setTextColor(android.graphics.Color.parseColor("#80D8FF"))
                 }
                 addView(tvTrigLabel)
@@ -524,7 +522,8 @@ class MainActivity : AppCompatActivity() {
         val actionTypes = arrayOf("0.x초 정밀 딜레이 추가", "설치된 앱 실행", "미디어 자동 재생(Play)", "에어컨 온도/풍량 제어", "전체 실내등 제어", "통합 성에제거 제어")
 
         AlertDialog.Builder(this)
-            .setTitle("규칙: " + rule.name + "
+            .setTitle(
+    "규칙: ${rule.name}\n(현재 추가된 단계: ${rule.actions.size}개)"
 (현재 추가된 단계: " + rule.actions.size + "개)")
             .setItems(actionTypes) { _, which ->
                 when (which) {
