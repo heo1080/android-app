@@ -22,6 +22,10 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
+    # 아래 실행 권한 부여 단계 추가
+    - name: Grant Execute Permission for Gradlew
+      run: chmod +x gradlew
+
     - name: Build Debug APK
       run: ./gradlew assembleDebug --stacktrace
 
