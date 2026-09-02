@@ -1,0 +1,987 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#121212">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BYD 돌핀 스마트 어시스턴트"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvServiceStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="상태: 순정 계기판 TBT 연동 &amp; 1% 커스텀 분할 화면 활성화"
+            android:textColor="#4CAF50"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#333333" />
+
+        <!-- 🩺 AI 문제 진단 및 로그 추출 섹션 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🩺 AI 문제 진단 및 로그 추출"
+            android:textColor="#00E676"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="차량 동작 오류나 미작동 원인을 즉시 파악할 수 있도록 전체 진단 로그를 파일로 생성합니다."
+            android:textColor="#AAAAAA"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/tvLogPathInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="저장 경로: /sdcard/DolphinAssistant_DebugLog.txt"
+            android:textColor="#80D8FF"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnExportDebugLog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="#00C853"
+                android:text="📋 진단 로그 생성 / 저장"
+                android:textColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/btnShareDebugLog"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="#0288D1"
+                android:text="📤 로그 공유하기"
+                android:textColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/btnClearDebugLog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#616161"
+                android:text="초기화"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#333333" />
+
+        <!-- 🚗 순정 5인치 계기판 TBT &amp; T900 HUD 연동 섹션 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🚗 순정 계기판 TBT &amp; T900 HUD 연동"
+            android:textColor="#FF8A80"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swClusterTbt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="순정 5인치 계기판 중앙에 TMAP 화살표(TBT) 순정 룩 표출"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swHudBridge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="T900 HUD (한문철 HUD) 블루투스 길안내 전송"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tvHudStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="HUD 상태: 연결 대기 중"
+            android:textColor="#CCCCCC"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnConnectHud"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="#E53935"
+                android:text="T900 HUD 연결"
+                android:textColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/btnTestClusterTurnLeft"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="#00897B"
+                android:text="계기판 TBT 테스트"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnGrantNotifPermission"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:backgroundTint="#546E7A"
+            android:text="순정 TMAP 감지 권한 켜기 (알림 접근)"
+            android:textColor="#FFFFFF" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#333333" />
+
+        <!-- 📱 1% 정밀 커스텀 화면 분할 섹션 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📱 1% 단위 화면 분할 &amp; 바로가기 생성"
+            android:textColor="#FFD54F"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:id="@+id/rgSplitMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/rbTwoApps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="2분할 (좌/우)"
+                android:textColor="#FFFFFF" />
+
+            <RadioButton
+                android:id="@+id/rbThreeLeftStack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3분할 (좌측 2개 상하 스택 + 우측 1개)"
+                android:textColor="#FFFFFF" />
+
+            <RadioButton
+                android:id="@+id/rbThreeRightStack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3분할 (좌측 1개 + 우측 2개 상하 스택)"
+                android:textColor="#FFFFFF" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/tvRatio1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="좌/우 분할 비율: 50% : 50%"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
+
+        <SeekBar
+            android:id="@+id/sbRatio1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="90"
+            android:progress="50" />
+
+        <LinearLayout
+            android:id="@+id/layoutRatio2Container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvRatio2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="상/하 분할 비율: 50% : 50%"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+
+            <SeekBar
+                android:id="@+id/sbRatio2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="90"
+                android:progress="50" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnSelectApp1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:text="앱 1 (좌측)" />
+
+            <Button
+                android:id="@+id/btnSelectApp2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:text="앱 2 (우측)" />
+
+            <Button
+                android:id="@+id/btnSelectApp3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="앱 3 (보조)"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/etShortcutName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:hint="바로가기 이름 (예: TMAP + 유튜브)"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#777777" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnLaunchSplitNow"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="#FFB300"
+                android:text="지금 즉시 분할 실행"
+                android:textColor="#000000" />
+
+            <Button
+                android:id="@+id/btnCreateShortcut"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="#7E57C2"
+                android:text="바탕화면 아이콘 생성"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#333333" />
+
+        <!-- 🔊 운전석 전용 스피커 출력 앱 지정 섹션 (+ 버튼) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="🔊 운전석 전용 스피커 출력 앱"
+                android:textColor="#B388FF"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnAddApp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#7C4DFF"
+                android:text="+ 앱 추가"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="지정된 앱은 음악과 분리되어 운전석 스피커로만 출력됩니다."
+            android:textColor="#AAAAAA"
+            android:textSize="13sp" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupRoutedApps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#333333" />
+
+        <!-- 기능 ON/OFF 설정 메뉴 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚙️ 음성 및 자동화 기능 ON / OFF"
+            android:textColor="#81D4FA"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swGearVoice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="기어 변속 안내 (전진, 후진, 중립, 파킹)"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swAutoHoldVoice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="오토홀드 안내 (켜졌습니다 / 꺼졌습니다)"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swEpbVoice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="사이드브레이크 안내 (체결 / 해제)"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swIccVoice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="자율주행 안내 (켜졌습니다 / 꺼졌습니다)"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swDriveModeVoice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="주행 모드 안내 (에코, 노멀, 스포츠)"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swRegenModeVoice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="회생제동 안내 (에코, 하이)"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swHazardAuto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="후진 비상등 자동 제어 (R켜짐 / 30초·30km 꺼짐)"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swChargingVoice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="충전 시작 / 중지 음성 안내"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swSafetyAlert"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="차선 이탈 및 후측방 위험 경고음"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#333333" />
+
+        <!-- 실내등 (Inside Light) 제어 섹션 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="💡 전체 실내등(룸램프) 원터치 제어"
+            android:textColor="#FFF59D"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="차량 순정 퀵패널에 누락된 전체 실내등 강제 점등/소등 및 도어 연동 제어"
+            android:textColor="#AAAAAA"
+            android:textSize="13sp" />
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:columnCount="3">
+
+            <Button
+                android:id="@+id/btnInsideLightOn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:backgroundTint="#FFB300"
+                android:text="전체 켜기"
+                android:textColor="#000000" />
+
+            <Button
+                android:id="@+id/btnInsideLightOff"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:backgroundTint="#424242"
+                android:text="전체 끄기"
+                android:textColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/btnInsideLightToggle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:backgroundTint="#7E57C2"
+                android:text="켜기/끄기 토글"
+                android:textColor="#FFFFFF" />
+        </GridLayout>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swDoorLightInterlock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="도어 연동 실내등 자동 점등 (도어 오픈 시 ON)"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btnCreateLightShortcut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:backgroundTint="#26A69A"
+            android:text="📱 홈 화면에 실내등 스위치 바로가기 추가"
+            android:textColor="#FFFFFF" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#333333" />
+
+        <!-- 통합 성에 제거 (Defrost) 제어 섹션 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="♨️ 통합 성에 제거 (앞유리 송풍 + 뒷유리/미러 열선)"
+            android:textColor="#FF8A80"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="1번 퀵패널의 전·후면 동시 성에 제거를 원터치로 수동 제어합니다."
+            android:textColor="#AAAAAA"
+            android:textSize="13sp" />
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:columnCount="3">
+
+            <Button
+                android:id="@+id/btnDefrostOn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:backgroundTint="#E53935"
+                android:text="통합 켜기"
+                android:textColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/btnDefrostOff"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:backgroundTint="#424242"
+                android:text="전체 끄기"
+                android:textColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/btnDefrostToggle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:backgroundTint="#FF7043"
+                android:text="토글"
+                android:textColor="#FFFFFF" />
+        </GridLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#333333" />
+
+        <!-- 방법 1: 드래그 이동식 플로팅 오버레이 버튼 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🚀 [방법 1] 드래그 이동식 플로팅 버튼 (하단바 바로 위)"
+            android:textColor="#80D8FF"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="상단바를 내리지 않고 화면 하단에서 즉시 성에제거/실내등을 켭니다. 터치 드래그로 원하는 위치로 자유롭게 이동할 수 있습니다."
+            android:textColor="#AAAAAA"
+            android:textSize="13sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swFloatingOverlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="화면 상시 플로팅 버튼 활성화"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btnResetFloatingPosition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:backgroundTint="#00838F"
+            android:text="⟲ 플로팅 버튼을 기본 위치(하단바 위)로 복귀"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/btnSelectFloatingItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:backgroundTint="#6A1B9A"
+            android:text="📱 플로팅 독에 표시할 기능 &amp; 앱 선택"
+            android:textColor="#FFFFFF" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#333333" />
+
+        <!-- 방법 2: 스마트 차량 연동 자동화 메뉴 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚡ [방법 2] 스마트 버튼 연동 및 자동화 메뉴"
+            android:textColor="#B9F6CA"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="순정 하단바 버튼을 누르거나 기어 변속 시 연계 동작을 자동으로 실행합니다."
+            android:textColor="#AAAAAA"
+            android:textSize="13sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swAutoDefrostSync"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="순정 앞유리 성에제거 ON 시 -> 뒷유리/미러 열선 동시 자동 켜기"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/swAutoLightPark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="P단(주차) 변속 시 전체 실내등 자동 켜기 (야간 하차 편의)"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#333333" />
+
+        <!-- 완전 규칙 생성기 (0.x초 단위 포함 룰 빌더) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🛠️ 완전 커스텀 스마트 규칙 생성기 (0.x초 정밀 자동화)"
+            android:textColor="#FFD54F"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="시동, 외부온도, 기어, 히터 등의 조건과 0.x초 단위 딜레이, 앱 실행, 에어컨/열선 작동을 자유롭게 조립합니다."
+            android:textColor="#AAAAAA"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/btnAddNewRule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#00C853"
+            android:text="➕ 새 자동화 규칙 추가"
+            android:textColor="#FFFFFF" />
+
+        <LinearLayout
+            android:id="@+id/layoutRulesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#333333" />
+
+        <!-- DPI 조절 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📐 화면 DPI / T맵 크기 최적화"
+            android:textColor="#FFD54F"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvCurrentDpi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="현재 DPI: 확인 중..."
+            android:textColor="#CCCCCC"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnDpi180"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="#00897B"
+                android:text="180 DPI (T맵 추천)" />
+
+            <Button
+                android:id="@+id/btnDpi160"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                android:backgroundTint="#1E88E5"
+                android:text="160 DPI" />
+
+            <Button
+                android:id="@+id/btnDpiReset"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="#757575"
+                android:text="기본값 복구" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnDpi200"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="200 DPI" />
+
+            <EditText
+                android:id="@+id/etCustomDpi"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="직접 입력 (예: 175)"
+                android:inputType="number"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#777777" />
+
+            <Button
+                android:id="@+id/btnApplyCustomDpi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="적용" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="#333333" />
+
+        <!-- 수동 테스트 패널 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🧪 음성 및 기능 수동 테스트"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:columnCount="4">
+
+            <Button
+                android:id="@+id/btnTestGearD"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="D 전진" />
+
+            <Button
+                android:id="@+id/btnTestGearR"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="R 후진" />
+
+            <Button
+                android:id="@+id/btnTestGearN"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="N 중립" />
+
+            <Button
+                android:id="@+id/btnTestGearP"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="P 파킹" />
+        </GridLayout>
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:columnCount="2">
+
+            <Button
+                android:id="@+id/btnTestAutoHoldOn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="오토홀드 켜짐" />
+
+            <Button
+                android:id="@+id/btnTestAutoHoldOff"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="오토홀드 꺼짐" />
+
+            <Button
+                android:id="@+id/btnTestEpbOn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="사이드브레이크 체결" />
+
+            <Button
+                android:id="@+id/btnTestEpbOff"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="사이드브레이크 해제" />
+
+            <Button
+                android:id="@+id/btnTestIccOn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="자율주행 켜짐" />
+
+            <Button
+                android:id="@+id/btnTestIccOff"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="자율주행 꺼짐" />
+        </GridLayout>
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:columnCount="3">
+
+            <Button
+                android:id="@+id/btnTestModeEco"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="에코 모드" />
+
+            <Button
+                android:id="@+id/btnTestModeNormal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="노멀 모드" />
+
+            <Button
+                android:id="@+id/btnTestModeSport"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="스포츠 모드" />
+        </GridLayout>
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:columnCount="2">
+
+            <Button
+                android:id="@+id/btnTestRegenEco"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="회생제동: 에코" />
+
+            <Button
+                android:id="@+id/btnTestRegenHigh"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_margin="2dp"
+                android:text="회생제동: 하이" />
+        </GridLayout>
+
+    </LinearLayout>
+</ScrollView>
