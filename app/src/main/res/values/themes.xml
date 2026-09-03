@@ -1,5 +1,0 @@
-<resources>
-    <style name="Theme.DolphinAutoAssistant" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="android:statusBarColor">#121212</item>
-    </style>
-</resources>
