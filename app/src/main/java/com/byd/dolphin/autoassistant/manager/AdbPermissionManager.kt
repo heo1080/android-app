@@ -97,17 +97,19 @@ object AdbPermissionManager {
             for (host in candidateHosts) {
                 try {
                     DolphinLogger.i(TAG, "차량 로컬 ADB 연결 시도: $host:5555")
-                    val ok = NativeAdbClient.connectAndExecute(
+                    NativeAdbClient.connectAndExecute(
                         host = host,
                         port = 5555,
-                        commands = commands,
-                        timeoutMs = 1200
-                    )
-                    if (ok) {
-                        anySuccess = true
-                        DolphinLogger.i(TAG, "차량 ADB 권한 승인 성공 ($host:5555)")
-                        break
+                        commands = commands
+                    ) { success, msg ->
+                        if (success) {
+                            anySuccess = true
+                            DolphinLogger.i(TAG, "차량 ADB 권한 승인 성공 ($host:5555)")
+                        } else {
+                            lastError = msg
+                        }
                     }
+                    if (anySuccess) break
                 } catch (e: Exception) {
                     lastError = e.message ?: "연결 거부"
                 }

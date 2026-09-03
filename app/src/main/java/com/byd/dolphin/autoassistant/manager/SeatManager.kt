@@ -125,7 +125,7 @@ object SeatManager {
         } catch (e: Exception) {
             saveDriverPosition(context, stage)
             if (showToast) {
-                Toast.makeText(context, "운전석 시트 $stage단계 적용", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "운전석 시트 ${stage}단계 적용", Toast.LENGTH_SHORT).show()
             }
             false
         }
@@ -176,7 +176,7 @@ object SeatManager {
         } catch (e: Exception) {
             savePassengerPosition(context, stage)
             if (showToast) {
-                Toast.makeText(context, "동승석 시트 $stage단계 적용", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "동승석 시트 ${stage}단계 적용", Toast.LENGTH_SHORT).show()
             }
             false
         }

@@ -96,7 +96,7 @@ object FloatingOverlayManager {
 
             windowManager?.addView(container, layoutParams)
             overlayView = container
-            DolphinLogger.i(TAG, "Floating Dock displayed at ($savedX, $savedY) with alpha $alpha")
+            DolphinLogger.i(TAG, "Floating Dock displayed at ($savedX, $savedY) with alpha ${layoutParams?.alpha}")
         } catch (e: Exception) {
             DolphinLogger.e(TAG, "Failed to display floating overlay", e)
         }
