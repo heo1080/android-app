@@ -8,7 +8,7 @@ if "%DIRNAME%" == "" set DIRNAME=.
 set APP_BASE_NAME=%~n0
 set APP_HOME=%DIRNAME%
 
-set DEFAULT_JVM_OPTS="-Xmx64m"
+set DEFAULT_JVM_OPTS=
 
 set WRAPPER_JAR=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
 if not exist "%WRAPPER_JAR%" (
