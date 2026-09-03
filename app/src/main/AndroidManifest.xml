@@ -107,5 +107,20 @@
             </intent-filter>
         </receiver>
 
-    </application>
+    
+        <!-- 알림 청취 권한 차단 우회용 접근성 TBT 브릿지 서비스 -->
+        <service
+            android:name=".service.DolphinAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:label="돌핀 내비 TBT 알림 수신 브릿지"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+</application>
 </manifest>

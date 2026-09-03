@@ -20,11 +20,6 @@ import com.byd.dolphin.autoassistant.util.DolphinLogger
 
 /**
  * 돌핀 스마트 어시스턴트 상시 백그라운드 서비스
- * - 0번: 기동 시 자체 ADB 권한 자동 검증
- * - 4번: 360 서라운드뷰 종료 후 1% 커스텀 분할 화면 자동 복원
- * - 5번: 차량 신호 운전석 전용 스피커 안내 (BSD, LDP, 기어, 오토홀드, EPB)
- * - 7번: R/N/D/P 비상등 자동 제어 및 커스텀 자동화 시나리오 엔진
- * - 8번: 부팅 후 0.1초 단위 다중 앱 자동 실행 및 미디어 자동 재생
  */
 class DolphinService : Service() {
 
@@ -36,7 +31,8 @@ class DolphinService : Service() {
     private var isTurnSignalOn = false
     private var isCharging = false
     private var previousGear = "P"
-    private var previousAutoHoldState: Boolean? = null
+    private var previousAutoHoldSwitchState: Boolean? = null
+    private var previousAutoHoldBrakeState: Boolean? = null
 
     private val vehicleEventReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -52,7 +48,7 @@ class DolphinService : Service() {
                     checkCustomScenarios("READY_ON")
                 }
 
-                // 360 서라운드뷰 및 후진 카메라 종료 감지 -> 50:50 초기화 방지 & 커스텀 비율 복원
+                // 360 서라운드뷰 종료 감지 -> 50:50 초기화 방지 & 커스텀 비율 복원
                 "byd.intent.action.AUTO_VIDEO_ON", "byd.intent.action.pano" -> {
                     val autovideoOn = intent.getIntExtra("autovideo_on", intent.getIntExtra("panoState", -1))
                     if (autovideoOn == 0) {
@@ -84,28 +80,40 @@ class DolphinService : Service() {
                     }
                 }
 
-                // 충전 상태
+                // 충전 시작 vs 종료 분리 음성
                 Intent.ACTION_POWER_CONNECTED, "com.byd.auto.intent.action.CHARGING_STATUS" -> {
                     val chargingNow = intent.getBooleanExtra("is_charging", true)
-                    if (SettingsManager.isChargingVoiceEnabled(this@DolphinService) && !isCharging && chargingNow) {
+                    if (chargingNow && !isCharging) {
                         isCharging = true
-                        audioManager.speakCharging()
+                        audioManager.speakChargingStart()
+                        checkCustomScenarios("CHARGING_ON")
+                    } else if (!chargingNow && isCharging) {
+                        isCharging = false
+                        audioManager.speakChargingEnd()
                     }
-                    checkCustomScenarios("CHARGING_ON")
                 }
                 Intent.ACTION_POWER_DISCONNECTED -> {
-                    if (SettingsManager.isChargingVoiceEnabled(this@DolphinService) && isCharging) {
+                    if (isCharging) {
                         isCharging = false
-                        audioManager.speak("충전이 중지되었습니다.")
+                        audioManager.speakChargingEnd()
                     }
                 }
 
-                // 오토홀드 / EPB / 자율주행
-                "com.byd.auto.intent.action.AUTOHOLD_SWITCH_CHANGED", "com.byd.auto.intent.action.AUTOHOLD_FUNCTION_STATUS" -> {
-                    val isEnabled = intent.getBooleanExtra("is_enabled", true)
-                    if (previousAutoHoldState != isEnabled) {
-                        previousAutoHoldState = isEnabled
-                        audioManager.speakAutoHold(isEnabled)
+                // 1) 오토홀드 콘솔 물리 스위치 ON/OFF
+                "com.byd.auto.intent.action.AUTOHOLD_SWITCH_CHANGED" -> {
+                    val isSwitchOn = intent.getBooleanExtra("switch_state", intent.getBooleanExtra("is_enabled", true))
+                    if (previousAutoHoldSwitchState != isSwitchOn) {
+                        previousAutoHoldSwitchState = isSwitchOn
+                        audioManager.speakAutoHoldSwitch(isSwitchOn)
+                    }
+                }
+
+                // 2) 오토홀드 정차 브레이크 체결 / 해제
+                "com.byd.auto.intent.action.AUTOHOLD_FUNCTION_STATUS", "com.byd.auto.intent.action.AUTOHOLD_ACTIVE" -> {
+                    val isEngaged = intent.getBooleanExtra("is_engaged", intent.getBooleanExtra("active", true))
+                    if (previousAutoHoldBrakeState != isEngaged) {
+                        previousAutoHoldBrakeState = isEngaged
+                        audioManager.speakAutoHoldBrake(isEngaged)
                     }
                 }
 
@@ -160,6 +168,14 @@ class DolphinService : Service() {
 
         audioManager.speakGear(gearStr)
 
+        // 후진(R) 진입 시 사이드미러 다운 (미러 딥), 후진 탈출 시 원위치 복귀
+        if (gearStr == "R") {
+            context?.let { SeatManager.onGearReverseEntered(it) }
+        } else if (prev == "R") {
+            context?.let { SeatManager.onGearReverseExited(it) }
+        }
+
+        // R -> D/N/P 전환 시 후진 카메라 종료 후 분할 화면 복원
         if (prev == "R" && (gearStr == "D" || gearStr == "N" || gearStr == "P")) {
             scheduleSplitScreenRestoration(context)
         }
@@ -223,6 +239,12 @@ class DolphinService : Service() {
             "LIGHT_OFF" -> {
                 InsideLightManager.turnOff(this, showToast = false)
             }
+            "WINDOW_CLOSE" -> {
+                val intent = Intent("com.byd.auto.action.WINDOW_CONTROL").apply {
+                    putExtra("action", "CLOSE_ALL")
+                }
+                sendBroadcast(intent)
+            }
             "LAUNCH_APP" -> {
                 packageManager.getLaunchIntentForPackage(sc.actionValue)?.let { intent ->
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -243,18 +265,22 @@ class DolphinService : Service() {
         startForegroundServiceNotification()
         registerVehicleReceiver()
 
-        // 8번 부팅 시 0.1초 단위 다중 앱 자동 실행 스케줄러 가동
         scheduleBootAutoExecutions()
     }
 
     private fun scheduleBootAutoExecutions() {
         if (!SettingsManager.isBootAutoEnabled(this)) return
 
-        // 1. 미디어 자동 재생
+        // 1. 지정된 미디어 앱 실행 후 자동 재생
         if (SettingsManager.isBootMediaPlayEnabled(this)) {
+            val mediaPkg = SettingsManager.getBootSelectedMediaPkg(this)
             val mediaDelay = SettingsManager.getBootMediaDelay(this)
             handler.postDelayed({
-                triggerMediaPlay()
+                packageManager.getLaunchIntentForPackage(mediaPkg)?.let { intent ->
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intent)
+                }
+                handler.postDelayed({ triggerMediaPlay() }, 2000L)
             }, (mediaDelay * 1000).toLong())
         }
 
@@ -263,7 +289,7 @@ class DolphinService : Service() {
         for (item in appList) {
             val delayMillis = (item.delaySeconds * 1000).toLong()
             handler.postDelayed({
-                DolphinLogger.i("BOOT", "부팅 앱 실행 (${item.delaySeconds}초 지연): ${item.appName} (${item.packageName})")
+                DolphinLogger.i("BOOT", "부팅 앱 실행 (${item.delaySeconds}초 지연): ${item.appName}")
                 packageManager.getLaunchIntentForPackage(item.packageName)?.let { intent ->
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
@@ -300,6 +326,7 @@ class DolphinService : Service() {
             addAction("com.byd.auto.intent.action.GEAR_CHANGED")
             addAction("com.byd.auto.intent.action.AUTOHOLD_SWITCH_CHANGED")
             addAction("com.byd.auto.intent.action.AUTOHOLD_FUNCTION_STATUS")
+            addAction("com.byd.auto.intent.action.AUTOHOLD_ACTIVE")
             addAction("com.byd.auto.intent.action.EPB_STATUS")
             addAction("com.byd.auto.intent.action.ICC_STATUS")
             addAction("com.byd.auto.intent.action.PILOT_STATUS")
@@ -331,7 +358,7 @@ class DolphinService : Service() {
 
         val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("돌핀 스마트 어시스턴트 가동 중")
-            .setContentText("1% 커스텀 분할 화면, HUD 연동, 음성 안내 실시간 가동 중")
+            .setContentText("1% 커스텀 분할 화면, HUD/계기판 연동, 음성 가이던스 가동 중")
             .setSmallIcon(com.byd.dolphin.autoassistant.R.drawable.ic_byd_dolphin)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()

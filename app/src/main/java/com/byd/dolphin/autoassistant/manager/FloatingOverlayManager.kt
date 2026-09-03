@@ -14,15 +14,21 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import com.byd.dolphin.autoassistant.floating.FloatingItem
 import com.byd.dolphin.autoassistant.floating.FloatingItemManager
 import com.byd.dolphin.autoassistant.util.DolphinLogger
 import kotlin.math.abs
 
 /**
- * 사용자가 선택한 퀵패널/하단바 기능 및 모든 설치 앱을 자유롭게 배치할 수 있는 이동식 플로팅 독
+ * 플로팅 독 관리 매니저:
+ * - 화면 어디든 자유로운 드래그 이동 및 위치 기억
+ * - 메뉴에서 50%~150% 크기(Scale) 조절 연동
+ * - 메뉴에서 30%~100% 투명도(Alpha) 조절 연동
+ * - 선택한 앱의 실제 순정 고해상도 앱 아이콘(PackageManager Icon) 표출
  */
 object FloatingOverlayManager {
 
@@ -69,6 +75,8 @@ object FloatingOverlayManager {
                 WindowManager.LayoutParams.TYPE_PHONE
             }
 
+            val opacity = SettingsManager.getFloatingOpacity(context).coerceIn(30, 100)
+
             layoutParams = WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -80,6 +88,7 @@ object FloatingOverlayManager {
                 gravity = Gravity.TOP or Gravity.START
                 x = savedX
                 y = savedY
+                alpha = opacity / 100f
             }
 
             val container = createOverlayContainer(context)
@@ -87,7 +96,7 @@ object FloatingOverlayManager {
 
             windowManager?.addView(container, layoutParams)
             overlayView = container
-            DolphinLogger.i(TAG, "Dynamic Floating Overlay displayed at ($savedX, $savedY)")
+            DolphinLogger.i(TAG, "Floating Dock displayed at ($savedX, $savedY) with alpha $alpha")
         } catch (e: Exception) {
             DolphinLogger.e(TAG, "Failed to display floating overlay", e)
         }
@@ -122,60 +131,100 @@ object FloatingOverlayManager {
     }
 
     private fun createOverlayContainer(context: Context): LinearLayout {
+        val scalePercent = SettingsManager.getFloatingScale(context).coerceIn(50, 150)
+        val scale = scalePercent / 100f
+
+        val padH = (8 * scale).toInt()
+        val padV = (6 * scale).toInt()
+        val corner = (24 * scale).toInt()
+
         val container = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(dpToPx(context, 8), dpToPx(context, 6), dpToPx(context, 8), dpToPx(context, 6))
+            setPadding(dpToPx(context, padH), dpToPx(context, padV), dpToPx(context, padH), dpToPx(context, padV))
 
             background = GradientDrawable().apply {
-                setColor(Color.parseColor("#DD1E1E2C"))
-                cornerRadius = dpToPx(context, 24).toFloat()
-                setStroke(dpToPx(context, 1), Color.parseColor("#66FFFFFF"))
+                setColor(Color.parseColor("#E6181824"))
+                cornerRadius = dpToPx(context, corner).toFloat()
+                setStroke(dpToPx(context, 1), Color.parseColor("#8000E5FF"))
             }
         }
 
-        // 1. 드래그 핸들
+        // 1. 드래그 인디케이터 핸들
         val tvDragHandle = TextView(context).apply {
             text = "⋮⋮"
-            setTextColor(Color.parseColor("#88FFFFFF"))
-            textSize = 14f
+            setTextColor(Color.parseColor("#80D8FF"))
+            textSize = 14f * scale
             setPadding(dpToPx(context, 4), 0, dpToPx(context, 6), 0)
         }
         container.addView(tvDragHandle)
 
-        // 2. 사용자가 선택한 동적 아이템들 추가
+        // 2. 사용자가 선택한 동적 아이템들
         val selectedIds = FloatingItemManager.getSelectedIds(context)
         val allItems = FloatingItemManager.getAllAvailableItems(context).associateBy { it.id }
+
+        val btnSizeDp = (42 * scale).toInt()
+        val btnSizePx = dpToPx(context, btnSizeDp)
 
         for (id in selectedIds) {
             val item = allItems[id] ?: continue
 
-            val btn = Button(context).apply {
-                text = item.title.replace("📱 ", "").replace("♨️ ", "♨ ").replace("💡 ", "💡 ").take(7)
-                textSize = 12f
-                setTextColor(Color.WHITE)
-                background = GradientDrawable().apply {
-                    setColor(getItemColor(context, id))
-                    cornerRadius = dpToPx(context, 16).toFloat()
+            if (item.isApp) {
+                // 앱인 경우: 실제 앱의 고해상도 앱 아이콘 표시!
+                val ivApp = ImageView(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(btnSizePx, btnSizePx).apply {
+                        setMargins(dpToPx(context, 3), 0, dpToPx(context, 3), 0)
+                    }
+                    val iconDrawable = try {
+                        context.packageManager.getApplicationIcon(item.packageName)
+                    } catch (e: Exception) {
+                        null
+                    }
+                    if (iconDrawable != null) {
+                        setImageDrawable(iconDrawable)
+                    } else {
+                        setImageResource(android.R.drawable.sym_def_app_icon)
+                    }
+                    background = GradientDrawable().apply {
+                        setColor(Color.parseColor("#252538"))
+                        cornerRadius = dpToPx(context, (12 * scale).toInt()).toFloat()
+                    }
+                    setPadding(dpToPx(context, 4), dpToPx(context, 4), dpToPx(context, 4), dpToPx(context, 4))
+                    setOnClickListener {
+                        launchApp(context, item.packageName, item.title)
+                    }
                 }
-                setPadding(dpToPx(context, 8), dpToPx(context, 4), dpToPx(context, 8), dpToPx(context, 4))
-                setOnClickListener {
-                    onItemClicked(context, item, this)
+                container.addView(ivApp)
+            } else {
+                // 기능 버튼인 경우: 아이콘/텍스트 버튼 표시
+                val btn = Button(context).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        btnSizePx
+                    ).apply {
+                        setMargins(dpToPx(context, 3), 0, dpToPx(context, 3), 0)
+                    }
+                    text = getFunctionDisplaySymbol(item.id, item.title)
+                    textSize = 12f * scale
+                    setTextColor(Color.WHITE)
+                    background = GradientDrawable().apply {
+                        setColor(getItemColor(context, id))
+                        cornerRadius = dpToPx(context, (14 * scale).toInt()).toFloat()
+                    }
+                    setPadding(dpToPx(context, (10 * scale).toInt()), 0, dpToPx(context, (10 * scale).toInt()), 0)
+                    setOnClickListener {
+                        onFunctionClicked(context, item, this)
+                    }
                 }
+                container.addView(btn)
             }
-            container.addView(btn)
-
-            val spacer = View(context).apply {
-                layoutParams = LinearLayout.LayoutParams(dpToPx(context, 4), 1)
-            }
-            container.addView(spacer)
         }
 
         // 3. 원위치 복귀 리셋 버튼 (⟲)
         val btnReset = TextView(context).apply {
             text = "⟲"
-            textSize = 16f
-            setTextColor(Color.parseColor("#80D8FF"))
+            textSize = 16f * scale
+            setTextColor(Color.parseColor("#00E5FF"))
             setPadding(dpToPx(context, 6), dpToPx(context, 4), dpToPx(context, 6), dpToPx(context, 4))
             setOnClickListener {
                 resetToDefaultPosition(context)
@@ -186,6 +235,17 @@ object FloatingOverlayManager {
         return container
     }
 
+    private fun getFunctionDisplaySymbol(id: String, title: String): String {
+        return when (id) {
+            FloatingItemManager.ID_DEFROST -> "♨ 성에"
+            FloatingItemManager.ID_INSIDE_LIGHT -> "💡 실내등"
+            FloatingItemManager.ID_STEERING_HEAT -> "♨ 핸들"
+            FloatingItemManager.ID_SEAT_HEAT -> "💺 시트"
+            FloatingItemManager.ID_AC_TOGGLE -> "❄ 공조"
+            else -> title.take(4)
+        }
+    }
+
     private fun getItemColor(context: Context, id: String): Int {
         return when (id) {
             FloatingItemManager.ID_DEFROST -> if (DefrostManager.isDefrostOn(context)) Color.parseColor("#E53935") else Color.parseColor("#37474F")
@@ -193,49 +253,49 @@ object FloatingOverlayManager {
             FloatingItemManager.ID_STEERING_HEAT -> Color.parseColor("#D84315")
             FloatingItemManager.ID_SEAT_HEAT -> Color.parseColor("#F4511E")
             FloatingItemManager.ID_AC_TOGGLE -> Color.parseColor("#0288D1")
-            else -> Color.parseColor("#283593") // 일반 앱 버튼 색상
+            else -> Color.parseColor("#283593")
         }
     }
 
-    private fun onItemClicked(context: Context, item: com.byd.dolphin.autoassistant.floating.FloatingItem, btn: Button) {
-        if (item.isApp) {
-            try {
-                val intent = context.packageManager.getLaunchIntentForPackage(item.packageName)?.apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-                }
-                if (intent != null) {
-                    context.startActivity(intent)
-                } else {
-                    Toast.makeText(context, "${item.title} 실행 불가", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Toast.makeText(context, "실행 오류: ${e.message}", Toast.LENGTH_SHORT).show()
+    private fun launchApp(context: Context, packageName: String, title: String) {
+        try {
+            val intent = context.packageManager.getLaunchIntentForPackage(packageName)?.apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
             }
-        } else {
-            when (item.id) {
-                FloatingItemManager.ID_DEFROST -> {
-                    val newState = DefrostManager.toggle(context, showToast = true)
-                    btn.background = GradientDrawable().apply {
-                        setColor(if (newState) Color.parseColor("#E53935") else Color.parseColor("#37474F"))
-                        cornerRadius = dpToPx(context, 16).toFloat()
-                    }
+            if (intent != null) {
+                context.startActivity(intent)
+            } else {
+                Toast.makeText(context, "$title 실행 불가", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(context, "실행 오류: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun onFunctionClicked(context: Context, item: FloatingItem, btn: Button) {
+        when (item.id) {
+            FloatingItemManager.ID_DEFROST -> {
+                val newState = DefrostManager.toggle(context, showToast = true)
+                btn.background = GradientDrawable().apply {
+                    setColor(if (newState) Color.parseColor("#E53935") else Color.parseColor("#37474F"))
+                    cornerRadius = dpToPx(context, 14).toFloat()
                 }
-                FloatingItemManager.ID_INSIDE_LIGHT -> {
-                    val newState = InsideLightManager.toggle(context, showToast = true)
-                    btn.background = GradientDrawable().apply {
-                        setColor(if (newState) Color.parseColor("#FFB300") else Color.parseColor("#37474F"))
-                        cornerRadius = dpToPx(context, 16).toFloat()
-                    }
+            }
+            FloatingItemManager.ID_INSIDE_LIGHT -> {
+                val newState = InsideLightManager.toggle(context, showToast = true)
+                btn.background = GradientDrawable().apply {
+                    setColor(if (newState) Color.parseColor("#FFB300") else Color.parseColor("#37474F"))
+                    cornerRadius = dpToPx(context, 14).toFloat()
                 }
-                FloatingItemManager.ID_STEERING_HEAT -> {
-                    Toast.makeText(context, "핸들 열선 작동", Toast.LENGTH_SHORT).show()
-                }
-                FloatingItemManager.ID_SEAT_HEAT -> {
-                    Toast.makeText(context, "시트 열선 작동", Toast.LENGTH_SHORT).show()
-                }
-                FloatingItemManager.ID_AC_TOGGLE -> {
-                    Toast.makeText(context, "공조 토글 실행", Toast.LENGTH_SHORT).show()
-                }
+            }
+            FloatingItemManager.ID_STEERING_HEAT -> {
+                Toast.makeText(context, "핸들 열선 작동", Toast.LENGTH_SHORT).show()
+            }
+            FloatingItemManager.ID_SEAT_HEAT -> {
+                Toast.makeText(context, "시트 열선 작동", Toast.LENGTH_SHORT).show()
+            }
+            FloatingItemManager.ID_AC_TOGGLE -> {
+                Toast.makeText(context, "공조 토글 실행", Toast.LENGTH_SHORT).show()
             }
         }
     }

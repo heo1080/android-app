@@ -1,43 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <!-- 배경 원형 그라디언트 느낌의 다크 서클 -->
+    android:width="128dp"
+    android:height="128dp"
+    android:viewportWidth="128"
+    android:viewportHeight="128">
+
+    <!-- 프리미엄 카본 다크 라운드 스퀘어 배경 -->
     <path
-        android:fillColor="#1A1A24"
-        android:pathData="M54,4 A50,50 0 1,0 54,104 A50,50 0 1,0 54,4 Z" />
-    <!-- 네온 블루 테두리 링 -->
+        android:fillColor="#10131A"
+        android:pathData="M24,4 L104,4 C115,4 124,13 124,24 L124,104 C124,115 115,124 104,124 L24,124 C13,124 4,115 4,104 L4,24 C4,13 13,4 24,4 Z" />
+
+    <!-- 일렉트릭 시안 & 바이올렛 네온 테두리 -->
     <path
         android:strokeColor="#00E5FF"
-        android:strokeWidth="2.5"
-        android:pathData="M54,8 A46,46 0 1,0 54,100 A46,46 0 1,0 54,8 Z" />
-    <!-- BYD 돌핀 해치백 실루엣 라인 -->
-    <!-- 차체 루프 및 윈도우 라인 -->
+        android:strokeWidth="2"
+        android:pathData="M24,6 L104,6 C114,6 122,14 122,24 L122,104 C122,114 114,122 104,122 L24,122 C14,122 6,114 6,104 L6,24 C6,14 14,6 24,6 Z" />
+
+    <!-- 차량 하부 언더글로우 네온 라인 -->
+    <path
+        android:fillColor="#2600E5FF"
+        android:pathData="M22,96 L106,96 L100,102 L28,102 Z" />
+
+    <!-- BYD 돌핀 차체 본체 (대형 스케일 사이드 뷰) -->
+    <!-- 메인 바디 컬러: 일렉트릭 블루/시안 유광 -->
     <path
         android:fillColor="#00E5FF"
-        android:pathData="M24,62 L32,48 C36,41 46,38 64,38 C75,38 80,44 84,54 L88,60 C90,62 92,64 92,67 L90,72 C89,74 86,75 83,75 L80,75 C79,70 74,66 69,66 C64,66 59,70 58,75 L42,75 C41,70 36,66 31,66 C26,66 21,70 20,75 L18,75 C16,75 14,73 14,70 L15,66 C16,63 19,62 24,62 Z" />
-    <!-- 윈도우 글래스 다크 컷 -->
+        android:pathData="M22,76 L32,56 C37,48 50,44 76,44 C92,44 100,52 106,64 L110,72 C114,75 116,78 116,83 L114,88 C112,90 108,91 104,91 L98,91 C96,84 89,79 81,79 C73,79 66,84 64,91 L44,91 C42,84 35,79 27,79 C19,79 12,84 10,91 L8,91 C6,91 4,89 4,86 L5,81 C6,77 12,76 22,76 Z" />
+
+    <!-- 차체 루프 투톤 블랙 탑 -->
     <path
-        android:fillColor="#121218"
-        android:pathData="M35,49 L48,49 L48,59 L29,59 C31,54 33,51 35,49 Z M52,49 L68,49 C74,49 78,53 80,59 L52,59 L52,49 Z" />
-    <!-- 전륜 휠 (화이트/시안 림) -->
+        android:fillColor="#151922"
+        android:pathData="M34,54 C39,46 51,42 76,42 C91,42 98,49 104,60 L78,60 L38,60 Z" />
+
+    <!-- 틴티드 윈도우 글래스 (프론트/리어 윈도우) -->
     <path
-        android:fillColor="#121218"
-        android:pathData="M31,68 A7,7 0 1,0 31,82 A7,7 0 1,0 31,68 Z" />
+        android:fillColor="#0C0E14"
+        android:pathData="M40,56 L58,56 L58,70 L30,70 C33,63 36,58 40,56 Z" />
+
     <path
-        android:fillColor="#00E5FF"
-        android:pathData="M31,72 A3,3 0 1,0 31,78 A3,3 0 1,0 31,72 Z" />
-    <!-- 후륜 휠 (화이트/시안 림) -->
+        android:fillColor="#0C0E14"
+        android:pathData="M63,56 L86,56 C94,56 98,62 101,70 L63,70 L63,56 Z" />
+
+    <!-- 돌핀 시그니처 쿼터 글래스 & B필러 -->
     <path
-        android:fillColor="#121218"
-        android:pathData="M69,68 A7,7 0 1,0 69,82 A7,7 0 1,0 69,68 Z" />
+        android:fillColor="#1C222E"
+        android:pathData="M59,54 L62,54 L62,72 L59,72 Z" />
+
+    <!-- 전면 크롬 & 헤드라이트 프로젝션 -->
     <path
-        android:fillColor="#00E5FF"
-        android:pathData="M69,72 A3,3 0 1,0 69,78 A3,3 0 1,0 69,72 Z" />
-    <!-- 헤드라이트 앰버/블루 포인트 -->
+        android:fillColor="#FFFFFF"
+        android:pathData="M107,69 L115,73 L112,76 L105,73 Z" />
+
     <path
         android:fillColor="#FFB300"
-        android:pathData="M85,58 L91,61 L88,64 Z" />
+        android:pathData="M113,74 L116,77 L114,79 Z" />
+
+    <!-- 후면 테일램프 수평 관통형 LED 라인 -->
+    <path
+        android:fillColor="#FF1744"
+        android:pathData="M10,79 L16,80 L14,84 L8,83 Z" />
+
+    <!-- 전륜 휠 & 타이어 (대형 스포츠 알로이 휠) -->
+    <path
+        android:fillColor="#0E1118"
+        android:pathData="M81,77 A11,11 0 1,0 81,99 A11,11 0 1,0 81,77 Z" />
+    <path
+        android:fillColor="#222836"
+        android:pathData="M81,80 A8,8 0 1,0 81,96 A8,8 0 1,0 81,80 Z" />
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M81,85 A3,3 0 1,0 81,91 A3,3 0 1,0 81,85 Z" />
+    <!-- 휠 스포크 데코 -->
+    <path
+        android:strokeColor="#80D8FF"
+        android:strokeWidth="1.5"
+        android:pathData="M81,80 L81,96 M73,88 L89,88 M75,82 L87,94 M75,94 L87,82" />
+
+    <!-- 후륜 휠 & 타이어 (대형 스포츠 알로이 휠) -->
+    <path
+        android:fillColor="#0E1118"
+        android:pathData="M27,77 A11,11 0 1,0 27,99 A11,11 0 1,0 27,77 Z" />
+    <path
+        android:fillColor="#222836"
+        android:pathData="M27,80 A8,8 0 1,0 27,96 A8,8 0 1,0 27,80 Z" />
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M27,85 A3,3 0 1,0 27,91 A3,3 0 1,0 27,85 Z" />
+    <!-- 휠 스포크 데코 -->
+    <path
+        android:strokeColor="#80D8FF"
+        android:strokeWidth="1.5"
+        android:pathData="M27,80 L27,96 M19,88 L35,88 M21,82 L33,94 M21,94 L33,82" />
+
+    <!-- 차체 하단 사이드 스커트 라인 -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:pathData="M39,90 L63,90" />
 </vector>

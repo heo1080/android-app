@@ -16,14 +16,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-/**
- * 5번 요구사항:
- * 특정 앱 및 차량 안내 음성 운전석 전용 스피커 출력 매니저
- * 5-1. 설치된 모든 앱 선택 가능하고 여러 개 추가할 수 있게 설계
- * 5-2. BSD 사각지대 물체 감지 시 현대/기아 스타일 경고음 운전석 전용 스피커 출력 (기본/추천/수동 커스텀)
- * 5-3. LDP 차선이탈보조 작동 시 현대/기아 스타일 경고음 운전석 전용 스피커 출력 (기본/추천/수동 커스텀)
- * 5-4. 10대 차량 상태(기어, 드라이브모드, 회생제동, 스노우모드, 오토홀드, EPB, ICC, 전방출발, 오토홀드 체결/해제)
- */
 class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitListener {
 
     private var tts: TextToSpeech? = null
@@ -36,13 +28,11 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
     private var ldwJob: Job? = null
     private var bsdJob: Job? = null
 
-    // 운전석 내비게이션 가이던스 오디오 속성 (미디어 오디오와 분리되어 운전석 전용 스피커 채널로 출력)
     private val driverSpeakerAttributes = AudioAttributes.Builder()
         .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
         .build()
 
-    // 오디오 덕킹 요청 객체 (말할 때 음악 볼륨 자동 감소, 끝나면 복원)
     private var audioFocusRequest: AudioFocusRequest? = null
 
     init {
@@ -57,7 +47,7 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
             audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
                 .setAudioAttributes(driverSpeakerAttributes)
                 .setAcceptsDelayedFocusGain(false)
-                .setOnAudioFocusChangeListener { /* Auto managed by Android */ }
+                .setOnAudioFocusChangeListener { /* Auto managed */ }
                 .build()
         }
     }
@@ -71,12 +61,8 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
 
             tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                 override fun onStart(utteranceId: String?) {}
-                override fun onDone(utteranceId: String?) {
-                    releaseAudioFocus()
-                }
-                override fun onError(utteranceId: String?) {
-                    releaseAudioFocus()
-                }
+                override fun onDone(utteranceId: String?) { releaseAudioFocus() }
+                override fun onError(utteranceId: String?) { releaseAudioFocus() }
             })
 
             isTtsReady = true
@@ -105,7 +91,6 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
         }
     }
 
-    // 5-2. BSD 사각지대 물체 감지 시 현대/기아 스타일 경고음 (비프 / 추천 음성 / 수동 커스텀 음성)
     fun playBlindSpotWarning() {
         if (!SettingsManager.isSafetyAlertEnabled(context)) return
         val mode = SettingsManager.getBsdAlertMode(context)
@@ -115,7 +100,6 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
                 speak(msg)
             }
             else -> {
-                // 현대/기아 스타일 4연속 긴박한 비프음
                 if (bsdJob?.isActive == true) return
                 bsdJob = soundScope.launch {
                     requestAudioFocus()
@@ -130,7 +114,6 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
         }
     }
 
-    // 5-3. LDP 차선이탈조향보조 작동 시 현대/기아 스타일 경고음 (비프 / 추천 음성 / 수동 커스텀 음성)
     fun playLaneDepartureWarning() {
         if (!SettingsManager.isSafetyAlertEnabled(context)) return
         val mode = SettingsManager.getLdpAlertMode(context)
@@ -140,7 +123,6 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
                 speak(msg)
             }
             else -> {
-                // 현대/기아 스타일 3연속 딩딩딩 톤
                 if (ldwJob?.isActive == true) return
                 ldwJob = soundScope.launch {
                     requestAudioFocus()
@@ -155,7 +137,6 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
         }
     }
 
-    // 5-4. 10대 차량 상태 음성 안내
     fun speakGear(gear: String) {
         if (!SettingsManager.isGearVoiceEnabled(context)) return
         speak(SettingsManager.getGearPhrase(context, gear))
@@ -176,9 +157,21 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
         speak(SettingsManager.getSnowModePhrase(context))
     }
 
-    fun speakAutoHold(isActive: Boolean) {
+    // 1) 오토홀드 물리 스위치 ON/OFF
+    fun speakAutoHoldSwitch(isSwitchOn: Boolean) {
         if (!SettingsManager.isAutoHoldVoiceEnabled(context)) return
-        speak(SettingsManager.getAutoHoldPhrase(context, isActive))
+        speak(SettingsManager.getAutoHoldSwitchPhrase(context, isSwitchOn))
+    }
+
+    // 2) 오토홀드 브레이크 체결 / 해제
+    fun speakAutoHoldBrake(isEngaged: Boolean) {
+        if (!SettingsManager.isAutoHoldVoiceEnabled(context)) return
+        speak(SettingsManager.getAutoHoldBrakePhrase(context, isEngaged))
+    }
+
+    // 하위 호환
+    fun speakAutoHold(isActive: Boolean) {
+        speakAutoHoldBrake(isActive)
     }
 
     fun speakEpb(isEngaged: Boolean) {
@@ -196,12 +189,21 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
         speak(SettingsManager.getLeadingCarPhrase(context))
     }
 
-    fun speakCharging() {
+    fun speakChargingStart() {
         if (!SettingsManager.isChargingVoiceEnabled(context)) return
-        speak(SettingsManager.getChargingPhrase(context))
+        speak(SettingsManager.getChargingStartPhrase(context))
     }
 
-    // 운전석 전용 스피커 출력 + 오디오 덕킹
+    fun speakChargingEnd() {
+        if (!SettingsManager.isChargingVoiceEnabled(context)) return
+        speak(SettingsManager.getChargingEndPhrase(context))
+    }
+
+    // 하위 호환
+    fun speakCharging() {
+        speakChargingStart()
+    }
+
     fun speak(text: String) {
         if (isTtsReady) {
             requestAudioFocus()
