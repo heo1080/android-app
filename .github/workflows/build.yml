@@ -3,6 +3,8 @@ name: Build Android APK
 on:
   push:
     branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
@@ -21,12 +23,19 @@ jobs:
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: 8.7
+
+    - name: Grant Execute Permission for Gradlew
+      run: chmod +x gradlew
 
     - name: Build Debug APK
-      run: ./gradlew assembleDebug --stacktrace
+      run: |
+        chmod +x gradlew
+        ./gradlew assembleDebug --stacktrace || sh gradlew assembleDebug --stacktrace
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAutoAssistant-APK
+        name: DolphinAutoAssistant-v17-Debug
         path: app/build/outputs/apk/debug/app-debug.apk
