@@ -26,6 +26,8 @@ class DolphinService : Service() {
     private lateinit var audioManager: VoiceAndSoundManager
     private lateinit var hazardManager: HazardLightManager
     private val handler = Handler(Looper.getMainLooper())
+    private lateinit var lvdaEngine: LeadingVehicleDepartureEngine
+    private var currentSpeed: Float = 0.0f
 
     private var isBsdActive = false
     private var isTurnSignalOn = false
@@ -158,6 +160,8 @@ class DolphinService : Service() {
 
                 "com.byd.auto.intent.action.SPEED_CHANGED" -> {
                     val speed = intent.getFloatExtra("speed", 0.0f)
+                    currentSpeed = speed
+                    lvdaEngine.updateVehicleSpeedAndGear(speed, previousGear)
                     hazardManager.onSpeedChanged(speed)
                 }
 
@@ -186,6 +190,7 @@ class DolphinService : Service() {
         DolphinLogger.i("GEAR", "기어 변속: $prev -> $gearStr, 속도=$speed")
 
         audioManager.speakGear(gearStr)
+        lvdaEngine.updateVehicleSpeedAndGear(speed, gearStr)
 
         if (gearStr == "R") {
             context?.let { SeatManager.onGearReverseEntered(it) }
@@ -278,6 +283,12 @@ class DolphinService : Service() {
 
         audioManager = VoiceAndSoundManager(this)
         hazardManager = HazardLightManager(this)
+
+        lvdaEngine = LeadingVehicleDepartureEngine(this) {
+            DolphinLogger.i("LVDA", "독자적 센서 엔진에서 전방 차량 출발 감지 -> 음성 출력")
+            audioManager.speakLeadingCarDeparture()
+        }
+        lvdaEngine.start()
 
         startForegroundServiceNotification()
         registerVehicleReceiver()
@@ -395,6 +406,7 @@ class DolphinService : Service() {
         unregisterReceiver(vehicleEventReceiver)
         audioManager.release()
         hazardManager.cleanup()
+        lvdaEngine.stop()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
