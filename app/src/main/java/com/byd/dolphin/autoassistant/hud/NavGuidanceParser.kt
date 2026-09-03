@@ -63,6 +63,14 @@ object NavGuidanceParser {
 
         DolphinLogger.i("NAV_PARSED", "[$pkg] turnType=$turnType, dist=${turnDistance}m, limit=${speedLimit}km/h")
 
+        
+        // 4. 내비게이션 앱의 전방 차량 출발 알림 감지
+        if ((combined.contains("앞차") || combined.contains("전방")) && combined.contains("출발")) {
+            DolphinLogger.i("NAV_LVDA", "내비게이션 알림에서 전방 차량 출발 감지 -> 음성 출력")
+            val voice = com.byd.dolphin.autoassistant.manager.VoiceAndSoundManager(context)
+            voice.speakLeadingCarDeparture()
+        }
+
         // 1. 계기판 디스플레이 TBT 전송
         if (SettingsManager.isClusterTbtEnabled(context)) {
             ClusterMirrorManager.sendTbtToCluster(

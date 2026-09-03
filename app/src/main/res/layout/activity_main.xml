@@ -72,7 +72,7 @@
             android:layout_height="1dp"
             android:background="#2A2A38" />
 
-        <!-- 10대 세분화 메인 메뉴 카드 (2열 그리드 스크롤) -->
+        <!-- 10대 세분화 메인 메뉴 카드 (2열 고해상도 그래픽 그리드) -->
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -82,18 +82,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:columnCount="2"
-                android:padding="8dp">
+                android:padding="6dp">
 
                 <!-- 1. 📱 화면 분할 관리 카드 -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuSplit"
                     android:layout_width="0dp"
-                    android:layout_height="130dp"
+                    android:layout_height="148dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="3dp"
-                    app:cardBackgroundColor="#1A1A26"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
                     android:foreground="?android:attr/selectableItemBackground">
 
                     <LinearLayout
@@ -101,37 +101,96 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:padding="12dp"
-                        android:gravity="center_vertical">
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_split"
+                                android:contentDescription="화면 분할" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="MULTI-WINDOW"
+                                android:textColor="#00E5FF"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="📱 화면 분할 관리"
-                            android:textColor="#00E5FF"
+                            android:layout_marginTop="8dp"
+                            android:text="화면 분할 관리"
+                            android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="2/3/4분할 1% 정밀 크기 조절\n앱 직접 선택 &amp; 십자가 그리드\n360 서라운드뷰 복구 방어"
-                            android:textColor="#CCCCCC"
+                            android:layout_marginTop="2dp"
+                            android:text="2/3/4분할 1% 단위 크기 조절
+앱 직접 선택 &amp; AVM 복구 방어"
+                            android:textColor="#B0BEC5"
                             android:textSize="11sp"
-                            android:lineSpacingExtra="1dp" />
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="1% 정밀"
+                                android:textColor="#80D8FF"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="십자가 4분할"
+                                android:textColor="#80D8FF"
+                                android:textSize="9sp" />
+                        </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- 2. 💺 스마트 시트 (운전석 & 동승석 & 사이드미러 다운) 카드 -->
+                <!-- 2. 💺 스마트 시트 & 미러 다운 카드 -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuSeat"
                     android:layout_width="0dp"
-                    android:layout_height="130dp"
+                    android:layout_height="148dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="3dp"
-                    app:cardBackgroundColor="#1A1A26"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
                     android:foreground="?android:attr/selectableItemBackground">
 
                     <LinearLayout
@@ -139,24 +198,83 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:padding="12dp"
-                        android:gravity="center_vertical">
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_seat"
+                                android:contentDescription="시트 제어" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="SEAT &amp; MIRROR"
+                                android:textColor="#FF4081"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="💺 시트 &amp; 미러 다운"
-                            android:textColor="#FF4081"
+                            android:layout_marginTop="8dp"
+                            android:text="시트 &amp; 미러 다운"
+                            android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="후진 시 사이드미러 자동 다운\n운전석 이지 억세스 &amp; 메모리\n동승석 릴렉스 &amp; 가상 4방향"
-                            android:textColor="#CCCCCC"
+                            android:layout_marginTop="2dp"
+                            android:text="후진 시 사이드미러 자동 다운
+운전석 이지 억세스 &amp; 동승석 릴렉스"
+                            android:textColor="#B0BEC5"
                             android:textSize="11sp"
-                            android:lineSpacingExtra="1dp" />
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="미러 딥"
+                                android:textColor="#FF80AB"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="동승석 전동"
+                                android:textColor="#FF80AB"
+                                android:textSize="9sp" />
+                        </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -164,12 +282,12 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuVoice"
                     android:layout_width="0dp"
-                    android:layout_height="130dp"
+                    android:layout_height="148dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="3dp"
-                    app:cardBackgroundColor="#1A1A26"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
                     android:foreground="?android:attr/selectableItemBackground">
 
                     <LinearLayout
@@ -177,24 +295,83 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:padding="12dp"
-                        android:gravity="center_vertical">
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_voice"
+                                android:contentDescription="음성 안내" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="VOICE AI"
+                                android:textColor="#B388FF"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🔊 맞춤형 음성 안내"
-                            android:textColor="#B388FF"
+                            android:layout_marginTop="8dp"
+                            android:text="맞춤형 음성 안내"
+                            android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="기어 P/R/N/D 변속 멘트\n오토홀드 버튼/체결 분리 음성\n충전 시작/종료 분리 음성"
-                            android:textColor="#CCCCCC"
+                            android:layout_marginTop="2dp"
+                            android:text="기어 P/R/N/D &amp; 오토홀드 음성
+기본·추천·수동 3단 문구 선택"
+                            android:textColor="#B0BEC5"
                             android:textSize="11sp"
-                            android:lineSpacingExtra="1dp" />
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="3단 선택기"
+                                android:textColor="#D1C4E9"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="실시간 TTS"
+                                android:textColor="#D1C4E9"
+                                android:textSize="9sp" />
+                        </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -202,12 +379,12 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuSafetyAudio"
                     android:layout_width="0dp"
-                    android:layout_height="130dp"
+                    android:layout_height="148dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="3dp"
-                    app:cardBackgroundColor="#1A1A26"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
                     android:foreground="?android:attr/selectableItemBackground">
 
                     <LinearLayout
@@ -215,24 +392,83 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:padding="12dp"
-                        android:gravity="center_vertical">
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_safety"
+                                android:contentDescription="안전 경고" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="SAFETY RADAR"
+                                android:textColor="#FF8A80"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🚨 안전 경고 &amp; 스피커"
-                            android:textColor="#FF8A80"
+                            android:layout_marginTop="8dp"
+                            android:text="안전 경고 &amp; 스피커"
+                            android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="BSD 사각지대 깜박이 경고음\nLDP 차선이탈 현대기아 톤\n운전석 전용 스피커 라우팅"
-                            android:textColor="#CCCCCC"
+                            android:layout_marginTop="2dp"
+                            android:text="BSD 사각지대 깜박이 경고음
+LDP 차선이탈 현대·기아 스타일"
+                            android:textColor="#B0BEC5"
                             android:textSize="11sp"
-                            android:lineSpacingExtra="1dp" />
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="현대기아 톤"
+                                android:textColor="#FF8A80"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="전용 스피커"
+                                android:textColor="#FF8A80"
+                                android:textSize="9sp" />
+                        </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -240,12 +476,12 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuHud"
                     android:layout_width="0dp"
-                    android:layout_height="130dp"
+                    android:layout_height="148dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="3dp"
-                    app:cardBackgroundColor="#1A1A26"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
                     android:foreground="?android:attr/selectableItemBackground">
 
                     <LinearLayout
@@ -253,24 +489,83 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:padding="12dp"
-                        android:gravity="center_vertical">
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_hud"
+                                android:contentDescription="T900 HUD" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="T900 HUD"
+                                android:textColor="#FFD54F"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🧭 한문철 T900 HUD"
-                            android:textColor="#FFD54F"
+                            android:layout_marginTop="8dp"
+                            android:text="한문철 T900 HUD"
+                            android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="데이터/오디오 2채널 분리 페어링\n자동 밝기 최소~최대 범위 지정\n자체 스피커 볼륨 조절"
-                            android:textColor="#CCCCCC"
+                            android:layout_marginTop="2dp"
+                            android:text="데이터/오디오 2채널 분리 페어링
+자동 밝기 최소~최대 범위 지정"
+                            android:textColor="#B0BEC5"
                             android:textSize="11sp"
-                            android:lineSpacingExtra="1dp" />
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="듀얼 페어링"
+                                android:textColor="#FFE082"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="Min/Max 밝기"
+                                android:textColor="#FFE082"
+                                android:textSize="9sp" />
+                        </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -278,12 +573,12 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuCluster"
                     android:layout_width="0dp"
-                    android:layout_height="130dp"
+                    android:layout_height="148dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="3dp"
-                    app:cardBackgroundColor="#1A1A26"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
                     android:foreground="?android:attr/selectableItemBackground">
 
                     <LinearLayout
@@ -291,24 +586,83 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:padding="12dp"
-                        android:gravity="center_vertical">
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_cluster"
+                                android:contentDescription="계기판 TBT" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="CLUSTER TBT"
+                                android:textColor="#80D8FF"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="📟 계기판 TBT &amp; 미러링"
-                            android:textColor="#80D8FF"
+                            android:layout_marginTop="8dp"
+                            android:text="계기판 TBT &amp; 미러링"
+                            android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="5대 내비 TBT 계기판 표출\n선택 앱 계기판(Display 1) 전송\n메인 화면 미러링 테스트"
-                            android:textColor="#CCCCCC"
+                            android:layout_marginTop="2dp"
+                            android:text="5대 내비 TBT 계기판 실시간 표출
+순정 접근성 브릿지 우회 연동"
+                            android:textColor="#B0BEC5"
                             android:textSize="11sp"
-                            android:lineSpacingExtra="1dp" />
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="5대 내비"
+                                android:textColor="#80D8FF"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="즉시 테스트"
+                                android:textColor="#80D8FF"
+                                android:textSize="9sp" />
+                        </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -316,12 +670,12 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuButtonBuilder"
                     android:layout_width="0dp"
-                    android:layout_height="130dp"
+                    android:layout_height="148dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="3dp"
-                    app:cardBackgroundColor="#1A1A26"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
                     android:foreground="?android:attr/selectableItemBackground">
 
                     <LinearLayout
@@ -329,24 +683,83 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:padding="12dp"
-                        android:gravity="center_vertical">
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_floating"
+                                android:contentDescription="플로팅 독" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="FLOATING DOCK"
+                                android:textColor="#FFAB40"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="⚡ 바로가기 &amp; 플로팅 생성"
-                            android:textColor="#FFAB40"
+                            android:layout_marginTop="8dp"
+                            android:text="바로가기 &amp; 플로팅 독"
+                            android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="퀵패널, 하단도크, 조명, 앱 선택\n[앱서랍 바로가기] 생성\n[플로팅 버튼 독] 생성"
-                            android:textColor="#CCCCCC"
+                            android:layout_marginTop="2dp"
+                            android:text="자유 드래그 이동 &amp; 앱 아이콘 표출
+크기(50~150%) &amp; 투명도 조절"
+                            android:textColor="#B0BEC5"
                             android:textSize="11sp"
-                            android:lineSpacingExtra="1dp" />
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="순정 아이콘"
+                                android:textColor="#FFE082"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="투명도 조절"
+                                android:textColor="#FFE082"
+                                android:textSize="9sp" />
+                        </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -354,12 +767,12 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuAutomation"
                     android:layout_width="0dp"
-                    android:layout_height="130dp"
+                    android:layout_height="148dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="3dp"
-                    app:cardBackgroundColor="#1A1A26"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
                     android:foreground="?android:attr/selectableItemBackground">
 
                     <LinearLayout
@@ -367,24 +780,83 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:padding="12dp"
-                        android:gravity="center_vertical">
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_automation"
+                                android:contentDescription="자동화 시나리오" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="SMART SCENARIO"
+                                android:textColor="#69F0AE"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🔄 차량 자동화 시나리오"
-                            android:textColor="#69F0AE"
+                            android:layout_marginTop="8dp"
+                            android:text="차량 자동화 시나리오"
+                            android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="후진 비상등 자동 점멸\n오버드라이브식 다중 액션 빌더\n시동/온도/기어별 액션 조합"
-                            android:textColor="#CCCCCC"
+                            android:layout_marginTop="2dp"
+                            android:text="후진 비상등 점멸 &amp; 오버드라이브
+공조·시트·창문·조명 다중 액션"
+                            android:textColor="#B0BEC5"
                             android:textSize="11sp"
-                            android:lineSpacingExtra="1dp" />
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="비상등 점멸"
+                                android:textColor="#B9F6CA"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="오버드라이브"
+                                android:textColor="#B9F6CA"
+                                android:textSize="9sp" />
+                        </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -392,12 +864,12 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuBootScheduler"
                     android:layout_width="0dp"
-                    android:layout_height="130dp"
+                    android:layout_height="148dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="3dp"
-                    app:cardBackgroundColor="#1A1A26"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
                     android:foreground="?android:attr/selectableItemBackground">
 
                     <LinearLayout
@@ -405,24 +877,83 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:padding="12dp"
-                        android:gravity="center_vertical">
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_boot"
+                                android:contentDescription="부팅 자동 실행" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="AUTO STARTER"
+                                android:textColor="#40C4FF"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="🚀 부팅 자동 실행"
-                            android:textColor="#40C4FF"
+                            android:layout_marginTop="8dp"
+                            android:text="부팅 자동 실행"
+                            android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="다중 앱 무제한 추가 (0.1초)\n자동 재생할 미디어 앱 선택\n미디어 지연 자동 재생"
-                            android:textColor="#CCCCCC"
+                            android:layout_marginTop="2dp"
+                            android:text="다중 앱 0.1초 정밀 지연 실행
+자동 재생할 미디어 앱 선택"
+                            android:textColor="#B0BEC5"
                             android:textSize="11sp"
-                            android:lineSpacingExtra="1dp" />
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="0.1초 단위"
+                                android:textColor="#80D8FF"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="미디어 재생"
+                                android:textColor="#80D8FF"
+                                android:textSize="9sp" />
+                        </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -430,12 +961,12 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuDpiAdb"
                     android:layout_width="0dp"
-                    android:layout_height="130dp"
+                    android:layout_height="148dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
-                    app:cardCornerRadius="14dp"
-                    app:cardElevation="3dp"
-                    app:cardBackgroundColor="#1A1A26"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
                     android:foreground="?android:attr/selectableItemBackground">
 
                     <LinearLayout
@@ -443,13 +974,43 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical"
                         android:padding="12dp"
-                        android:gravity="center_vertical">
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_dpi_adb"
+                                android:contentDescription="DPI 진단" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="SYSTEM &amp; DPI"
+                                android:textColor="#EEFF41"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="⚙️ DPI &amp; ADB 진단"
-                            android:textColor="#EEFF41"
+                            android:layout_marginTop="8dp"
+                            android:text="DPI &amp; ADB 진단"
+                            android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
@@ -457,11 +1018,41 @@
                             android:id="@+id/tvMainCardDpiDesc"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="원터치 180 DPI 프리셋\n로컬 ADB 자체 권한 승인\n통합 진단 로그 파일 추출"
-                            android:textColor="#CCCCCC"
+                            android:layout_marginTop="2dp"
+                            android:text="원터치 180 DPI 프리셋
+로컬 ADB 자체 권한 승인
+통합 진단 로그 파일 추출"
+                            android:textColor="#B0BEC5"
                             android:textSize="11sp"
-                            android:lineSpacingExtra="1dp" />
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="180 DPI"
+                                android:textColor="#F4FF81"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="진단 로그"
+                                android:textColor="#F4FF81"
+                                android:textSize="9sp" />
+                        </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </GridLayout>
@@ -1314,6 +1905,17 @@
                         android:backgroundTint="#242434"
                         android:textColor="#00E5FF" />
                 </GridLayout>
+
+                <Button
+                    android:id="@+id/btnTestLeadingCarDeparture"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="16dp"
+                    android:text="🚗 전방 차량 출발 가상 신호 테스트 (즉시 음성 출력)"
+                    android:backgroundTint="#37284F"
+                    android:textColor="#B388FF"
+                    android:textStyle="bold" />
+
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

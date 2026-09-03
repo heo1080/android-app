@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path
+        android:fillColor="#1A2735"
+        android:pathData="M6,8 L42,8 C44.2,8 46,9.8 46,12 L46,36 C46,38.2 44.2,40 42,40 L6,40 C3.8,40 2,38.2 2,36 L2,12 C2,9.8 3.8,8 6,8 Z" />
+    <path
+        android:strokeColor="#00E5FF"
+        android:strokeWidth="1.5"
+        android:pathData="M6,8 L42,8 C44.2,8 46,9.8 46,12 L46,36 C46,38.2 44.2,40 42,40 L6,40 C3.8,40 2,38.2 2,36 L2,12 C2,9.8 3.8,8 6,8 Z" />
+    <!-- 좌측 창 (네온 시안) -->
+    <path
+        android:fillColor="#2600E5FF"
+        android:pathData="M5,11 L19,11 L19,37 L5,37 Z" />
+    <path
+        android:strokeColor="#80D8FF"
+        android:strokeWidth="1"
+        android:pathData="M5,11 L19,11 L19,37 L5,37 Z" />
+    <!-- 우상단 창 -->
+    <path
+        android:fillColor="#1E3244"
+        android:pathData="M23,11 L43,11 L43,22 L23,22 Z" />
+    <!-- 우하단 창 -->
+    <path
+        android:fillColor="#1A2B3C"
+        android:pathData="M23,26 L43,26 L43,37 L23,37 Z" />
+    <!-- 정밀 분할 눈금선 -->
+    <path
+        android:strokeColor="#00E5FF"
+        android:strokeWidth="2"
+        android:pathData="M21,8 L21,40 M21,24 L46,24" />
+</vector>

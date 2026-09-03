@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- 순환 자동화 루프 화살표 -->
+    <path
+        android:strokeColor="#69F0AE"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M24,6 A18,18 0 0,1 42,24 L42,26 M38,22 L42,26 L46,22" />
+    <path
+        android:strokeColor="#00E676"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M24,42 A18,18 0 0,1 6,24 L6,22 M10,26 L6,22 L2,26" />
+    <!-- 중앙 차량 전자제어 번개 심볼 -->
+    <path
+        android:fillColor="#00E676"
+        android:pathData="M26,14 L18,25 L23,25 L21,34 L29,23 L24,23 Z" />
+</vector>

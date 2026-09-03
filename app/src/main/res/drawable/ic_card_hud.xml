@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- HUD 프로젝션 원형 아크 -->
+    <path
+        android:strokeColor="#42351A"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="M10,36 A18,18 0 1,1 38,36" />
+    <path
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M12,34 A16,16 0 1,1 36,34" />
+    <!-- HUD 속도 및 게이지 인디케이터 -->
+    <path
+        android:strokeColor="#FFA000"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M12,34 A16,16 0 0,1 24,8" />
+    <!-- 중앙 HUD 디지털 조준선 및 데이터 -->
+    <path
+        android:strokeColor="#FFE082"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M20,24 L28,24 M24,20 L24,28 M16,24 L18,24 M30,24 L32,24" />
+</vector>

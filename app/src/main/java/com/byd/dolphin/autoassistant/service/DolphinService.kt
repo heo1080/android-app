@@ -127,6 +127,25 @@ class DolphinService : Service() {
                     audioManager.speakIcc(isIccActive)
                 }
 
+                // 🚗 전방 차량 출발 알림 (LVDA) 수신
+                "com.byd.auto.intent.action.FRONT_CAR_START",
+                "com.byd.auto.intent.action.LEAD_CAR_START",
+                "com.byd.auto.intent.action.FRONT_VEHICLE_START",
+                "byd.intent.action.FRONT_CAR_START",
+                "com.byd.auto.intent.action.ACC_FRONT_CAR_START",
+                "com.byd.auto.intent.action.TEST_LEADING_CAR" -> {
+                    DolphinLogger.i("ADAS", "전방 차량 출발 감지 -> 음성 알림 출력")
+                    audioManager.speakLeadingCarDeparture()
+                }
+
+                "com.byd.auto.intent.action.ADAS_STATUS", "com.byd.auto.intent.action.ADAS_EVENT" -> {
+                    val event = intent.getStringExtra("event") ?: intent.getStringExtra("type") ?: ""
+                    if (event.contains("FRONT_CAR", ignoreCase = true) || event.contains("LEAD", ignoreCase = true)) {
+                        DolphinLogger.i("ADAS", "ADAS 이벤트 전방 차량 출발 감지: $event")
+                        audioManager.speakLeadingCarDeparture()
+                    }
+                }
+
                 "com.byd.auto.intent.action.DRIVE_MODE_CHANGED" -> {
                     val mode = intent.getStringExtra("mode") ?: "NORMAL"
                     audioManager.speakDriveMode(mode)
@@ -168,14 +187,12 @@ class DolphinService : Service() {
 
         audioManager.speakGear(gearStr)
 
-        // 후진(R) 진입 시 사이드미러 다운 (미러 딥), 후진 탈출 시 원위치 복귀
         if (gearStr == "R") {
             context?.let { SeatManager.onGearReverseEntered(it) }
         } else if (prev == "R") {
             context?.let { SeatManager.onGearReverseExited(it) }
         }
 
-        // R -> D/N/P 전환 시 후진 카메라 종료 후 분할 화면 복원
         if (prev == "R" && (gearStr == "D" || gearStr == "N" || gearStr == "P")) {
             scheduleSplitScreenRestoration(context)
         }
@@ -271,7 +288,6 @@ class DolphinService : Service() {
     private fun scheduleBootAutoExecutions() {
         if (!SettingsManager.isBootAutoEnabled(this)) return
 
-        // 1. 지정된 미디어 앱 실행 후 자동 재생
         if (SettingsManager.isBootMediaPlayEnabled(this)) {
             val mediaPkg = SettingsManager.getBootSelectedMediaPkg(this)
             val mediaDelay = SettingsManager.getBootMediaDelay(this)
@@ -284,7 +300,6 @@ class DolphinService : Service() {
             }, (mediaDelay * 1000).toLong())
         }
 
-        // 2. 다중 앱 순차 자동 실행
         val appList = SettingsManager.getBootAppList(this)
         for (item in appList) {
             val delayMillis = (item.delaySeconds * 1000).toLong()
@@ -337,6 +352,15 @@ class DolphinService : Service() {
             addAction("com.byd.auto.intent.action.BSD_STATUS")
             addAction("com.byd.auto.intent.action.TURN_SIGNAL_STATUS")
             addAction("com.byd.auto.intent.action.CHARGING_STATUS")
+            // 전방 차량 출발 인텐트 등록
+            addAction("com.byd.auto.intent.action.FRONT_CAR_START")
+            addAction("com.byd.auto.intent.action.LEAD_CAR_START")
+            addAction("com.byd.auto.intent.action.FRONT_VEHICLE_START")
+            addAction("byd.intent.action.FRONT_CAR_START")
+            addAction("com.byd.auto.intent.action.ACC_FRONT_CAR_START")
+            addAction("com.byd.auto.intent.action.TEST_LEADING_CAR")
+            addAction("com.byd.auto.intent.action.ADAS_STATUS")
+            addAction("com.byd.auto.intent.action.ADAS_EVENT")
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

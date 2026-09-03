@@ -476,31 +476,38 @@ class MainActivity : AppCompatActivity() {
     // 3. 맞춤형 차량 음성 안내 (TTS) - [기본 문구], [추천 문구], [수동 직접 입력] 3단 선택기
     // =========================================================================
     private fun setupVoiceSubScreen() {
-        setupVoiceEditButton(R.id.btnVoiceGearP, "P단 (파킹)", "파킹", "주차가 완료되었습니다. 안전벨트를 풀어주세요.") { SettingsManager.getGearPhrase(this, "P") }
-        setupVoiceEditButton(R.id.btnVoiceGearR, "R단 (후진)", "후진", "빵빵~ 후진합니다~") { SettingsManager.getGearPhrase(this, "R") }
-        setupVoiceEditButton(R.id.btnVoiceGearN, "N단 (중립)", "중립", "중립 기어로 변경되었습니다.") { SettingsManager.getGearPhrase(this, "N") }
-        setupVoiceEditButton(R.id.btnVoiceGearD, "D단 (전진)", "전진", "안전운전 하세요, 출발합니다~") { SettingsManager.getGearPhrase(this, "D") }
-        setupVoiceEditButton(R.id.btnVoiceDriveMode, "드라이브 모드", "노멀 모드", "주행 모드가 변경되었습니다.") { SettingsManager.getDriveModePhrase(this, "NORMAL") }
-        setupVoiceEditButton(R.id.btnVoiceRegenMode, "회생 제동", "회생제동 에코", "원페달 감속 회생제동 모드입니다.") { SettingsManager.getRegenModePhrase(this, "ECO") }
+        setupVoiceEditButton(R.id.btnVoiceGearP, "P단 (파킹)", "파킹", "주차 기어가 체결되었습니다. 안전 운행을 마칩니다.") { SettingsManager.getGearPhrase(this, "P") }
+        setupVoiceEditButton(R.id.btnVoiceGearR, "R단 (후진)", "후진", "후진 기어가 체결되었습니다. 후방 시야를 확인하세요.") { SettingsManager.getGearPhrase(this, "R") }
+        setupVoiceEditButton(R.id.btnVoiceGearN, "N단 (중립)", "중립", "중립 기어 상태입니다. 브레이크 페달을 유지하세요.") { SettingsManager.getGearPhrase(this, "N") }
+        setupVoiceEditButton(R.id.btnVoiceGearD, "D단 (전진)", "전진", "전진 기어가 체결되었습니다. 안전 운전하십시오.") { SettingsManager.getGearPhrase(this, "D") }
+        setupVoiceEditButton(R.id.btnVoiceDriveMode, "드라이브 모드", "노멀 모드", "드라이브 모드가 정상적으로 전환되었습니다.") { SettingsManager.getDriveModePhrase(this, "NORMAL") }
+        setupVoiceEditButton(R.id.btnVoiceRegenMode, "회생 제동", "회생제동 에코", "회생제동 감속 제어가 적용되었습니다.") { SettingsManager.getRegenModePhrase(this, "ECO") }
 
         // 스노우모드 기본 문구는 사용자 요청에 따라 "스노우 모드"로 고정!
-        setupVoiceEditButton(R.id.btnVoiceSnowMode, "스노우 모드", "스노우 모드", "미끄럼 방지 스노우 모드가 작동합니다.") { SettingsManager.getSnowModePhrase(this) }
+        setupVoiceEditButton(R.id.btnVoiceSnowMode, "스노우 모드", "스노우 모드", "노면 미끄럼 방지 스노우 모드가 작동합니다.") { SettingsManager.getSnowModePhrase(this) }
 
         // 오토홀드 버튼 켬/끔
-        setupVoiceEditButton(R.id.btnVoiceAutoHoldSwitchOn, "오토홀드 버튼 켬", "오토홀드가 켜졌습니다.", "스마트 오토홀드 기능이 활성화되었습니다.") { SettingsManager.getAutoHoldSwitchPhrase(this, true) }
-        setupVoiceEditButton(R.id.btnVoiceAutoHoldSwitchOff, "오토홀드 버튼 끔", "오토홀드가 꺼졌습니다.", "오토홀드 기능이 비활성화되었습니다.") { SettingsManager.getAutoHoldSwitchPhrase(this, false) }
+        setupVoiceEditButton(R.id.btnVoiceAutoHoldSwitchOn, "오토홀드 버튼 켬", "오토홀드가 켜졌습니다.", "오토홀드 대기 모드가 활성화되었습니다.") { SettingsManager.getAutoHoldSwitchPhrase(this, true) }
+        setupVoiceEditButton(R.id.btnVoiceAutoHoldSwitchOff, "오토홀드 버튼 끔", "오토홀드가 꺼졌습니다.", "오토홀드 대기 모드가 해제되었습니다.") { SettingsManager.getAutoHoldSwitchPhrase(this, false) }
 
         // 오토홀드 정차 체결/해제
-        setupVoiceEditButton(R.id.btnVoiceAutoHoldBrakeEngaged, "오토홀드 정차 체결", "오토홀드가 체결되었습니다.", "브레이크가 잠겼습니다. 발을 편히 쉬세요.") { SettingsManager.getAutoHoldBrakePhrase(this, true) }
-        setupVoiceEditButton(R.id.btnVoiceAutoHoldBrakeReleased, "오토홀드 출발 해제", "오토홀드가 해제되었습니다.", "브레이크가 해제되었습니다. 부드럽게 출발합니다.") { SettingsManager.getAutoHoldBrakePhrase(this, false) }
+        setupVoiceEditButton(R.id.btnVoiceAutoHoldBrakeEngaged, "오토홀드 정차 체결", "오토홀드가 체결되었습니다.", "차량이 정차되었습니다. 오토홀드가 유지됩니다.") { SettingsManager.getAutoHoldBrakePhrase(this, true) }
+        setupVoiceEditButton(R.id.btnVoiceAutoHoldBrakeReleased, "오토홀드 출발 해제", "오토홀드가 해제되었습니다.", "오토홀드가 해제되었습니다. 서서히 출발합니다.") { SettingsManager.getAutoHoldBrakePhrase(this, false) }
 
         setupVoiceEditButton(R.id.btnVoiceEpb, "사이드브레이크", "사이드브레이크가 체결되었습니다.", "전자식 주차 브레이크가 안전하게 체결되었습니다.") { SettingsManager.getEpbPhrase(this, true) }
         setupVoiceEditButton(R.id.btnVoiceIcc, "ICC 자율주행", "자율주행이 켜졌습니다.", "스마트 크루즈 어시스트가 주행을 보조합니다.") { SettingsManager.getIccPhrase(this) }
-        setupVoiceEditButton(R.id.btnVoiceLeadingCar, "전방 차량 출발", "전방 차량이 출발했습니다.", "앞차가 출발했습니다. 서둘러 출발하세요!") { SettingsManager.getLeadingCarPhrase(this) }
+        setupVoiceEditButton(R.id.btnVoiceLeadingCar, "전방 차량 출발", "전방 차량이 출발했습니다.", "전방 차량이 출발했습니다. 서둘러 출발하세요!") { SettingsManager.getLeadingCarPhrase(this) }
 
         // 충전 시작/종료
-        setupVoiceEditButton(R.id.btnVoiceChargingStart, "충전 시작", "충전이 시작되었습니다.", "전기 충전이 시작되었습니다. 안전하게 충전 중입니다.") { SettingsManager.getChargingStartPhrase(this) }
-        setupVoiceEditButton(R.id.btnVoiceChargingEnd, "충전 완료/종료", "충전이 완료되었습니다.", "충전이 완료되었습니다. 충전건을 분리해 주세요.") { SettingsManager.getChargingEndPhrase(this) }
+        setupVoiceEditButton(R.id.btnVoiceChargingStart, "충전 시작", "충전이 시작되었습니다.", "고전압 배터리 충전이 시작되었습니다.") { SettingsManager.getChargingStartPhrase(this) }
+        setupVoiceEditButton(R.id.btnVoiceChargingEnd, "충전 완료/종료", "충전이 완료되었습니다.", "배터리 충전이 완료되었습니다. 충전 플러그를 분리해 주세요.") { SettingsManager.getChargingEndPhrase(this) }
+    
+        findViewById<Button>(R.id.btnTestLeadingCarDeparture).setOnClickListener {
+            val intent = Intent("com.byd.auto.intent.action.TEST_LEADING_CAR")
+            sendBroadcast(intent)
+            Toast.makeText(this, "전방 차량 출발 가상 신호 발생 완료", Toast.LENGTH_SHORT).show()
+        }
+
     }
 
     private fun setupVoiceEditButton(

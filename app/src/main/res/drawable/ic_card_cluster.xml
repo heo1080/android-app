@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- 5인치 계기판 베젤 -->
+    <path
+        android:fillColor="#122533"
+        android:pathData="M4,10 L44,10 C46.2,10 48,11.8 48,14 L48,34 C48,36.2 46.2,38 44,38 L4,38 C1.8,38 0,36.2 0,34 L0,14 C0,11.8 1.8,10 4,10 Z" />
+    <path
+        android:strokeColor="#0288D1"
+        android:strokeWidth="1.5"
+        android:pathData="M4,10 L44,10 C46.2,10 48,11.8 48,14 L48,34 C48,36.2 46.2,38 44,38 L4,38 C1.8,38 0,36.2 0,34 L0,14 C0,11.8 1.8,10 4,10 Z" />
+    <!-- 중앙 내비게이션 TBT 방향 화살표 -->
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M24,14 L32,22 L27,22 L27,32 L21,32 L21,22 L16,22 Z" />
+    <!-- 좌우 속도 및 기어 인디케이터 바 -->
+    <path
+        android:strokeColor="#80D8FF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M6,16 L10,16 M6,22 L12,22 M6,28 L10,28 M38,16 L42,16 M36,22 L42,22 M38,28 L42,28" />
+</vector>
