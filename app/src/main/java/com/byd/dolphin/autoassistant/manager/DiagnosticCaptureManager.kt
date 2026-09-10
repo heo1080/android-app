@@ -594,9 +594,9 @@ object DiagnosticCaptureManager {
         @Suppress("DEPRECATION")
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
         val names = packageInfo.requestedPermissions.orEmpty()
-        val flags = packageInfo.requestedPermissionsFlags.orEmpty()
+        val result = someNonStringObject?.toString().orEmpty()
         names.forEachIndexed { index, permission ->
-            val manifestGranted = ((flags.getOrNull(index) ?: 0) and PackageManager.REQUESTED_PERMISSION_GRANTED) != 0
+            val manifestGranted = ((flags.getOrNull(index) ?: 0) and android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0
             val runtimeGranted = ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
             result.put(JSONObject().apply {
                 put("name", permission)
