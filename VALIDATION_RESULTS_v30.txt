@@ -12,6 +12,9 @@ DIAGNOSTIC_BUNDLE_FILES_OK=7
 HUD_PAYLOAD_FROM_CAPTURE=NONE
 VEHICLE_CAPTURE_SETTERS=NONE
 NAV_RAW_DEFAULT=MASKED
+USER_GITHUB_BUILD_REACHED=compileDebugKotlin
+REPORTED_KOTLIN_ERRORS=2
+REPORTED_KOTLIN_ERRORS_FIXED=2
 STATIC_VALIDATION=PASS
 
 Gradle command:
@@ -21,6 +24,19 @@ Gradle result:
   NOT COMPLETED
   The Gradle 8.7 distribution download failed before Android compilation.
   java.net.SocketException: Network is unreachable
+
+User-provided GitHub Actions result before this fix:
+  REACHED :app:compileDebugKotlin
+  ERROR 1: requestedPermissionsFlags.orEmpty() receiver type mismatch
+  ERROR 2: unresolved PackageManager.REQUESTED_PERMISSION_GRANTED
+
+Applied source correction:
+  requestedPermissionsFlags ?: IntArray(0)
+  PackageInfo.REQUESTED_PERMISSION_GRANTED
+
+Post-fix Android build:
+  NOT RUN IN THIS WORKSPACE
+  Rerun the included GitHub Actions workflow to confirm APK assembly.
 
 APK_CREATED=NO
 

@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.SystemClock
@@ -594,9 +595,10 @@ object DiagnosticCaptureManager {
         @Suppress("DEPRECATION")
         val packageInfo = context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
         val names = packageInfo.requestedPermissions.orEmpty()
-        val flags = packageInfo.requestedPermissionsFlags.orEmpty()
+        val flags = packageInfo.requestedPermissionsFlags ?: IntArray(0)
         names.forEachIndexed { index, permission ->
-            val manifestGranted = ((flags.getOrNull(index) ?: 0) and PackageManager.REQUESTED_PERMISSION_GRANTED) != 0
+            val manifestGranted =
+                ((flags.getOrNull(index) ?: 0) and PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0
             val runtimeGranted = ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
             result.put(JSONObject().apply {
                 put("name", permission)
