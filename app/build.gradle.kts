@@ -31,6 +31,16 @@ android {
     buildFeatures {
         buildConfig = true
     }
+    packaging {
+        resources {
+            // dadb의 전이 JUnit 모듈들이 동일한 라이선스 메타데이터를 포함해
+            // mergeDebugJavaResource 단계에서 충돌하므로 APK 자원 병합에서 제외합니다.
+            excludes += setOf(
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md"
+            )
+        }
+    }
 }
 
 dependencies {

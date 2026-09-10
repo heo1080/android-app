@@ -33,6 +33,7 @@
 - Android 13 이상의 알림 권한 흐름과 Android 14의 포그라운드 서비스 유형을 반영했습니다.
 - AGP 8에서도 진단 보고서의 버전 정보가 생성되도록 `BuildConfig` 생성을 명시했습니다.
 - 첫 GitHub Actions 빌드에서 확인된 권한 플래그 컴파일 오류 2건을 수정했습니다. nullable `IntArray`는 빈 배열로 안전하게 처리하고, 승인 플래그 상수는 실제 선언 클래스인 `PackageInfo.REQUESTED_PERMISSION_GRANTED`를 사용합니다.
+- 두 번째 GitHub Actions 빌드에서 Kotlin·Java 컴파일과 DEX 생성이 통과한 것을 확인했습니다. 이후 `dadb`의 전이 JUnit 모듈 9개가 동일한 `META-INF/LICENSE.md`를 포함해 자원 병합이 실패한 문제를 `packaging.resources.excludes`로 해결했으며, 연속 충돌을 막기 위해 `META-INF/LICENSE-notice.md`도 함께 처리했습니다.
 - 차량 권한·API probe·원시 상태를 하나의 `DolphinAssistant_v30_Diagnostic.txt`로 내보내도록 확장했습니다.
 - 15분 원터치 진단 세션을 추가했습니다. 앱 로그, 차량 원시값 전환, Bluetooth 본딩·ACL·UUID 이벤트, 페어링 기기 스냅샷, 런타임 BYD 메서드 목록을 구조화해 ZIP 하나로 내보냅니다.
 - 세션 도중 **문제 순간 표시**를 남길 수 있으며 앱 프로세스가 종료된 세션도 다음 실행에서 복구합니다.
@@ -45,4 +46,4 @@
 ## 호환성 주의
 
 - BYD 차량 권한은 일반 Android 권한 대화상자만으로 허용되지 않을 수 있으며, 차량 펌웨어의 서명·화이트리스트 정책에 좌우됩니다.
-- 수정 전 소스는 GitHub Actions에서 `:app:compileDebugKotlin`까지 진행되어 위 2건만 오류로 보고됐고, 현재 소스에는 두 수정이 반영되어 정적 검사를 다시 통과했습니다. 현재 작업 환경에서는 수정 후 APK 컴파일을 재실행할 수 없으므로 GitHub Actions 재실행 결과가 필요합니다. 자세한 내용은 `VERIFICATION_REPORT_v30_KO.md`를 확인하십시오.
+- 두 번째 GitHub Actions 실행으로 첫 오류 2건의 해결과 Kotlin·Java·DEX 단계 통과가 확인됐습니다. 현재 소스에는 이후 발견된 Java 리소스 충돌 수정까지 반영되어 정적 검사를 다시 통과했습니다. 현재 작업 환경에서는 Gradle 배포 파일을 내려받을 수 없으므로 최종 APK 조립 여부는 GitHub Actions 재실행으로 확인해야 합니다. 자세한 내용은 `VERIFICATION_REPORT_v30_KO.md`를 확인하십시오.

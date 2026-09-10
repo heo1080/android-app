@@ -4,9 +4,11 @@
 
 v30 소스는 XML 구문, Kotlin 소스 구조, 리소스 ID 참조에 대한 정적 검사를 통과했습니다. 차량 제어 경로는 제공된 DiLink 3 자료에서 확인한 API로 한정했고, 공개 setter 또는 정확한 프로토콜이 없는 기능은 차단했습니다. 새 원터치 진단은 읽기 전용 BYD getter와 Bluetooth 공개 진단 API만 사용합니다.
 
-사용자가 제공한 첫 GitHub Actions 로그에서는 의존성 처리와 Android 리소스 작업을 지나 `:app:compileDebugKotlin`까지 진행됐고, `DiagnosticCaptureManager.kt`의 권한 플래그 처리에서 정확히 2건의 컴파일 오류가 보고됐습니다. 현재 소스는 nullable `requestedPermissionsFlags`를 `IntArray(0)`으로 대체하고, 상수를 `PackageInfo.REQUESTED_PERMISSION_GRANTED`로 수정했습니다.
+첫 GitHub Actions 로그에서 보고된 `DiagnosticCaptureManager.kt`의 권한 플래그 컴파일 오류 2건은 수정됐습니다. 사용자가 제공한 두 번째 로그에서 `:app:compileDebugKotlin`, `:app:compileDebugJavaWithJavac`, DEX 생성 단계가 모두 통과해 해당 수정이 실제 온라인 빌드에서도 확인됐습니다.
 
-현재 작업 환경에서는 Gradle 8.7 배포 파일 다운로드가 네트워크 정책에 의해 실패하여 이 수정본의 Android 컴파일과 APK 생성까지 완료하지 못했습니다. 따라서 이 패키지에는 APK가 없으며, 수정 후 컴파일 성공은 GitHub Actions 재실행으로 확인해야 합니다.
+두 번째 실행은 `:app:mergeDebugJavaResource`에서 전이 JUnit 모듈 9개의 중복 `META-INF/LICENSE.md` 때문에 중단됐습니다. 현재 소스는 APK 자원 병합 설정에서 `META-INF/LICENSE.md`와 후속 충돌 가능성이 있는 `META-INF/LICENSE-notice.md`를 제외하도록 수정했습니다.
+
+현재 작업 환경에서는 Gradle 8.7 배포 파일 다운로드가 네트워크 정책에 의해 실패하여 이 마지막 수정본의 APK 생성까지 완료하지 못했습니다. 따라서 이 패키지에는 APK가 없으며, 최종 조립 성공은 GitHub Actions 재실행으로 확인해야 합니다.
 
 ## 수행한 검사
 
@@ -15,12 +17,14 @@ v30 소스는 XML 구문, Kotlin 소스 구조, 리소스 ID 참조에 대한 �
 | Android XML 파싱 | 통과 | 24개: Manifest, layout, values, drawable, xml 리소스 |
 | Kotlin 문자열·주석·괄호 구조 검사 | 통과 | 37개: `app/src/main/java`의 모든 Kotlin 파일 |
 | 리소스 ID 참조 대조 | 통과 | Kotlin 참조 120개, XML 선언 121개, 누락 0개 |
-| 제공된 GitHub Actions 오류 분석 | 수정 완료 | `requestedPermissionsFlags.orEmpty()` 수신 타입 불일치 및 잘못된 `PackageManager.REQUESTED_PERMISSION_GRANTED` 참조 |
-| 보고된 오류 수정 정적 확인 | 통과 | nullable `IntArray` 대체 및 `PackageInfo` 상수 참조가 소스에 반영됨 |
+| 첫 GitHub Actions Kotlin 오류 | 해결 확인 | 두 번째 실행에서 Kotlin 컴파일 통과 |
+| Kotlin·Java·DEX 온라인 빌드 | 통과 | 두 번째 실행에서 `compileDebugKotlin`, `compileDebugJavaWithJavac`, `dexBuilderDebug`, `mergeProjectDexDebug` 통과 |
+| Java 리소스 병합 충돌 | 수정 완료 | JUnit 모듈 9개의 중복 `META-INF/LICENSE.md`; 관련 라이선스 메타데이터 2경로 제외 |
+| Gradle Kotlin DSL 구조 검사 | 통과 | 추가한 `packaging.resources.excludes` 블록의 문자열·괄호 구조 확인 |
 | 미확인 BYD 브로드캐스트 검색 | 통과 | AVM 관련 제공 자료 확인 액션만 남김 |
 | 제거 대상 기능 검색 | 통과 | 3·4분할, 임의 HUD 프레임, 비상등 setter, 구형 SeatManager 실행 경로 없음 |
 | GitHub Actions YAML | 통과 | 수동 실행 가능한 APK 빌드 워크플로 1개 |
-| 수정 후 Gradle Android 빌드 | 미완료 | 현재 작업 환경에서 `:app:compileDebugKotlin --offline` 실행 시 Gradle 8.7 다운로드 단계에서 `java.net.SocketException: Network is unreachable` |
+| 마지막 수정 후 로컬 Android 빌드 | 미완료 | 현재 작업 환경에서 `:app:assembleDebug --stacktrace` 실행 시 Gradle 8.7 다운로드 단계에서 `java.net.SocketException: Network is unreachable` |
 
 ## 원터치 진단 구현 점검
 
@@ -49,11 +53,11 @@ GitHub 저장소에 올린 경우 **Actions → Build Android APK → Run workfl
 
 ## 빌드 후 확인할 항목
 
-정적 검사는 Android Gradle Plugin의 타입 검사와 DEX 생성을 대체하지 않습니다. 수정된 소스로 GitHub Actions를 다시 실행해 다음을 확인해야 합니다.
+Kotlin·Java 컴파일과 DEX 생성은 두 번째 GitHub Actions에서 이미 통과했습니다. 마지막 수정본으로 GitHub Actions를 다시 실행해 다음을 확인해야 합니다.
 
-1. 의존성 해석과 Kotlin/Java 컴파일 성공
-2. Manifest 병합 및 Android 14 포그라운드 서비스 검증 성공
-3. APK 설치와 앱 최초 실행
+1. Java 리소스 병합과 APK 패키징·서명 성공
+2. APK 설치와 앱 최초 실행
+3. Android 14 포그라운드 서비스 실제 기동
 4. BYD 서명 권한/화이트리스트 승인 상태
 5. 정차 상태의 계기판 TBT 시험과 차량 API 반환 코드
 

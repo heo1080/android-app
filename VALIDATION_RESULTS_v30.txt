@@ -3,6 +3,7 @@ Date: 2026-09-10 UTC
 
 XML_OK=24
 KOTLIN_LEXICAL_BALANCE_OK=37
+GRADLE_KTS_LEXICAL_BALANCE=PASS
 RESOURCE_ID_REFS=120
 RESOURCE_ID_DECLARATIONS=121
 RESOURCE_ID_MISSING=0
@@ -12,29 +13,48 @@ DIAGNOSTIC_BUNDLE_FILES_OK=7
 HUD_PAYLOAD_FROM_CAPTURE=NONE
 VEHICLE_CAPTURE_SETTERS=NONE
 NAV_RAW_DEFAULT=MASKED
-USER_GITHUB_BUILD_REACHED=compileDebugKotlin
+USER_GITHUB_BUILD_REACHED=mergeDebugJavaResource
 REPORTED_KOTLIN_ERRORS=2
 REPORTED_KOTLIN_ERRORS_FIXED=2
+CI_KOTLIN_COMPILE=PASS
+CI_JAVA_COMPILE=PASS
+CI_DEX_BUILD=PASS
+REPORTED_DUPLICATE_RESOURCE=META-INF/LICENSE.md
+REPORTED_DUPLICATE_RESOURCE_INPUTS=9
+PACKAGING_LICENSE_EXCLUDES=2
+REPORTED_RESOURCE_CONFLICT_FIXED=YES
 STATIC_VALIDATION=PASS
 
 Gradle command:
-  ./gradlew :app:compileDebugKotlin --offline --stacktrace
+  ./gradlew :app:assembleDebug --stacktrace
 
 Gradle result:
   NOT COMPLETED
   The Gradle 8.7 distribution download failed before Android compilation.
   java.net.SocketException: Network is unreachable
 
-User-provided GitHub Actions result before this fix:
+First user-provided GitHub Actions result:
   REACHED :app:compileDebugKotlin
   ERROR 1: requestedPermissionsFlags.orEmpty() receiver type mismatch
   ERROR 2: unresolved PackageManager.REQUESTED_PERMISSION_GRANTED
 
-Applied source correction:
+Applied Kotlin source correction:
   requestedPermissionsFlags ?: IntArray(0)
   PackageInfo.REQUESTED_PERMISSION_GRANTED
 
-Post-fix Android build:
+Second user-provided GitHub Actions result:
+  PASS :app:compileDebugKotlin
+  PASS :app:compileDebugJavaWithJavac
+  PASS :app:dexBuilderDebug
+  PASS :app:mergeProjectDexDebug
+  FAILED :app:mergeDebugJavaResource
+  9 duplicate inputs for META-INF/LICENSE.md
+
+Applied Java resource merge correction:
+  Exclude META-INF/LICENSE.md
+  Exclude META-INF/LICENSE-notice.md
+
+Final post-fix Android build:
   NOT RUN IN THIS WORKSPACE
   Rerun the included GitHub Actions workflow to confirm APK assembly.
 
