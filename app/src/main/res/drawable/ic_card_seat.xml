@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- 시트 백레스트 (헤드레스트 + 등받이) -->
+    <path
+        android:fillColor="#3A1C2C"
+        android:pathData="M16,6 C16,4 18,3 21,3 L27,3 C30,3 32,4 32,6 C32,8 30,9 27,9 L21,9 C18,9 16,8 16,6 Z" />
+    <path
+        android:strokeColor="#FF4081"
+        android:strokeWidth="1.2"
+        android:pathData="M16,6 C16,4 18,3 21,3 L27,3 C30,3 32,4 32,6 C32,8 30,9 27,9 L21,9 C18,9 16,8 16,6 Z" />
+    <!-- 버킷 시트 등받이 -->
+    <path
+        android:fillColor="#2A1424"
+        android:pathData="M18,12 L30,12 C33,12 34,14 34,18 L32,32 C31,34 30,35 28,35 L20,35 C18,35 17,34 16,32 L14,18 C14,14 15,12 18,12 Z" />
+    <path
+        android:strokeColor="#FF4081"
+        android:strokeWidth="1.5"
+        android:pathData="M18,12 L30,12 C33,12 34,14 34,18 L32,32 C31,34 30,35 28,35 L20,35 C18,35 17,34 16,32 L14,18 C14,14 15,12 18,12 Z" />
+    <!-- 시트 쿠션 방석 -->
+    <path
+        android:fillColor="#FF4081"
+        android:pathData="M10,34 L38,34 C41,34 43,36 43,39 C43,41 41,43 38,43 L12,43 C9,43 7,41 7,39 C7,36 9,34 10,34 Z" />
+    <!-- 사이드미러 다운 앵글 화살표 -->
+    <path
+        android:strokeColor="#00E5FF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M38,20 L44,20 M44,20 L44,28 M44,28 L40,24" />
+</vector>

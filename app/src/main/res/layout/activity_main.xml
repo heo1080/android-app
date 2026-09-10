@@ -1,0 +1,2770 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootMain"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="#121212">
+
+    <!-- ================================================================= -->
+    <!-- 🏠 [메인 대시보드] 10대 세분화 카드 그리드 UI                   -->
+    <!-- ================================================================= -->
+    <LinearLayout
+        android:id="@+id/layoutMainDashboard"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <!-- 상단 헤더 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingVertical="12dp"
+            android:background="#1C1C24">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_byd_dolphin"
+                android:contentDescription="BYD Dolphin" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="BYD DOLPHIN ASSISTANT"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.04" />
+
+                <TextView
+                    android:id="@+id/tvServiceStatusBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="서비스 상태 확인 중"
+                    android:textColor="#FFD54F"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnRestartService"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="원터치 재실행"
+                android:textSize="12sp"
+                android:backgroundTint="#2C2C38"
+                android:textColor="#80D8FF" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#2A2A38" />
+
+        <!-- 10대 세분화 메인 메뉴 카드 (2열 고해상도 그래픽 그리드) -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:padding="6dp">
+
+                <!-- 1. 📱 화면 분할 관리 카드 -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardMenuSplit"
+                    android:layout_width="0dp"
+                    android:layout_height="164dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
+                    android:foreground="?android:attr/selectableItemBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_split"
+                                android:contentDescription="화면 분할" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="MULTI-WINDOW"
+                                android:textColor="#00E5FF"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="화면 분할 관리"
+                            android:textColor="#FFFFFF"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="DiLink 3 검증 2분할 · 1% 단위 조절
+앱 직접 선택 &amp; AVM 뒤 저장 비율 복원"
+                            android:textColor="#B0BEC5"
+                            android:textSize="11sp"
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="1% 정밀"
+                                android:textColor="#80D8FF"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="검증형 2분할"
+                                android:textColor="#80D8FF"
+                                android:textSize="9sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- 2. 💺 스마트 시트 & 미러 다운 카드 -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardMenuSeat"
+                    android:layout_width="0dp"
+                    android:layout_height="164dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
+                    android:foreground="?android:attr/selectableItemBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_seat"
+                                android:contentDescription="시트 제어" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="FRONT COMFORT"
+                                android:textColor="#FF4081"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="앞좌석·핸들 열선"
+                            android:textColor="#FFFFFF"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="운전석·동승석 2단 열선
+핸들 열선 상태 확인 &amp; 제어"
+                            android:textColor="#B0BEC5"
+                            android:textSize="11sp"
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="실차 검증 API"
+                                android:textColor="#FF80AB"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="미장착 기능 제외"
+                                android:textColor="#FF80AB"
+                                android:textSize="9sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- 3. 🔊 맞춤형 음성 안내 (TTS) 카드 -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardMenuVoice"
+                    android:layout_width="0dp"
+                    android:layout_height="164dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
+                    android:foreground="?android:attr/selectableItemBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_voice"
+                                android:contentDescription="음성 안내" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="VOICE AI"
+                                android:textColor="#B388FF"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="맞춤형 음성 안내"
+                            android:textColor="#FFFFFF"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="기어·EPB·충전 API 전환 음성
+AVH·주행모드는 원시값 매핑 대기"
+                            android:textColor="#B0BEC5"
+                            android:textSize="11sp"
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="3단 선택기"
+                                android:textColor="#D1C4E9"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="실시간 TTS"
+                                android:textColor="#D1C4E9"
+                                android:textSize="9sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- 4. 🚨 운전석 안전 경고 사운드 카드 -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardMenuSafetyAudio"
+                    android:layout_width="0dp"
+                    android:layout_height="164dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
+                    android:foreground="?android:attr/selectableItemBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_safety"
+                                android:contentDescription="안전 경고" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="SAFETY RADAR"
+                                android:textColor="#FF8A80"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="안전 경고 &amp; 스피커"
+                            android:textColor="#FFFFFF"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="BSD·차선 상태 원시값 진단
+안내음 미리듣기·OEM 오디오 정책"
+                            android:textColor="#B0BEC5"
+                            android:textSize="11sp"
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="원시값 진단"
+                                android:textColor="#FF8A80"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="OEM 정책"
+                                android:textColor="#FF8A80"
+                                android:textSize="9sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- 5. 🧭 티맵 Plus HUD 카드 -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardMenuHud"
+                    android:layout_width="0dp"
+                    android:layout_height="164dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
+                    android:foreground="?android:attr/selectableItemBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_hud"
+                                android:contentDescription="TMAP Plus HUD T900" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="TMAP PLUS HUD"
+                                android:textColor="#FFD54F"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="TMAP Plus HUD / T900"
+                            android:textColor="#FFFFFF"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="페어링 기기·UUID·SPP 진단
+프로토콜 확인 전 패킷 송신 잠금"
+                            android:textColor="#B0BEC5"
+                            android:textSize="11sp"
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="진단 모드"
+                                android:textColor="#FFE082"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="Min/Max 밝기"
+                                android:textColor="#FFE082"
+                                android:textSize="9sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- 6. 📟 계기판 디스플레이 & TBT 연동 카드 -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardMenuCluster"
+                    android:layout_width="0dp"
+                    android:layout_height="164dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
+                    android:foreground="?android:attr/selectableItemBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_cluster"
+                                android:contentDescription="계기판 TBT" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="CLUSTER TBT"
+                                android:textColor="#80D8FF"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="계기판 TBT 브릿지"
+                            android:textColor="#FFFFFF"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="내비 알림에서 TBT 정보 추출
+확인된 BYD 계기판 API 호출"
+                            android:textColor="#B0BEC5"
+                            android:textSize="11sp"
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="5대 내비"
+                                android:textColor="#80D8FF"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="즉시 테스트"
+                                android:textColor="#80D8FF"
+                                android:textSize="9sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- 7. ⚡ 바로가기 & 플로팅 버튼 생성 카드 -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardMenuButtonBuilder"
+                    android:layout_width="0dp"
+                    android:layout_height="164dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
+                    android:foreground="?android:attr/selectableItemBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_floating"
+                                android:contentDescription="플로팅 독" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="FLOATING DOCK"
+                                android:textColor="#FFAB40"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="바로가기 &amp; 플로팅 독"
+                            android:textColor="#FFFFFF"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="자유 드래그 이동 &amp; 앱 아이콘 표출
+크기(50~150%) &amp; 투명도 조절"
+                            android:textColor="#B0BEC5"
+                            android:textSize="11sp"
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="순정 아이콘"
+                                android:textColor="#FFE082"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="투명도 조절"
+                                android:textColor="#FFE082"
+                                android:textSize="9sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- 8. 🔄 스마트 차량 자동화 시나리오 카드 -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardMenuAutomation"
+                    android:layout_width="0dp"
+                    android:layout_height="164dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
+                    android:foreground="?android:attr/selectableItemBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_automation"
+                                android:contentDescription="자동화 시나리오" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="SMART SCENARIO"
+                                android:textColor="#69F0AE"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="차량 자동화 시나리오"
+                            android:textColor="#FFFFFF"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="시동·기어 기반 선택 규칙
+검증된 공조·열선·조명 액션"
+                            android:textColor="#B0BEC5"
+                            android:textSize="11sp"
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="검증 API"
+                                android:textColor="#B9F6CA"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="안전 차단"
+                                android:textColor="#B9F6CA"
+                                android:textSize="9sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- 9. 🚀 부팅 시 다중 앱 자동 실행 카드 -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardMenuBootScheduler"
+                    android:layout_width="0dp"
+                    android:layout_height="164dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
+                    android:foreground="?android:attr/selectableItemBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_boot"
+                                android:contentDescription="부팅 자동 실행" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="AUTO STARTER"
+                                android:textColor="#40C4FF"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="부팅 자동 실행"
+                            android:textColor="#FFFFFF"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="시동 전환 1회당 앱별 지연 실행
+앱별 미디어 재생 지연 설정"
+                            android:textColor="#B0BEC5"
+                            android:textSize="11sp"
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="0.1초 단위"
+                                android:textColor="#80D8FF"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="미디어 재생"
+                                android:textColor="#80D8FF"
+                                android:textSize="9sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- 10. ⚙️ 화면 밀도(DPI) & 원터치 진단 카드 -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardMenuDpiAdb"
+                    android:layout_width="0dp"
+                    android:layout_height="164dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="5dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#151824"
+                    android:foreground="?android:attr/selectableItemBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:background="@drawable/bg_card_cyber">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:src="@drawable/ic_card_dpi_adb"
+                                android:contentDescription="DPI 진단" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="6dp"
+                                android:paddingVertical="2dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="SYSTEM &amp; DPI"
+                                android:textColor="#EEFF41"
+                                android:textSize="9sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="DPI &amp; 원터치 진단"
+                            android:textColor="#FFFFFF"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvMainCardDpiDesc"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="원터치 DPI·15분 자동 수집
+BYD/HUD 진단 ZIP 추출"
+                            android:textColor="#B0BEC5"
+                            android:textSize="11sp"
+                            android:maxLines="2" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="180 DPI"
+                                android:textColor="#F4FF81"
+                                android:textSize="9sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:paddingHorizontal="5dp"
+                                android:paddingVertical="1dp"
+                                android:background="@drawable/bg_badge_pill"
+                                android:text="진단 로그"
+                                android:textColor="#F4FF81"
+                                android:textSize="9sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+            </GridLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- ================================================================= -->
+    <!-- ① [화면 분할 관리 서브 화면]                                     -->
+    <!-- ================================================================= -->
+    <LinearLayout
+        android:id="@+id/subLayoutSplit"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#121212"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="#1C1C24">
+
+            <Button
+                android:id="@+id/btnBackSplit"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="← 뒤로"
+                android:textSize="13sp"
+                android:backgroundTint="#2C2C38"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:text="화면 분할 관리 (검증된 2분할 · 1% 조절)"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="지원 모드: DiLink 3 기본 2분할"
+                    android:textColor="#00E5FF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <!-- 분할 대상 앱 직접 선택 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="분할 실행할 앱 직접 선택:"
+                    android:textColor="#00E5FF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="2"
+                    android:layout_marginTop="6dp">
+
+                    <Button
+                        android:id="@+id/btnSelectApp1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="앱 1: 티맵"
+                        android:textSize="12sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnSelectApp2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="앱 2: 기본 미디어"
+                        android:textSize="12sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                </GridLayout>
+
+                <!-- 실시간 그래픽 분할 미리보기 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:orientation="horizontal"
+                    android:background="#252532"
+                    android:padding="6dp"
+                    android:layout_marginTop="14dp">
+
+                    <TextView
+                        android:id="@+id/tvPreviewLeft"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="30"
+                        android:gravity="center"
+                        android:background="#37474F"
+                        android:text="앱 1\n(30%)"
+                        android:textColor="#FFFFFF"
+                        android:textSize="13sp" />
+
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="match_parent"
+                        android:background="#00E5FF" />
+
+                    <TextView
+                        android:id="@+id/tvPreviewRight"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="70"
+                        android:gravity="center"
+                        android:background="#263238"
+                        android:text="앱 2\n(70%)"
+                        android:textColor="#FFFFFF"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- 가로 좌/우 크기 조절 (슬라이더 + 숫자 직접 입력 연동) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="좌/우 크기 비율 (1% 단위):"
+                        android:textColor="#80D8FF"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/etSplitRatioX"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"
+                        android:inputType="number"
+                        android:gravity="center"
+                        android:text="30"
+                        android:textColor="#00E5FF"
+                        android:background="#22222E"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" %"
+                        android:textColor="#80D8FF" />
+                </LinearLayout>
+
+                <SeekBar
+                    android:id="@+id/sbSubSplitRatio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:min="20"
+                    android:max="80"
+                    android:progress="30"
+                    android:layout_marginTop="6dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="360° 어라운드뷰 종료 신호 뒤 저장한 2분할과 비율을 다시 적용합니다. 결과는 진단 로그에서 확인할 수 있습니다."
+                    android:textColor="#69F0AE"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/btnSubApplySplit"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="16dp"
+                    android:text="2분할 화면 적용"
+                    android:backgroundTint="#00E676"
+                    android:textColor="#000000"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- ================================================================= -->
+    <!-- v30: verified controls for the hardware actually fitted to this car. -->
+    <LinearLayout
+        android:id="@+id/subLayoutComfortV30"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#0B1118"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="#111B26">
+
+            <Button
+                android:id="@+id/btnBackSeatV30"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:text="← 뒤로"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#243244" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="열선 편의 제어"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="14dp"
+                    android:background="@drawable/bg_card_cyber"
+                    android:text="이 차량에서 확인된 운전석·동승석 2단 열선과 핸들 열선만 표시합니다. 미장착 통풍·뒷좌석 열선과 검증되지 않은 전동시트 제어는 전송하지 않습니다."
+                    android:textColor="#B8C7D9"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tvDriverHeatStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="운전석 열선: 확인 중"
+                    android:textColor="#FFB16A"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+                    <Button android:id="@+id/btnDriverHeatOff" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:layout_margin="3dp" android:text="끄기" android:textColor="#FFFFFF" android:backgroundTint="#263343" />
+                    <Button android:id="@+id/btnDriverHeatLow" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:layout_margin="3dp" android:text="1단" android:textColor="#FFFFFF" android:backgroundTint="#A4552F" />
+                    <Button android:id="@+id/btnDriverHeatHigh" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:layout_margin="3dp" android:text="2단" android:textColor="#FFFFFF" android:backgroundTint="#D65A35" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvPassengerHeatStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="동승석 열선: 확인 중"
+                    android:textColor="#FFB16A"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+                    <Button android:id="@+id/btnPassengerHeatOff" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:layout_margin="3dp" android:text="끄기" android:textColor="#FFFFFF" android:backgroundTint="#263343" />
+                    <Button android:id="@+id/btnPassengerHeatLow" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:layout_margin="3dp" android:text="1단" android:textColor="#FFFFFF" android:backgroundTint="#A4552F" />
+                    <Button android:id="@+id/btnPassengerHeatHigh" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:layout_margin="3dp" android:text="2단" android:textColor="#FFFFFF" android:backgroundTint="#D65A35" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvSteeringHeatStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp"
+                    android:text="핸들 열선: 확인 중"
+                    android:textColor="#FFB16A"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnSteeringHeatToggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="8dp"
+                    android:text="핸들 열선 켜기 / 끄기"
+                    android:textColor="#081018"
+                    android:textStyle="bold"
+                    android:backgroundTint="#FF9A55" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- ③ [맞춤형 차량 음성 안내 서브 화면]                             -->
+    <!-- ================================================================= -->
+    <LinearLayout
+        android:id="@+id/subLayoutVoice"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#121212"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="#1C1C24">
+
+            <Button
+                android:id="@+id/btnBackVoice"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="← 뒤로"
+                android:textSize="13sp"
+                android:backgroundTint="#2C2C38"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:text="🔊 맞춤형 차량 음성 안내 (TTS)"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="차량 상태별 맞춤 음성 멘트 (터치하여 문구 수정 &amp; 미리듣기):"
+                    android:textColor="#B388FF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="자동 출력: 기어·EPB·충전 및 내비 알림의 전방 출발 문구. 주차센서 방식은 아래에서 직접 켜야 하며, 나머지 원시 상태는 실차 매핑 전까지 자동 출력하지 않습니다."
+                    android:textColor="#FFD54F"
+                    android:textSize="12sp" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/swExperimentalLvda"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="실험적 전방 주차센서 기반 출발 후보 감지 (기본 OFF)"
+                    android:textColor="#FF8A80" />
+
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="2"
+                    android:layout_marginTop="8dp">
+
+                    <Button
+                        android:id="@+id/btnVoiceGearP"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="P단 (파킹)"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnVoiceGearR"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="R단 (후진)"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnVoiceGearN"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="N단 (중립)"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnVoiceGearD"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="D단 (전진)"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnVoiceDriveMode"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="드라이브 모드"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnVoiceRegenMode"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="회생 제동"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnVoiceSnowMode"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="스노우 모드"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                    <!-- 오토홀드 버튼 ON vs OFF 분리 (신규 요구사항!) -->
+                    <Button
+                        android:id="@+id/btnVoiceAutoHoldSwitchOn"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="오토홀드 버튼 켬"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#69F0AE" />
+
+                    <Button
+                        android:id="@+id/btnVoiceAutoHoldSwitchOff"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="오토홀드 버튼 끔"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FF8A80" />
+
+                    <!-- 오토홀드 정차 브레이크 체결 vs 해제 분리 (신규 요구사항!) -->
+                    <Button
+                        android:id="@+id/btnVoiceAutoHoldBrakeEngaged"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="오토홀드 정차 체결"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#69F0AE" />
+
+                    <Button
+                        android:id="@+id/btnVoiceAutoHoldBrakeReleased"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="오토홀드 출발 해제"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FF8A80" />
+
+                    <Button
+                        android:id="@+id/btnVoiceEpb"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="사이드브레이크"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnVoiceIcc"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="ICC 자율주행"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnVoiceLeadingCar"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="전방 차량 출발"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                    <!-- 충전 시작과 정상 완료 문구 분리 -->
+                    <Button
+                        android:id="@+id/btnVoiceChargingStart"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="충전 시작"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#00E5FF" />
+
+                    <Button
+                        android:id="@+id/btnVoiceChargingEnd"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="충전 정상 완료"
+                        android:textSize="11sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#00E5FF" />
+                </GridLayout>
+
+                <Button
+                    android:id="@+id/btnTestLeadingCarDeparture"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="16dp"
+                    android:text="🚗 전방 차량 출발 가상 신호 테스트 (즉시 음성 출력)"
+                    android:backgroundTint="#37284F"
+                    android:textColor="#B388FF"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- ================================================================= -->
+    <!-- ④ [운전석 안전 경고 사운드 서브 화면]                           -->
+    <!-- ================================================================= -->
+    <LinearLayout
+        android:id="@+id/subLayoutSafetyAudio"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#121212"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="#1C1C24">
+
+            <Button
+                android:id="@+id/btnBackSafetyAudio"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="← 뒤로"
+                android:textSize="13sp"
+                android:backgroundTint="#2C2C38"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:text="안전 경고 사운드"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="BSD·차선 상태 진단 및 안내음 미리듣기:"
+                    android:textColor="#FF8A80"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="확인된 ADAS getter의 원시 상태는 진단 로그에 기록합니다. 실차 의미 매핑 전에는 자동 경고음을 내지 않으며, 아래 설정은 음색·문구 미리듣기용입니다. 실제 스피커 존은 BYD 오디오 정책에 따릅니다."
+                    android:textColor="#AAAAAA"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <Button
+                        android:id="@+id/btnConfigBsdAlert"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
+                        android:text="BSD 안내음 미리듣기 설정"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FF8A80" />
+
+                    <Button
+                        android:id="@+id/btnConfigLdpAlert"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        android:text="차선 안내음 미리듣기 설정"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FF8A80" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="일반 앱의 운전석 전용 스피커 강제 라우팅은 공개 API로 지원되지 않습니다."
+                    android:textColor="#00E5FF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- ================================================================= -->
+    <!-- ⑤ [티맵 Plus HUD 서브 화면]                                      -->
+    <!-- ================================================================= -->
+    <LinearLayout
+        android:id="@+id/subLayoutHud"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#121212"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="#1C1C24">
+
+            <Button
+                android:id="@+id/btnBackHud"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="← 뒤로"
+                android:textSize="13sp"
+                android:backgroundTint="#2C2C38"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:text="TMAP Plus HUD / T900 진단 센터"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- 페어링/프로토콜 진단 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="T900 연결 정보 수집 (패킷 송신 잠금):"
+                    android:textColor="#FFD54F"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="4dp">
+
+                        <TextView
+                            android:id="@+id/tvHudDataStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="진단 모드: 미연결"
+                            android:textColor="#AAAAAA"
+                            android:textSize="12sp" />
+
+                        <Button
+                            android:id="@+id/btnConnectHudData"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="SPP/UUID 진단"
+                            android:textSize="12sp"
+                            android:backgroundTint="#0288D1"
+                            android:textColor="#FFFFFF" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="4dp">
+
+                        <TextView
+                            android:id="@+id/tvHudAudioStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="오디오 상태 미확인"
+                            android:textColor="#AAAAAA"
+                            android:textSize="12sp" />
+
+                        <Button
+                            android:id="@+id/btnConnectHudAudio"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Bluetooth 설정 열기"
+                            android:textSize="12sp"
+                            android:backgroundTint="#7B1FA2"
+                            android:textColor="#FFFFFF" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 자동 밝기 최소 / 최대값 설정 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="HUD 화면 밝기 후보 제어 (프로토콜 확인 후 활성화):"
+                    android:textColor="#00E5FF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/swHudBrightnessAuto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="HUD 센서 기반 자동 밝기 조절"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/tvHudBrightMinVal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="자동 조절 최소 밝기: 2 단계"
+                    android:textColor="#80D8FF"
+                    android:textSize="13sp" />
+
+                <SeekBar
+                    android:id="@+id/sbHudBrightMin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="15"
+                    android:progress="2" />
+
+                <TextView
+                    android:id="@+id/tvHudBrightMaxVal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="자동 조절 최대 밝기: 15 단계"
+                    android:textColor="#80D8FF"
+                    android:textSize="13sp" />
+
+                <SeekBar
+                    android:id="@+id/sbHudBrightMax"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="15"
+                    android:progress="15" />
+
+                <TextView
+                    android:id="@+id/tvHudBrightnessValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="수동 고정 밝기: 10 단계"
+                    android:textColor="#80D8FF"
+                    android:textSize="13sp" />
+
+                <SeekBar
+                    android:id="@+id/sbHudBrightness"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="15"
+                    android:progress="10" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="HUD 오디오 후보 음량 (프로토콜 확인 후 활성화):"
+                    android:textColor="#00E5FF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <SeekBar
+                    android:id="@+id/sbSubHudAudioVolume"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="15"
+                    android:progress="10"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- ================================================================= -->
+    <!-- ⑥ [계기판 디스플레이 & TBT 연동 서브 화면]                       -->
+    <!-- ================================================================= -->
+    <LinearLayout
+        android:id="@+id/subLayoutCluster"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#121212"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="#1C1C24">
+
+            <Button
+                android:id="@+id/btnBackCluster"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="← 뒤로"
+                android:textSize="13sp"
+                android:backgroundTint="#2C2C38"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:text="계기판 TBT 데이터 브릿지"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="BYD 계기판 TBT API 테스트:"
+                    android:textColor="#80D8FF"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/swClusterTbt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="지원 내비 알림에서 TBT 데이터 추출 활성화"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="알림에서 방향·잔여거리를 추출해 확인된 BYDAutoInstrumentDevice API로 보냅니다. API 반환 코드와 실제 계기판 표시 결과를 진단 로그로 확인합니다."
+                    android:textColor="#AAAAAA"
+                    android:textSize="12sp"
+                    android:lineSpacingExtra="2dp" />
+
+                <Button
+                    android:id="@+id/btnTestClusterTbt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="BYD 계기판 TBT API 테스트"
+                    android:backgroundTint="#00E5FF"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="계기판 전체화면 미러링은 안전·호환성 범위에서 제외되었습니다."
+                    android:textColor="#FF4081"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="내비 알림 접근 설정:"
+                    android:textColor="#FFD54F"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="알림 접근 또는 접근성 브릿지를 활성화하면 지원 내비 알림 텍스트를 읽을 수 있습니다. 파싱 결과와 BYD API 반환값은 진단 로그로 확인합니다."
+                    android:textColor="#AAAAAA"
+                    android:textSize="12sp"
+                    android:lineSpacingExtra="2dp" />
+
+                <Button
+                    android:id="@+id/btnOpenAccessibilitySettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="♿ 순정 접근성 설정 열기 (TBT 수신 활성화)"
+                    android:backgroundTint="#7B1FA2"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- ================================================================= -->
+    <!-- ⑦ [바로가기 & 플로팅 버튼 빌더 서브 화면]                       -->
+    <!-- ================================================================= -->
+    <LinearLayout
+        android:id="@+id/subLayoutButtonBuilder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#121212"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="#1C1C24">
+
+            <Button
+                android:id="@+id/btnBackButtonBuilder"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="← 뒤로"
+                android:textSize="13sp"
+                android:backgroundTint="#2C2C38"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:text="⚡ 바로가기 &amp; 플로팅 버튼 빌더"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="항목을 선택한 후 [홈 화면 바로가기] 또는 [플로팅 버튼 독]을 지정하여 생성합니다."
+                    android:textColor="#AAAAAA"
+                    android:textSize="13sp" />
+
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="2"
+                    android:layout_marginTop="12dp">
+
+                    <Button
+                        android:id="@+id/btnCreateQpButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="⚡ 상단 퀵패널 버튼"
+                        android:textSize="12sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnCreateBottomBarButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="🎛️ 하단 도크 버튼"
+                        android:textSize="12sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnCreateLightButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="💡 실내 조명 버튼"
+                        android:textSize="12sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnCreateAppFloatingButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnWeight="1"
+                        android:layout_margin="3dp"
+                        android:text="📱 설치 앱·미디어"
+                        android:textSize="12sp"
+                        android:backgroundTint="#242434"
+                        android:textColor="#FFFFFF" />
+                </GridLayout>
+            
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/swFloatingOverlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="플로팅 독 표시"
+                    android:textColor="#FFFFFF" />
+
+                <!-- 플로팅 독 크기 및 투명도 커스텀 제어 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="플로팅 독 스타일 &amp; 크기 커스텀:"
+                    android:textColor="#00E5FF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvFloatingScaleVal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="플로팅 버튼 크기: 100%"
+                    android:textColor="#80D8FF"
+                    android:textSize="13sp" />
+
+                <SeekBar
+                    android:id="@+id/sbFloatingScale"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:min="50"
+                    android:max="150"
+                    android:progress="100" />
+
+                <TextView
+                    android:id="@+id/tvFloatingOpacityVal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="플로팅 투명도 (불투명도): 85%"
+                    android:textColor="#80D8FF"
+                    android:textSize="13sp" />
+
+                <SeekBar
+                    android:id="@+id/sbFloatingOpacity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:min="30"
+                    android:max="100"
+                    android:progress="85" />
+
+                <TextView
+                    android:id="@+id/tvFloatingCollapseDelayVal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="자동 접기: 10초"
+                    android:textColor="#80D8FF"
+                    android:textSize="13sp" />
+
+                <SeekBar
+                    android:id="@+id/sbFloatingCollapseDelay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:min="3"
+                    android:max="60"
+                    android:progress="10" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="앱은 실제 아이콘으로 표시됩니다. 손잡이를 끌어 이동하고 길게 눌러 제거할 수 있습니다. 최대 8개가 보이며 나머지는 좌우 스크롤됩니다. 일정 시간 뒤 작은 손잡이로 접히며 터치하면 다시 펼쳐집니다."
+                    android:textColor="#69F0AE"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- ================================================================= -->
+    <!-- ⑧ [스마트 차량 자동화 시나리오 서브 화면]                       -->
+    <!-- ================================================================= -->
+    <LinearLayout
+        android:id="@+id/subLayoutAutomation"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#121212"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="#1C1C24">
+
+            <Button
+                android:id="@+id/btnBackAutomation"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="← 뒤로"
+                android:textSize="13sp"
+                android:backgroundTint="#2C2C38"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:text="🔄 스마트 차량 자동화 시나리오 랩"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="자동화는 확인된 시동·기어 전환과 공조·성에 제거·앞좌석 열선·핸들 열선·실내등 API만 실행합니다. 비상등은 공개 setter가 없어 자동 명령을 차단합니다."
+                    android:textColor="#FFD54F"
+                    android:textSize="12sp" />
+
+                <!-- 커스텀 시나리오 목록 컨테이너 -->
+                <LinearLayout
+                    android:id="@+id/layoutCustomScenarioListContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="10dp" />
+
+                <Button
+                    android:id="@+id/btnAddCustomScenario"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="8dp"
+                    android:text="+ 새 자동화 규칙 추가 (검증 액션 선택)"
+                    android:backgroundTint="#00E5FF"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="앱 내부 규칙·음성용 가상 기어 테스트:"
+                    android:textColor="#AAAAAA"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="4dp">
+
+                    <Button
+                        android:id="@+id/btnTestGearR"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="R 가상 기어"
+                        android:backgroundTint="#C62828"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnTestGearD"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="D 가상 기어"
+                        android:backgroundTint="#2E7D32"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnTestGearP"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="P 가상 기어"
+                        android:backgroundTint="#2C2C38"
+                        android:textColor="#FFFFFF" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- ================================================================= -->
+    <!-- ⑨ [부팅 시 다중 앱 자동 실행 서브 화면]                         -->
+    <!-- ================================================================= -->
+    <LinearLayout
+        android:id="@+id/subLayoutBootScheduler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#121212"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="#1C1C24">
+
+            <Button
+                android:id="@+id/btnBackBootScheduler"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="← 뒤로"
+                android:textSize="13sp"
+                android:backgroundTint="#2C2C38"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:text="시동 앱별 자동 실행 스케줄러"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/swBootAuto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="시동 ON 전환 시 앱별 예약 1회 실행"
+                    android:textColor="#FFFFFF" />
+
+                <!-- 자동 재생할 미디어 앱 선택 (신규 요구사항!) -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="각 앱의 편집 버튼에서 실행 지연과 재생 지연을 따로 설정합니다. 시동 OFF가 감지되면 남은 예약은 취소됩니다."
+                    android:textColor="#40C4FF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="등록된 앱별 시동 예약 (0.1초 단위):"
+                    android:textColor="#40C4FF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/layoutBootAppListContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="6dp" />
+
+                <Button
+                    android:id="@+id/btnAddBootApp"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="8dp"
+                    android:text="+ 앱별 실행·재생 예약 추가"
+                    android:backgroundTint="#00E5FF"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- ================================================================= -->
+    <!-- ⑩ [화면 밀도(DPI) & 원터치 진단 서브 화면]                       -->
+    <!-- ================================================================= -->
+    <LinearLayout
+        android:id="@+id/subLayoutDpiAdb"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="#121212"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:background="#1C1C24">
+
+            <Button
+                android:id="@+id/btnBackDpiAdb"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="← 뒤로"
+                android:textSize="13sp"
+                android:backgroundTint="#2C2C38"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:text="⚙️ 화면 밀도(DPI) &amp; 원터치 진단 센터"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- DPI 인디케이터 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:background="#1A1A26"
+                    android:padding="16dp"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="현재 화면 해상도 밀도 (DPI)"
+                        android:textColor="#AAAAAA"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvSubCurrentDpiBig"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="180 DPI"
+                        android:textColor="#00E676"
+                        android:textSize="34sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp">
+
+                    <Button
+                        android:id="@+id/btnPreset160"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="3dp"
+                        android:text="160"
+                        android:backgroundTint="#2C2C38"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnPreset180"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="2dp"
+                        android:text="180 (추천)"
+                        android:backgroundTint="#0288D1"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnPreset200"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="2dp"
+                        android:text="200"
+                        android:backgroundTint="#2C2C38"
+                        android:textColor="#FFFFFF" />
+
+                    <Button
+                        android:id="@+id/btnPresetReset"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:text="순정 복원"
+                        android:backgroundTint="#424250"
+                        android:textColor="#FFFFFF" />
+                </LinearLayout>
+
+                <!-- ADB 권한 자동 실행 버튼 및 가이드 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="로컬 ADB 권한 자체 실행 센터:"
+                    android:textColor="#69F0AE"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="차량 로컬 5555 포트로 접속을 시도합니다. 연결 시 'USB 디버깅 항상 허용'을 눌러주세요."
+                    android:textColor="#AAAAAA"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="6dp">
+
+                    <Button
+                        android:id="@+id/btnAutoGrantAdb"
+                        android:layout_width="0dp"
+                        android:layout_height="46dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="3dp"
+                        android:text="⚡ ADB 즉시 승인 시도"
+                        android:backgroundTint="#00E676"
+                        android:textColor="#000000"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/btnCopyAllAdbCmds"
+                        android:layout_width="0dp"
+                        android:layout_height="46dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:text="📋 전체 명령어 일괄 복사"
+                        android:backgroundTint="#0288D1"
+                        android:textColor="#FFFFFF" />
+                </LinearLayout>
+
+                <!-- 앱 자체 원터치 진단 세션 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="원터치 버그 정보 수집 (권장)"
+                    android:textColor="#00E5FF"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="스마트폰 버그제거 앱 없이 15분간 앱 동작, BYD 읽기 전용 상태, T900 페어링·UUID, 내비 처리와 오류를 자동 기록합니다. 수집 중 문제를 재현한 뒤 ZIP 하나만 공유하세요."
+                    android:textColor="#B0BEC5"
+                    android:textSize="12sp" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/swDiagnosticIncludeNavText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="내비 알림 원문도 진단에 포함 (기본 꺼짐)"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    app:thumbTint="#00E5FF"
+                    app:trackTint="#455A64" />
+
+                <TextView
+                    android:id="@+id/tvDiagnosticCaptureStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:padding="10dp"
+                    android:background="#1A1A26"
+                    android:text="● 대기 중 · 시작 후 문제 상황을 재현하세요."
+                    android:textColor="#80D8FF"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnStartDiagnosticCapture"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="3dp"
+                        android:text="● 15분 수집 시작"
+                        android:backgroundTint="#00E676"
+                        android:textColor="#000000"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/btnDiagnosticProblemMarker"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:text="⚑ 문제 순간 표시"
+                        android:backgroundTint="#FFAB00"
+                        android:textColor="#000000"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnStopExportDiagnosticBundle"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="6dp"
+                    android:text="■ 수집 종료 + ZIP 내보내기"
+                    android:backgroundTint="#0288D1"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+
+                <!-- 통합 진단 리포트 추출 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="전체 기능 상태 분석 통합 진단 로그 파일 추출:"
+                    android:textColor="#FF5252"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                
+                    <Button
+                        android:id="@+id/btnWirelessAdbGuide"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="4dp"
+                        android:text="📖 BYD 차량 화면에서 무선 ADB(5555) 활성화하는 법"
+                        android:backgroundTint="#2C2C38"
+                        android:textColor="#FFD54F"
+                        android:textSize="12sp" />
+
+<TextView
+                    android:id="@+id/tvLogPathInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="진단 파일 생성 후 앱 전용 저장 경로를 표시합니다."
+                    android:textColor="#80D8FF"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:id="@+id/btnGenerateDiagnosticLog"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="6dp"
+                    android:text="📋 전체 기능 상태 통합 진단 파일 생성 및 내보내기"
+                    android:backgroundTint="#00E676"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+</FrameLayout>

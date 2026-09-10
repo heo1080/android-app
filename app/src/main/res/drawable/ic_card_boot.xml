@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- 로켓 부스트 본체 -->
+    <path
+        android:fillColor="#152838"
+        android:pathData="M24,4 C27,8 34,18 34,28 C34,34 32,38 30,40 L18,40 C16,38 14,34 14,28 C14,18 21,8 24,4 Z" />
+    <path
+        android:strokeColor="#40C4FF"
+        android:strokeWidth="1.8"
+        android:pathData="M24,4 C27,8 34,18 34,28 C34,34 32,38 30,40 L18,40 C16,38 14,34 14,28 C14,18 21,8 24,4 Z" />
+    <!-- 좌우 추진 날개 -->
+    <path
+        android:fillColor="#0288D1"
+        android:pathData="M14,26 L6,34 L14,36 Z M34,26 L42,34 L34,36 Z" />
+    <!-- 로켓 창문 -->
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M24,18m-4,0a4,4 0 1,0 8,0a4,4 0 1,0 -8,0" />
+    <!-- 하단 부스트 화염 -->
+    <path
+        android:fillColor="#FF9100"
+        android:pathData="M20,40 L24,46 L28,40 Z" />
+</vector>

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <permission
+        android:name="com.byd.dolphin.autoassistant.permission.INTERNAL_EVENT"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.byd.dolphin.autoassistant.permission.INTERNAL_EVENT" />
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+
+    <!-- DiLink 3 vehicle SDK permissions verified against the vehicle framework.jar. -->
+    <uses-permission android:name="android.permission.BYDAUTO_SETTING_COMMON" />
+    <uses-permission android:name="android.permission.BYDAUTO_SETTING_GET" />
+    <uses-permission android:name="android.permission.BYDAUTO_SETTING_SET" />
+    <uses-permission android:name="android.permission.BYDAUTO_AC_COMMON" />
+    <uses-permission android:name="android.permission.BYDAUTO_AC_GET" />
+    <uses-permission android:name="android.permission.BYDAUTO_AC_SET" />
+    <uses-permission android:name="android.permission.BYDAUTO_BODYWORK_COMMON" />
+    <uses-permission android:name="android.permission.BYDAUTO_BODYWORK_GET" />
+    <uses-permission android:name="android.permission.BYDAUTO_BODYWORK_SET" />
+    <uses-permission android:name="android.permission.BYDAUTO_LIGHT_COMMON" />
+    <uses-permission android:name="android.permission.BYDAUTO_LIGHT_GET" />
+    <uses-permission android:name="android.permission.BYDAUTO_LIGHT_SET" />
+    <uses-permission android:name="android.permission.BYDAUTO_RADAR_COMMON" />
+    <uses-permission android:name="android.permission.BYDAUTO_RADAR_GET" />
+    <uses-permission android:name="android.permission.BYDAUTO_SPEED_GET" />
+    <uses-permission android:name="android.permission.BYDAUTO_GEARBOX_GET" />
+    <uses-permission android:name="android.permission.BYDAUTO_CHARGING_GET" />
+    <uses-permission android:name="android.permission.BYDAUTO_ADAS_GET" />
+    <uses-permission android:name="android.permission.BYDAUTO_INSTRUMENT_GET" />
+    <uses-permission android:name="android.permission.BYDAUTO_INSTRUMENT_SET" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_byd_dolphin"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_byd_dolphin"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.DolphinAutoAssistant">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activity.SplitGhostActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:finishOnTaskLaunch="true"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <activity
+            android:name=".activity.ShortcutActionActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <!-- 6번 및 앱서랍 전용 독립 런처 액티비티 4종 -->
+        <activity
+            android:name=".activity.DefrostToggleActivity"
+            android:exported="true"
+            android:icon="@drawable/ic_defrost_toggle"
+            android:label="성에 제거"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activity.InsideLightToggleActivity"
+            android:exported="true"
+            android:icon="@drawable/ic_light_toggle"
+            android:label="실내등 스위치"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activity.InsideLightOnActivity"
+            android:exported="true"
+            android:icon="@drawable/ic_light_on"
+            android:label="실내등 켜기"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activity.InsideLightOffActivity"
+            android:exported="true"
+            android:icon="@drawable/ic_light_off"
+            android:label="실내등 끄기"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".service.DolphinService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- 2-1 및 3-4 5대 내비게이션 HUD & 계기판 TBT 연동 리스너 -->
+        <service
+            android:name=".hud.MultiNavNotificationListener"
+            android:exported="true"
+            android:label="돌핀 내비게이션 TBT &amp; HUD 연동"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!-- 8번 부팅 시 자동 실행 리시버 -->
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.SCREEN_ON" />
+            </intent-filter>
+        </receiver>
+
+    
+        <!-- 사용자가 명시적으로 활성화하는 보조 접근성 TBT 브릿지 -->
+        <service
+            android:name=".service.DolphinAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:label="돌핀 내비 TBT 알림 수신 브릿지"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+</application>
+</manifest>

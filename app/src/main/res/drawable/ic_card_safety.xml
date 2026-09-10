@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- 안전 쉴드 외곽선 -->
+    <path
+        android:fillColor="#2E181B"
+        android:pathData="M24,4 L40,10 L40,24 C40,33 33,41 24,44 C15,41 8,33 8,24 L8,10 Z" />
+    <path
+        android:strokeColor="#FF5252"
+        android:strokeWidth="1.8"
+        android:pathData="M24,4 L40,10 L40,24 C40,33 33,41 24,44 C15,41 8,33 8,24 L8,10 Z" />
+    <!-- 차량 후측방 감지 레이더 아크 -->
+    <path
+        android:strokeColor="#FF8A80"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M18,20 C20,18 28,18 30,20 M15,25 C19,22 29,22 33,25 M24,27 L24,33" />
+    <path
+        android:fillColor="#FF1744"
+        android:pathData="M24,36m-1.5,0a1.5,1.5 0 1,0 3,0a1.5,1.5 0 1,0 -3,0" />
+</vector>

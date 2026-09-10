@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- 플로팅 아일랜드 캡슐 바 -->
+    <path
+        android:fillColor="#3A2818"
+        android:pathData="M10,16 L38,16 C42,16 45,19 45,23 L45,25 C45,29 42,32 38,32 L10,32 C6,32 3,29 3,25 L3,23 C3,19 6,16 10,16 Z" />
+    <path
+        android:strokeColor="#FFAB40"
+        android:strokeWidth="1.8"
+        android:pathData="M10,16 L38,16 C42,16 45,19 45,23 L45,25 C45,29 42,32 38,32 L10,32 C6,32 3,29 3,25 L3,23 C3,19 6,16 10,16 Z" />
+    <!-- 플로팅 도크 내부 원형 앱 아이콘들 -->
+    <path
+        android:fillColor="#FFD54F"
+        android:pathData="M12,24m-4,0a4,4 0 1,0 8,0a4,4 0 1,0 -8,0" />
+    <path
+        android:fillColor="#FF6D00"
+        android:pathData="M24,24m-4,0a4,4 0 1,0 8,0a4,4 0 1,0 -8,0" />
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M36,24m-4,0a4,4 0 1,0 8,0a4,4 0 1,0 -8,0" />
+    <!-- 상향 드래그 핑거 제스처 화살표 -->
+    <path
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M24,12 L24,6 M21,9 L24,6 L27,9" />
+</vector>
