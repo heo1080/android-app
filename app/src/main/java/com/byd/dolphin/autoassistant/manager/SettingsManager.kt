@@ -8,19 +8,28 @@ import org.json.JSONObject
 data class BootAppItem(
     val packageName: String,
     val appName: String,
-    val delaySeconds: Double
+    val delaySeconds: Double,
+    val enabled: Boolean = true,
+    val mediaPlayEnabled: Boolean = false,
+    val mediaDelaySeconds: Double = 2.0
 ) {
     fun toJson(): JSONObject = JSONObject().apply {
         put("packageName", packageName)
         put("appName", appName)
         put("delaySeconds", delaySeconds)
+        put("enabled", enabled)
+        put("mediaPlayEnabled", mediaPlayEnabled)
+        put("mediaDelaySeconds", mediaDelaySeconds)
     }
 
     companion object {
         fun fromJson(json: JSONObject): BootAppItem = BootAppItem(
             packageName = json.optString("packageName", ""),
             appName = json.optString("appName", ""),
-            delaySeconds = json.optDouble("delaySeconds", 5.0)
+            delaySeconds = json.optDouble("delaySeconds", 5.0),
+            enabled = json.optBoolean("enabled", true),
+            mediaPlayEnabled = json.optBoolean("mediaPlayEnabled", false),
+            mediaDelaySeconds = json.optDouble("mediaDelaySeconds", 2.0)
         )
     }
 }
@@ -73,6 +82,7 @@ object SettingsManager {
     private const val KEY_REGEN_MODE_VOICE = "key_regen_mode_voice"
     private const val KEY_SNOW_MODE_VOICE = "key_snow_mode_voice"
     private const val KEY_LEADING_CAR_VOICE = "key_leading_car_voice"
+    private const val KEY_LVDA_SENSOR_EXPERIMENTAL = "key_lvda_sensor_experimental_v30"
     private const val KEY_HAZARD_AUTO = "key_hazard_auto"
     private const val KEY_CHARGING_VOICE = "key_charging_voice"
     private const val KEY_SAFETY_ALERT = "key_safety_alert"
@@ -119,7 +129,6 @@ object SettingsManager {
     private const val KEY_HUD_BRIGHTNESS_MANUAL = "key_hud_brightness_manual"
     private const val KEY_HUD_BRIGHTNESS_MIN = "key_hud_brightness_min"
     private const val KEY_HUD_BRIGHTNESS_MAX = "key_hud_brightness_max"
-
     // 계기판 TBT 활성화 키
     private const val KEY_CLUSTER_TBT_ENABLED = "key_cluster_tbt_enabled"
 
@@ -130,6 +139,7 @@ object SettingsManager {
     private const val KEY_BOOT_MEDIA_DELAY = "key_boot_media_delay"
     private const val KEY_BOOT_SELECTED_MEDIA_PKG = "key_boot_selected_media_pkg"
     private const val KEY_BOOT_SELECTED_MEDIA_NAME = "key_boot_selected_media_name"
+    private const val KEY_BOOT_PER_APP_MIGRATED = "key_boot_per_app_migrated_v30"
 
     // 커스텀 시나리오 규칙 목록
     private const val KEY_CUSTOM_SCENARIOS_JSON = "key_custom_scenarios_json"
@@ -138,7 +148,11 @@ object SettingsManager {
     private const val KEY_FLOATING_OVERLAY = "key_floating_overlay_enabled"
     private const val KEY_FLOATING_X = "key_floating_x"
     private const val KEY_FLOATING_Y = "key_floating_y"
+    private const val KEY_FLOATING_COLLAPSE_DELAY = "key_floating_collapse_delay_seconds"
     private const val KEY_AUTO_DEFROST_SYNC = "key_auto_defrost_sync"
+
+    // 원터치 진단 세션 개인정보 옵션 (기본값: 내비 원문 미기록)
+    private const val KEY_DIAGNOSTIC_NAV_TEXT = "key_diagnostic_nav_text_v30"
 
     private fun getPrefs(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -169,7 +183,14 @@ object SettingsManager {
     fun isLeadingCarVoiceEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_LEADING_CAR_VOICE, true)
     fun setLeadingCarVoiceEnabled(context: Context, enabled: Boolean) = getPrefs(context).edit().putBoolean(KEY_LEADING_CAR_VOICE, enabled).apply()
 
-    fun isHazardAutoEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_HAZARD_AUTO, true)
+    fun isExperimentalLvdaEnabled(context: Context): Boolean =
+        getPrefs(context).getBoolean(KEY_LVDA_SENSOR_EXPERIMENTAL, false)
+
+    fun setExperimentalLvdaEnabled(context: Context, enabled: Boolean) =
+        getPrefs(context).edit().putBoolean(KEY_LVDA_SENSOR_EXPERIMENTAL, enabled).apply()
+
+    /** Public SDK에는 비상등 setter가 없어 신규 설치에서는 자동 제어를 사용하지 않는다. */
+    fun isHazardAutoEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_HAZARD_AUTO, false)
     fun setHazardAutoEnabled(context: Context, enabled: Boolean) = getPrefs(context).edit().putBoolean(KEY_HAZARD_AUTO, enabled).apply()
 
     fun isChargingVoiceEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_CHARGING_VOICE, true)
@@ -178,7 +199,7 @@ object SettingsManager {
     fun isSafetyAlertEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_SAFETY_ALERT, true)
     fun setSafetyAlertEnabled(context: Context, enabled: Boolean) = getPrefs(context).edit().putBoolean(KEY_SAFETY_ALERT, enabled).apply()
 
-    fun isClusterTbtEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_CLUSTER_TBT_ENABLED, true)
+    fun isClusterTbtEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_CLUSTER_TBT_ENABLED, false)
     fun setClusterTbtEnabled(context: Context, enabled: Boolean) = getPrefs(context).edit().putBoolean(KEY_CLUSTER_TBT_ENABLED, enabled).apply()
 
     fun getBsdAlertMode(context: Context): String = getPrefs(context).getString(KEY_BSD_ALERT_MODE, "BEEP") ?: "BEEP"
@@ -311,13 +332,14 @@ object SettingsManager {
     fun setChargingPhrase(context: Context, phrase: String) = setChargingStartPhrase(context, phrase)
 
     // HUD 설정
-    fun isHudBridgeEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_HUD_BRIDGE, true)
+    fun isHudBridgeEnabled(context: Context): Boolean =
+        getPrefs(context).getBoolean(KEY_HUD_BRIDGE, true) && isHudProtocolConfirmed(context)
     fun setHudBridgeEnabled(context: Context, enabled: Boolean) = getPrefs(context).edit().putBoolean(KEY_HUD_BRIDGE, enabled).apply()
 
-    fun isHudDataEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_HUD_DATA_ENABLED, true)
+    fun isHudDataEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_HUD_DATA_ENABLED, false)
     fun setHudDataEnabled(context: Context, enabled: Boolean) = getPrefs(context).edit().putBoolean(KEY_HUD_DATA_ENABLED, enabled).apply()
 
-    fun isHudAudioEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_HUD_AUDIO_ENABLED, true)
+    fun isHudAudioEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_HUD_AUDIO_ENABLED, false)
     fun setHudAudioEnabled(context: Context, enabled: Boolean) = getPrefs(context).edit().putBoolean(KEY_HUD_AUDIO_ENABLED, enabled).apply()
 
     fun getHudAudioVolume(context: Context): Int = getPrefs(context).getInt(KEY_HUD_AUDIO_VOLUME, 10)
@@ -335,8 +357,12 @@ object SettingsManager {
     fun getHudBrightnessMax(context: Context): Int = getPrefs(context).getInt(KEY_HUD_BRIGHTNESS_MAX, 15)
     fun setHudBrightnessMax(context: Context, level: Int) = getPrefs(context).edit().putInt(KEY_HUD_BRIGHTNESS_MAX, level).apply()
 
+    /** A source update is required after a capture confirms the exact TMAP Plus HUD framing/checksum. */
+    @Suppress("UNUSED_PARAMETER")
+    fun isHudProtocolConfirmed(context: Context): Boolean = false
+
     // 부팅 시 다중 앱 자동 실행 관리 (0.1초 단위)
-    fun isBootAutoEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_BOOT_AUTO_ENABLED, true)
+    fun isBootAutoEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_BOOT_AUTO_ENABLED, false)
     fun setBootAutoEnabled(context: Context, enabled: Boolean) = getPrefs(context).edit().putBoolean(KEY_BOOT_AUTO_ENABLED, enabled).apply()
 
     fun isBootMediaPlayEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_BOOT_MEDIA_PLAY_ENABLED, true)
@@ -352,9 +378,10 @@ object SettingsManager {
     fun setBootSelectedMediaName(context: Context, name: String) = getPrefs(context).edit().putString(KEY_BOOT_SELECTED_MEDIA_NAME, name).apply()
 
     fun getBootAppList(context: Context): MutableList<BootAppItem> {
-        val jsonStr = getPrefs(context).getString(KEY_BOOT_APP_LIST_JSON, null) ?: return mutableListOf(
+        val prefs = getPrefs(context)
+        val jsonStr = prefs.getString(KEY_BOOT_APP_LIST_JSON, null) ?: return mutableListOf(
             BootAppItem("com.skt.tmap.ku", "티맵", 3.0),
-            BootAppItem("com.android.music", "기본 미디어", 4.5)
+            BootAppItem("com.android.music", "기본 미디어", 4.5, mediaPlayEnabled = true, mediaDelaySeconds = 2.0)
         )
         val list = mutableListOf<BootAppItem>()
         try {
@@ -364,6 +391,22 @@ object SettingsManager {
             }
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+        if (!prefs.getBoolean(KEY_BOOT_PER_APP_MIGRATED, false)) {
+            val legacyEnabled = prefs.getBoolean(KEY_BOOT_MEDIA_PLAY_ENABLED, true)
+            val legacyPkg = prefs.getString(KEY_BOOT_SELECTED_MEDIA_PKG, "com.android.music") ?: "com.android.music"
+            val legacyName = prefs.getString(KEY_BOOT_SELECTED_MEDIA_NAME, "기본 미디어") ?: "기본 미디어"
+            val legacyDelay = prefs.getFloat(KEY_BOOT_MEDIA_DELAY, 3.5f).toDouble()
+            if (legacyEnabled) {
+                val index = list.indexOfFirst { it.packageName == legacyPkg }
+                if (index >= 0) {
+                    list[index] = list[index].copy(mediaPlayEnabled = true, mediaDelaySeconds = legacyDelay)
+                } else {
+                    list.add(BootAppItem(legacyPkg, legacyName, 0.0, mediaPlayEnabled = true, mediaDelaySeconds = legacyDelay))
+                }
+            }
+            saveBootAppList(context, list)
+            prefs.edit().putBoolean(KEY_BOOT_PER_APP_MIGRATED, true).apply()
         }
         return list
     }
@@ -387,15 +430,15 @@ object SettingsManager {
         saveBootAppList(context, list)
     }
 
-    // 커스텀 시나리오 규칙 목록 (오버드라이브 확장)
+    // 커스텀 시나리오 규칙 목록 (검증된 액션만 실행 계층에서 허용)
     fun getCustomScenarios(context: Context): MutableList<CustomScenario> {
         val jsonStr = getPrefs(context).getString(KEY_CUSTOM_SCENARIOS_JSON, null)
         if (jsonStr == null) {
             return mutableListOf(
-                CustomScenario("1", "폭염 시 에어컨 급속 냉방 5단", "TEMP_HIGH", "외부온도 32°C 이상", "AC_FAN", "에어컨 풍량 5단", "5"),
-                CustomScenario("2", "겨울철 앞뒤 성에제거 동시가동", "TEMP_LOW", "외부온도 3°C 이하", "DEFROST_ALL", "앞뒤 성에제거 ON", "1"),
-                CustomScenario("3", "시동 후 운전석 출퇴근 포지션 정렬", "READY_ON", "시동 (READY) 감지", "SEAT_STAGE", "운전석 포지션 1번", "1"),
-                CustomScenario("4", "하차 시 창문 전체 자동 닫힘", "READY_OFF", "시동 OFF 감지", "WINDOW_CLOSE", "창문 전체 닫기", "1")
+                CustomScenario("1", "폭염 시 에어컨 급속 냉방 5단", "TEMP_HIGH", "외부온도 32°C 이상", "AC_FAN", "에어컨 풍량 5단", "5", false),
+                CustomScenario("2", "겨울철 앞뒤 성에제거 동시가동", "TEMP_LOW", "외부온도 3°C 이하", "DEFROST_ALL", "앞뒤 성에제거 ON", "1", false),
+                CustomScenario("3", "시동 후 운전석 열선 1단", "READY_ON", "시동 (READY) 감지", "DRIVER_SEAT_HEAT", "운전석 열선 1단", "1", false),
+                CustomScenario("4", "시동 후 핸들 열선", "READY_ON", "시동 (READY) 감지", "STEERING_HEAT", "핸들 열선 ON", "1", false)
             )
         }
         val list = mutableListOf<CustomScenario>()
@@ -438,8 +481,20 @@ object SettingsManager {
     fun getFloatingY(context: Context, defaultVal: Int): Int = getPrefs(context).getInt(KEY_FLOATING_Y, defaultVal)
     fun setFloatingY(context: Context, y: Int) = getPrefs(context).edit().putInt(KEY_FLOATING_Y, y).apply()
 
+    fun getFloatingCollapseDelaySeconds(context: Context): Int =
+        getPrefs(context).getInt(KEY_FLOATING_COLLAPSE_DELAY, 10).coerceIn(3, 60)
+
+    fun setFloatingCollapseDelaySeconds(context: Context, seconds: Int) =
+        getPrefs(context).edit().putInt(KEY_FLOATING_COLLAPSE_DELAY, seconds.coerceIn(3, 60)).apply()
+
     fun isAutoDefrostSyncEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_AUTO_DEFROST_SYNC, true)
     fun setAutoDefrostSyncEnabled(context: Context, enabled: Boolean) = getPrefs(context).edit().putBoolean(KEY_AUTO_DEFROST_SYNC, enabled).apply()
+
+    fun isDiagnosticNavTextEnabled(context: Context): Boolean =
+        getPrefs(context).getBoolean(KEY_DIAGNOSTIC_NAV_TEXT, false)
+
+    fun setDiagnosticNavTextEnabled(context: Context, enabled: Boolean) =
+        getPrefs(context).edit().putBoolean(KEY_DIAGNOSTIC_NAV_TEXT, enabled).apply()
 
     private const val KEY_FLOATING_SCALE = "key_floating_scale"
     private const val KEY_FLOATING_OPACITY = "key_floating_opacity"

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootMain"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:background="#121212">
 
     <!-- ================================================================= -->
@@ -52,8 +54,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="🟢 실시간 감시 중 (서비스 정상 가동)"
-                    android:textColor="#00E676"
+                    android:text="서비스 상태 확인 중"
+                    android:textColor="#FFD54F"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -88,7 +90,7 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuSplit"
                     android:layout_width="0dp"
-                    android:layout_height="148dp"
+                    android:layout_height="164dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
                     app:cardCornerRadius="16dp"
@@ -145,8 +147,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="2/3/4분할 1% 단위 크기 조절
-앱 직접 선택 &amp; AVM 복구 방어"
+                            android:text="DiLink 3 검증 2분할 · 1% 단위 조절
+앱 직접 선택 &amp; AVM 뒤 저장 비율 복원"
                             android:textColor="#B0BEC5"
                             android:textSize="11sp"
                             android:maxLines="2" />
@@ -174,7 +176,7 @@
                                 android:paddingHorizontal="5dp"
                                 android:paddingVertical="1dp"
                                 android:background="@drawable/bg_badge_pill"
-                                android:text="십자가 4분할"
+                                android:text="검증형 2분할"
                                 android:textColor="#80D8FF"
                                 android:textSize="9sp" />
                         </LinearLayout>
@@ -185,7 +187,7 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuSeat"
                     android:layout_width="0dp"
-                    android:layout_height="148dp"
+                    android:layout_height="164dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
                     app:cardCornerRadius="16dp"
@@ -223,7 +225,7 @@
                                 android:paddingHorizontal="6dp"
                                 android:paddingVertical="2dp"
                                 android:background="@drawable/bg_badge_pill"
-                                android:text="SEAT &amp; MIRROR"
+                                android:text="FRONT COMFORT"
                                 android:textColor="#FF4081"
                                 android:textSize="9sp"
                                 android:textStyle="bold" />
@@ -233,7 +235,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="시트 &amp; 미러 다운"
+                            android:text="앞좌석·핸들 열선"
                             android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
@@ -242,8 +244,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="후진 시 사이드미러 자동 다운
-운전석 이지 억세스 &amp; 동승석 릴렉스"
+                            android:text="운전석·동승석 2단 열선
+핸들 열선 상태 확인 &amp; 제어"
                             android:textColor="#B0BEC5"
                             android:textSize="11sp"
                             android:maxLines="2" />
@@ -260,7 +262,7 @@
                                 android:paddingHorizontal="5dp"
                                 android:paddingVertical="1dp"
                                 android:background="@drawable/bg_badge_pill"
-                                android:text="미러 딥"
+                                android:text="실차 검증 API"
                                 android:textColor="#FF80AB"
                                 android:textSize="9sp" />
 
@@ -271,7 +273,7 @@
                                 android:paddingHorizontal="5dp"
                                 android:paddingVertical="1dp"
                                 android:background="@drawable/bg_badge_pill"
-                                android:text="동승석 전동"
+                                android:text="미장착 기능 제외"
                                 android:textColor="#FF80AB"
                                 android:textSize="9sp" />
                         </LinearLayout>
@@ -282,7 +284,7 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuVoice"
                     android:layout_width="0dp"
-                    android:layout_height="148dp"
+                    android:layout_height="164dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
                     app:cardCornerRadius="16dp"
@@ -339,8 +341,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="기어 P/R/N/D &amp; 오토홀드 음성
-기본·추천·수동 3단 문구 선택"
+                            android:text="기어·EPB·충전 API 전환 음성
+AVH·주행모드는 원시값 매핑 대기"
                             android:textColor="#B0BEC5"
                             android:textSize="11sp"
                             android:maxLines="2" />
@@ -379,7 +381,7 @@
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuSafetyAudio"
                     android:layout_width="0dp"
-                    android:layout_height="148dp"
+                    android:layout_height="164dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
                     app:cardCornerRadius="16dp"
@@ -436,8 +438,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="BSD 사각지대 깜박이 경고음
-LDP 차선이탈 현대·기아 스타일"
+                            android:text="BSD·차선 상태 원시값 진단
+안내음 미리듣기·OEM 오디오 정책"
                             android:textColor="#B0BEC5"
                             android:textSize="11sp"
                             android:maxLines="2" />
@@ -454,7 +456,7 @@ LDP 차선이탈 현대·기아 스타일"
                                 android:paddingHorizontal="5dp"
                                 android:paddingVertical="1dp"
                                 android:background="@drawable/bg_badge_pill"
-                                android:text="현대기아 톤"
+                                android:text="원시값 진단"
                                 android:textColor="#FF8A80"
                                 android:textSize="9sp" />
 
@@ -465,18 +467,18 @@ LDP 차선이탈 현대·기아 스타일"
                                 android:paddingHorizontal="5dp"
                                 android:paddingVertical="1dp"
                                 android:background="@drawable/bg_badge_pill"
-                                android:text="전용 스피커"
+                                android:text="OEM 정책"
                                 android:textColor="#FF8A80"
                                 android:textSize="9sp" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- 5. 🧭 한문철 T900 HUD 카드 -->
+                <!-- 5. 🧭 티맵 Plus HUD 카드 -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuHud"
                     android:layout_width="0dp"
-                    android:layout_height="148dp"
+                    android:layout_height="164dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
                     app:cardCornerRadius="16dp"
@@ -501,7 +503,7 @@ LDP 차선이탈 현대·기아 스타일"
                                 android:layout_width="30dp"
                                 android:layout_height="30dp"
                                 android:src="@drawable/ic_card_hud"
-                                android:contentDescription="T900 HUD" />
+                                android:contentDescription="TMAP Plus HUD T900" />
 
                             <View
                                 android:layout_width="0dp"
@@ -514,7 +516,7 @@ LDP 차선이탈 현대·기아 스타일"
                                 android:paddingHorizontal="6dp"
                                 android:paddingVertical="2dp"
                                 android:background="@drawable/bg_badge_pill"
-                                android:text="T900 HUD"
+                                android:text="TMAP PLUS HUD"
                                 android:textColor="#FFD54F"
                                 android:textSize="9sp"
                                 android:textStyle="bold" />
@@ -524,7 +526,7 @@ LDP 차선이탈 현대·기아 스타일"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="한문철 T900 HUD"
+                            android:text="TMAP Plus HUD / T900"
                             android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
@@ -533,8 +535,8 @@ LDP 차선이탈 현대·기아 스타일"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="데이터/오디오 2채널 분리 페어링
-자동 밝기 최소~최대 범위 지정"
+                            android:text="페어링 기기·UUID·SPP 진단
+프로토콜 확인 전 패킷 송신 잠금"
                             android:textColor="#B0BEC5"
                             android:textSize="11sp"
                             android:maxLines="2" />
@@ -551,7 +553,7 @@ LDP 차선이탈 현대·기아 스타일"
                                 android:paddingHorizontal="5dp"
                                 android:paddingVertical="1dp"
                                 android:background="@drawable/bg_badge_pill"
-                                android:text="듀얼 페어링"
+                                android:text="진단 모드"
                                 android:textColor="#FFE082"
                                 android:textSize="9sp" />
 
@@ -573,7 +575,7 @@ LDP 차선이탈 현대·기아 스타일"
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuCluster"
                     android:layout_width="0dp"
-                    android:layout_height="148dp"
+                    android:layout_height="164dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
                     app:cardCornerRadius="16dp"
@@ -621,7 +623,7 @@ LDP 차선이탈 현대·기아 스타일"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="계기판 TBT &amp; 미러링"
+                            android:text="계기판 TBT 브릿지"
                             android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
@@ -630,8 +632,8 @@ LDP 차선이탈 현대·기아 스타일"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="5대 내비 TBT 계기판 실시간 표출
-순정 접근성 브릿지 우회 연동"
+                            android:text="내비 알림에서 TBT 정보 추출
+확인된 BYD 계기판 API 호출"
                             android:textColor="#B0BEC5"
                             android:textSize="11sp"
                             android:maxLines="2" />
@@ -670,7 +672,7 @@ LDP 차선이탈 현대·기아 스타일"
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuButtonBuilder"
                     android:layout_width="0dp"
-                    android:layout_height="148dp"
+                    android:layout_height="164dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
                     app:cardCornerRadius="16dp"
@@ -767,7 +769,7 @@ LDP 차선이탈 현대·기아 스타일"
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuAutomation"
                     android:layout_width="0dp"
-                    android:layout_height="148dp"
+                    android:layout_height="164dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
                     app:cardCornerRadius="16dp"
@@ -824,8 +826,8 @@ LDP 차선이탈 현대·기아 스타일"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="후진 비상등 점멸 &amp; 오버드라이브
-공조·시트·창문·조명 다중 액션"
+                            android:text="시동·기어 기반 선택 규칙
+검증된 공조·열선·조명 액션"
                             android:textColor="#B0BEC5"
                             android:textSize="11sp"
                             android:maxLines="2" />
@@ -842,7 +844,7 @@ LDP 차선이탈 현대·기아 스타일"
                                 android:paddingHorizontal="5dp"
                                 android:paddingVertical="1dp"
                                 android:background="@drawable/bg_badge_pill"
-                                android:text="비상등 점멸"
+                                android:text="검증 API"
                                 android:textColor="#B9F6CA"
                                 android:textSize="9sp" />
 
@@ -853,7 +855,7 @@ LDP 차선이탈 현대·기아 스타일"
                                 android:paddingHorizontal="5dp"
                                 android:paddingVertical="1dp"
                                 android:background="@drawable/bg_badge_pill"
-                                android:text="오버드라이브"
+                                android:text="안전 차단"
                                 android:textColor="#B9F6CA"
                                 android:textSize="9sp" />
                         </LinearLayout>
@@ -864,7 +866,7 @@ LDP 차선이탈 현대·기아 스타일"
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuBootScheduler"
                     android:layout_width="0dp"
-                    android:layout_height="148dp"
+                    android:layout_height="164dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
                     app:cardCornerRadius="16dp"
@@ -921,8 +923,8 @@ LDP 차선이탈 현대·기아 스타일"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="다중 앱 0.1초 정밀 지연 실행
-자동 재생할 미디어 앱 선택"
+                            android:text="시동 전환 1회당 앱별 지연 실행
+앱별 미디어 재생 지연 설정"
                             android:textColor="#B0BEC5"
                             android:textSize="11sp"
                             android:maxLines="2" />
@@ -957,11 +959,11 @@ LDP 차선이탈 현대·기아 스타일"
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- 10. ⚙️ 화면 밀도(DPI) & ADB 진단 카드 -->
+                <!-- 10. ⚙️ 화면 밀도(DPI) & 원터치 진단 카드 -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cardMenuDpiAdb"
                     android:layout_width="0dp"
-                    android:layout_height="148dp"
+                    android:layout_height="164dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="5dp"
                     app:cardCornerRadius="16dp"
@@ -1009,7 +1011,7 @@ LDP 차선이탈 현대·기아 스타일"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="DPI &amp; ADB 진단"
+                            android:text="DPI &amp; 원터치 진단"
                             android:textColor="#FFFFFF"
                             android:textSize="15sp"
                             android:textStyle="bold" />
@@ -1019,9 +1021,8 @@ LDP 차선이탈 현대·기아 스타일"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="원터치 180 DPI 프리셋
-로컬 ADB 자체 권한 승인
-통합 진단 로그 파일 추출"
+                            android:text="원터치 DPI·15분 자동 수집
+BYD/HUD 진단 ZIP 추출"
                             android:textColor="#B0BEC5"
                             android:textSize="11sp"
                             android:maxLines="2" />
@@ -1091,7 +1092,7 @@ LDP 차선이탈 현대·기아 스타일"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="14dp"
-                android:text="📱 화면 분할 관리 (2/3/4분할 &amp; 1% 정밀 조절)"
+                android:text="화면 분할 관리 (검증된 2분할 · 1% 조절)"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -1110,51 +1111,10 @@ LDP 차선이탈 현대·기아 스타일"
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="분할 레이아웃 모드:"
+                    android:text="지원 모드: DiLink 3 기본 2분할"
                     android:textColor="#00E5FF"
                     android:textSize="14sp"
                     android:textStyle="bold" />
-
-                <RadioGroup
-                    android:id="@+id/rgSubSplitMode"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="6dp">
-
-                    <RadioButton
-                        android:id="@+id/rbSubTwoApps"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="2분할"
-                        android:textColor="#FFFFFF"
-                        android:checked="true" />
-
-                    <RadioButton
-                        android:id="@+id/rbSubThreeLeft"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1.2"
-                        android:text="3분할(좌2:우1)"
-                        android:textColor="#FFFFFF" />
-
-                    <RadioButton
-                        android:id="@+id/rbSubThreeRight"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1.2"
-                        android:text="3분할(좌1:우2)"
-                        android:textColor="#FFFFFF" />
-
-                    <RadioButton
-                        android:id="@+id/rbSubFourGrid"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="4분할(2x2)"
-                        android:textColor="#FFFFFF" />
-                </RadioGroup>
 
                 <!-- 분할 대상 앱 직접 선택 -->
                 <TextView
@@ -1194,27 +1154,6 @@ LDP 차선이탈 현대·기아 스타일"
                         android:backgroundTint="#242434"
                         android:textColor="#FFFFFF" />
 
-                    <Button
-                        android:id="@+id/btnSelectApp3"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:layout_margin="3dp"
-                        android:text="앱 3: 미선택"
-                        android:textSize="12sp"
-                        android:backgroundTint="#242434"
-                        android:textColor="#AAAAAA" />
-
-                    <Button
-                        android:id="@+id/btnSelectApp4"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:layout_margin="3dp"
-                        android:text="앱 4: 미선택"
-                        android:textSize="12sp"
-                        android:backgroundTint="#242434"
-                        android:textColor="#AAAAAA" />
                 </GridLayout>
 
                 <!-- 실시간 그래픽 분할 미리보기 -->
@@ -1293,58 +1232,16 @@ LDP 차선이탈 현대·기아 스타일"
                     android:id="@+id/sbSubSplitRatio"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:max="99"
+                    android:min="20"
+                    android:max="80"
                     android:progress="30"
-                    android:layout_marginTop="6dp" />
-
-                <!-- 세로 상/하 크기 조절 (3/4분할 시) -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginTop="12dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="상/하 크기 비율 (1% 단위):"
-                        android:textColor="#80D8FF"
-                        android:textSize="14sp" />
-
-                    <EditText
-                        android:id="@+id/etSplitRatioY"
-                        android:layout_width="60dp"
-                        android:layout_height="40dp"
-                        android:inputType="number"
-                        android:gravity="center"
-                        android:text="50"
-                        android:textColor="#00E5FF"
-                        android:background="#22222E"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text=" %"
-                        android:textColor="#80D8FF" />
-                </LinearLayout>
-
-                <SeekBar
-                    android:id="@+id/sbSubSplitRatioY"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:max="99"
-                    android:progress="50"
                     android:layout_marginTop="6dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="🛡️ 360° 어라운드뷰(AVM) 후진 카메라 복귀 보호 작동 중: 카메라 닫힘 시 50:50 초기화를 차단하고 위 설정 비율로 즉시 자동 복원합니다."
+                    android:text="360° 어라운드뷰 종료 신호 뒤 저장한 2분할과 비율을 다시 적용합니다. 결과는 진단 로그에서 확인할 수 있습니다."
                     android:textColor="#69F0AE"
                     android:textSize="12sp" />
 
@@ -1353,7 +1250,7 @@ LDP 차선이탈 현대·기아 스타일"
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:layout_marginTop="16dp"
-                    android:text="🚀 커스텀 분할 화면 즉시 적용 실행"
+                    android:text="2분할 화면 적용"
                     android:backgroundTint="#00E676"
                     android:textColor="#000000"
                     android:textSize="15sp"
@@ -1363,308 +1260,124 @@ LDP 차선이탈 현대·기아 스타일"
     </LinearLayout>
 
     <!-- ================================================================= -->
-    <!-- ② [스마트 시트 & 미러 서브 화면 - 운전석 & 동승석 & 미러다운]    -->
-    <!-- ================================================================= -->
+    <!-- v30: verified controls for the hardware actually fitted to this car. -->
     <LinearLayout
-        android:id="@+id/subLayoutSeat"
+        android:id="@+id/subLayoutComfortV30"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#121212"
+        android:background="#0B1118"
         android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="56dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="16dp"
-            android:background="#1C1C24">
+            android:background="#111B26">
 
             <Button
-                android:id="@+id/btnBackSeat"
+                android:id="@+id/btnBackSeatV30"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="38dp"
                 android:text="← 뒤로"
-                android:textSize="13sp"
-                android:backgroundTint="#2C2C38"
-                android:textColor="#FFFFFF" />
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#243244" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
-                android:text="💺 시트 &amp; 후진 사이드미러 다운 제어"
+                android:layout_marginStart="16dp"
+                android:text="열선 편의 제어"
                 android:textColor="#FFFFFF"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
-
-                <!-- 후진 시 사이드 미러 자동 다운 (신규 요구사항!) -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="[사이드미러 스마트 편의]"
-                    android:textColor="#00E5FF"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/swMirrorDip"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="후진(R) 시 사이드미러 자동 하향 (미러 딥)"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp" />
+                android:padding="20dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="R단 변속 시 사이드미러가 아래로 기울어져 주차선을 비추고, D/N/P 이동 시 원위치로 자동 복귀합니다."
-                    android:textColor="#AAAAAA"
-                    android:textSize="12sp" />
-
-                <!-- 1. 운전석 섹션 -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="[운전석 시트 제어]"
-                    android:textColor="#FF4081"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/swEasyAccess"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="운전석 승하차 이지 억세스 (자동 후진/복귀)"
-                    android:textColor="#FFFFFF" />
+                    android:padding="14dp"
+                    android:background="@drawable/bg_card_cyber"
+                    android:text="이 차량에서 확인된 운전석·동승석 2단 열선과 핸들 열선만 표시합니다. 미장착 통풍·뒷좌석 열선과 검증되지 않은 전동시트 제어는 전송하지 않습니다."
+                    android:textColor="#B8C7D9"
+                    android:textSize="13sp" />
 
                 <TextView
-                    android:id="@+id/tvEasyAccessDelay"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="하차 시트 슬라이딩 지연: 3초"
-                    android:textColor="#80D8FF"
-                    android:textSize="12sp" />
-
-                <SeekBar
-                    android:id="@+id/sbEasyAccessDelay"
+                    android:id="@+id/tvDriverHeatStatus"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:max="10"
-                    android:progress="3" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="6dp">
-
-                    <Button
-                        android:id="@+id/btnSeatPreset1"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="4dp"
-                        android:text="운전석 1번: 출퇴근"
-                        android:textSize="12sp"
-                        android:backgroundTint="#7C4DFF"
-                        android:textColor="#FFFFFF" />
-
-                    <Button
-                        android:id="@+id/btnSeatPreset2"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="4dp"
-                        android:text="운전석 2번: 휴식"
-                        android:textSize="12sp"
-                        android:backgroundTint="#00E5FF"
-                        android:textColor="#000000" />
-                </LinearLayout>
-
-                <!-- 운전석 가상 4방향 조절기 -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="140dp"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:background="#1A1A24"
-                    android:layout_marginTop="8dp">
-
-                    <Button
-                        android:id="@+id/btnSeatUp"
-                        android:layout_width="80dp"
-                        android:layout_height="34dp"
-                        android:text="▲ 상"
-                        android:backgroundTint="#2C2C38"
-                        android:textColor="#00E5FF" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginVertical="3dp">
-
-                        <Button
-                            android:id="@+id/btnSeatForward"
-                            android:layout_width="80dp"
-                            android:layout_height="34dp"
-                            android:text="◀ 전진"
-                            android:backgroundTint="#2C2C38"
-                            android:textColor="#00E5FF" />
-
-                        <TextView
-                            android:layout_width="80dp"
-                            android:layout_height="34dp"
-                            android:gravity="center"
-                            android:text="운전석"
-                            android:textColor="#FFFFFF" />
-
-                        <Button
-                            android:id="@+id/btnSeatBackward"
-                            android:layout_width="80dp"
-                            android:layout_height="34dp"
-                            android:text="후진 ▶"
-                            android:backgroundTint="#2C2C38"
-                            android:textColor="#00E5FF" />
-                    </LinearLayout>
-
-                    <Button
-                        android:id="@+id/btnSeatDown"
-                        android:layout_width="80dp"
-                        android:layout_height="34dp"
-                        android:text="▼ 하"
-                        android:backgroundTint="#2C2C38"
-                        android:textColor="#00E5FF" />
-                </LinearLayout>
-
-                <!-- 2. 동승석(조수석) 섹션 (핵심 요구사항!) -->
-                <TextView
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="[동승석(조수석) 시트 제어]"
-                    android:textColor="#FF4081"
-                    android:textSize="15sp"
+                    android:text="운전석 열선: 확인 중"
+                    android:textColor="#FFB16A"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="6dp">
-
-                    <Button
-                        android:id="@+id/btnPassengerDefault"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="3dp"
-                        android:text="기본 탑승"
-                        android:textSize="12sp"
-                        android:backgroundTint="#242434"
-                        android:textColor="#FFFFFF" />
-
-                    <Button
-                        android:id="@+id/btnPassengerComfort"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginHorizontal="2dp"
-                        android:text="편안 모드"
-                        android:textSize="12sp"
-                        android:backgroundTint="#7B1FA2"
-                        android:textColor="#FFFFFF" />
-
-                    <Button
-                        android:id="@+id/btnPassengerRelax"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="3dp"
-                        android:text="릴렉스 취침"
-                        android:textSize="12sp"
-                        android:backgroundTint="#0288D1"
-                        android:textColor="#FFFFFF" />
+                    android:layout_marginTop="8dp">
+                    <Button android:id="@+id/btnDriverHeatOff" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:layout_margin="3dp" android:text="끄기" android:textColor="#FFFFFF" android:backgroundTint="#263343" />
+                    <Button android:id="@+id/btnDriverHeatLow" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:layout_margin="3dp" android:text="1단" android:textColor="#FFFFFF" android:backgroundTint="#A4552F" />
+                    <Button android:id="@+id/btnDriverHeatHigh" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:layout_margin="3dp" android:text="2단" android:textColor="#FFFFFF" android:backgroundTint="#D65A35" />
                 </LinearLayout>
 
-                <!-- 동승석 가상 4방향 조절기 -->
+                <TextView
+                    android:id="@+id/tvPassengerHeatStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="동승석 열선: 확인 중"
+                    android:textColor="#FFB16A"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="140dp"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:background="#1A1A24"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
                     android:layout_marginTop="8dp">
-
-                    <Button
-                        android:id="@+id/btnPassengerSeatUp"
-                        android:layout_width="80dp"
-                        android:layout_height="34dp"
-                        android:text="▲ 상"
-                        android:backgroundTint="#2C2C38"
-                        android:textColor="#FF4081" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginVertical="3dp">
-
-                        <Button
-                            android:id="@+id/btnPassengerSeatForward"
-                            android:layout_width="80dp"
-                            android:layout_height="34dp"
-                            android:text="◀ 전진"
-                            android:backgroundTint="#2C2C38"
-                            android:textColor="#FF4081" />
-
-                        <TextView
-                            android:layout_width="80dp"
-                            android:layout_height="34dp"
-                            android:gravity="center"
-                            android:text="동승석"
-                            android:textColor="#FFFFFF" />
-
-                        <Button
-                            android:id="@+id/btnPassengerSeatBackward"
-                            android:layout_width="80dp"
-                            android:layout_height="34dp"
-                            android:text="후진 ▶"
-                            android:backgroundTint="#2C2C38"
-                            android:textColor="#FF4081" />
-                    </LinearLayout>
-
-                    <Button
-                        android:id="@+id/btnPassengerSeatDown"
-                        android:layout_width="80dp"
-                        android:layout_height="34dp"
-                        android:text="▼ 하"
-                        android:backgroundTint="#2C2C38"
-                        android:textColor="#FF4081" />
+                    <Button android:id="@+id/btnPassengerHeatOff" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:layout_margin="3dp" android:text="끄기" android:textColor="#FFFFFF" android:backgroundTint="#263343" />
+                    <Button android:id="@+id/btnPassengerHeatLow" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:layout_margin="3dp" android:text="1단" android:textColor="#FFFFFF" android:backgroundTint="#A4552F" />
+                    <Button android:id="@+id/btnPassengerHeatHigh" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:layout_margin="3dp" android:text="2단" android:textColor="#FFFFFF" android:backgroundTint="#D65A35" />
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvSteeringHeatStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="22dp"
+                    android:text="핸들 열선: 확인 중"
+                    android:textColor="#FFB16A"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btnSteeringHeatToggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="8dp"
+                    android:text="핸들 열선 켜기 / 끄기"
+                    android:textColor="#081018"
+                    android:textStyle="bold"
+                    android:backgroundTint="#FF9A55" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
 
-    <!-- ================================================================= -->
     <!-- ③ [맞춤형 차량 음성 안내 서브 화면]                             -->
     <!-- ================================================================= -->
     <LinearLayout
@@ -1719,6 +1432,22 @@ LDP 차선이탈 현대·기아 스타일"
                     android:textColor="#B388FF"
                     android:textSize="14sp"
                     android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="자동 출력: 기어·EPB·충전 및 내비 알림의 전방 출발 문구. 주차센서 방식은 아래에서 직접 켜야 하며, 나머지 원시 상태는 실차 매핑 전까지 자동 출력하지 않습니다."
+                    android:textColor="#FFD54F"
+                    android:textSize="12sp" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/swExperimentalLvda"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="실험적 전방 주차센서 기반 출발 후보 감지 (기본 OFF)"
+                    android:textColor="#FF8A80" />
 
                 <GridLayout
                     android:layout_width="match_parent"
@@ -1882,7 +1611,7 @@ LDP 차선이탈 현대·기아 스타일"
                         android:backgroundTint="#242434"
                         android:textColor="#FFFFFF" />
 
-                    <!-- 충전 시작 vs 완료/종료 분리 (신규 요구사항!) -->
+                    <!-- 충전 시작과 정상 완료 문구 분리 -->
                     <Button
                         android:id="@+id/btnVoiceChargingStart"
                         android:layout_width="0dp"
@@ -1900,7 +1629,7 @@ LDP 차선이탈 현대·기아 스타일"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
                         android:layout_margin="3dp"
-                        android:text="충전 완료/종료"
+                        android:text="충전 정상 완료"
                         android:textSize="11sp"
                         android:backgroundTint="#242434"
                         android:textColor="#00E5FF" />
@@ -1952,7 +1681,7 @@ LDP 차선이탈 현대·기아 스타일"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="14dp"
-                android:text="🚨 운전석 안전 경고 사운드 &amp; 라우팅"
+                android:text="안전 경고 사운드"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -1971,7 +1700,7 @@ LDP 차선이탈 현대·기아 스타일"
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="현대·기아 스타일 BSD &amp; LDP 안전 경고음:"
+                    android:text="BSD·차선 상태 진단 및 안내음 미리듣기:"
                     android:textColor="#FF8A80"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -1980,7 +1709,7 @@ LDP 차선이탈 현대·기아 스타일"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="사각지대 물체 감지 방향 깜박이 또는 차선 이탈 시 운전석 전용 스피커로 비프/TTS를 출력합니다."
+                    android:text="확인된 ADAS getter의 원시 상태는 진단 로그에 기록합니다. 실차 의미 매핑 전에는 자동 경고음을 내지 않으며, 아래 설정은 음색·문구 미리듣기용입니다. 실제 스피커 존은 BYD 오디오 정책에 따릅니다."
                     android:textColor="#AAAAAA"
                     android:textSize="12sp" />
 
@@ -1996,7 +1725,7 @@ LDP 차선이탈 현대·기아 스타일"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginEnd="4dp"
-                        android:text="BSD 사각지대 경고음 설정"
+                        android:text="BSD 안내음 미리듣기 설정"
                         android:backgroundTint="#242434"
                         android:textColor="#FF8A80" />
 
@@ -2006,7 +1735,7 @@ LDP 차선이탈 현대·기아 스타일"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="4dp"
-                        android:text="LDP 차선이탈 경고음 설정"
+                        android:text="차선 안내음 미리듣기 설정"
                         android:backgroundTint="#242434"
                         android:textColor="#FF8A80" />
                 </LinearLayout>
@@ -2015,31 +1744,17 @@ LDP 차선이탈 현대·기아 스타일"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="운전석 전용 스피커 출력 대상 앱 (다중 등록):"
+                    android:text="일반 앱의 운전석 전용 스피커 강제 라우팅은 공개 API로 지원되지 않습니다."
                     android:textColor="#00E5FF"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupDriverAudioApps"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp" />
-
-                <Button
-                    android:id="@+id/btnAddDriverAudioApp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="+ 운전석 스피커 라우팅 앱 추가"
-                    android:backgroundTint="#242434"
-                    android:textColor="#80D8FF" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
 
     <!-- ================================================================= -->
-    <!-- ⑤ [한문철 T900 HUD 서브 화면]                                    -->
+    <!-- ⑤ [티맵 Plus HUD 서브 화면]                                      -->
     <!-- ================================================================= -->
     <LinearLayout
         android:id="@+id/subLayoutHud"
@@ -2070,7 +1785,7 @@ LDP 차선이탈 현대·기아 스타일"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="14dp"
-                android:text="🧭 한문철 T900 HUD 센터"
+                android:text="TMAP Plus HUD / T900 진단 센터"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -2086,11 +1801,11 @@ LDP 차선이탈 현대·기아 스타일"
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- 듀얼 채널 독립 페어링 버튼 -->
+                <!-- 페어링/프로토콜 진단 -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="T900 HUD 듀얼 채널 독립 페어링:"
+                    android:text="T900 연결 정보 수집 (패킷 송신 잠금):"
                     android:textColor="#FFD54F"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -2112,7 +1827,7 @@ LDP 차선이탈 현대·기아 스타일"
                             android:id="@+id/tvHudDataStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="데이터(huddata): 미연결"
+                            android:text="진단 모드: 미연결"
                             android:textColor="#AAAAAA"
                             android:textSize="12sp" />
 
@@ -2121,7 +1836,7 @@ LDP 차선이탈 현대·기아 스타일"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="📡 huddata 페어링"
+                            android:text="SPP/UUID 진단"
                             android:textSize="12sp"
                             android:backgroundTint="#0288D1"
                             android:textColor="#FFFFFF" />
@@ -2138,7 +1853,7 @@ LDP 차선이탈 현대·기아 스타일"
                             android:id="@+id/tvHudAudioStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="오디오(hudaudio): 미연결"
+                            android:text="오디오 상태 미확인"
                             android:textColor="#AAAAAA"
                             android:textSize="12sp" />
 
@@ -2147,7 +1862,7 @@ LDP 차선이탈 현대·기아 스타일"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="🔊 hudaudio 페어링"
+                            android:text="Bluetooth 설정 열기"
                             android:textSize="12sp"
                             android:backgroundTint="#7B1FA2"
                             android:textColor="#FFFFFF" />
@@ -2159,7 +1874,7 @@ LDP 차선이탈 현대·기아 스타일"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="HUD 화면 밝기 제어:"
+                    android:text="HUD 화면 밝기 후보 제어 (프로토콜 확인 후 활성화):"
                     android:textColor="#00E5FF"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -2223,7 +1938,7 @@ LDP 차선이탈 현대·기아 스타일"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="hudaudio 자체 스피커 안내 음량 (네비 전용):"
+                    android:text="HUD 오디오 후보 음량 (프로토콜 확인 후 활성화):"
                     android:textColor="#00E5FF"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -2271,7 +1986,7 @@ LDP 차선이탈 현대·기아 스타일"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="14dp"
-                android:text="📟 계기판 디스플레이 &amp; TBT 연동"
+                android:text="계기판 TBT 데이터 브릿지"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -2290,7 +2005,7 @@ LDP 차선이탈 현대·기아 스타일"
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="순정 5인치 계기판 디스플레이 TBT 연동:"
+                    android:text="BYD 계기판 TBT API 테스트:"
                     android:textColor="#80D8FF"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -2300,14 +2015,14 @@ LDP 차선이탈 현대·기아 스타일"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:text="5대 내비게이션 실시간 TBT 계기판 표출 활성화"
+                    android:text="지원 내비 알림에서 TBT 데이터 추출 활성화"
                     android:textColor="#FFFFFF" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="지원 앱: 순정 TMAP, 모바일 TMAP, 네이버지도, 카카오내비, 아이나비 에어\n내비게이션 알림에서 화살표 방향, 잔여거리, 제한속도를 파싱하여 계기판에 표시합니다."
+                    android:text="알림에서 방향·잔여거리를 추출해 확인된 BYDAutoInstrumentDevice API로 보냅니다. API 반환 코드와 실제 계기판 표시 결과를 진단 로그로 확인합니다."
                     android:textColor="#AAAAAA"
                     android:textSize="12sp"
                     android:lineSpacingExtra="2dp" />
@@ -2317,7 +2032,7 @@ LDP 차선이탈 현대·기아 스타일"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="🧭 계기판 TBT 화살표/거리 즉시 테스트 전송"
+                    android:text="BYD 계기판 TBT API 테스트"
                     android:backgroundTint="#00E5FF"
                     android:textColor="#000000"
                     android:textStyle="bold" />
@@ -2326,34 +2041,16 @@ LDP 차선이탈 현대·기아 스타일"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="계기판 화면 전송 &amp; 미러링:"
+                    android:text="계기판 전체화면 미러링은 안전·호환성 범위에서 제외되었습니다."
                     android:textColor="#FF4081"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
-                <Button
-                    android:id="@+id/btnSendAppToCluster"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:text="선택한 앱을 계기판 화면(Display 1)으로 전송"
-                    android:backgroundTint="#242434"
-                    android:textColor="#FFFFFF" />
-
-                <Button
-                    android:id="@+id/btnToggleClusterMirroring"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="메인 화면 계기판 미러링 전환 테스트"
-                    android:backgroundTint="#242434"
-                    android:textColor="#80D8FF" />
-            
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="🛡️ BYD 알림 청취 권한 차단 우회 솔루션:"
+                    android:text="내비 알림 접근 설정:"
                     android:textColor="#FFD54F"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -2362,7 +2059,7 @@ LDP 차선이탈 현대·기아 스타일"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="BYD 순정 보안으로 알림 접근 메뉴가 숨겨져 있어도, 아래 버튼을 눌러 안드로이드 순정 [접근성] 설정에서 '돌핀 내비 TBT 알림 수신 브릿지'를 켜시면 TMAP 등 5대 내비게이션의 모든 길안내가 계기판과 HUD로 100% 정상 연동됩니다."
+                    android:text="알림 접근 또는 접근성 브릿지를 활성화하면 지원 내비 알림 텍스트를 읽을 수 있습니다. 파싱 결과와 BYD API 반환값은 진단 로그로 확인합니다."
                     android:textColor="#AAAAAA"
                     android:textSize="12sp"
                     android:lineSpacingExtra="2dp" />
@@ -2432,7 +2129,7 @@ LDP 차선이탈 현대·기아 스타일"
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="항목을 선택한 후 [앱서랍 바로가기] 또는 [플로팅 버튼 독]을 지정하여 생성합니다."
+                    android:text="항목을 선택한 후 [홈 화면 바로가기] 또는 [플로팅 버튼 독]을 지정하여 생성합니다."
                     android:textColor="#AAAAAA"
                     android:textSize="13sp" />
 
@@ -2481,12 +2178,20 @@ LDP 차선이탈 현대·기아 스타일"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
                         android:layout_margin="3dp"
-                        android:text="📱 설치 앱 버튼"
+                        android:text="📱 설치 앱·미디어"
                         android:textSize="12sp"
                         android:backgroundTint="#242434"
                         android:textColor="#FFFFFF" />
                 </GridLayout>
             
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/swFloatingOverlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="플로팅 독 표시"
+                    android:textColor="#FFFFFF" />
+
                 <!-- 플로팅 독 크기 및 투명도 커스텀 제어 -->
                 <TextView
                     android:layout_width="wrap_content"
@@ -2532,10 +2237,27 @@ LDP 차선이탈 현대·기아 스타일"
                     android:progress="85" />
 
                 <TextView
+                    android:id="@+id/tvFloatingCollapseDelayVal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="✨ 등록된 앱은 실제 순정 앱 아이콘으로 표시되며, 플로팅 바를 손으로 길게 드래그하여 화면 어디든 자유롭게 배치할 수 있습니다."
+                    android:text="자동 접기: 10초"
+                    android:textColor="#80D8FF"
+                    android:textSize="13sp" />
+
+                <SeekBar
+                    android:id="@+id/sbFloatingCollapseDelay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:min="3"
+                    android:max="60"
+                    android:progress="10" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="앱은 실제 아이콘으로 표시됩니다. 손잡이를 끌어 이동하고 길게 눌러 제거할 수 있습니다. 최대 8개가 보이며 나머지는 좌우 스크롤됩니다. 일정 시간 뒤 작은 손잡이로 접히며 터치하면 다시 펼쳐집니다."
                     android:textColor="#69F0AE"
                     android:textSize="12sp" />
 
@@ -2594,8 +2316,8 @@ LDP 차선이탈 현대·기아 스타일"
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="기본 탑재 자동화: 후진(R) 비상등 자동 점멸 (R단 점멸 ON → N/D 이동 시 30초 유지 후 OFF → P 이동 시 즉시 OFF)"
-                    android:textColor="#69F0AE"
+                    android:text="자동화는 확인된 시동·기어 전환과 공조·성에 제거·앞좌석 열선·핸들 열선·실내등 API만 실행합니다. 비상등은 공개 setter가 없어 자동 명령을 차단합니다."
+                    android:textColor="#FFD54F"
                     android:textSize="12sp" />
 
                 <!-- 커스텀 시나리오 목록 컨테이너 -->
@@ -2611,7 +2333,7 @@ LDP 차선이탈 현대·기아 스타일"
                     android:layout_width="match_parent"
                     android:layout_height="44dp"
                     android:layout_marginTop="8dp"
-                    android:text="+ 새 자동화 규칙 추가 (오버드라이브식 액션 조합)"
+                    android:text="+ 새 자동화 규칙 추가 (검증 액션 선택)"
                     android:backgroundTint="#00E5FF"
                     android:textColor="#000000"
                     android:textStyle="bold" />
@@ -2620,7 +2342,7 @@ LDP 차선이탈 현대·기아 스타일"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="비상등 자동화 신호 테스트:"
+                    android:text="앱 내부 규칙·음성용 가상 기어 테스트:"
                     android:textColor="#AAAAAA"
                     android:textSize="12sp" />
 
@@ -2635,7 +2357,7 @@ LDP 차선이탈 현대·기아 스타일"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="R단 (비상등 ON)"
+                        android:text="R 가상 기어"
                         android:backgroundTint="#C62828"
                         android:textColor="#FFFFFF" />
 
@@ -2644,7 +2366,7 @@ LDP 차선이탈 현대·기아 스타일"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="D단 (30초 유지)"
+                        android:text="D 가상 기어"
                         android:backgroundTint="#2E7D32"
                         android:textColor="#FFFFFF" />
 
@@ -2653,7 +2375,7 @@ LDP 차선이탈 현대·기아 스타일"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="P단 (비상등 OFF)"
+                        android:text="P 가상 기어"
                         android:backgroundTint="#2C2C38"
                         android:textColor="#FFFFFF" />
                 </LinearLayout>
@@ -2693,7 +2415,7 @@ LDP 차선이탈 현대·기아 스타일"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="14dp"
-                android:text="🚀 부팅 시 다중 앱 자동 실행 스케줄러"
+                android:text="시동 앱별 자동 실행 스케줄러"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -2713,7 +2435,7 @@ LDP 차선이탈 현대·기아 스타일"
                     android:id="@+id/swBootAuto"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="부팅/시동 시 자동 실행 스케줄러 활성화"
+                    android:text="시동 ON 전환 시 앱별 예약 1회 실행"
                     android:textColor="#FFFFFF" />
 
                 <!-- 자동 재생할 미디어 앱 선택 (신규 요구사항!) -->
@@ -2721,33 +2443,16 @@ LDP 차선이탈 현대·기아 스타일"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
-                    android:text="자동 재생할 미디어 앱 선택:"
+                    android:text="각 앱의 편집 버튼에서 실행 지연과 재생 지연을 따로 설정합니다. 시동 OFF가 감지되면 남은 예약은 취소됩니다."
                     android:textColor="#40C4FF"
                     android:textSize="14sp"
                     android:textStyle="bold" />
-
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/swBootMediaPlay"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="부팅 후 미디어 자동 재생 활성화"
-                    android:textColor="#FFFFFF" />
-
-                <Button
-                    android:id="@+id/btnSelectBootMediaApp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="자동 재생 대상 앱: 기본 미디어"
-                    android:backgroundTint="#242434"
-                    android:textColor="#80D8FF" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="등록된 자동 실행 앱 목록 (0.1초 정밀도):"
+                    android:text="등록된 앱별 시동 예약 (0.1초 단위):"
                     android:textColor="#40C4FF"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -2764,7 +2469,7 @@ LDP 차선이탈 현대·기아 스타일"
                     android:layout_width="match_parent"
                     android:layout_height="44dp"
                     android:layout_marginTop="8dp"
-                    android:text="+ 자동 실행 앱 추가 (0.1초 단위 지연 설정)"
+                    android:text="+ 앱별 실행·재생 예약 추가"
                     android:backgroundTint="#00E5FF"
                     android:textColor="#000000"
                     android:textStyle="bold" />
@@ -2773,7 +2478,7 @@ LDP 차선이탈 현대·기아 스타일"
     </LinearLayout>
 
     <!-- ================================================================= -->
-    <!-- ⑩ [화면 밀도(DPI) & ADB 진단 서브 화면]                          -->
+    <!-- ⑩ [화면 밀도(DPI) & 원터치 진단 서브 화면]                       -->
     <!-- ================================================================= -->
     <LinearLayout
         android:id="@+id/subLayoutDpiAdb"
@@ -2804,7 +2509,7 @@ LDP 차선이탈 현대·기아 스타일"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="14dp"
-                android:text="⚙️ 화면 밀도(DPI) &amp; ADB 진단 센터"
+                android:text="⚙️ 화면 밀도(DPI) &amp; 원터치 진단 센터"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -2940,6 +2645,85 @@ LDP 차선이탈 현대·기아 스타일"
                         android:textColor="#FFFFFF" />
                 </LinearLayout>
 
+                <!-- 앱 자체 원터치 진단 세션 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="원터치 버그 정보 수집 (권장)"
+                    android:textColor="#00E5FF"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="스마트폰 버그제거 앱 없이 15분간 앱 동작, BYD 읽기 전용 상태, T900 페어링·UUID, 내비 처리와 오류를 자동 기록합니다. 수집 중 문제를 재현한 뒤 ZIP 하나만 공유하세요."
+                    android:textColor="#B0BEC5"
+                    android:textSize="12sp" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/swDiagnosticIncludeNavText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="내비 알림 원문도 진단에 포함 (기본 꺼짐)"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    app:thumbTint="#00E5FF"
+                    app:trackTint="#455A64" />
+
+                <TextView
+                    android:id="@+id/tvDiagnosticCaptureStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:padding="10dp"
+                    android:background="#1A1A26"
+                    android:text="● 대기 중 · 시작 후 문제 상황을 재현하세요."
+                    android:textColor="#80D8FF"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnStartDiagnosticCapture"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="3dp"
+                        android:text="● 15분 수집 시작"
+                        android:backgroundTint="#00E676"
+                        android:textColor="#000000"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/btnDiagnosticProblemMarker"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="3dp"
+                        android:text="⚑ 문제 순간 표시"
+                        android:backgroundTint="#FFAB00"
+                        android:textColor="#000000"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnStopExportDiagnosticBundle"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="6dp"
+                    android:text="■ 수집 종료 + ZIP 내보내기"
+                    android:backgroundTint="#0288D1"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+
                 <!-- 통합 진단 리포트 추출 -->
                 <TextView
                     android:layout_width="wrap_content"
@@ -2966,7 +2750,7 @@ LDP 차선이탈 현대·기아 스타일"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="저장 위치: /sdcard/DolphinAssistant_DebugLog.txt"
+                    android:text="진단 파일 생성 후 앱 전용 저장 경로를 표시합니다."
                     android:textColor="#80D8FF"
                     android:textSize="12sp" />
 

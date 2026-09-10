@@ -46,40 +46,57 @@ object FloatingItemManager {
     const val ID_STEERING_HEAT = "FUNC_STEERING_HEAT"
     const val ID_SEAT_HEAT = "FUNC_SEAT_HEAT"
     const val ID_AC_TOGGLE = "FUNC_AC_TOGGLE"
+    const val ID_REAR_DEFROST = "BB_DEFROST_REAR"
+    const val ID_MEDIA_PREVIOUS = "MEDIA_PREVIOUS"
+    const val ID_MEDIA_PLAY_PAUSE = "MEDIA_PLAY_PAUSE"
+    const val ID_MEDIA_NEXT = "MEDIA_NEXT"
+    const val ID_ROTATION = "QP_ROTATION"
+    const val ID_SCREEN_OFF = "QP_SCREEN_OFF"
+    const val ID_WIFI = "QP_WIFI"
+    const val ID_HOTSPOT = "QP_HOTSPOT"
+    const val ID_MUTE = "QP_MUTE"
+    const val ID_LIGHT_ON = "LIGHT_ON"
+    const val ID_LIGHT_OFF = "LIGHT_OFF"
+    const val ID_LIGHT_DOOR = "LIGHT_DOOR"
 
     val DEFAULT_VEHICLE_FUNCTIONS = listOf(
         FloatingItem(ID_DEFROST, "♨️ 성에제거", category = "BOTTOM_BAR"),
         FloatingItem(ID_INSIDE_LIGHT, "💡 실내등", category = "LIGHT"),
         FloatingItem(ID_STEERING_HEAT, "♨️ 핸들열선", category = "BOTTOM_BAR"),
         FloatingItem(ID_SEAT_HEAT, "💺 시트열선", category = "BOTTOM_BAR"),
-        FloatingItem(ID_AC_TOGGLE, "❄️ 공조 토글", category = "BOTTOM_BAR")
+        FloatingItem(ID_AC_TOGGLE, "❄️ 공조 토글", category = "BOTTOM_BAR"),
+        FloatingItem(ID_MEDIA_PREVIOUS, "⏮ 이전 곡", category = "MEDIA"),
+        FloatingItem(ID_MEDIA_PLAY_PAUSE, "⏯ 재생/일시정지", category = "MEDIA"),
+        FloatingItem(ID_MEDIA_NEXT, "⏭ 다음 곡", category = "MEDIA")
     )
 
     // 6-1. 상단바 퀵패널 버튼 항목들
     val QUICK_PANEL_ITEMS = listOf(
-        FloatingItem("QP_ROTATION", "🔄 화면 회전", category = "QUICK_PANEL"),
-        FloatingItem("QP_SCREEN_OFF", "🌙 화면 끄기", category = "QUICK_PANEL"),
-        FloatingItem("QP_WIFI", "📶 와이파이", category = "QUICK_PANEL"),
-        FloatingItem("QP_HOTSPOT", "📡 핫스팟", category = "QUICK_PANEL"),
-        FloatingItem("QP_MUTE", "🔇 음소거", category = "QUICK_PANEL")
+        FloatingItem(ID_ROTATION, "🔄 화면 회전", category = "QUICK_PANEL"),
+        FloatingItem(ID_SCREEN_OFF, "🌙 화면 끄기", category = "QUICK_PANEL"),
+        FloatingItem(ID_WIFI, "📶 와이파이 패널", category = "QUICK_PANEL"),
+        FloatingItem(ID_HOTSPOT, "📡 핫스팟 설정", category = "QUICK_PANEL"),
+        FloatingItem(ID_MUTE, "🔇 미디어 음소거", category = "QUICK_PANEL")
     )
 
     // 6-2. 하단바 버튼 항목들
     val BOTTOM_BAR_ITEMS = listOf(
         FloatingItem(ID_DEFROST, "♨️ 앞유리 성에", category = "BOTTOM_BAR"),
-        FloatingItem("BB_DEFROST_REAR", "♨️ 뒷유리 열선", category = "BOTTOM_BAR"),
+        FloatingItem(ID_REAR_DEFROST, "♨️ 뒷유리 열선", category = "BOTTOM_BAR"),
         FloatingItem(ID_AC_TOGGLE, "❄️ 공조 전원", category = "BOTTOM_BAR"),
         FloatingItem(ID_SEAT_HEAT, "💺 운전석 열선", category = "BOTTOM_BAR"),
         FloatingItem(ID_STEERING_HEAT, "♨️ 핸들 열선", category = "BOTTOM_BAR"),
-        FloatingItem("BB_AUTOHOLD", "🅿️ 오토홀드", category = "BOTTOM_BAR")
+        FloatingItem(ID_MEDIA_PREVIOUS, "⏮ 이전 곡", category = "MEDIA"),
+        FloatingItem(ID_MEDIA_PLAY_PAUSE, "⏯ 재생/일시정지", category = "MEDIA"),
+        FloatingItem(ID_MEDIA_NEXT, "⏭ 다음 곡", category = "MEDIA")
     )
 
     // 6-3. 모든 실내등 켜기/끄기
     val LIGHT_ITEMS = listOf(
         FloatingItem(ID_INSIDE_LIGHT, "💡 실내등 토글", category = "LIGHT"),
-        FloatingItem("LIGHT_ON", "💡 실내등 켜기", category = "LIGHT"),
-        FloatingItem("LIGHT_OFF", "💡 실내등 끄기", category = "LIGHT"),
-        FloatingItem("LIGHT_DOOR", "🚪 도어연동등", category = "LIGHT")
+        FloatingItem(ID_LIGHT_ON, "💡 실내등 켜기", category = "LIGHT"),
+        FloatingItem(ID_LIGHT_OFF, "💡 실내등 끄기", category = "LIGHT"),
+        FloatingItem(ID_LIGHT_DOOR, "🚪 도어연동등", category = "LIGHT")
     )
 
     private fun getPrefs(context: Context): SharedPreferences {
@@ -135,5 +152,9 @@ object FloatingItemManager {
             ids.add(item.id)
             setSelectedIds(context, ids)
         }
+    }
+
+    fun removeItem(context: Context, id: String) {
+        setSelectedIds(context, getSelectedIds(context).filterNot { it == id })
     }
 }

@@ -1,107 +1,73 @@
 package com.byd.dolphin.autoassistant.manager
 
 import android.content.Context
-import android.content.Intent
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import com.byd.dolphin.autoassistant.util.DolphinLogger
 
 /**
- * 7-1번 요구사항:
- * 기본 탑재 자동화 비상등 제어
- * - 후진 기어 R: 비상등 점멸 즉시 켬
- * - 중립 N 및 전진 D: 30초 동안 비상등 점멸 유지 (속도 30km/h 초과 시 즉시 OFF)
- * - 파킹 P: 비상등 점멸 즉시 끔
+ * Read-only hazard diagnostics.
+ *
+ * The supplied DiLink 3 framework exposes `getDoubleFlashLightState()` but no
+ * public hazard setter. Automatic or synthetic commands are therefore blocked.
  */
-class HazardLightManager(private val context: Context) {
+class HazardLightManager(context: Context) {
+    private val appContext = context.applicationContext
 
-    private val handler = Handler(Looper.getMainLooper())
-    private var isHazardOn = false
-    private var currentGear = Gear.P
-
-    enum class Gear {
-        P, R, N, D
-    }
-
-    private val autoOffRunnable = Runnable {
-        DolphinLogger.i("HazardManager", "N/D 전환 후 30초 경과: 비상등 자동 OFF")
-        turnOffHazard()
-    }
+    enum class Gear { P, R, N, D }
 
     fun onGearChanged(newGear: Gear, currentSpeedKmH: Float) {
-        if (!SettingsManager.isHazardAutoEnabled(context)) {
-            if (isHazardOn) turnOffHazard()
-            return
-        }
-
-        val previousGear = currentGear
-        currentGear = newGear
-        DolphinLogger.i("HazardManager", "기어 변속: $previousGear -> $newGear (속도: ${currentSpeedKmH}km/h)")
-
-        when (newGear) {
-            Gear.R -> {
-                handler.removeCallbacks(autoOffRunnable)
-                turnOnHazard()
-            }
-            Gear.N, Gear.D -> {
-                if (previousGear == Gear.R && isHazardOn) {
-                    if (currentSpeedKmH >= 30.0f) {
-                        DolphinLogger.i("HazardManager", "속도 30km/h 이상으로 비상등 즉시 OFF")
-                        turnOffHazard()
-                    } else {
-                        DolphinLogger.i("HazardManager", "R -> $newGear 전환: 30초 타이머 시작")
-                        handler.removeCallbacks(autoOffRunnable)
-                        handler.postDelayed(autoOffRunnable, 30_000L)
-                    }
-                }
-            }
-            Gear.P -> {
-                handler.removeCallbacks(autoOffRunnable)
-                turnOffHazard()
-            }
+        if (SettingsManager.isHazardAutoEnabled(appContext)) {
+            DolphinLogger.w(
+                TAG,
+                "기어 $newGear speed=$currentSpeedKmH: 비상등 자동화 차단 " +
+                    "(공개 setter 미확인, getter=${readHazardState()})"
+            )
         }
     }
 
-    fun onSpeedChanged(speedKmH: Float) {
-        if (!SettingsManager.isHazardAutoEnabled(context)) return
-        if (isHazardOn && (currentGear == Gear.N || currentGear == Gear.D)) {
-            if (speedKmH >= 30.0f) {
-                DolphinLogger.i("HazardManager", "속도 30km/h 초과로 비상등 즉시 OFF")
-                handler.removeCallbacks(autoOffRunnable)
-                turnOffHazard()
-            }
-        }
-    }
+    @Suppress("UNUSED_PARAMETER")
+    fun onSpeedChanged(speedKmH: Float) = Unit
 
-    fun turnOnHazard() {
-        if (!isHazardOn) {
-            isHazardOn = true
-            sendBydHazardCommand(true)
-        }
-    }
+    fun turnOnHazard() = blockRequest(true)
 
-    fun turnOffHazard() {
-        if (isHazardOn) {
-            isHazardOn = false
-            handler.removeCallbacks(autoOffRunnable)
-            sendBydHazardCommand(false)
-        }
-    }
+    fun turnOffHazard() = blockRequest(false)
 
     fun toggleHazard() {
-        if (isHazardOn) turnOffHazard() else turnOnHazard()
+        DolphinLogger.w(
+            TAG,
+            "비상등 토글 차단: 공개 setter 미확인 (현재 getter=${readHazardState()})"
+        )
     }
 
-    private fun sendBydHazardCommand(enable: Boolean) {
-        DolphinLogger.i("HazardManager", "BYD 비상등 제어 브로드캐스트 전송: $enable")
-        val intent = Intent("com.byd.auto.action.HAZARD_LIGHT_CONTROL").apply {
-            putExtra("state", if (enable) 1 else 0)
+    fun diagnosticStatus(): String =
+        "getter=${readHazardState()} setter=UNAVAILABLE commands=BLOCKED"
+
+    private fun blockRequest(enable: Boolean) {
+        DolphinLogger.w(
+            TAG,
+            "비상등 ${if (enable) "ON" else "OFF"} 요청 차단: " +
+                "공개 setter 미확인 (현재 getter=${readHazardState()})"
+        )
+    }
+
+    private fun readHazardState(): Boolean? = try {
+        val clazz = Class.forName(LIGHT_CLASS)
+        val instance = clazz.getMethod("getInstance", Context::class.java)
+            .invoke(null, appContext)
+        when ((clazz.getMethod("getDoubleFlashLightState").invoke(instance) as? Number)?.toInt()) {
+            1 -> true
+            2 -> false
+            else -> null
         }
-        context.sendBroadcast(intent)
+    } catch (e: Exception) {
+        DolphinLogger.w(TAG, "getDoubleFlashLightState 실패: ${(e.cause ?: e).message}")
+        null
     }
 
-    fun cleanup() {
-        handler.removeCallbacks(autoOffRunnable)
+    fun cleanup() = Unit
+
+    companion object {
+        private const val TAG = "HAZARD"
+        private const val LIGHT_CLASS =
+            "android.hardware.bydauto.light.BYDAutoLightDevice"
     }
 }

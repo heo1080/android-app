@@ -1,180 +1,133 @@
 package com.byd.dolphin.autoassistant.manager
 
-import android.util.Base64
+import android.content.Context
 import com.byd.dolphin.autoassistant.util.DolphinLogger
-import java.io.InputStream
-import java.io.OutputStream
+import dadb.AdbKeyPair
+import dadb.Dadb
+import java.io.File
 import java.net.InetSocketAddress
 import java.net.Socket
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.security.KeyPair
-import java.security.KeyPairGenerator
-import java.security.interfaces.RSAPublicKey
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 
-/**
- * Android 공식 ADB 바이너리 프로토콜 클라이언트
- * 127.0.0.1:5555로 A_CNXN 및 A_AUTH(RSA 공개키) 패킷을 전송하여
- * 안드로이드 시스템의 "USB 디버깅을 허용하시겠습니까?" 팝업창을 직접 트리거하고,
- * 사용자가 '허용'을 누르면 자체적으로 모든 쉘 명령어를 실행합니다.
- */
+/** Persistent, standards-compliant ADB client for the vehicle's local 5555 endpoint. */
 object NativeAdbClient {
+    private const val TAG = "LOCAL_ADB"
+    private val lock = Any()
+    private var connection: Dadb? = null
+    private var connectedHost: String? = null
 
-    private const val TAG = "NativeAdbClient"
-
-    private const val A_CNXN = 0x4e584e43
-    private const val A_AUTH = 0x48545541
-    private const val A_OPEN = 0x4e45504f
-    private const val A_OKAY = 0x59414b4f
-    private const val A_CLSE = 0x45534c43
-    private const val A_WRTE = 0x45545257
-
-    private const val ADB_AUTH_TOKEN = 1
-    private const val ADB_AUTH_SIGNATURE = 2
-    private const val ADB_AUTH_RSAPUBLICKEY = 3
-
-    private var cachedKeyPair: KeyPair? = null
-
-    private fun getOrCreateKeyPair(): KeyPair {
-        cachedKeyPair?.let { return it }
-        val kpg = KeyPairGenerator.getInstance("RSA")
-        kpg.initialize(2048)
-        val kp = kpg.generateKeyPair()
-        cachedKeyPair = kp
-        return kp
-    }
-
-    private fun buildPacket(cmd: Int, arg0: Int, arg1: Int, data: ByteArray = ByteArray(0)): ByteArray {
-        val magic = cmd xor -0x1
-        var crc = 0
-        for (b in data) {
-            crc = (crc + (b.toInt() and 0xFF)) and 0xFFFFFFFF.toInt()
-        }
-
-        val buf = ByteBuffer.allocate(24 + data.size).order(ByteOrder.LITTLE_ENDIAN)
-        buf.putInt(cmd)
-        buf.putInt(arg0)
-        buf.putInt(arg1)
-        buf.putInt(data.size)
-        buf.putInt(crc)
-        buf.putInt(magic)
-        if (data.isNotEmpty()) {
-            buf.put(data)
-        }
-        return buf.array()
-    }
-
-    private data class AdbMessage(
-        val cmd: Int,
-        val arg0: Int,
-        val arg1: Int,
-        val dataLength: Int,
-        val data: ByteArray
+    data class ShellResult(
+        val success: Boolean,
+        val exitCode: Int,
+        val output: String,
+        val message: String
     )
 
-    private fun readMessage(input: InputStream): AdbMessage? {
-        val header = ByteArray(24)
-        var readTotal = 0
-        while (readTotal < 24) {
-            val r = input.read(header, readTotal, 24 - readTotal)
-            if (r < 0) return null
-            readTotal += r
+    fun isPortOpen(host: String = "127.0.0.1", port: Int = 5555): Boolean {
+        return try {
+            Socket().use { it.connect(InetSocketAddress(host, port), 400) }
+            true
+        } catch (_: Exception) {
+            false
         }
-
-        val buf = ByteBuffer.wrap(header).order(ByteOrder.LITTLE_ENDIAN)
-        val cmd = buf.int
-        val arg0 = buf.int
-        val arg1 = buf.int
-        val length = buf.int
-        val crc = buf.int
-        val magic = buf.int
-
-        val payload = ByteArray(length)
-        var payloadRead = 0
-        while (payloadRead < length) {
-            val r = input.read(payload, payloadRead, length - payloadRead)
-            if (r < 0) break
-            payloadRead += r
-        }
-
-        return AdbMessage(cmd, arg0, arg1, length, payload)
     }
 
-    /**
-     * 로컬 127.0.0.1:5555에 접속하여 RSA 인증을 수행하고 권한 부여 스크립트를 실행
-     */
+    fun executeShell(
+        context: Context,
+        command: String,
+        host: String = "127.0.0.1",
+        port: Int = 5555
+    ): ShellResult = synchronized(lock) {
+        try {
+            val adb = getConnection(context.applicationContext, host, port)
+            val response = adb.shell(command)
+            val output = response.allOutput
+            val success = response.exitCode == 0
+            DolphinLogger.i(TAG, "shell exit=${response.exitCode}: $command")
+            ShellResult(success, response.exitCode, output, if (success) "ok" else output.trim())
+        } catch (e: Exception) {
+            closeLocked()
+            val message = e.message ?: e.javaClass.simpleName
+            DolphinLogger.w(TAG, "shell 실패: $command ($message)")
+            ShellResult(false, -1, "", message)
+        }
+    }
+
     fun connectAndExecute(
+        context: Context,
         host: String = "127.0.0.1",
         port: Int = 5555,
         commands: List<String>,
         onStatus: (Boolean, String) -> Unit
     ) {
-        val socket = Socket()
-        try {
-            DolphinLogger.i(TAG, "ADB 로컬 데몬 접속 시도: $host:$port")
-            socket.connect(InetSocketAddress(host, port), 3000)
-            val output = socket.getOutputStream()
-            val input = socket.getInputStream()
+        if (!isPortOpen(host, port)) {
+            onStatus(false, "$host:$port 포트가 닫혀 있습니다")
+            return
+        }
+        var last = ShellResult(true, 0, "", "ok")
+        for (command in commands) {
+            last = executeShell(context, command, host, port)
+            if (!last.success) break
+        }
+        onStatus(last.success, if (last.success) "ADB 명령 ${commands.size}개 완료" else last.message)
+    }
 
-            // 1단계: A_CNXN 연결 패킷 전송 (호스트 정보 전달)
-            val banner = "host::DolphinAutoAssistant\u0000".toByteArray()
-            val cnxnPacket = buildPacket(A_CNXN, 0x01000000, 4096, banner)
-            output.write(cnxnPacket)
-            output.flush()
+    fun close() = synchronized(lock) { closeLocked() }
 
-            // 2단계: 디바이스로부터 응답 수신 (A_AUTH 토큰 수신 대기)
-            val resp1 = readMessage(input)
-            if (resp1 == null) {
-                onStatus(false, "ADB 데몬에서 응답이 없습니다.")
-                socket.close()
-                return
-            }
-
-            if (resp1.cmd == A_AUTH) {
-                DolphinLogger.i(TAG, "A_AUTH 수신: 디바이스 인증 요청 확인")
-
-                // 3단계: RSA 공개키 패킷(A_AUTH, arg0=3) 전송 -> 안드로이드 'USB 디버깅 허용' 팝업 발생 트리거!
-                val kp = getOrCreateKeyPair()
-                val pubKey = kp.public as RSAPublicKey
-                val pubEncoded = Base64.encodeToString(pubKey.encoded, Base64.NO_WRAP)
-                val pubData = "$pubEncoded DolphinAssistant@byd\u0000".toByteArray()
-
-                val authPacket = buildPacket(A_AUTH, ADB_AUTH_RSAPUBLICKEY, 0, pubData)
-                output.write(authPacket)
-                output.flush()
-
-                DolphinLogger.i(TAG, "A_AUTH(공개키) 전송 완료: 화면에 USB 디버깅 허용 팝업이 표출됩니다.")
-
-                // 4단계: 사용자가 화면의 '허용'을 누를 때까지 대기 (최대 30초 대기)
-                socket.soTimeout = 30_000
-                val resp2 = readMessage(input)
-
-                if (resp2 == null || resp2.cmd != A_CNXN) {
-                    onStatus(false, "화면의 'USB 디버깅 항상 허용'을 눌러주셔야 승인됩니다.")
-                    socket.close()
-                    return
-                }
-                DolphinLogger.i(TAG, "A_CNXN 수신: USB 디버깅 허용 승인 확인됨!")
-            }
-
-            // 5단계: A_OPEN으로 각 명령어 쉘 실행
-            for (cmd in commands) {
-                val shellPayload = "shell:$cmd\u0000".toByteArray()
-                val openPacket = buildPacket(A_OPEN, 1, 0, shellPayload)
-                output.write(openPacket)
-                output.flush()
-
-                // OKAY 및 종료 대기
-                readMessage(input)
-                DolphinLogger.i(TAG, "ADB 쉘 실행: $cmd")
-            }
-
-            onStatus(true, "차량 ADB 권한이 자체적으로 모두 자동 승인되었습니다!")
-            socket.close()
-        } catch (e: Exception) {
-            DolphinLogger.w(TAG, "ADB 연결 실패 (${e.message}): 포트 5555가 닫혀있거나 응답 대기 초과")
-            try { socket.close() } catch (ignored: Exception) {}
-            onStatus(false, "차량 로컬 ADB 포트(5555) 미개방: ${e.message}")
+    private fun getConnection(context: Context, host: String, port: Int): Dadb {
+        connection?.takeIf { connectedHost == "$host:$port" }?.let { return it }
+        closeLocked()
+        val privateKey = File(context.filesDir, "adbkey")
+        val publicKey = File(context.filesDir, "adbkey.pub")
+        if (!privateKey.exists() || !publicKey.exists()) {
+            AdbKeyPair.generate(privateKey, publicKey)
+            DolphinLogger.i(TAG, "차량 ADB용 영구 키 생성")
+        }
+        val keyPair = AdbKeyPair.read(privateKey, publicKey)
+        return createWithTimeout(host, port, keyPair).also {
+            connection = it
+            connectedHost = "$host:$port"
+            DolphinLogger.i(TAG, "ADB 연결 완료: $connectedHost")
         }
     }
+
+    private fun createWithTimeout(host: String, port: Int, keyPair: AdbKeyPair): Dadb {
+        val result = AtomicReference<Dadb?>()
+        val error = AtomicReference<Throwable?>()
+        val cancelled = AtomicBoolean(false)
+        val thread = Thread({
+            try {
+                val candidate = Dadb.create(host, port, keyPair)
+                if (cancelled.get()) {
+                    runCatching { candidate.close() }
+                } else {
+                    result.set(candidate)
+                }
+            } catch (t: Throwable) {
+                error.set(t)
+            }
+        }, "dolphin-adb-connect").apply { isDaemon = true }
+        thread.start()
+        thread.join(CONNECT_TIMEOUT_MS)
+        if (thread.isAlive) {
+            cancelled.set(true)
+            thread.interrupt()
+            runCatching { result.getAndSet(null)?.close() }
+            throw IllegalStateException("ADB 인증 대기 또는 ${CONNECT_TIMEOUT_MS}ms 연결 시간 초과")
+        }
+        error.get()?.let { throw if (it is Exception) it else Exception(it) }
+        return result.get() ?: throw IllegalStateException("ADB 연결 결과 없음")
+    }
+
+    private fun closeLocked() {
+        try {
+            connection?.close()
+        } catch (_: Exception) {
+        }
+        connection = null
+        connectedHost = null
+    }
+
+    private const val CONNECT_TIMEOUT_MS = 10_000L
 }

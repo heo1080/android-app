@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">돌핀 오토 어시스턴트</string>
-    <string name="accessibility_description">BYD DiLink 환경에서 TMAP, 네이버지도 등 5대 내비게이션의 길안내 TBT 정보를 계기판 및 HUD로 연동합니다.</string>
+    <string name="accessibility_description">선택한 내비게이션 알림의 길안내 텍스트를 읽어 BYD 계기판 TBT API로 전달하는 보조 입력입니다. 티맵 Plus HUD는 프로토콜 진단만 수행합니다.</string>
 </resources>

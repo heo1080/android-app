@@ -7,9 +7,8 @@ import com.byd.dolphin.autoassistant.hud.NavGuidanceParser
 import com.byd.dolphin.autoassistant.util.DolphinLogger
 
 /**
- * BYD DiLink 순정 보안상 '알림 청취 권한(NotificationListenerService)' 설정 화면이 차단된 경우,
- * 접근성 서비스(AccessibilityService)를 통해 5대 내비게이션의 알림 및 화면 TBT 정보를 100% 가로채어
- * 계기판과 HUD로 연동하는 스마트 우회 브릿지 서비스
+ * 사용자가 명시적으로 활성화할 수 있는 보조 내비 알림 브릿지입니다.
+ * 접근성 이벤트에 Notification 객체가 포함된 경우만 best-effort로 TBT 텍스트를 읽습니다.
  */
 class DolphinAccessibilityService : AccessibilityService() {
 
@@ -18,7 +17,7 @@ class DolphinAccessibilityService : AccessibilityService() {
 
         val pkg = event.packageName?.toString() ?: return
 
-        // 1. 알림 변경 감지 (Notification Listener 완전 대체)
+        // NotificationListener를 대체한다고 보장할 수 없는 보조 경로입니다.
         if (event.eventType == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
             if (NavGuidanceParser.isNavApp(pkg)) {
                 val parcelable = event.parcelableData
@@ -28,7 +27,14 @@ class DolphinAccessibilityService : AccessibilityService() {
                     val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: ""
                     val subText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT)?.toString() ?: ""
 
-                    DolphinLogger.i("ACCESSIBILITY_NAV", "접근성 서비스 알림 수신: pkg=$pkg, title='$title', text='$text'")
+                    DolphinLogger.logNavigationNotification(
+                        this,
+                        "ACCESSIBILITY_NAV",
+                        pkg,
+                        title,
+                        text,
+                        subText
+                    )
                     NavGuidanceParser.parseAndForward(this, pkg, title, text, subText)
                 }
             }

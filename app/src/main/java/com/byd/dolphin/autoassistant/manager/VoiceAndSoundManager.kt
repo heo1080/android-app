@@ -9,9 +9,11 @@ import android.os.Build
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
+import com.byd.dolphin.autoassistant.util.DolphinLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -28,7 +30,7 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
     private var ldwJob: Job? = null
     private var bsdJob: Job? = null
 
-    private val driverSpeakerAttributes = AudioAttributes.Builder()
+    private val navigationAudioAttributes = AudioAttributes.Builder()
         .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
         .build()
@@ -45,7 +47,7 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
-                .setAudioAttributes(driverSpeakerAttributes)
+                .setAudioAttributes(navigationAudioAttributes)
                 .setAcceptsDelayedFocusGain(false)
                 .setOnAudioFocusChangeListener { /* Auto managed */ }
                 .build()
@@ -57,7 +59,7 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
             tts?.language = Locale.KOREAN
             tts?.setPitch(1.0f)
             tts?.setSpeechRate(1.05f)
-            tts?.setAudioAttributes(driverSpeakerAttributes)
+            tts?.setAudioAttributes(navigationAudioAttributes)
 
             tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                 override fun onStart(utteranceId: String?) {}
@@ -66,6 +68,7 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
             })
 
             isTtsReady = true
+            DolphinLogger.i("AUDIO", "TTS 준비 완료: navigation-guidance usage; 물리 스피커 존은 OEM 정책에 위임")
         }
     }
 
@@ -214,6 +217,7 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
     fun release() {
         ldwJob?.cancel()
         bsdJob?.cancel()
+        soundScope.cancel()
         tts?.stop()
         tts?.shutdown()
         toneGenerator?.release()

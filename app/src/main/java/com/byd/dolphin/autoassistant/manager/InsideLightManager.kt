@@ -16,9 +16,7 @@ import com.byd.dolphin.autoassistant.util.DolphinLogger
  * - 도어 연동 함수: setInsideLightDoorState(int state)
  *   - 1: 도어 연동 ON
  *   - 2: 도어 연동 OFF
- *
- * 주의: BYD 차량 순정 런처는 홈 화면 바로가기 핀 추가를 지원하지 않으므로,
- * 모든 단축 기능은 앱서랍(App Drawer) 전용 액티비티로 등록되어 독립적으로 실행됩니다.
+ * 앱서랍 액티비티와 런처가 지원하는 고정 바로가기에서 같은 검증 API를 사용합니다.
  */
 object InsideLightManager {
 
@@ -34,10 +32,10 @@ object InsideLightManager {
      */
     fun turnOn(context: Context, showToast: Boolean = true): Boolean {
         val success = invokeBydInsideLight(context, PARAM_LIGHT_ON)
-        saveLightState(context, true)
+        if (success) saveLightState(context, true)
         DolphinLogger.i(TAG, "전체 실내등 점등(ON) 실행 - 결과: $success")
         if (showToast) {
-            Toast.makeText(context, "실내등 켜짐", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, if (success) "실내등 켜짐" else "실내등 명령 실패 — 진단 로그를 확인하세요", Toast.LENGTH_SHORT).show()
         }
         return success
     }
@@ -47,10 +45,10 @@ object InsideLightManager {
      */
     fun turnOff(context: Context, showToast: Boolean = true): Boolean {
         val success = invokeBydInsideLight(context, PARAM_LIGHT_OFF)
-        saveLightState(context, false)
+        if (success) saveLightState(context, false)
         DolphinLogger.i(TAG, "전체 실내등 소등(OFF) 실행 - 결과: $success")
         if (showToast) {
-            Toast.makeText(context, "실내등 꺼짐", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, if (success) "실내등 꺼짐" else "실내등 명령 실패 — 진단 로그를 확인하세요", Toast.LENGTH_SHORT).show()
         }
         return success
     }
@@ -77,13 +75,36 @@ object InsideLightManager {
             val getInstance = clazz.getMethod("getInstance", Context::class.java)
             val instance = getInstance.invoke(null, context)
             val method = clazz.getMethod("setInsideLightDoorState", Int::class.javaPrimitiveType)
-            method.invoke(instance, stateVal)
+            val result = (method.invoke(instance, stateVal) as? Number)?.toInt()
             DolphinLogger.i(TAG, "도어 연동 실내등 설정 완료: $enable (value=$stateVal)")
-            true
+            result == 0
         } catch (e: Exception) {
             DolphinLogger.e(TAG, "setInsideLightDoorState 호출 실패", e)
             false
         }
+    }
+
+    fun isDoorInterlockEnabled(context: Context): Boolean? {
+        return try {
+            val clazz = Class.forName("android.hardware.bydauto.setting.BYDAutoSettingDevice")
+            val instance = clazz.getMethod("getInstance", Context::class.java)
+                .invoke(null, context.applicationContext)
+            val value = (clazz.getMethod("getInsideLightDoorState").invoke(instance) as? Number)?.toInt()
+            when (value) {
+                1 -> true
+                2 -> false
+                else -> null
+            }
+        } catch (e: Exception) {
+            DolphinLogger.e(TAG, "getInsideLightDoorState 호출 실패", e.cause ?: e)
+            null
+        }
+    }
+
+    fun toggleDoorInterlock(context: Context): Boolean {
+        val next = !(isDoorInterlockEnabled(context) ?: false)
+        setDoorInterlock(context, next)
+        return next
     }
 
     /**
@@ -96,9 +117,9 @@ object InsideLightManager {
             val instance = getInstance.invoke(null, context)
 
             val method = clazz.getMethod("turnOffInsideLight", Int::class.javaPrimitiveType)
-            val result = method.invoke(instance, param)
+            val result = (method.invoke(instance, param) as? Number)?.toInt()
             Log.d(TAG, "BYDAutoSettingDevice.turnOffInsideLight($param) 성공, 반환값: $result")
-            true
+            result == 0
         } catch (e: ClassNotFoundException) {
             Log.e(TAG, "BYDAutoSettingDevice 클래스를 찾을 수 없습니다. (에뮬레이터/비BYD 환경)", e)
             false

@@ -7,13 +7,12 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.media.AudioManager
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.view.KeyEvent
 import androidx.core.app.NotificationCompat
+import com.byd.dolphin.autoassistant.hud.NavGuidanceParser
 import com.byd.dolphin.autoassistant.manager.*
 import com.byd.dolphin.autoassistant.split.SplitScreenManager
 import com.byd.dolphin.autoassistant.util.DolphinLogger
@@ -27,14 +26,16 @@ class DolphinService : Service() {
     private lateinit var hazardManager: HazardLightManager
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var lvdaEngine: LeadingVehicleDepartureEngine
+    private lateinit var bootAutomation: BootAutomationController
+    private lateinit var ignitionMonitor: IgnitionMonitor
+    private lateinit var telemetryMonitor: VehicleTelemetryMonitor
     private var currentSpeed: Float = 0.0f
 
-    private var isBsdActive = false
-    private var isTurnSignalOn = false
-    private var isCharging = false
-    private var previousGear = "P"
-    private var previousAutoHoldSwitchState: Boolean? = null
-    private var previousAutoHoldBrakeState: Boolean? = null
+    private var previousGear: String? = null
+    private val restoreSplitRunnable = Runnable {
+        DolphinLogger.i("SPLIT", "카메라 종료 뒤 저장된 2분할 복원 실행")
+        SplitScreenManager.restoreLastSplitScreen(applicationContext)
+    }
 
     private val vehicleEventReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -46,10 +47,6 @@ class DolphinService : Service() {
             DolphinLogger.logIntent(action, extrasSummary)
 
             when (action) {
-                "byd.intent.action.ACC_ON", Intent.ACTION_BOOT_COMPLETED -> {
-                    checkCustomScenarios("READY_ON")
-                }
-
                 // 360 서라운드뷰 종료 감지 -> 50:50 초기화 방지 & 커스텀 비율 복원
                 "byd.intent.action.AUTO_VIDEO_ON", "byd.intent.action.pano" -> {
                     val autovideoOn = intent.getIntExtra("autovideo_on", intent.getIntExtra("panoState", -1))
@@ -61,148 +58,55 @@ class DolphinService : Service() {
                     scheduleSplitScreenRestoration(context)
                 }
 
-                // 기어 변속 감지
-                "com.byd.auto.intent.action.GEAR_CHANGED" -> {
-                    val gearStr = intent.getStringExtra("gear") ?: "P"
-                    val speed = intent.getFloatExtra("speed", 0.0f)
-                    handleGearChange(context, gearStr, speed)
-                    checkCustomScenarios("GEAR_$gearStr")
-                }
+            }
+        }
+    }
 
-                // 공조 및 성에제거
-                "com.byd.auto.action.AC_DEFROST_CONTROL",
-                "com.byd.auto.intent.action.AC_STATUS",
-                "byd.intent.action.AC_STATUS",
-                "com.byd.auto.action.DEFROST_SWITCH" -> {
-                    val frontDefrost = intent.getIntExtra("front_defrost", intent.getIntExtra("state", -1))
-                    if (frontDefrost == 1 && context != null) {
-                        DefrostManager.onFrontDefrostDetected(context, true)
-                    } else if (frontDefrost == 0 && context != null) {
-                        DefrostManager.onFrontDefrostDetected(context, false)
-                    }
-                }
-
-                // 충전 시작 vs 종료 분리 음성
-                Intent.ACTION_POWER_CONNECTED, "com.byd.auto.intent.action.CHARGING_STATUS" -> {
-                    val chargingNow = intent.getBooleanExtra("is_charging", true)
-                    if (chargingNow && !isCharging) {
-                        isCharging = true
-                        audioManager.speakChargingStart()
-                        checkCustomScenarios("CHARGING_ON")
-                    } else if (!chargingNow && isCharging) {
-                        isCharging = false
-                        audioManager.speakChargingEnd()
-                    }
-                }
-                Intent.ACTION_POWER_DISCONNECTED -> {
-                    if (isCharging) {
-                        isCharging = false
-                        audioManager.speakChargingEnd()
-                    }
-                }
-
-                // 1) 오토홀드 콘솔 물리 스위치 ON/OFF
-                "com.byd.auto.intent.action.AUTOHOLD_SWITCH_CHANGED" -> {
-                    val isSwitchOn = intent.getBooleanExtra("switch_state", intent.getBooleanExtra("is_enabled", true))
-                    if (previousAutoHoldSwitchState != isSwitchOn) {
-                        previousAutoHoldSwitchState = isSwitchOn
-                        audioManager.speakAutoHoldSwitch(isSwitchOn)
-                    }
-                }
-
-                // 2) 오토홀드 정차 브레이크 체결 / 해제
-                "com.byd.auto.intent.action.AUTOHOLD_FUNCTION_STATUS", "com.byd.auto.intent.action.AUTOHOLD_ACTIVE" -> {
-                    val isEngaged = intent.getBooleanExtra("is_engaged", intent.getBooleanExtra("active", true))
-                    if (previousAutoHoldBrakeState != isEngaged) {
-                        previousAutoHoldBrakeState = isEngaged
-                        audioManager.speakAutoHoldBrake(isEngaged)
-                    }
-                }
-
-                "com.byd.auto.intent.action.EPB_STATUS" -> {
-                    val isEpbEngaged = intent.getBooleanExtra("is_epb_active", true)
-                    audioManager.speakEpb(isEpbEngaged)
-                }
-
-                "com.byd.auto.intent.action.ICC_STATUS", "com.byd.auto.intent.action.PILOT_STATUS" -> {
-                    val isIccActive = intent.getBooleanExtra("is_icc_active", true)
-                    audioManager.speakIcc(isIccActive)
-                }
-
-                // 🚗 전방 차량 출발 알림 (LVDA) 수신
-                "com.byd.auto.intent.action.FRONT_CAR_START",
-                "com.byd.auto.intent.action.LEAD_CAR_START",
-                "com.byd.auto.intent.action.FRONT_VEHICLE_START",
-                "byd.intent.action.FRONT_CAR_START",
-                "com.byd.auto.intent.action.ACC_FRONT_CAR_START",
-                "com.byd.auto.intent.action.TEST_LEADING_CAR" -> {
-                    DolphinLogger.i("ADAS", "전방 차량 출발 감지 -> 음성 알림 출력")
-                    audioManager.speakLeadingCarDeparture()
-                }
-
-                "com.byd.auto.intent.action.ADAS_STATUS", "com.byd.auto.intent.action.ADAS_EVENT" -> {
-                    val event = intent.getStringExtra("event") ?: intent.getStringExtra("type") ?: ""
-                    if (event.contains("FRONT_CAR", ignoreCase = true) || event.contains("LEAD", ignoreCase = true)) {
-                        DolphinLogger.i("ADAS", "ADAS 이벤트 전방 차량 출발 감지: $event")
-                        audioManager.speakLeadingCarDeparture()
-                    }
-                }
-
-                "com.byd.auto.intent.action.DRIVE_MODE_CHANGED" -> {
-                    val mode = intent.getStringExtra("mode") ?: "NORMAL"
-                    audioManager.speakDriveMode(mode)
-                }
-
-                "com.byd.auto.intent.action.REGEN_MODE_CHANGED" -> {
-                    val regen = intent.getStringExtra("regen") ?: "ECO"
-                    audioManager.speakRegenMode(regen)
-                }
-
-                "com.byd.auto.intent.action.SPEED_CHANGED" -> {
-                    val speed = intent.getFloatExtra("speed", 0.0f)
-                    currentSpeed = speed
-                    lvdaEngine.updateVehicleSpeedAndGear(speed, previousGear)
-                    hazardManager.onSpeedChanged(speed)
-                }
-
-                // LDP 차선이탈보조
-                "com.byd.auto.intent.action.LANE_DEPARTURE_WARNING" -> {
-                    audioManager.playLaneDepartureWarning()
-                }
-
-                // BSD 사각지대 + 깜박이 연동
-                "com.byd.auto.intent.action.BSD_STATUS" -> {
-                    isBsdActive = intent.getBooleanExtra("bsd_active", false)
-                    checkBsdWithTurnSignal()
-                }
-
-                "com.byd.auto.intent.action.TURN_SIGNAL_STATUS" -> {
-                    isTurnSignalOn = intent.getBooleanExtra("signal_on", false)
-                    checkBsdWithTurnSignal()
-                }
+    private val internalEventReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == NavGuidanceParser.ACTION_INTERNAL_LEADING_CAR) {
+                DolphinLogger.i("NAV_LVDA", "앱 내부 내비 알림 분석 결과 수신 -> 음성 출력")
+                audioManager.speakLeadingCarDeparture()
+            } else if (intent?.action == ACTION_INTERNAL_TEST_GEAR) {
+                val gear = intent.getStringExtra(EXTRA_TEST_GEAR) ?: return
+                DolphinLogger.i("GEAR_TEST", "앱 내부 가상 기어 이벤트: $gear")
+                handleGearChange(context, gear, 0f)
             }
         }
     }
 
     private fun handleGearChange(context: Context?, gearStr: String, speed: Float) {
-        val prev = previousGear
-        previousGear = gearStr
-        DolphinLogger.i("GEAR", "기어 변속: $prev -> $gearStr, 속도=$speed")
-
-        audioManager.speakGear(gearStr)
-        lvdaEngine.updateVehicleSpeedAndGear(speed, gearStr)
-
-        if (gearStr == "R") {
-            context?.let { SeatManager.onGearReverseEntered(it) }
-        } else if (prev == "R") {
-            context?.let { SeatManager.onGearReverseExited(it) }
+        val normalized = gearStr.trim().uppercase()
+        if (normalized !in setOf("P", "R", "N", "D")) {
+            DolphinLogger.w("GEAR", "알 수 없는 기어 값 무시: $gearStr")
+            return
         }
+        val prev = previousGear
+        currentSpeed = speed
+        if (prev == null) {
+            previousGear = normalized
+            DolphinLogger.i("GEAR", "초기 기어 기준값 설정: $normalized, 속도=$speed")
+            lvdaEngine.updateVehicleSpeedAndGear(speed, normalized)
+            hazardManager.onSpeedChanged(speed)
+            return
+        }
+        if (prev == normalized) {
+            lvdaEngine.updateVehicleSpeedAndGear(speed, normalized)
+            hazardManager.onSpeedChanged(speed)
+            return
+        }
+        previousGear = normalized
+        DolphinLogger.i("GEAR", "기어 변속: $prev -> $normalized, 속도=$speed")
 
-        if (prev == "R" && (gearStr == "D" || gearStr == "N" || gearStr == "P")) {
+        audioManager.speakGear(normalized)
+        lvdaEngine.updateVehicleSpeedAndGear(speed, normalized)
+        checkCustomScenarios("GEAR_$normalized")
+
+        if (prev == "R" && normalized in setOf("D", "N", "P")) {
             scheduleSplitScreenRestoration(context)
         }
 
-        val gear = when (gearStr.uppercase()) {
+        val gear = when (normalized) {
             "R" -> HazardLightManager.Gear.R
             "N" -> HazardLightManager.Gear.N
             "D" -> HazardLightManager.Gear.D
@@ -212,19 +116,9 @@ class DolphinService : Service() {
     }
 
     private fun scheduleSplitScreenRestoration(context: Context?) {
-        handler.removeCallbacksAndMessages("RESTORE_SPLIT")
-        handler.postDelayed({
-            context?.let {
-                DolphinLogger.i("SPLIT", "카메라 화면 종료 감지: 1% 커스텀 분할 화면 복구 실행")
-                SplitScreenManager.restoreLastSplitScreen(it)
-            }
-        }, 500L)
-    }
-
-    private fun checkBsdWithTurnSignal() {
-        if (isBsdActive && isTurnSignalOn) {
-            audioManager.playBlindSpotWarning()
-        }
+        if (context == null) return
+        handler.removeCallbacks(restoreSplitRunnable)
+        handler.postDelayed(restoreSplitRunnable, 500L)
     }
 
     private fun checkCustomScenarios(triggerKey: String) {
@@ -243,17 +137,34 @@ class DolphinService : Service() {
         when (sc.actionType) {
             "AC_FAN" -> {
                 val speed = sc.actionValue.toIntOrNull() ?: 3
-                val intent = Intent("com.byd.auto.action.AC_FAN_SPEED").apply {
-                    putExtra("fan_speed", speed)
-                }
-                sendBroadcast(intent)
+                VehicleComfortManager.setAcPower(this, true)
+                VehicleComfortManager.setAcFanLevel(this, speed)
             }
+            "AC_OFF" -> VehicleComfortManager.setAcPower(this, false)
             "DEFROST_ALL" -> {
-                DefrostManager.toggle(this, showToast = false)
+                if (sc.actionValue == "0") DefrostManager.turnOff(this, showToast = false)
+                else DefrostManager.turnOn(this, showToast = false)
             }
+            "DEFROST_REAR" -> DefrostManager.triggerRearDefrost(this, sc.actionValue != "0")
             "SEAT_STAGE" -> {
-                val stage = sc.actionValue.toIntOrNull() ?: 1
-                SeatManager.setComfortStage(this, stage, true)
+                DolphinLogger.w("SCENARIO", "검증되지 않은 전동시트 위치 규칙은 안전을 위해 실행하지 않음")
+            }
+            "DRIVER_SEAT_HEAT" -> {
+                VehicleComfortManager.setSeatHeatingLevel(
+                    this,
+                    VehicleComfortManager.SEAT_DRIVER,
+                    sc.actionValue.toIntOrNull()?.coerceIn(0, 2) ?: 1
+                )
+            }
+            "PASSENGER_SEAT_HEAT" -> {
+                VehicleComfortManager.setSeatHeatingLevel(
+                    this,
+                    VehicleComfortManager.SEAT_PASSENGER,
+                    sc.actionValue.toIntOrNull()?.coerceIn(0, 2) ?: 1
+                )
+            }
+            "STEERING_HEAT" -> {
+                VehicleComfortManager.setSteeringWheelHeating(this, sc.actionValue != "0")
             }
             "LIGHT_ON" -> {
                 InsideLightManager.turnOn(this, showToast = false)
@@ -261,11 +172,9 @@ class DolphinService : Service() {
             "LIGHT_OFF" -> {
                 InsideLightManager.turnOff(this, showToast = false)
             }
+            "LIGHT_DOOR" -> InsideLightManager.setDoorInterlock(this, sc.actionValue != "0")
             "WINDOW_CLOSE" -> {
-                val intent = Intent("com.byd.auto.action.WINDOW_CONTROL").apply {
-                    putExtra("action", "CLOSE_ALL")
-                }
-                sendBroadcast(intent)
+                DolphinLogger.w("SCENARIO", "검증되지 않은 창문 제어 규칙은 안전을 위해 실행하지 않음")
             }
             "LAUNCH_APP" -> {
                 packageManager.getLaunchIntentForPackage(sc.actionValue)?.let { intent ->
@@ -273,111 +182,99 @@ class DolphinService : Service() {
                     startActivity(intent)
                 }
             }
+            else -> DolphinLogger.w("SCENARIO", "지원하지 않거나 미검증인 기존 액션 차단: ${sc.actionType}")
         }
     }
 
     override fun onCreate() {
         super.onCreate()
         DolphinLogger.init(this)
+        DiagnosticCaptureManager.recoverInterruptedSession(this)
         DolphinLogger.i("SERVICE", "DolphinService 생성됨")
+        startForegroundServiceNotification()
 
         audioManager = VoiceAndSoundManager(this)
         hazardManager = HazardLightManager(this)
+        bootAutomation = BootAutomationController(this)
+        ignitionMonitor = IgnitionMonitor(
+            context = this,
+            onPowerOn = {
+                DolphinLogger.i("IGNITION", "시동 ON 확정: 자동 실행 및 READY_ON 규칙 시작")
+                bootAutomation.onIgnitionOn()
+                checkCustomScenarios("READY_ON")
+            },
+            onPowerOff = {
+                DolphinLogger.i("IGNITION", "시동 OFF 확정: 예약 동작 취소")
+                bootAutomation.onIgnitionOff()
+                checkCustomScenarios("READY_OFF")
+            }
+        )
 
         lvdaEngine = LeadingVehicleDepartureEngine(this) {
-            DolphinLogger.i("LVDA", "독자적 센서 엔진에서 전방 차량 출발 감지 -> 음성 출력")
+            DolphinLogger.i("LVDA", "전방 주차센서 기반 실험 엔진에서 출발 후보 감지 -> 음성 출력")
             audioManager.speakLeadingCarDeparture()
         }
         lvdaEngine.start()
 
-        startForegroundServiceNotification()
+        telemetryMonitor = VehicleTelemetryMonitor(
+            context = this,
+            onMotion = { speed, gear ->
+                currentSpeed = speed
+                lvdaEngine.updateVehicleSpeedAndGear(speed, gear)
+                hazardManager.onSpeedChanged(speed)
+            },
+            onGearChanged = { gear, speed -> handleGearChange(this, gear, speed) },
+            onEpbChanged = { applied -> audioManager.speakEpb(applied) },
+            onChargingStarted = {
+                audioManager.speakChargingStart()
+                checkCustomScenarios("CHARGING_ON")
+            },
+            onChargingEnded = { audioManager.speakChargingEnd() },
+            onFrontDefrostChanged = { enabled ->
+                DefrostManager.onFrontDefrostDetected(this, enabled)
+            }
+        )
+        telemetryMonitor.start()
+
         registerVehicleReceiver()
-
-        scheduleBootAutoExecutions()
+        registerInternalReceiver()
+        ignitionMonitor.start()
     }
 
-    private fun scheduleBootAutoExecutions() {
-        if (!SettingsManager.isBootAutoEnabled(this)) return
-
-        if (SettingsManager.isBootMediaPlayEnabled(this)) {
-            val mediaPkg = SettingsManager.getBootSelectedMediaPkg(this)
-            val mediaDelay = SettingsManager.getBootMediaDelay(this)
-            handler.postDelayed({
-                packageManager.getLaunchIntentForPackage(mediaPkg)?.let { intent ->
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    startActivity(intent)
-                }
-                handler.postDelayed({ triggerMediaPlay() }, 2000L)
-            }, (mediaDelay * 1000).toLong())
-        }
-
-        val appList = SettingsManager.getBootAppList(this)
-        for (item in appList) {
-            val delayMillis = (item.delaySeconds * 1000).toLong()
-            handler.postDelayed({
-                DolphinLogger.i("BOOT", "부팅 앱 실행 (${item.delaySeconds}초 지연): ${item.appName}")
-                packageManager.getLaunchIntentForPackage(item.packageName)?.let { intent ->
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    startActivity(intent)
-                }
-            }, delayMillis)
-        }
-    }
-
-    private fun triggerMediaPlay() {
-        try {
-            val audioService = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            val down = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY)
-            val up = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY)
-            audioService.dispatchMediaKeyEvent(down)
-            audioService.dispatchMediaKeyEvent(up)
-            DolphinLogger.i("BOOT", "미디어 재생 키 이벤트 전송 완료")
-        } catch (e: Exception) {
-            DolphinLogger.w("BOOT", "미디어 키 이벤트 실패: ${e.message}")
-        }
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (::ignitionMonitor.isInitialized) ignitionMonitor.probeNow()
+        return START_STICKY
     }
 
     private fun registerVehicleReceiver() {
         val filter = IntentFilter().apply {
-            addAction("byd.intent.action.ACC_ON")
             addAction("byd.intent.action.AUTO_VIDEO_ON")
             addAction("byd.intent.action.pano")
             addAction("byd.intent.action.AUTO_EXIT_PANO")
-            addAction("com.byd.auto.action.AC_DEFROST_CONTROL")
-            addAction("com.byd.auto.intent.action.AC_STATUS")
-            addAction("byd.intent.action.AC_STATUS")
-            addAction("com.byd.auto.action.DEFROST_SWITCH")
-            addAction(Intent.ACTION_POWER_CONNECTED)
-            addAction(Intent.ACTION_POWER_DISCONNECTED)
-            addAction("com.byd.auto.intent.action.GEAR_CHANGED")
-            addAction("com.byd.auto.intent.action.AUTOHOLD_SWITCH_CHANGED")
-            addAction("com.byd.auto.intent.action.AUTOHOLD_FUNCTION_STATUS")
-            addAction("com.byd.auto.intent.action.AUTOHOLD_ACTIVE")
-            addAction("com.byd.auto.intent.action.EPB_STATUS")
-            addAction("com.byd.auto.intent.action.ICC_STATUS")
-            addAction("com.byd.auto.intent.action.PILOT_STATUS")
-            addAction("com.byd.auto.intent.action.DRIVE_MODE_CHANGED")
-            addAction("com.byd.auto.intent.action.REGEN_MODE_CHANGED")
-            addAction("com.byd.auto.intent.action.SPEED_CHANGED")
-            addAction("com.byd.auto.intent.action.LANE_DEPARTURE_WARNING")
-            addAction("com.byd.auto.intent.action.BSD_STATUS")
-            addAction("com.byd.auto.intent.action.TURN_SIGNAL_STATUS")
-            addAction("com.byd.auto.intent.action.CHARGING_STATUS")
-            // 전방 차량 출발 인텐트 등록
-            addAction("com.byd.auto.intent.action.FRONT_CAR_START")
-            addAction("com.byd.auto.intent.action.LEAD_CAR_START")
-            addAction("com.byd.auto.intent.action.FRONT_VEHICLE_START")
-            addAction("byd.intent.action.FRONT_CAR_START")
-            addAction("com.byd.auto.intent.action.ACC_FRONT_CAR_START")
-            addAction("com.byd.auto.intent.action.TEST_LEADING_CAR")
-            addAction("com.byd.auto.intent.action.ADAS_STATUS")
-            addAction("com.byd.auto.intent.action.ADAS_EVENT")
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(vehicleEventReceiver, filter, RECEIVER_EXPORTED)
         } else {
             registerReceiver(vehicleEventReceiver, filter)
+        }
+    }
+
+    private fun registerInternalReceiver() {
+        val filter = IntentFilter().apply {
+            addAction(NavGuidanceParser.ACTION_INTERNAL_LEADING_CAR)
+            addAction(ACTION_INTERNAL_TEST_GEAR)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(
+                internalEventReceiver,
+                filter,
+                INTERNAL_PERMISSION,
+                null,
+                RECEIVER_NOT_EXPORTED
+            )
+        } else {
+            registerReceiver(internalEventReceiver, filter, INTERNAL_PERMISSION, null)
         }
     }
 
@@ -393,7 +290,7 @@ class DolphinService : Service() {
 
         val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("돌핀 스마트 어시스턴트 가동 중")
-            .setContentText("1% 커스텀 분할 화면, HUD/계기판 연동, 음성 가이던스 가동 중")
+            .setContentText("시동·차량 상태 감지 및 선택한 편의 기능 실행 중")
             .setSmallIcon(com.byd.dolphin.autoassistant.R.drawable.ic_byd_dolphin)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
@@ -403,11 +300,24 @@ class DolphinService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(vehicleEventReceiver)
-        audioManager.release()
-        hazardManager.cleanup()
-        lvdaEngine.stop()
+        handler.removeCallbacks(restoreSplitRunnable)
+        runCatching { unregisterReceiver(vehicleEventReceiver) }
+        runCatching { unregisterReceiver(internalEventReceiver) }
+        if (::audioManager.isInitialized) audioManager.release()
+        if (::hazardManager.isInitialized) hazardManager.cleanup()
+        if (::lvdaEngine.isInitialized) lvdaEngine.stop()
+        if (::telemetryMonitor.isInitialized) telemetryMonitor.stop()
+        if (::bootAutomation.isInitialized) bootAutomation.destroy()
+        if (::ignitionMonitor.isInitialized) ignitionMonitor.stop()
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    companion object {
+        const val ACTION_INTERNAL_TEST_GEAR =
+            "com.byd.dolphin.autoassistant.action.TEST_GEAR"
+        const val EXTRA_TEST_GEAR = "test_gear"
+        const val INTERNAL_PERMISSION =
+            "com.byd.dolphin.autoassistant.permission.INTERNAL_EVENT"
+    }
 }

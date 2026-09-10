@@ -1,12 +1,16 @@
 package com.byd.dolphin.autoassistant
 
+import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.drawable.Icon
 import android.graphics.drawable.GradientDrawable
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -20,21 +24,31 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.cardview.widget.CardView
 import androidx.core.content.FileProvider
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.lifecycleScope
 import com.byd.dolphin.autoassistant.floating.FloatingItem
 import com.byd.dolphin.autoassistant.floating.FloatingItemManager
+import com.byd.dolphin.autoassistant.activity.ShortcutActionActivity
 import com.byd.dolphin.autoassistant.hud.ClusterMirrorManager
 import com.byd.dolphin.autoassistant.hud.HudAudioManager
 import com.byd.dolphin.autoassistant.hud.HudDataManager
-import com.byd.dolphin.autoassistant.hud.T900BluetoothManager
+import com.byd.dolphin.autoassistant.hud.NavGuidanceParser
+import com.byd.dolphin.autoassistant.hud.HudSemanticValues
+import com.byd.dolphin.autoassistant.hud.TmapPlusHudBluetoothManager
 import com.byd.dolphin.autoassistant.manager.*
 import com.byd.dolphin.autoassistant.service.DolphinService
 import com.byd.dolphin.autoassistant.split.SplitConfig
 import com.byd.dolphin.autoassistant.split.SplitMode
 import com.byd.dolphin.autoassistant.split.SplitScreenManager
 import com.byd.dolphin.autoassistant.util.DolphinLogger
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 import java.io.File
+import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -43,7 +57,7 @@ class MainActivity : AppCompatActivity() {
     // 10대 세분화 서브 화면 뷰 레퍼런스
     private lateinit var layoutMainDashboard: View
     private lateinit var subLayoutSplit: View
-    private lateinit var subLayoutSeat: View
+    private lateinit var subLayoutComfort: View
     private lateinit var subLayoutVoice: View
     private lateinit var subLayoutSafetyAudio: View
     private lateinit var subLayoutHud: View
@@ -53,24 +67,20 @@ class MainActivity : AppCompatActivity() {
     private lateinit var subLayoutBootScheduler: View
     private lateinit var subLayoutDpiAdb: View
 
-    private var isMirroringActive = false
-
     // 분할 화면 대상 앱 상태
     private var splitApp1Pkg = "com.skt.tmap.ku"
     private var splitApp1Name = "티맵"
     private var splitApp2Pkg = "com.android.music"
     private var splitApp2Name = "기본 미디어"
-    private var splitApp3Pkg = ""
-    private var splitApp3Name = "미선택"
-    private var splitApp4Pkg = ""
-    private var splitApp4Name = "미선택"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         DolphinLogger.init(this)
+        DiagnosticCaptureManager.recoverInterruptedSession(this)
         audioManager = VoiceAndSoundManager(this)
+        ensureNotificationPermission()
 
         initViewReferences()
         setupCardNavigation()
@@ -89,7 +99,7 @@ class MainActivity : AppCompatActivity() {
         // 1. 앱 실행 즉시 백그라운드 서비스 및 플로팅 독 가동
         startDolphinService()
 
-        // 2. 자체 ADB 프로토콜 전송 시도
+        // 2. 차량 자체 loopback ADB에 한정해 필요한 앱 권한 승인 시도
         performAutoAdbGrant()
     }
 
@@ -103,7 +113,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        audioManager.release()
+        if (::audioManager.isInitialized) audioManager.release()
     }
 
     override fun onBackPressed() {
@@ -129,15 +139,23 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "플로팅 독을 위해 '다른 앱 위에 표시' 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
             }
             DolphinLogger.i("MainActivity", "DolphinService 및 플로팅 독 자동 가동 완료")
+            findViewById<TextView>(R.id.tvServiceStatusBadge).apply {
+                text = "🟢 서비스 실행 · 차량 API 권한 확인 중"
+                setTextColor(Color.parseColor("#00E676"))
+            }
         } catch (e: Exception) {
             DolphinLogger.e("MainActivity", "DolphinService 가동 실패", e)
+            findViewById<TextView>(R.id.tvServiceStatusBadge).apply {
+                text = "🔴 서비스 시작 실패 · 진단 로그 확인"
+                setTextColor(Color.parseColor("#FF5252"))
+            }
         }
     }
 
     private fun initViewReferences() {
         layoutMainDashboard = findViewById(R.id.layoutMainDashboard)
         subLayoutSplit = findViewById(R.id.subLayoutSplit)
-        subLayoutSeat = findViewById(R.id.subLayoutSeat)
+        subLayoutComfort = findViewById(R.id.subLayoutComfortV30)
         subLayoutVoice = findViewById(R.id.subLayoutVoice)
         subLayoutSafetyAudio = findViewById(R.id.subLayoutSafetyAudio)
         subLayoutHud = findViewById(R.id.subLayoutHud)
@@ -151,7 +169,7 @@ class MainActivity : AppCompatActivity() {
     private fun showMainDashboard() {
         layoutMainDashboard.visibility = View.VISIBLE
         subLayoutSplit.visibility = View.GONE
-        subLayoutSeat.visibility = View.GONE
+        subLayoutComfort.visibility = View.GONE
         subLayoutVoice.visibility = View.GONE
         subLayoutSafetyAudio.visibility = View.GONE
         subLayoutHud.visibility = View.GONE
@@ -166,7 +184,7 @@ class MainActivity : AppCompatActivity() {
     private fun showSubScreen(targetSubLayout: View) {
         layoutMainDashboard.visibility = View.GONE
         subLayoutSplit.visibility = View.GONE
-        subLayoutSeat.visibility = View.GONE
+        subLayoutComfort.visibility = View.GONE
         subLayoutVoice.visibility = View.GONE
         subLayoutSafetyAudio.visibility = View.GONE
         subLayoutHud.visibility = View.GONE
@@ -182,19 +200,19 @@ class MainActivity : AppCompatActivity() {
         val tvStatus = findViewById<TextView>(R.id.tvServiceStatusBadge)
         AdbPermissionManager.autoGrantPermissionsOnLaunch(this) { success, msg ->
             if (success) {
-                tvStatus.text = "🟢 실시간 감시 중 (차량 시스템 권한 승인 완료)"
+                tvStatus.text = "🟢 서비스 실행 · 앱/알림 권한 확인 완료"
                 tvStatus.setTextColor(Color.parseColor("#00E676"))
-                startDolphinService()
             } else {
-                tvStatus.text = "🟢 차량 편의 제어 활성화됨 (순정 HAL 제어 중)"
-                tvStatus.setTextColor(Color.parseColor("#00E676"))
+                tvStatus.text = "🟡 서비스 실행 · 일부 시스템 권한 미승인 (진단 확인)"
+                tvStatus.setTextColor(Color.parseColor("#FFD54F"))
+                DolphinLogger.w("MainActivity", "자동 권한 확인 미완료: $msg")
             }
         }
     }
 
     private fun setupCardNavigation() {
         findViewById<CardView>(R.id.cardMenuSplit).setOnClickListener { showSubScreen(subLayoutSplit) }
-        findViewById<CardView>(R.id.cardMenuSeat).setOnClickListener { showSubScreen(subLayoutSeat) }
+        findViewById<CardView>(R.id.cardMenuSeat).setOnClickListener { showSubScreen(subLayoutComfort) }
         findViewById<CardView>(R.id.cardMenuVoice).setOnClickListener { showSubScreen(subLayoutVoice) }
         findViewById<CardView>(R.id.cardMenuSafetyAudio).setOnClickListener { showSubScreen(subLayoutSafetyAudio) }
         findViewById<CardView>(R.id.cardMenuHud).setOnClickListener { showSubScreen(subLayoutHud) }
@@ -205,7 +223,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<CardView>(R.id.cardMenuDpiAdb).setOnClickListener { showSubScreen(subLayoutDpiAdb) }
 
         findViewById<Button>(R.id.btnBackSplit).setOnClickListener { showMainDashboard() }
-        findViewById<Button>(R.id.btnBackSeat).setOnClickListener { showMainDashboard() }
+        findViewById<Button>(R.id.btnBackSeatV30).setOnClickListener { showMainDashboard() }
         findViewById<Button>(R.id.btnBackVoice).setOnClickListener { showMainDashboard() }
         findViewById<Button>(R.id.btnBackSafetyAudio).setOnClickListener { showMainDashboard() }
         findViewById<Button>(R.id.btnBackHud).setOnClickListener { showMainDashboard() }
@@ -217,74 +235,48 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupDashboardHeader() {
-        val tvStatusBadge = findViewById<TextView>(R.id.tvServiceStatusBadge)
         val btnRestartService = findViewById<Button>(R.id.btnRestartService)
 
         btnRestartService.setOnClickListener {
             val serviceIntent = Intent(this, DolphinService::class.java)
             stopService(serviceIntent)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent)
-            } else {
-                startService(serviceIntent)
-            }
+            startDolphinService()
             if (AdbPermissionManager.isOverlayGranted(this)) {
                 FloatingOverlayManager.show(this)
             }
-            tvStatusBadge.text = "🟢 백그라운드 실시간 감시 중 (재실행됨)"
-            tvStatusBadge.setTextColor(Color.parseColor("#00E676"))
-            Toast.makeText(this, "어시스턴트 서비스 재가동 완료", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "어시스턴트 서비스 재시작을 요청했습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun updateDashboardCards() {
-        val curDpi = DpiManager.getCurrentDensity()
-        findViewById<TextView>(R.id.tvMainCardDpiDesc).text = "현재 DPI: " + curDpi + " (원터치 프리셋)\n로컬 ADB 자체 권한 승인\n통합 진단 로그 파일 추출"
+        val curDpi = DpiManager.getCurrentDensity(this)
+        findViewById<TextView>(R.id.tvMainCardDpiDesc).text =
+            "현재 밀도: $curDpi · 원터치 프리셋\n15분 자동 수집 · 진단 ZIP 추출"
     }
 
     // =========================================================================
-    // 1. 화면 분할 관리 (2/3/4분할 & 1% 조절 & 앱 선택)
+    // 1. DiLink 3에서 실차 검증된 2분할 (20~80%, 1% 단위)
     // =========================================================================
     private fun setupSplitSubScreen() {
-        val rgSubSplitMode = findViewById<RadioGroup>(R.id.rgSubSplitMode)
-        val rbTwo = findViewById<RadioButton>(R.id.rbSubTwoApps)
-        val rbThreeL = findViewById<RadioButton>(R.id.rbSubThreeLeft)
-        val rbThreeR = findViewById<RadioButton>(R.id.rbSubThreeRight)
-        val rbFour = findViewById<RadioButton>(R.id.rbSubFourGrid)
-
         val btnApp1 = findViewById<Button>(R.id.btnSelectApp1)
         val btnApp2 = findViewById<Button>(R.id.btnSelectApp2)
-        val btnApp3 = findViewById<Button>(R.id.btnSelectApp3)
-        val btnApp4 = findViewById<Button>(R.id.btnSelectApp4)
 
         val sbRatioX = findViewById<SeekBar>(R.id.sbSubSplitRatio)
         val etRatioX = findViewById<EditText>(R.id.etSplitRatioX)
-        val sbRatioY = findViewById<SeekBar>(R.id.sbSubSplitRatioY)
-        val etRatioY = findViewById<EditText>(R.id.etSplitRatioY)
 
         val tvPreviewLeft = findViewById<TextView>(R.id.tvPreviewLeft)
         val tvPreviewRight = findViewById<TextView>(R.id.tvPreviewRight)
 
+        sbRatioX.min = 20
+        sbRatioX.max = 80
+
         fun updateAppButtons() {
             btnApp1.text = "앱 1: " + splitApp1Name
             btnApp2.text = "앱 2: " + splitApp2Name
-            btnApp3.text = "앱 3: " + splitApp3Name
-            btnApp4.text = "앱 4: " + splitApp4Name
-
-            val is3or4 = rbThreeL.isChecked || rbThreeR.isChecked || rbFour.isChecked
-            btnApp3.isEnabled = is3or4
-            btnApp3.setTextColor(if (is3or4) Color.WHITE else Color.GRAY)
-
-            val is4 = rbFour.isChecked
-            btnApp4.isEnabled = is4
-            btnApp4.setTextColor(if (is4) Color.WHITE else Color.GRAY)
-
-            sbRatioY.isEnabled = is3or4
-            etRatioY.isEnabled = is3or4
         }
 
-        fun updatePreview(x: Int, y: Int) {
-            val left = x.coerceIn(1, 99)
+        fun updatePreview(x: Int) {
+            val left = x.coerceIn(20, 80)
             val right = 100 - left
             val leftParams = tvPreviewLeft.layoutParams as LinearLayout.LayoutParams
             leftParams.weight = left.toFloat()
@@ -294,61 +286,28 @@ class MainActivity : AppCompatActivity() {
             rightParams.weight = right.toFloat()
             tvPreviewRight.layoutParams = rightParams
 
-            when {
-                rbTwo.isChecked -> {
-                    tvPreviewLeft.text = splitApp1Name + "\n(" + left + "%)"
-                    tvPreviewRight.text = splitApp2Name + "\n(" + right + "%)"
-                }
-                rbThreeL.isChecked -> {
-                    tvPreviewLeft.text = splitApp1Name + "/" + splitApp2Name + "\n(좌 " + left + "%)"
-                    tvPreviewRight.text = splitApp3Name + "\n(우 " + right + "%)"
-                }
-                rbThreeR.isChecked -> {
-                    tvPreviewLeft.text = splitApp1Name + "\n(좌 " + left + "%)"
-                    tvPreviewRight.text = splitApp2Name + "/" + splitApp3Name + "\n(우 " + right + "%)"
-                }
-                else -> {
-                    tvPreviewLeft.text = "상좌/하좌\n(좌 " + left + "%)"
-                    tvPreviewRight.text = "상우/하우\n(우 " + right + "%)"
-                }
-            }
+            tvPreviewLeft.text = splitApp1Name + "\n(" + left + "%)"
+            tvPreviewRight.text = splitApp2Name + "\n(" + right + "%)"
         }
 
         btnApp1.setOnClickListener {
             showAppPicker("분할 화면 앱 1 선택") { pkg, name ->
                 splitApp1Pkg = pkg; splitApp1Name = name
-                updateAppButtons(); updatePreview(sbRatioX.progress, sbRatioY.progress)
+                updateAppButtons(); updatePreview(sbRatioX.progress)
             }
         }
         btnApp2.setOnClickListener {
             showAppPicker("분할 화면 앱 2 선택") { pkg, name ->
                 splitApp2Pkg = pkg; splitApp2Name = name
-                updateAppButtons(); updatePreview(sbRatioX.progress, sbRatioY.progress)
+                updateAppButtons(); updatePreview(sbRatioX.progress)
             }
-        }
-        btnApp3.setOnClickListener {
-            showAppPicker("분할 화면 앱 3 선택") { pkg, name ->
-                splitApp3Pkg = pkg; splitApp3Name = name
-                updateAppButtons(); updatePreview(sbRatioX.progress, sbRatioY.progress)
-            }
-        }
-        btnApp4.setOnClickListener {
-            showAppPicker("분할 화면 앱 4 선택") { pkg, name ->
-                splitApp4Pkg = pkg; splitApp4Name = name
-                updateAppButtons(); updatePreview(sbRatioX.progress, sbRatioY.progress)
-            }
-        }
-
-        rgSubSplitMode.setOnCheckedChangeListener { _, _ ->
-            updateAppButtons()
-            updatePreview(sbRatioX.progress, sbRatioY.progress)
         }
 
         sbRatioX.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val p = progress.coerceIn(1, 99)
+                val p = progress.coerceIn(20, 80)
                 if (fromUser) etRatioX.setText(p.toString())
-                updatePreview(p, sbRatioY.progress)
+                updatePreview(p)
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -358,124 +317,89 @@ class MainActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val num = s?.toString()?.toIntOrNull()
-                if (num != null && num in 1..99 && num != sbRatioX.progress) {
+                if (num != null && num in 20..80 && num != sbRatioX.progress) {
                     sbRatioX.progress = num
-                    updatePreview(num, sbRatioY.progress)
-                }
-            }
-            override fun afterTextChanged(s: Editable?) {}
-        })
-
-        sbRatioY.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val p = progress.coerceIn(1, 99)
-                if (fromUser) etRatioY.setText(p.toString())
-                updatePreview(sbRatioX.progress, p)
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
-
-        etRatioY.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                val num = s?.toString()?.toIntOrNull()
-                if (num != null && num in 1..99 && num != sbRatioY.progress) {
-                    sbRatioY.progress = num
-                    updatePreview(sbRatioX.progress, num)
+                    updatePreview(num)
                 }
             }
             override fun afterTextChanged(s: Editable?) {}
         })
 
         updateAppButtons()
-        updatePreview(30, 50)
+        updatePreview(30)
 
         findViewById<Button>(R.id.btnSubApplySplit).setOnClickListener {
-            val mode = when {
-                rbTwo.isChecked -> SplitMode.TWO_APPS_HORIZONTAL
-                rbThreeL.isChecked -> SplitMode.THREE_APPS_LEFT_STACKED
-                rbThreeR.isChecked -> SplitMode.THREE_APPS_RIGHT_STACKED
-                else -> SplitMode.FOUR_APPS_GRID
-            }
             val config = SplitConfig(
                 title = splitApp1Name + " / " + splitApp2Name + " 분할",
-                mode = mode,
+                mode = SplitMode.TWO_APPS_HORIZONTAL,
                 pkg1 = splitApp1Pkg,
                 pkg2 = splitApp2Pkg,
-                pkg3 = splitApp3Pkg,
-                pkg4 = splitApp4Pkg,
-                ratioPrimary = sbRatioX.progress.coerceIn(1, 99),
-                ratioSecondary = sbRatioY.progress.coerceIn(1, 99)
+                ratioPrimary = sbRatioX.progress.coerceIn(20, 80)
             )
             SplitScreenManager.launchSplitScreen(this, config)
         }
     }
 
     // =========================================================================
-    // 2. 스마트 시트 & 후진 사이드미러 다운 제어
+    // 2. 이 차량에 실제 장착된 앞좌석/핸들 열선 제어
     // =========================================================================
     private fun setupSeatSubScreen() {
-        val swMirrorDip = findViewById<SwitchCompat>(R.id.swMirrorDip)
-        swMirrorDip.isChecked = SeatManager.isMirrorDipEnabled(this)
-        swMirrorDip.setOnCheckedChangeListener { _, isChecked ->
-            SeatManager.setMirrorDipEnabled(this, isChecked)
+        fun levelName(level: Int?): String = when (level) {
+            VehicleComfortManager.HEAT_OFF -> "꺼짐"
+            VehicleComfortManager.HEAT_LOW -> "1단"
+            VehicleComfortManager.HEAT_HIGH -> "2단"
+            else -> "확인 불가"
         }
 
-        val swEasyAccess = findViewById<SwitchCompat>(R.id.swEasyAccess)
-        swEasyAccess.isChecked = SeatManager.isEasyAccessEnabled(this)
-        swEasyAccess.setOnCheckedChangeListener { _, isChecked ->
-            SeatManager.setEasyAccessEnabled(this, isChecked)
+        fun refresh() {
+            findViewById<TextView>(R.id.tvDriverHeatStatus).text =
+                "운전석 열선: ${levelName(VehicleComfortManager.getSeatHeatingLevel(this, VehicleComfortManager.SEAT_DRIVER))}"
+            findViewById<TextView>(R.id.tvPassengerHeatStatus).text =
+                "동승석 열선: ${levelName(VehicleComfortManager.getSeatHeatingLevel(this, VehicleComfortManager.SEAT_PASSENGER))}"
+            val steering = VehicleComfortManager.isSteeringWheelHeatingOn(this)
+            findViewById<TextView>(R.id.tvSteeringHeatStatus).text =
+                "핸들 열선: ${if (steering == true) "켜짐" else if (steering == false) "꺼짐" else "확인 불가"}"
         }
 
-        val tvDelay = findViewById<TextView>(R.id.tvEasyAccessDelay)
-        val sbDelay = findViewById<SeekBar>(R.id.sbEasyAccessDelay)
-        val curDelay = SeatManager.getEasyAccessDelay(this)
-        sbDelay.progress = curDelay
-        tvDelay.text = "하차 시트 슬라이딩 지연: " + curDelay + "초"
-
-        sbDelay.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                tvDelay.text = "하차 시트 슬라이딩 지연: " + progress + "초"
-                if (fromUser) SeatManager.setEasyAccessDelay(this@MainActivity, progress)
+        fun bindSeat(buttonId: Int, seat: Int, level: Int) {
+            findViewById<Button>(buttonId).setOnClickListener {
+                val ok = VehicleComfortManager.setSeatHeatingLevel(this, seat, level)
+                Toast.makeText(this, if (ok) "열선 명령 전송 완료" else "열선 명령 실패 — 진단 로그를 확인하세요", Toast.LENGTH_SHORT).show()
+                it.postDelayed({ refresh() }, 500L)
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
-
-        findViewById<Button>(R.id.btnSeatPreset1).setOnClickListener {
-            SeatManager.setComfortStage(this, SeatManager.POS_COMMUTE, true)
-        }
-        findViewById<Button>(R.id.btnSeatPreset2).setOnClickListener {
-            SeatManager.setComfortStage(this, SeatManager.POS_RELAX, true)
         }
 
-        findViewById<Button>(R.id.btnSeatForward).setOnClickListener { SeatManager.moveForward(this) }
-        findViewById<Button>(R.id.btnSeatBackward).setOnClickListener { SeatManager.moveBackward(this) }
-        findViewById<Button>(R.id.btnSeatUp).setOnClickListener { SeatManager.moveUp(this) }
-        findViewById<Button>(R.id.btnSeatDown).setOnClickListener { SeatManager.moveDown(this) }
+        bindSeat(R.id.btnDriverHeatOff, VehicleComfortManager.SEAT_DRIVER, VehicleComfortManager.HEAT_OFF)
+        bindSeat(R.id.btnDriverHeatLow, VehicleComfortManager.SEAT_DRIVER, VehicleComfortManager.HEAT_LOW)
+        bindSeat(R.id.btnDriverHeatHigh, VehicleComfortManager.SEAT_DRIVER, VehicleComfortManager.HEAT_HIGH)
+        bindSeat(R.id.btnPassengerHeatOff, VehicleComfortManager.SEAT_PASSENGER, VehicleComfortManager.HEAT_OFF)
+        bindSeat(R.id.btnPassengerHeatLow, VehicleComfortManager.SEAT_PASSENGER, VehicleComfortManager.HEAT_LOW)
+        bindSeat(R.id.btnPassengerHeatHigh, VehicleComfortManager.SEAT_PASSENGER, VehicleComfortManager.HEAT_HIGH)
 
-        // 동승석
-        findViewById<Button>(R.id.btnPassengerDefault).setOnClickListener {
-            SeatManager.setPassengerComfortStage(this, SeatManager.PASSENGER_DEFAULT, true)
+        findViewById<Button>(R.id.btnSteeringHeatToggle).setOnClickListener { view ->
+            val enabled = VehicleComfortManager.toggleSteeringWheelHeating(this)
+            Toast.makeText(this, "핸들 열선 ${if (enabled) "켜기" else "끄기"} 명령 전송", Toast.LENGTH_SHORT).show()
+            view.postDelayed({ refresh() }, 500L)
         }
-        findViewById<Button>(R.id.btnPassengerComfort).setOnClickListener {
-            SeatManager.setPassengerComfortStage(this, SeatManager.PASSENGER_COMFORT, true)
-        }
-        findViewById<Button>(R.id.btnPassengerRelax).setOnClickListener {
-            SeatManager.setPassengerComfortStage(this, SeatManager.PASSENGER_RELAX, true)
-        }
-
-        findViewById<Button>(R.id.btnPassengerSeatForward).setOnClickListener { SeatManager.movePassengerForward(this) }
-        findViewById<Button>(R.id.btnPassengerSeatBackward).setOnClickListener { SeatManager.movePassengerBackward(this) }
-        findViewById<Button>(R.id.btnPassengerSeatUp).setOnClickListener { SeatManager.movePassengerUp(this) }
-        findViewById<Button>(R.id.btnPassengerSeatDown).setOnClickListener { SeatManager.movePassengerDown(this) }
+        refresh()
     }
 
     // =========================================================================
     // 3. 맞춤형 차량 음성 안내 (TTS) - [기본 문구], [추천 문구], [수동 직접 입력] 3단 선택기
     // =========================================================================
     private fun setupVoiceSubScreen() {
+        findViewById<SwitchCompat>(R.id.swExperimentalLvda).apply {
+            isChecked = SettingsManager.isExperimentalLvdaEnabled(this@MainActivity)
+            setOnCheckedChangeListener { _, enabled ->
+                SettingsManager.setExperimentalLvdaEnabled(this@MainActivity, enabled)
+                Toast.makeText(
+                    this@MainActivity,
+                    if (enabled) "실험적 주차센서 기반 출발 후보 감지를 켰습니다."
+                    else "실험적 주차센서 기반 출발 후보 감지를 껐습니다.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
         setupVoiceEditButton(R.id.btnVoiceGearP, "P단 (파킹)", "파킹", "주차 기어가 체결되었습니다. 안전 운행을 마칩니다.") { SettingsManager.getGearPhrase(this, "P") }
         setupVoiceEditButton(R.id.btnVoiceGearR, "R단 (후진)", "후진", "후진 기어가 체결되었습니다. 후방 시야를 확인하세요.") { SettingsManager.getGearPhrase(this, "R") }
         setupVoiceEditButton(R.id.btnVoiceGearN, "N단 (중립)", "중립", "중립 기어 상태입니다. 브레이크 페달을 유지하세요.") { SettingsManager.getGearPhrase(this, "N") }
@@ -496,16 +420,17 @@ class MainActivity : AppCompatActivity() {
 
         setupVoiceEditButton(R.id.btnVoiceEpb, "사이드브레이크", "사이드브레이크가 체결되었습니다.", "전자식 주차 브레이크가 안전하게 체결되었습니다.") { SettingsManager.getEpbPhrase(this, true) }
         setupVoiceEditButton(R.id.btnVoiceIcc, "ICC 자율주행", "자율주행이 켜졌습니다.", "스마트 크루즈 어시스트가 주행을 보조합니다.") { SettingsManager.getIccPhrase(this) }
-        setupVoiceEditButton(R.id.btnVoiceLeadingCar, "전방 차량 출발", "전방 차량이 출발했습니다.", "전방 차량이 출발했습니다. 서둘러 출발하세요!") { SettingsManager.getLeadingCarPhrase(this) }
+        setupVoiceEditButton(R.id.btnVoiceLeadingCar, "전방 차량 출발", "전방 차량이 출발했습니다.", "전방 차량이 출발했습니다. 주변을 확인한 뒤 안전하게 출발하세요.") { SettingsManager.getLeadingCarPhrase(this) }
 
         // 충전 시작/종료
         setupVoiceEditButton(R.id.btnVoiceChargingStart, "충전 시작", "충전이 시작되었습니다.", "고전압 배터리 충전이 시작되었습니다.") { SettingsManager.getChargingStartPhrase(this) }
-        setupVoiceEditButton(R.id.btnVoiceChargingEnd, "충전 완료/종료", "충전이 완료되었습니다.", "배터리 충전이 완료되었습니다. 충전 플러그를 분리해 주세요.") { SettingsManager.getChargingEndPhrase(this) }
+        setupVoiceEditButton(R.id.btnVoiceChargingEnd, "충전 정상 완료", "충전이 완료되었습니다.", "배터리 충전이 정상 완료되었습니다. 안전하게 충전 플러그를 분리해 주세요.") { SettingsManager.getChargingEndPhrase(this) }
     
         findViewById<Button>(R.id.btnTestLeadingCarDeparture).setOnClickListener {
-            val intent = Intent("com.byd.auto.intent.action.TEST_LEADING_CAR")
-            sendBroadcast(intent)
-            Toast.makeText(this, "전방 차량 출발 가상 신호 발생 완료", Toast.LENGTH_SHORT).show()
+            sendBroadcast(
+                Intent(NavGuidanceParser.ACTION_INTERNAL_LEADING_CAR).setPackage(packageName)
+            )
+            Toast.makeText(this, "앱 내부 전방 출발 음성 테스트 이벤트 전송", Toast.LENGTH_SHORT).show()
         }
 
     }
@@ -630,39 +555,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     // =========================================================================
-    // 4. 운전석 안전 경고 사운드 & 라우팅
+    // 4. 안전 경고 원시값 진단 및 안내음 미리듣기
     // =========================================================================
     private fun setupSafetyAudioSubScreen() {
-        updateDriverAudioChips()
-        findViewById<Button>(R.id.btnAddDriverAudioApp).setOnClickListener {
-            showAppPicker("운전석 스피커 라우팅 앱 추가") { pkg, _ ->
-                AppRoutingManager.addPackage(this, pkg)
-                updateDriverAudioChips()
-            }
-        }
-
         findViewById<Button>(R.id.btnConfigBsdAlert).setOnClickListener {
-            showBsdLdpConfigDialog("BSD 사각지대 감지 경고음 설정", isBsd = true)
+            showBsdLdpConfigDialog("BSD 안내음 미리듣기 설정", isBsd = true)
         }
         findViewById<Button>(R.id.btnConfigLdpAlert).setOnClickListener {
-            showBsdLdpConfigDialog("LDP 차선이탈보조 경고음 설정", isBsd = false)
-        }
-    }
-
-    private fun updateDriverAudioChips() {
-        val chipGroup = findViewById<ChipGroup>(R.id.chipGroupDriverAudioApps)
-        chipGroup.removeAllViews()
-        val routed = AppRoutingManager.getRoutedPackages(this)
-        for (pkg in routed) {
-            val chip = Chip(this).apply {
-                text = pkg
-                isCloseIconVisible = true
-                setOnCloseIconClickListener {
-                    AppRoutingManager.removePackage(this@MainActivity, pkg)
-                    updateDriverAudioChips()
-                }
-            }
-            chipGroup.addView(chip)
+            showBsdLdpConfigDialog("차선 안내음 미리듣기 설정", isBsd = false)
         }
     }
 
@@ -723,15 +623,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     // =========================================================================
-    // 5. 한문철 T900 HUD (데이터/오디오 분리 페어링 & 최소/최대 밝기)
+    // 5. 티맵 Plus HUD (Bluetooth 연결 진단; 패킷 송신 잠금)
     // =========================================================================
     private fun setupHudSubScreen() {
         val tvDataStatus = findViewById<TextView>(R.id.tvHudDataStatus)
         val tvAudioStatus = findViewById<TextView>(R.id.tvHudAudioStatus)
+        val protocolConfirmed = SettingsManager.isHudProtocolConfirmed(this)
+        tvDataStatus.text = if (protocolConfirmed) "TMAP Plus HUD / T900 프로토콜 확인됨" else "T900 확인 · 패킷 형식 미확인으로 송신 잠금"
+        tvAudioStatus.text = "오디오 연결 상태는 Bluetooth 설정에서 확인"
 
         findViewById<Button>(R.id.btnConnectHudData).setOnClickListener {
-            tvDataStatus.text = "데이터(huddata) 연결 시도 중..."
-            T900BluetoothManager.connectHudData(this) { ok, msg ->
+            if (!ensureBluetoothPermission()) return@setOnClickListener
+            tvDataStatus.text = "페어링 기기/UUID 및 SPP 연결 진단 중..."
+            TmapPlusHudBluetoothManager.connectHudData(this) { ok, msg ->
                 runOnUiThread {
                     tvDataStatus.text = if (ok) "데이터(huddata): 연결 성공" else "데이터: " + msg
                     tvDataStatus.setTextColor(if (ok) Color.parseColor("#00E676") else Color.parseColor("#FF5252"))
@@ -740,8 +644,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnConnectHudAudio).setOnClickListener {
-            T900BluetoothManager.connectHudAudio(this) { ok, msg ->
-                tvAudioStatus.text = if (ok) "오디오(hudaudio): 블루투스 설정 연결 대기" else "오디오: " + msg
+            if (!ensureBluetoothPermission()) return@setOnClickListener
+            TmapPlusHudBluetoothManager.connectHudAudio(this) { ok, msg ->
+                tvAudioStatus.text = msg
                 tvAudioStatus.setTextColor(Color.parseColor("#FFD54F"))
             }
         }
@@ -753,6 +658,11 @@ class MainActivity : AppCompatActivity() {
         val tvMax = findViewById<TextView>(R.id.tvHudBrightMaxVal)
         val sbManual = findViewById<SeekBar>(R.id.sbHudBrightness)
         val tvManual = findViewById<TextView>(R.id.tvHudBrightnessValue)
+
+        swAuto.isEnabled = protocolConfirmed
+        sbMin.isEnabled = protocolConfirmed
+        sbMax.isEnabled = protocolConfirmed
+        sbManual.isEnabled = protocolConfirmed
 
         swAuto.isChecked = SettingsManager.isHudBrightnessAuto(this)
         sbMin.progress = SettingsManager.getHudBrightnessMin(this)
@@ -801,6 +711,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         val sbAudioVol = findViewById<SeekBar>(R.id.sbSubHudAudioVolume)
+        sbAudioVol.isEnabled = protocolConfirmed
         sbAudioVol.progress = SettingsManager.getHudAudioVolume(this)
         sbAudioVol.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -811,13 +722,37 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun ensureBluetoothPermission(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return true
+        val required = arrayOf(Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN)
+        val missing = required.filter { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED }
+        if (missing.isEmpty()) return true
+        ActivityCompat.requestPermissions(this, missing.toTypedArray(), 900)
+        Toast.makeText(this, "근처 기기 권한을 허용한 뒤 버튼을 다시 눌러주세요.", Toast.LENGTH_LONG).show()
+        return false
+    }
+
+    private fun ensureNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                901
+            )
+        }
+    }
+
     // =========================================================================
-    // 6. 계기판 디스플레이 & TBT 연동 (순정 접근성 우회 연동)
+    // 6. 계기판 TBT 연동 및 선택형 보조 접근성 입력
     // =========================================================================
     private fun setupClusterSubScreen() {
         val swClusterTbt = findViewById<SwitchCompat>(R.id.swClusterTbt)
         swClusterTbt.isChecked = SettingsManager.isClusterTbtEnabled(this)
         swClusterTbt.setOnCheckedChangeListener { _, isChecked ->
+            if (!isChecked) ClusterMirrorManager.clearClusterTbt(this)
             SettingsManager.setClusterTbtEnabled(this, isChecked)
         }
 
@@ -834,19 +769,24 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnTestClusterTbt).setOnClickListener {
-            ClusterMirrorManager.sendTbtToCluster(this, 1, 350, "350m", 60, "전방 교차로 우회전", true)
-            Toast.makeText(this, "계기판 5인치 화면으로 TBT 테스트 데이터 전송 완료", Toast.LENGTH_SHORT).show()
-        }
-
-        findViewById<Button>(R.id.btnSendAppToCluster).setOnClickListener {
-            showAppPicker("계기판(Display 1)으로 보낼 앱 선택") { pkg, _ ->
-                ClusterMirrorManager.launchAppOnClusterDisplay(this, pkg)
-            }
-        }
-
-        findViewById<Button>(R.id.btnToggleClusterMirroring).setOnClickListener {
-            isMirroringActive = !isMirroringActive
-            ClusterMirrorManager.toggleMainToClusterMirroring(this, isMirroringActive)
+            val success = ClusterMirrorManager.sendTbtToCluster(
+                this,
+                HudSemanticValues.TURN_RIGHT,
+                350,
+                "350m",
+                60,
+                "전방 교차로",
+                true
+            )
+            Toast.makeText(
+                this,
+                if (success) {
+                    "BYD 계기판 TBT API가 성공 코드를 반환했습니다. 표시 여부를 확인해 주세요."
+                } else {
+                    "TBT API가 실패했거나 기능이 꺼져 있습니다. 진단 로그를 확인해 주세요."
+                },
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -854,6 +794,19 @@ class MainActivity : AppCompatActivity() {
     // 7. 바로가기 & 플로팅 버튼 빌더 (크기, 투명도, 앱 아이콘 표출 커스텀)
     // =========================================================================
     private fun setupButtonBuilderSubScreen() {
+        findViewById<SwitchCompat>(R.id.swFloatingOverlay).apply {
+            isChecked = SettingsManager.isFloatingOverlayEnabled(this@MainActivity)
+            setOnCheckedChangeListener { _, enabled ->
+                SettingsManager.setFloatingOverlayEnabled(this@MainActivity, enabled)
+                if (!enabled) {
+                    FloatingOverlayManager.hide()
+                } else if (AdbPermissionManager.isOverlayGranted(this@MainActivity)) {
+                    FloatingOverlayManager.show(this@MainActivity)
+                } else {
+                    AdbPermissionManager.openOverlaySettings(this@MainActivity)
+                }
+            }
+        }
         findViewById<Button>(R.id.btnCreateQpButton).setOnClickListener {
             showActionAndFloatingPicker("상단 퀵 컨트롤 패널 항목", FloatingItemManager.QUICK_PANEL_ITEMS)
         }
@@ -908,6 +861,24 @@ class MainActivity : AppCompatActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
+
+        val sbCollapse = findViewById<SeekBar>(R.id.sbFloatingCollapseDelay)
+        val tvCollapse = findViewById<TextView>(R.id.tvFloatingCollapseDelayVal)
+        val collapseDelay = SettingsManager.getFloatingCollapseDelaySeconds(this)
+        sbCollapse.progress = collapseDelay
+        tvCollapse.text = "자동 접기: ${collapseDelay}초"
+        sbCollapse.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val seconds = progress.coerceIn(3, 60)
+                tvCollapse.text = "자동 접기: ${seconds}초"
+                if (fromUser) {
+                    SettingsManager.setFloatingCollapseDelaySeconds(this@MainActivity, seconds)
+                    FloatingOverlayManager.refresh(this@MainActivity)
+                }
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
     }
 
     private fun showActionAndFloatingPicker(categoryTitle: String, items: List<FloatingItem>) {
@@ -923,12 +894,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showDualCreationOptionDialog(item: FloatingItem) {
-        val options = arrayOf("📱 앱서랍 바로가기로 등록", "🪟 플로팅 버튼 독에 추가")
+        val options = arrayOf("홈 화면 바로가기 요청", "플로팅 버튼 독에 추가")
         AlertDialog.Builder(this)
             .setTitle(item.title + " 생성 방식 선택")
             .setItems(options) { _, which ->
                 if (which == 0) {
-                    Toast.makeText(this, item.title + " 앱서랍 바로가기 등록 완료", Toast.LENGTH_SHORT).show()
+                    requestPinnedShortcut(item)
                 } else {
                     FloatingItemManager.addItem(this, item)
                     if (AdbPermissionManager.isOverlayGranted(this)) {
@@ -943,8 +914,53 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun requestPinnedShortcut(item: FloatingItem) {
+        val manager = getSystemService(ShortcutManager::class.java)
+        if (manager == null || !manager.isRequestPinShortcutSupported) {
+            Toast.makeText(this, "현재 BYD 런처는 홈 바로가기 추가를 지원하지 않습니다.", Toast.LENGTH_LONG).show()
+            return
+        }
+        val launchIntent = Intent(this, ShortcutActionActivity::class.java).apply {
+            action = Intent.ACTION_VIEW
+            putExtra(ShortcutActionActivity.EXTRA_ID, item.id)
+            putExtra(ShortcutActionActivity.EXTRA_TITLE, item.title)
+            putExtra(ShortcutActionActivity.EXTRA_PACKAGE, if (item.isApp) item.packageName else "")
+            putExtra(
+                ShortcutActionActivity.EXTRA_TOKEN,
+                ShortcutActionActivity.getOrCreateToken(this@MainActivity)
+            )
+        }
+        val shortcutIcon = if (item.isApp) {
+            runCatching {
+                Icon.createWithBitmap(packageManager.getApplicationIcon(item.packageName).toBitmap(96, 96))
+            }.getOrElse { Icon.createWithResource(this, R.drawable.ic_byd_dolphin) }
+        } else {
+            val iconRes = when (item.id) {
+                FloatingItemManager.ID_DEFROST,
+                FloatingItemManager.ID_REAR_DEFROST -> R.drawable.ic_defrost_toggle
+                FloatingItemManager.ID_INSIDE_LIGHT -> R.drawable.ic_light_toggle
+                FloatingItemManager.ID_LIGHT_ON -> R.drawable.ic_light_on
+                FloatingItemManager.ID_LIGHT_OFF -> R.drawable.ic_light_off
+                else -> R.drawable.ic_byd_dolphin
+            }
+            Icon.createWithResource(this, iconRes)
+        }
+        val shortcut = ShortcutInfo.Builder(this, "dolphin_${item.id.hashCode().toUInt().toString(16)}")
+            .setShortLabel(item.title.take(18))
+            .setLongLabel(item.title)
+            .setIcon(shortcutIcon)
+            .setIntent(launchIntent)
+            .build()
+        val accepted = runCatching { manager.requestPinShortcut(shortcut, null) }.getOrDefault(false)
+        Toast.makeText(
+            this,
+            if (accepted) "런처에 바로가기 추가 요청을 보냈습니다." else "런처가 바로가기 요청을 거부했습니다.",
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
     // =========================================================================
-    // 8. 스마트 차량 자동화 시나리오 랩 (오버드라이브 확장 액션)
+    // 8. 검증된 차량 API만 허용하는 자동화 시나리오
     // =========================================================================
     private fun setupAutomationSubScreen() {
         refreshCustomScenarioList()
@@ -960,16 +976,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun showAddScenarioDialog() {
         val triggers = arrayOf(
-            "⚡ 차량 시동 (READY 감지)",
-            "💤 차량 시동 꺼짐 (READY OFF)",
-            "🌡️ 외부온도 32°C 이상 (폭염)",
-            "🌡️ 외부온도 3°C 이하 (한파)",
-            "🕹️ 후진 기어 (R) 체결",
-            "🕹️ 주차 기어 (P) 체결",
-            "🔋 충전기 연결",
-            "🔋 충전 완료/분리"
+            "차량 시동 ON (전원 레벨 2)",
+            "차량 시동 OFF (전원 레벨 0)",
+            "후진 기어 (R) 체결",
+            "주차 기어 (P) 체결"
         )
-        val triggerKeys = arrayOf("READY_ON", "READY_OFF", "TEMP_HIGH", "TEMP_LOW", "GEAR_R", "GEAR_P", "CHARGING_ON", "CHARGING_OFF")
+        val triggerKeys = arrayOf("READY_ON", "READY_OFF", "GEAR_R", "GEAR_P")
 
         AlertDialog.Builder(this)
             .setTitle("1단계: 발동 트리거 조건 선택")
@@ -978,49 +990,29 @@ class MainActivity : AppCompatActivity() {
                 val chosenTriggerKey = triggerKeys[trigIdx]
 
                 val actions = arrayOf(
-                    "❄️ 에어컨 풍량 1단",
-                    "❄️ 에어컨 풍량 3단",
-                    "❄️ 에어컨 풍량 5단 급속",
-                    "❄️ 에어컨 풍량 7단 최대",
-                    "❄️ 에어컨 전원 OFF",
-                    "🔄 내기 순환 모드 (차단)",
-                    "🔄 외기 순환 모드 (환기)",
-                    "♨️ 앞유리 급속 성에제거 MAX",
-                    "♨️ 뒷유리 & 사이드미러 열선 ON",
-                    "💺 운전석 시트 포지션 1번 (출퇴근)",
-                    "💺 운전석 시트 포지션 2번 (휴식)",
-                    "💺 운전석 시트 열선 ON",
-                    "💺 운전석 시트 통풍 ON",
-                    "💺 동승석 릴렉스 취침 모드",
-                    "💺 동승석 시트 열선 ON",
-                    "💺 동승석 시트 통풍 ON",
-                    "♨️ 스티어링 휠(핸들) 열선 ON",
-                    "🪟 창문 환기 모드 (10% 열기)",
-                    "🪟 창문 전체 닫기",
-                    "💡 실내등 전체 켜기",
-                    "💡 실내등 전체 끄기"
+                    "에어컨 풍량 1단", "에어컨 풍량 3단", "에어컨 풍량 5단", "에어컨 풍량 7단", "에어컨 전원 OFF",
+                    "앞·뒤 성에 제거 ON", "뒷유리 열선 ON",
+                    "운전석 열선 OFF", "운전석 열선 1단", "운전석 열선 2단",
+                    "동승석 열선 OFF", "동승석 열선 1단", "동승석 열선 2단",
+                    "핸들 열선 ON", "핸들 열선 OFF",
+                    "실내등 전체 켜기", "실내등 전체 끄기",
+                    "도어 연동등 켜기", "도어 연동등 끄기"
                 )
                 val actionTypes = arrayOf(
                     "AC_FAN", "AC_FAN", "AC_FAN", "AC_FAN", "AC_OFF",
-                    "AIR_INTERNAL", "AIR_EXTERNAL",
-                    "DEFROST_FRONT", "DEFROST_REAR",
-                    "SEAT_STAGE", "SEAT_STAGE",
-                    "SEAT_HEAT_DRIVER", "SEAT_VENT_DRIVER",
-                    "SEAT_PASSENGER", "SEAT_HEAT_PASSENGER", "SEAT_VENT_PASSENGER",
-                    "STEERING_HEAT",
-                    "WINDOW_VENT", "WINDOW_CLOSE",
-                    "LIGHT_ON", "LIGHT_OFF"
+                    "DEFROST_ALL", "DEFROST_REAR",
+                    "DRIVER_SEAT_HEAT", "DRIVER_SEAT_HEAT", "DRIVER_SEAT_HEAT",
+                    "PASSENGER_SEAT_HEAT", "PASSENGER_SEAT_HEAT", "PASSENGER_SEAT_HEAT",
+                    "STEERING_HEAT", "STEERING_HEAT",
+                    "LIGHT_ON", "LIGHT_OFF", "LIGHT_DOOR", "LIGHT_DOOR"
                 )
                 val actionVals = arrayOf(
                     "1", "3", "5", "7", "0",
-                    "INTERNAL", "EXTERNAL",
                     "1", "1",
-                    "1", "-2",
-                    "1", "1",
-                    "-2", "1", "1",
-                    "1",
-                    "VENT", "CLOSE",
-                    "1", "0"
+                    "0", "1", "2",
+                    "0", "1", "2",
+                    "1", "0",
+                    "1", "0", "1", "0"
                 )
 
                 AlertDialog.Builder(this)
@@ -1118,28 +1110,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     // =========================================================================
-    // 9. 부팅 시 다중 앱 자동 실행 스케줄러 (미디어 앱 선택)
+    // 9. 시동 1회당 앱별 실행/재생 예약
     // =========================================================================
     private fun setupBootSchedulerSubScreen() {
         val swBoot = findViewById<SwitchCompat>(R.id.swBootAuto)
-        val swMedia = findViewById<SwitchCompat>(R.id.swBootMediaPlay)
-        val btnSelectMedia = findViewById<Button>(R.id.btnSelectBootMediaApp)
 
         swBoot.isChecked = SettingsManager.isBootAutoEnabled(this)
-        swMedia.isChecked = SettingsManager.isBootMediaPlayEnabled(this)
-        btnSelectMedia.text = "자동 재생 대상 앱: " + SettingsManager.getBootSelectedMediaName(this)
 
         swBoot.setOnCheckedChangeListener { _, isChecked -> SettingsManager.setBootAutoEnabled(this, isChecked) }
-        swMedia.setOnCheckedChangeListener { _, isChecked -> SettingsManager.setBootMediaPlayEnabled(this, isChecked) }
-
-        btnSelectMedia.setOnClickListener {
-            showAppPicker("자동 재생할 미디어 앱 선택") { pkg, name ->
-                SettingsManager.setBootSelectedMediaPkg(this, pkg)
-                SettingsManager.setBootSelectedMediaName(this, name)
-                btnSelectMedia.text = "자동 재생 대상 앱: " + name
-                Toast.makeText(this, name + " 자동 재생 대상으로 지정됨", Toast.LENGTH_SHORT).show()
-            }
-        }
 
         refreshBootAppList()
 
@@ -1150,20 +1128,61 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showBootDelayDialog(pkg: String, name: String) {
-        val input = EditText(this).apply {
-            hint = "예: 3.5 (0.1초 단위)"
-            setText("3.5")
+    private fun showBootDelayDialog(pkg: String, name: String, existing: BootAppItem? = null) {
+        val launchDelay = EditText(this).apply {
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+            hint = "예: 3.5"
+            setText((existing?.delaySeconds ?: 3.5).toString())
         }
+        val mediaEnabled = SwitchCompat(this).apply {
+            text = "이 앱 실행 뒤 재생(PLAY) 명령 전송"
+            isChecked = existing?.mediaPlayEnabled ?: false
+            setTextColor(Color.WHITE)
+        }
+        val mediaDelay = EditText(this).apply {
+            inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+            hint = "예: 2.0"
+            setText((existing?.mediaDelaySeconds ?: 2.0).toString())
+            isEnabled = mediaEnabled.isChecked
+        }
+        mediaEnabled.setOnCheckedChangeListener { _, checked -> mediaDelay.isEnabled = checked }
+
+        val form = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(40, 12, 40, 8)
+            addView(TextView(this@MainActivity).apply {
+                text = "시동 ON 뒤 앱 실행 지연(초, 0.1 단위)"
+                setTextColor(Color.parseColor("#80D8FF"))
+            })
+            addView(launchDelay)
+            addView(mediaEnabled)
+            addView(TextView(this@MainActivity).apply {
+                text = "앱 실행 뒤 재생 지연(초)"
+                setTextColor(Color.parseColor("#80D8FF"))
+            })
+            addView(mediaDelay)
+        }
+
         AlertDialog.Builder(this)
-            .setTitle(name + " 자동 실행 지연 시간")
-            .setMessage("부팅/시동 후 몇 초 뒤에 실행할지 0.1초 단위로 입력하세요:")
-            .setView(input)
-            .setPositiveButton("등록") { _, _ ->
-                val sec = input.text.toString().toDoubleOrNull() ?: 3.5
-                SettingsManager.addBootApp(this, BootAppItem(pkg, name, sec))
+            .setTitle("$name 앱별 시동 예약")
+            .setMessage("실행과 미디어 재생 시간을 이 앱에만 적용합니다.")
+            .setView(form)
+            .setPositiveButton(if (existing == null) "등록" else "저장") { _, _ ->
+                val launchSec = launchDelay.text.toString().toDoubleOrNull()?.coerceIn(0.0, 600.0) ?: 3.5
+                val mediaSec = mediaDelay.text.toString().toDoubleOrNull()?.coerceIn(0.0, 120.0) ?: 2.0
+                SettingsManager.addBootApp(
+                    this,
+                    BootAppItem(
+                        packageName = pkg,
+                        appName = name,
+                        delaySeconds = launchSec,
+                        enabled = existing?.enabled ?: true,
+                        mediaPlayEnabled = mediaEnabled.isChecked,
+                        mediaDelaySeconds = mediaSec
+                    )
+                )
                 refreshBootAppList()
-                Toast.makeText(this, name + " (" + sec + "초 후 실행) 등록 완료", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "$name 예약 저장 완료", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("취소", null)
             .show()
@@ -1174,11 +1193,19 @@ class MainActivity : AppCompatActivity() {
         container.removeAllViews()
         val list = SettingsManager.getBootAppList(this)
 
+        if (list.isEmpty()) {
+            container.addView(TextView(this).apply {
+                text = "등록된 앱이 없습니다. 아래 버튼에서 앱을 추가하세요."
+                setTextColor(Color.GRAY)
+                setPadding(12, 18, 12, 18)
+            })
+            return
+        }
+
         for (item in list) {
             val row = LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(12, 8, 12, 8)
+                orientation = LinearLayout.VERTICAL
+                setPadding(16, 10, 16, 10)
                 background = GradientDrawable().apply {
                     setColor(Color.parseColor("#1C1C28"))
                     cornerRadius = 12f
@@ -1189,13 +1216,43 @@ class MainActivity : AppCompatActivity() {
                 ).apply { setMargins(0, 4, 0, 4) }
             }
 
+            val header = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+            }
             val tvInfo = TextView(this).apply {
                 layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                text = item.appName + " (시동 " + item.delaySeconds + "초 후 실행)"
+                text = buildString {
+                    append(item.appName).append("\n시동 +").append(item.delaySeconds).append("초 실행")
+                    if (item.mediaPlayEnabled) append(" · 실행 +").append(item.mediaDelaySeconds).append("초 재생")
+                }
                 setTextColor(Color.WHITE)
                 textSize = 13f
             }
-            row.addView(tvInfo)
+            header.addView(tvInfo)
+
+            val enabledSwitch = SwitchCompat(this).apply {
+                isChecked = item.enabled
+                contentDescription = "${item.appName} 자동 실행 사용"
+                setOnCheckedChangeListener { _, checked ->
+                    SettingsManager.addBootApp(this@MainActivity, item.copy(enabled = checked))
+                }
+            }
+            header.addView(enabledSwitch)
+            row.addView(header)
+
+            val actions = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.END
+            }
+            val btnEdit = Button(this).apply {
+                text = "편집"
+                textSize = 11f
+                setTextColor(Color.parseColor("#80D8FF"))
+                backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2C2C38"))
+                setOnClickListener { showBootDelayDialog(item.packageName, item.appName, item) }
+            }
+            actions.addView(btnEdit)
 
             val btnDel = Button(this).apply {
                 text = "삭제"
@@ -1207,38 +1264,53 @@ class MainActivity : AppCompatActivity() {
                     refreshBootAppList()
                 }
             }
-            row.addView(btnDel)
+            actions.addView(btnDel)
+            row.addView(actions)
 
             container.addView(row)
         }
     }
 
     // =========================================================================
-    // 10. 화면 밀도(DPI) & ADB 진단 센터
+    // 10. 화면 밀도(DPI) & 원터치 진단 센터
     // =========================================================================
     private fun setupDpiAdbSubScreen() {
         val tvDpiBig = findViewById<TextView>(R.id.tvSubCurrentDpiBig)
         fun refreshDpi() {
-            val d = DpiManager.getCurrentDensity()
-            tvDpiBig.text = if (d.contains("Physical")) d.substringAfter("override: ").ifEmpty { d } else d
+            tvDpiBig.text = DpiManager.getCurrentDensity(this)
         }
         refreshDpi()
 
-        findViewById<Button>(R.id.btnPreset160).setOnClickListener { DpiManager.setDensity(160); refreshDpi(); Toast.makeText(this, "160 DPI 적용 완료", Toast.LENGTH_SHORT).show() }
-        findViewById<Button>(R.id.btnPreset180).setOnClickListener { DpiManager.setDensity(180); refreshDpi(); Toast.makeText(this, "180 DPI 적용 완료", Toast.LENGTH_SHORT).show() }
-        findViewById<Button>(R.id.btnPreset200).setOnClickListener { DpiManager.setDensity(200); refreshDpi(); Toast.makeText(this, "200 DPI 적용 완료", Toast.LENGTH_SHORT).show() }
-        findViewById<Button>(R.id.btnPresetReset).setOnClickListener { DpiManager.resetDensity(); refreshDpi(); Toast.makeText(this, "순정 DPI 복원 완료", Toast.LENGTH_SHORT).show() }
+        fun applyDpi(value: Int?) {
+            Toast.makeText(this, "로컬 ADB로 DPI 적용 중…", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch(Dispatchers.IO) {
+                val ok = if (value == null) DpiManager.resetDensity(this@MainActivity)
+                else DpiManager.setDensity(this@MainActivity, value)
+                withContext(Dispatchers.Main) {
+                    refreshDpi()
+                    Toast.makeText(
+                        this@MainActivity,
+                        if (ok) (value?.let { "$it DPI 적용 완료" } ?: "순정 DPI 복원 완료") else "DPI 적용 실패 — 로컬 ADB 로그를 확인하세요.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+        findViewById<Button>(R.id.btnPreset160).setOnClickListener { applyDpi(160) }
+        findViewById<Button>(R.id.btnPreset180).setOnClickListener { applyDpi(180) }
+        findViewById<Button>(R.id.btnPreset200).setOnClickListener { applyDpi(200) }
+        findViewById<Button>(R.id.btnPresetReset).setOnClickListener { applyDpi(null) }
 
         findViewById<Button>(R.id.btnWirelessAdbGuide).setOnClickListener {
             AlertDialog.Builder(this)
-                .setTitle("📖 BYD 순정 무선 ADB(5555) 활성화 가이드")
-                .setMessage("📌 차량 화면에서 직접 5555 포트를 여는 방법:\n\n" +
-                        "1. 차량 중앙 화면의 [차량 설정(Vehicle Settings)] 진입\n" +
-                        "2. [시스템 설정(System)] 또는 [소프트웨어 버전] 메뉴 이동\n" +
-                        "3. '소프트웨어 버전' 텍스트를 7~10회 연속으로 연타\n" +
-                        "4. 히든 엔지니어링 모드가 열리면 [Wireless ADB] 또는 [무선 디버깅] 스위치를 켭니다.\n" +
-                        "5. 본 앱으로 돌아와서 [⚡ ADB 즉시 승인 시도]를 누르면 'USB 디버깅을 허용하시겠습니까?' 팝업이 표출됩니다!\n\n" +
-                        "(또는 버그제거 앱에서 1회 'adb tcpip 5555' 실행 시 즉시 포트가 개방됩니다)")
+                .setTitle("로컬 ADB(5555) 연결 안내")
+                .setMessage("원터치 진단 수집에는 스마트폰 버그제거 앱이나 ADB가 필요하지 않습니다. 아래 과정은 DPI·특수 권한처럼 ADB 전용 기능을 처음 준비할 때만 필요합니다.\n\n" +
+                        "이 앱은 이미 열려 있는 차량의 5555 포트에만 접속할 수 있으며 포트 자체를 우회해 열 수는 없습니다.\n\n" +
+                        "1. 스마트폰 버그제거 앱으로 차량 ADB에 연결합니다.\n" +
+                        "2. 셸에서 adb tcpip 5555를 1회 실행합니다.\n" +
+                        "3. 차량에 RSA 허용 창이 나오면 이 컴퓨터에서 항상 허용을 선택합니다.\n" +
+                        "4. 이 화면의 ADB 승인 시도를 누릅니다.\n\n" +
+                        "창이 나오지 않거나 실패하면 원터치 진단 ZIP을 생성해 보내주세요.")
                 .setPositiveButton("확인", null)
                 .show()
         }
@@ -1250,9 +1322,8 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnCopyAllAdbCmds).setOnClickListener {
             val cmds = """
-adb shell pm grant com.byd.dolphin.autoassistant android.permission.SYSTEM_ALERT_WINDOW
 adb shell pm grant com.byd.dolphin.autoassistant android.permission.WRITE_SECURE_SETTINGS
-adb shell pm grant com.byd.dolphin.autoassistant android.permission.DUMP
+adb shell appops set com.byd.dolphin.autoassistant SYSTEM_ALERT_WINDOW allow
 adb shell cmd notification allow_listener com.byd.dolphin.autoassistant/.hud.MultiNavNotificationListener
             """.trimIndent()
 
@@ -1260,10 +1331,109 @@ adb shell cmd notification allow_listener com.byd.dolphin.autoassistant/.hud.Mul
             cm.setPrimaryClip(ClipData.newPlainText("ADB_COMMANDS", cmds))
 
             AlertDialog.Builder(this)
-                .setTitle("📋 ADB 권한 일괄 명령어 복사 완료")
-                .setMessage("스마트폰(버그제거/Bugjaeger) 앱 명령어 창에 붙여넣어 실행하시면 즉시 모든 권한이 승인됩니다:\n\n$cmds\n\n(참고: 버그제거에서 1회 'adb tcpip 5555'를 입력해두시면 이후부터는 케이블 없이 앱이 자체 작동합니다)")
+                .setTitle("ADB 권한 명령어 복사 완료")
+                .setMessage("이 명령은 초기 ADB 권한 준비용이며 일반 진단 수집에는 필요하지 않습니다. ADB 셸에서 한 줄씩 실행하세요:\n\n$cmds\n\nBYD 서명 권한은 일반 pm grant로 우회할 수 없으며, 진단 ZIP에서 실제 승인 여부를 확인합니다.")
                 .setPositiveButton("확인", null)
                 .show()
+        }
+
+        val tvCaptureStatus = findViewById<TextView>(R.id.tvDiagnosticCaptureStatus)
+        val swRawNavText = findViewById<SwitchCompat>(R.id.swDiagnosticIncludeNavText)
+        val btnStartCapture = findViewById<Button>(R.id.btnStartDiagnosticCapture)
+        val btnProblemMarker = findViewById<Button>(R.id.btnDiagnosticProblemMarker)
+        val btnStopAndExport = findViewById<Button>(R.id.btnStopExportDiagnosticBundle)
+
+        fun refreshCaptureStatus() {
+            val status = DiagnosticCaptureManager.getStatus()
+            when {
+                status.active -> {
+                    val elapsedMinutes = status.elapsedSeconds / 60
+                    val elapsedSeconds = status.elapsedSeconds % 60
+                    val remainMinutes = status.remainingSeconds / 60
+                    val remainSeconds = status.remainingSeconds % 60
+                    tvCaptureStatus.text = String.format(
+                        Locale.KOREA,
+                        "● 수집 중 %02d:%02d · 남은 시간 %02d:%02d · 내비 원문 %s",
+                        elapsedMinutes,
+                        elapsedSeconds,
+                        remainMinutes,
+                        remainSeconds,
+                        if (status.includeRawNavText) "포함" else "숨김"
+                    )
+                    tvCaptureStatus.setTextColor(Color.parseColor("#00E676"))
+                }
+                status.readyToExport -> {
+                    tvCaptureStatus.text = "● 수집 완료 · 아래 버튼으로 진단 ZIP을 내보내세요."
+                    tvCaptureStatus.setTextColor(Color.parseColor("#FFD54F"))
+                }
+                else -> {
+                    tvCaptureStatus.text = "● 대기 중 · 시작 후 문제 상황을 재현하세요."
+                    tvCaptureStatus.setTextColor(Color.parseColor("#80D8FF"))
+                }
+            }
+            swRawNavText.isEnabled = !status.exists
+            btnStartCapture.isEnabled = !status.exists
+            btnProblemMarker.isEnabled = status.active
+            btnStopAndExport.isEnabled = status.exists
+            btnStopAndExport.text = if (status.active) {
+                "■ 수집 종료 + ZIP 내보내기"
+            } else {
+                "📦 완료된 진단 ZIP 내보내기"
+            }
+        }
+
+        swRawNavText.isChecked = SettingsManager.isDiagnosticNavTextEnabled(this)
+        swRawNavText.setOnCheckedChangeListener { _, enabled ->
+            SettingsManager.setDiagnosticNavTextEnabled(this, enabled)
+            Toast.makeText(
+                this,
+                if (enabled) "이 진단 세션에는 내비 알림 문구가 포함됩니다." else "내비 알림 원문을 숨깁니다.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        btnStartCapture.setOnClickListener {
+            if (!ensureBluetoothPermission()) return@setOnClickListener
+            val message = DiagnosticCaptureManager.start(this)
+            refreshCaptureStatus()
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        }
+
+        btnProblemMarker.setOnClickListener {
+            val recorded = DiagnosticCaptureManager.addProblemMarker()
+            Toast.makeText(
+                this,
+                if (recorded) "문제 발생 시점을 기록했습니다." else "먼저 진단 수집을 시작하세요.",
+                Toast.LENGTH_SHORT
+            ).show()
+            refreshCaptureStatus()
+        }
+
+        btnStopAndExport.setOnClickListener {
+            btnStopAndExport.isEnabled = false
+            tvCaptureStatus.text = "진단 파일 정리 및 ZIP 생성 중…"
+            Toast.makeText(this, "진단 ZIP을 만드는 중입니다.", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                val file = DiagnosticCaptureManager.stopAndCreateBundle(this@MainActivity)
+                if (file != null) {
+                    findViewById<TextView>(R.id.tvLogPathInfo).apply {
+                        text = "진단 ZIP 저장 완료: ${file.absolutePath} (${file.length()} Bytes)"
+                        setTextColor(Color.parseColor("#00E676"))
+                    }
+                    shareDiagnosticFile(file, "application/zip", "원터치 진단 ZIP 공유")
+                } else {
+                    Toast.makeText(this@MainActivity, "내보낼 진단 세션이 없습니다.", Toast.LENGTH_LONG).show()
+                }
+                refreshCaptureStatus()
+            }
+        }
+
+        refreshCaptureStatus()
+        lifecycleScope.launch {
+            while (true) {
+                delay(1_000L)
+                refreshCaptureStatus()
+            }
         }
 
         findViewById<Button>(R.id.btnGenerateDiagnosticLog).setOnClickListener {
@@ -1272,15 +1442,15 @@ adb shell cmd notification allow_listener com.byd.dolphin.autoassistant/.hud.Mul
             if (file.exists()) {
                 tvPath.text = "저장 완료: " + file.absolutePath + " (" + file.length() + " Bytes)"
                 tvPath.setTextColor(Color.parseColor("#00E676"))
-                shareLogFile(file)
+                shareDiagnosticFile(file, "text/plain", "통합 진단 로그 공유")
             }
         }
     }
 
     private fun sendGearBroadcast(gear: String) {
-        val intent = Intent("com.byd.auto.intent.action.GEAR_CHANGED").apply {
-            putExtra("gear", gear)
-            putExtra("speed", 0.0f)
+        val intent = Intent(DolphinService.ACTION_INTERNAL_TEST_GEAR).apply {
+            setPackage(this@MainActivity.packageName)
+            putExtra(DolphinService.EXTRA_TEST_GEAR, gear)
         }
         sendBroadcast(intent)
         Toast.makeText(this, gear + "단 가상 신호 발생", Toast.LENGTH_SHORT).show()
@@ -1299,17 +1469,19 @@ adb shell cmd notification allow_listener com.byd.dolphin.autoassistant/.hud.Mul
             .show()
     }
 
-    private fun shareLogFile(logFile: File) {
+    private fun shareDiagnosticFile(file: File, mimeType: String, chooserTitle: String) {
         val uri = try {
-            FileProvider.getUriForFile(this, packageName + ".fileprovider", logFile)
+            FileProvider.getUriForFile(this, packageName + ".fileprovider", file)
         } catch (e: Exception) {
-            Uri.fromFile(logFile)
+            DolphinLogger.e("LOG_SHARE", "FileProvider URI 생성 실패", e)
+            Toast.makeText(this, "로그 공유 URI를 만들지 못했습니다.", Toast.LENGTH_LONG).show()
+            return
         }
         val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
+            type = mimeType
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        startActivity(Intent.createChooser(intent, "통합 진단 로그 공유"))
+        startActivity(Intent.createChooser(intent, chooserTitle))
     }
 }

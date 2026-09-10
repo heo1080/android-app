@@ -12,8 +12,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.net.Inet4Address
-import java.net.NetworkInterface
 
 /**
  * 로컬 ADB 포트 연결, 시스템 권한 상태 감지 및 원터치 권한 부여 매니저
@@ -23,9 +21,7 @@ object AdbPermissionManager {
     private const val TAG = "AdbPermissionManager"
 
     private val REQUIRED_PERMISSIONS = listOf(
-        "android.permission.WRITE_SECURE_SETTINGS",
-        "android.permission.SYSTEM_ALERT_WINDOW",
-        "android.permission.DUMP"
+        "android.permission.WRITE_SECURE_SETTINGS"
     )
 
     fun isAllGranted(context: Context): Boolean {
@@ -86,10 +82,11 @@ object AdbPermissionManager {
             for (p in REQUIRED_PERMISSIONS) {
                 commands.add("pm grant $pkg $p")
             }
-            commands.add("cmd notification allow_listener $pkg/.notification.MultiNavNotificationListener")
+            commands.add("appops set $pkg SYSTEM_ALERT_WINDOW allow")
+            commands.add("cmd notification allow_listener $pkg/.hud.MultiNavNotificationListener")
 
-            val candidateHosts = mutableListOf("127.0.0.1", "localhost", "192.168.10.10")
-            getLocalIpAddress()?.let { candidateHosts.add(it) }
+            // 권한 부여는 차량 자체의 loopback ADB에만 제한합니다.
+            val candidateHosts = listOf("127.0.0.1")
 
             var anySuccess = false
             var lastError = "5555 포트 미응답"
@@ -98,6 +95,7 @@ object AdbPermissionManager {
                 try {
                     DolphinLogger.i(TAG, "차량 로컬 ADB 연결 시도: $host:5555")
                     NativeAdbClient.connectAndExecute(
+                        context = context,
                         host = host,
                         port = 5555,
                         commands = commands
@@ -126,22 +124,4 @@ object AdbPermissionManager {
         }
     }
 
-    private fun getLocalIpAddress(): String? {
-        try {
-            val en = NetworkInterface.getNetworkInterfaces()
-            while (en.hasMoreElements()) {
-                val intf = en.nextElement()
-                val enumIpAddr = intf.inetAddresses
-                while (enumIpAddr.hasMoreElements()) {
-                    val inetAddress = enumIpAddr.nextElement()
-                    if (!inetAddress.isLoopbackAddress && inetAddress is Inet4Address) {
-                        return inetAddress.hostAddress
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return null
-    }
 }
