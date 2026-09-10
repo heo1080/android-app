@@ -589,12 +589,12 @@ object DiagnosticCaptureManager {
         return result.put("bondedDevices", devices)
     }
 
-    private fun permissionSnapshot(context: Context): JSONArray {
+private fun permissionSnapshot(context: Context): JSONArray {
         val result = JSONArray()
         @Suppress("DEPRECATION")
-        val packageInfo = context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
+        val packageInfo = context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS or PackageManager.GET_META_DATA)
         val names = packageInfo.requestedPermissions.orEmpty()
-        val result = someNonStringObject?.toString().orEmpty()
+        val flags = packageInfo.requestedPermissionsFlags.orEmpty()
         names.forEachIndexed { index, permission ->
             val manifestGranted = ((flags.getOrNull(index) ?: 0) and android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED) != 0
             val runtimeGranted = ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
