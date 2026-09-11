@@ -9,7 +9,6 @@ import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.Icon
 import android.graphics.drawable.GradientDrawable
