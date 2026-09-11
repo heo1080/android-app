@@ -5,6 +5,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.ComponentName
+import android.content.pm.PackageManager
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.content.pm.PackageManager
@@ -794,6 +796,10 @@ class MainActivity : AppCompatActivity() {
     // 7. 바로가기 & 플로팅 버튼 빌더 (크기, 투명도, 앱 아이콘 표출 커스텀)
     // =========================================================================
     private fun setupButtonBuilderSubScreen() {
+        setupAppDrawerShortcutSwitch(R.id.swDrawerDefrost, ".shortcut.DefrostLauncher")
+        setupAppDrawerShortcutSwitch(R.id.swDrawerLightToggle, ".shortcut.LightToggleLauncher")
+        setupAppDrawerShortcutSwitch(R.id.swDrawerLightOn, ".shortcut.LightOnLauncher")
+        setupAppDrawerShortcutSwitch(R.id.swDrawerLightOff, ".shortcut.LightOffLauncher")
         findViewById<SwitchCompat>(R.id.swFloatingOverlay).apply {
             isChecked = SettingsManager.isFloatingOverlayEnabled(this@MainActivity)
             setOnCheckedChangeListener { _, enabled ->
@@ -879,6 +885,16 @@ class MainActivity : AppCompatActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
+    }
+
+    private fun setupAppDrawerShortcutSwitch(switchId: Int, classSuffix: String) {
+        val component = ComponentName(packageName, packageName + classSuffix)
+        val sw = findViewById<SwitchCompat>(switchId)
+        sw.isChecked = packageManager.getComponentEnabledSetting(component) == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+        sw.setOnCheckedChangeListener { _, enabled ->
+            packageManager.setComponentEnabledSetting(component, if (enabled) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
+            Toast.makeText(this, if (enabled) "앱서랍 바로가기를 표시했습니다." else "앱서랍 바로가기를 숨겼습니다.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun showActionAndFloatingPicker(categoryTitle: String, items: List<FloatingItem>) {

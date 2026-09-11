@@ -95,11 +95,7 @@
             android:icon="@drawable/ic_defrost_toggle"
             android:label="성에 제거"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+</activity>
 
         <activity
             android:name=".activity.InsideLightToggleActivity"
@@ -107,11 +103,7 @@
             android:icon="@drawable/ic_light_toggle"
             android:label="실내등 스위치"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+</activity>
 
         <activity
             android:name=".activity.InsideLightOnActivity"
@@ -119,11 +111,7 @@
             android:icon="@drawable/ic_light_on"
             android:label="실내등 켜기"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+</activity>
 
         <activity
             android:name=".activity.InsideLightOffActivity"
@@ -131,11 +119,22 @@
             android:icon="@drawable/ic_light_off"
             android:label="실내등 끄기"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+</activity>
+
+
+        <!-- 설치 직후 숨김. 사용자가 앱 메뉴에서 켠 항목만 앱서랍에 표시 -->
+        <activity-alias android:name=".shortcut.DefrostLauncher" android:enabled="false" android:exported="true" android:icon="@drawable/ic_defrost_toggle" android:label="성에 제거" android:targetActivity=".activity.DefrostToggleActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter>
+        </activity-alias>
+        <activity-alias android:name=".shortcut.LightToggleLauncher" android:enabled="false" android:exported="true" android:icon="@drawable/ic_light_toggle" android:label="실내등 스위치" android:targetActivity=".activity.InsideLightToggleActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter>
+        </activity-alias>
+        <activity-alias android:name=".shortcut.LightOnLauncher" android:enabled="false" android:exported="true" android:icon="@drawable/ic_light_on" android:label="실내등 켜기" android:targetActivity=".activity.InsideLightOnActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter>
+        </activity-alias>
+        <activity-alias android:name=".shortcut.LightOffLauncher" android:enabled="false" android:exported="true" android:icon="@drawable/ic_light_off" android:label="실내등 끄기" android:targetActivity=".activity.InsideLightOffActivity">
+            <intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter>
+        </activity-alias>
 
         <service
             android:name=".service.DolphinService"

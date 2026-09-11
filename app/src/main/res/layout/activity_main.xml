@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="#121212">
+    android:background="@drawable/bg_screen_premium">
 
     <!-- ================================================================= -->
     <!-- 🏠 [메인 대시보드] 10대 세분화 카드 그리드 UI                   -->
@@ -25,7 +25,7 @@
             android:gravity="center_vertical"
             android:paddingHorizontal="20dp"
             android:paddingVertical="12dp"
-            android:background="#1C1C24">
+            android:background="@drawable/bg_header_premium">
 
             <ImageView
                 android:layout_width="40dp"
@@ -1068,7 +1068,7 @@ BYD/HUD 진단 ZIP 추출"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#121212"
+        android:background="@drawable/bg_screen_premium"
         android:visibility="gone">
 
         <LinearLayout
@@ -1077,7 +1077,7 @@ BYD/HUD 진단 ZIP 추출"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="16dp"
-            android:background="#1C1C24">
+            android:background="@drawable/bg_header_premium">
 
             <Button
                 android:id="@+id/btnBackSplit"
@@ -1385,7 +1385,7 @@ BYD/HUD 진단 ZIP 추출"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#121212"
+        android:background="@drawable/bg_screen_premium"
         android:visibility="gone">
 
         <LinearLayout
@@ -1394,7 +1394,7 @@ BYD/HUD 진단 ZIP 추출"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="16dp"
-            android:background="#1C1C24">
+            android:background="@drawable/bg_header_premium">
 
             <Button
                 android:id="@+id/btnBackVoice"
@@ -1657,7 +1657,7 @@ BYD/HUD 진단 ZIP 추출"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#121212"
+        android:background="@drawable/bg_screen_premium"
         android:visibility="gone">
 
         <LinearLayout
@@ -1666,7 +1666,7 @@ BYD/HUD 진단 ZIP 추출"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="16dp"
-            android:background="#1C1C24">
+            android:background="@drawable/bg_header_premium">
 
             <Button
                 android:id="@+id/btnBackSafetyAudio"
@@ -1761,7 +1761,7 @@ BYD/HUD 진단 ZIP 추출"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#121212"
+        android:background="@drawable/bg_screen_premium"
         android:visibility="gone">
 
         <LinearLayout
@@ -1770,7 +1770,7 @@ BYD/HUD 진단 ZIP 추출"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="16dp"
-            android:background="#1C1C24">
+            android:background="@drawable/bg_header_premium">
 
             <Button
                 android:id="@+id/btnBackHud"
@@ -1962,7 +1962,7 @@ BYD/HUD 진단 ZIP 추출"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#121212"
+        android:background="@drawable/bg_screen_premium"
         android:visibility="gone">
 
         <LinearLayout
@@ -1971,7 +1971,7 @@ BYD/HUD 진단 ZIP 추출"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="16dp"
-            android:background="#1C1C24">
+            android:background="@drawable/bg_header_premium">
 
             <Button
                 android:id="@+id/btnBackCluster"
@@ -2086,7 +2086,7 @@ BYD/HUD 진단 ZIP 추출"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#121212"
+        android:background="@drawable/bg_screen_premium"
         android:visibility="gone">
 
         <LinearLayout
@@ -2095,7 +2095,7 @@ BYD/HUD 진단 ZIP 추출"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="16dp"
-            android:background="#1C1C24">
+            android:background="@drawable/bg_header_premium">
 
             <Button
                 android:id="@+id/btnBackButtonBuilder"
@@ -2184,6 +2184,13 @@ BYD/HUD 진단 ZIP 추출"
                         android:textColor="#FFFFFF" />
                 </GridLayout>
             
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="앱서랍 바로가기 관리" android:textColor="#57D7FF" android:textSize="14sp" android:textStyle="bold" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="설치 직후에는 추가 아이콘이 표시되지 않습니다. 필요한 기능만 켜면 앱서랍에 생성됩니다." android:textColor="#9FB7C8" android:textSize="12sp" />
+                <androidx.appcompat.widget.SwitchCompat android:id="@+id/swDrawerDefrost" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="성에 제거 바로가기" android:textColor="#FFFFFF" />
+                <androidx.appcompat.widget.SwitchCompat android:id="@+id/swDrawerLightToggle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="실내등 스위치 바로가기" android:textColor="#FFFFFF" />
+                <androidx.appcompat.widget.SwitchCompat android:id="@+id/swDrawerLightOn" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="실내등 켜기 바로가기" android:textColor="#FFFFFF" />
+                <androidx.appcompat.widget.SwitchCompat android:id="@+id/swDrawerLightOff" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="실내등 끄기 바로가기" android:textColor="#FFFFFF" />
+
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/swFloatingOverlay"
                     android:layout_width="match_parent"
@@ -2273,7 +2280,7 @@ BYD/HUD 진단 ZIP 추출"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#121212"
+        android:background="@drawable/bg_screen_premium"
         android:visibility="gone">
 
         <LinearLayout
@@ -2282,7 +2289,7 @@ BYD/HUD 진단 ZIP 추출"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="16dp"
-            android:background="#1C1C24">
+            android:background="@drawable/bg_header_premium">
 
             <Button
                 android:id="@+id/btnBackAutomation"
@@ -2391,7 +2398,7 @@ BYD/HUD 진단 ZIP 추출"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#121212"
+        android:background="@drawable/bg_screen_premium"
         android:visibility="gone">
 
         <LinearLayout
@@ -2400,7 +2407,7 @@ BYD/HUD 진단 ZIP 추출"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="16dp"
-            android:background="#1C1C24">
+            android:background="@drawable/bg_header_premium">
 
             <Button
                 android:id="@+id/btnBackBootScheduler"
@@ -2485,7 +2492,7 @@ BYD/HUD 진단 ZIP 추출"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="#121212"
+        android:background="@drawable/bg_screen_premium"
         android:visibility="gone">
 
         <LinearLayout
@@ -2494,7 +2501,7 @@ BYD/HUD 진단 ZIP 추출"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="16dp"
-            android:background="#1C1C24">
+            android:background="@drawable/bg_header_premium">
 
             <Button
                 android:id="@+id/btnBackDpiAdb"
