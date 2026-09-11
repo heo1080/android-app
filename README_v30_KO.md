@@ -44,6 +44,8 @@ BYD DiLink 3.0 차량용 보조 앱의 v30 정리본입니다. 제공된 차량 
 - BYD TMAP 변형, 모바일 TMAP, 네이버지도, 카카오내비, 아이나비 에어 알림 후보 지원
 - `BYDAutoInstrumentDevice.sendAutoNaviStatus()`, `sendSimpleGuidanceInfo()`, `sendNextPathName()` 사용
 - TTS는 `USAGE_ASSISTANCE_NAVIGATION_GUIDANCE`로 출력하며 실제 물리 스피커 존은 BYD 오디오 정책에 위임
+- v30.2의 **운전석 오디오 4경로 비교 테스트**는 표준 NAV AudioTrack, 커뮤니티 SoundPool NAV/SPEECH, legacy-attribute stream 14, 레거시 AudioTrack stream 14를 순서대로 비교하고 `AUDIO_PROBE` 진단을 남김
+- 실차 경로가 확인되기 전에는 일반 TTS/BSD/차선 경고의 기본 출력을 stream 14로 강제 변경하지 않음
 - 알림 접근 서비스와 사용자가 직접 켜는 보조 접근성 입력 제공
 
 ### 앱 자체 원터치 진단

@@ -11,8 +11,8 @@ android {
         applicationId = "com.byd.dolphin.autoassistant"
         minSdk = 29
         targetSdk = 34
-        versionCode = 32
-        versionName = "3.0.2-v30.1.1-neon-buildfix"
+        versionCode = 33
+        versionName = "3.0.3-v30.2-driver-audio-probe"
     }
 
     buildTypes {

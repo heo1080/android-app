@@ -1,0 +1,29 @@
+BYD Dolphin Auto Assistant v30.2 driver-audio-probe validation
+Date: 2026-09-12 KST
+
+SOURCE_VERSION_CODE=33
+SOURCE_VERSION_NAME=3.0.3-v30.2-driver-audio-probe
+
+XML_PARSE=PASS (26 files)
+KOTLIN_LEXICAL_STRUCTURE=PASS (41 files)
+KOTLINC_PARSE_SCAN=PASS (no expecting/unclosed/unexpected-token diagnostics; Android classpath unavailable)
+R_ID_REFERENCES=127
+R_ID_DECLARATIONS=128
+R_ID_MISSING=0
+R_RAW_REFERENCES=1
+R_RAW_MISSING=0
+DRIVER_AUDIO_PROBE_WAV=PASS (mono PCM16 44100Hz, 260ms)
+BAD_NULLABLE_PERMISSION_OVERRIDE_REMAINING=0
+
+PROBE_ROUTE_1=PASS_PRESENT standard NAV AudioTrack / SONIFICATION / 44.1k
+PROBE_ROUTE_2=PASS_PRESENT community SoundPool / NAV / SPEECH
+PROBE_ROUTE_3=PASS_PRESENT legacy-attribute stream 14 candidate
+PROBE_ROUTE_4=PASS_PRESENT legacy AudioTrack stream 14 candidate
+AUDIO_PROBE_ROUTING_LOGS=PASS_PRESENT
+FOUR_ROUTE_UI=PASS_PRESENT
+NORMAL_TTS_NAV_PATH_UNCHANGED=PASS
+
+FULL_GRADLE_BUILD=NOT_RUN
+BUILD_ATTEMPT_RESULT=FAILED_BEFORE_ANDROID_COMPILATION
+BUILD_ATTEMPT_CAUSE=java.net.UnknownHostException: services.gradle.org while downloading gradle-8.7-bin.zip
+NEXT_VERIFICATION=Internet-enabled ./gradlew :app:assembleDebug --stacktrace, then stationary real-vehicle 4-route comparison

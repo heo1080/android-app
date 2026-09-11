@@ -566,9 +566,64 @@ class MainActivity : AppCompatActivity() {
             showBsdLdpConfigDialog("차선 안내음 미리듣기 설정", isBsd = false)
         }
         findViewById<Button>(R.id.btnTestDriverNavRoute).setOnClickListener {
-            audioManager.playNavigationRouteTest()
-            Toast.makeText(this, "내비게이션 오디오 경로 테스트음을 전송했습니다.", Toast.LENGTH_SHORT).show()
+            showDriverAudioRouteProbeDialog()
         }
+    }
+
+    private fun showDriverAudioRouteProbeDialog() {
+        val options = arrayOf(
+            "전체 4경로 순차 비교 (추천)",
+            "1. ${audioManager.driverRouteProbeLabel(1)}",
+            "2. ${audioManager.driverRouteProbeLabel(2)}",
+            "3. ${audioManager.driverRouteProbeLabel(3)}",
+            "4. ${audioManager.driverRouteProbeLabel(4)}"
+        )
+        AlertDialog.Builder(this)
+            .setTitle("운전석 전용 오디오 경로 실차 비교")
+            .setMessage(
+                "정차 상태에서 테스트하세요. 전체 비교를 누르면 1번은 1회, 2번은 2회, " +
+                    "3번은 3회, 4번은 4회 비프가 납니다. 운전석 쪽에서만 들리는 번호를 기억해 주세요."
+            )
+            .setItems(options) { _, which ->
+                if (which == 0) {
+                    Toast.makeText(
+                        this,
+                        "4경로 비교 시작: 비프 횟수로 경로 번호를 구분하세요.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    audioManager.playDriverRouteComparison(
+                        onStep = { route, label ->
+                            runOnUiThread {
+                                Toast.makeText(
+                                    this,
+                                    "$route 번 · $label · ${route}회 비프",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
+                        onDone = {
+                            runOnUiThread {
+                                Toast.makeText(
+                                    this,
+                                    "비교 종료. 운전석만 들린 경로 번호를 기록하고 진단 ZIP을 내보내 주세요.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    )
+                } else {
+                    val route = which
+                    val label = audioManager.driverRouteProbeLabel(route)
+                    Toast.makeText(this, "$route 번 경로 반복 테스트: $label", Toast.LENGTH_LONG).show()
+                    audioManager.playDriverRouteProbe(route) {
+                        runOnUiThread {
+                            Toast.makeText(this, "$route 번 경로 테스트 종료", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+            .setNegativeButton("취소", null)
+            .show()
     }
 
     private fun showBsdLdpConfigDialog(title: String, isBsd: Boolean) {

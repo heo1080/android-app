@@ -53,3 +53,13 @@
 - `permission: String?` → `permission: String` 4개 메서드
 - GitHub Actions `compileDebugKotlin`의 `overrides nothing` / nullable type mismatch 오류 대응
 - versionCode 32, versionName `3.0.2-v30.1.1-neon-buildfix`
+## 2026-09-12 v30.2 driver audio probe
+- 운전석 전용 오디오 경로를 실차에서 한 번에 비교할 수 있는 4경로 진단 추가
+- 1번: `AudioTrack` + `USAGE_ASSISTANCE_NAVIGATION_GUIDANCE` + SONIFICATION, 44.1 kHz
+- 2번: 커뮤니티 `BydAudioFeedback` 방식과 동일한 `SoundPool` + NAVIGATION_GUIDANCE + SPEECH
+- 3번: BYD 커스텀 프레임워크 가능성을 확인하기 위한 `AudioAttributes.setLegacyStreamType(14)` 후보
+- 4번: 레거시 `AudioTrack(streamType=14)` 후보
+- 각 경로 번호만큼 비프를 출력해 화면을 보지 않고 경로를 구분하고, 출력 장치·세션·버퍼·stream 14 인식 여부를 `AUDIO_PROBE` 로그에 기록
+- 일반 TTS/BSD/차선 경고의 기본 경로는 실차 결과가 확인되기 전까지 표준 NAVIGATION_GUIDANCE로 유지
+- versionCode 33, versionName `3.0.3-v30.2-driver-audio-probe`
+
