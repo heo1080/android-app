@@ -52,7 +52,7 @@ class HazardLightManager(context: Context) {
     private fun readHazardState(): Boolean? = try {
         val clazz = Class.forName(LIGHT_CLASS)
         val instance = clazz.getMethod("getInstance", Context::class.java)
-            .invoke(null, appContext)
+            .invoke(null, BydPermissionContext.wrap(appContext))
         when ((clazz.getMethod("getDoubleFlashLightState").invoke(instance) as? Number)?.toInt()) {
             1 -> true
             2 -> false

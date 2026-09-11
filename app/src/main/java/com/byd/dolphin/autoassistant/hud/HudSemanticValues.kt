@@ -1,10 +1,9 @@
 package com.byd.dolphin.autoassistant.hud
 
 /**
- * Semantic values only. No TMAP Plus HUD binary packet is produced until a
- * capture from the exact hardware revision and firmware establishes the protocol.
- *
- * Turn values below are verified BYD instrument `sendSimpleGuidanceInfo` codes.
+ * Shared turn/sound semantic values for the BYD cluster and the experimental
+ * T900 16-byte HUD bridge. Turn values below are verified BYD instrument
+ * `sendSimpleGuidanceInfo` codes.
  */
 object HudSemanticValues {
     const val TURN_BLANK = 0
@@ -18,7 +17,7 @@ object HudSemanticValues {
     const val TURN_LEFT_FRONT = 8
     const val TURN_STRAIGHT = 77
 
-    // Local UI event identifiers; these are never serialized as HUD packets.
+    // T900 sound command identifiers used by HudAudioManager.
     const val SOUND_MUTE = 0
     const val SOUND_OVERSPEED_BEEP = 1
     const val SOUND_CAMERA_WARNING = 2

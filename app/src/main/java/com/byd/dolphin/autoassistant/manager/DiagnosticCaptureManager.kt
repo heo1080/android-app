@@ -508,7 +508,7 @@ object DiagnosticCaptureManager {
                 put("manufacturer", "주식회사 인포라텍")
                 put("kcRegistration", "R-R-9IT-JARVIS3000")
                 put("label", "Connected to TMHP")
-                put("protocol", "UNKNOWN_PAYLOAD_TRANSMISSION_BLOCKED")
+                put("protocol", "EXPERIMENTAL_T900_16_BYTE_BRIDGE")
             })
             put("app", JSONObject().apply {
                 put("packageName", context.packageName)
@@ -702,7 +702,7 @@ object DiagnosticCaptureManager {
 
     private fun readVehicleValue(context: Context, probe: VehicleProbe): String = try {
         val clazz = Class.forName(probe.className)
-        val instance = clazz.getMethod("getInstance", Context::class.java).invoke(null, context)
+        val instance = clazz.getMethod("getInstance", Context::class.java).invoke(null, BydPermissionContext.wrap(context))
         val types = Array(probe.arguments.size) { Int::class.javaPrimitiveType!! }
         val values = probe.arguments.map { it as Any }.toTypedArray()
         clazz.getMethod(probe.methodName, *types).invoke(instance, *values)?.toString() ?: "null"

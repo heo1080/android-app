@@ -182,7 +182,7 @@ object VehicleComfortManager {
         return try {
             val clazz = Class.forName(className)
             val instance = clazz.getMethod("getInstance", Context::class.java)
-                .invoke(null, context.applicationContext)
+                .invoke(null, BydPermissionContext.wrap(context))
             val types = Array(args.size) { Int::class.javaPrimitiveType!! }
             val method = try { clazz.getMethod(methodName, *types) } catch (_: NoSuchMethodException) {
                 return InvokeResult(methodMissing = true)
@@ -206,7 +206,7 @@ object VehicleComfortManager {
         return try {
             val clazz = Class.forName(className)
             val instance = clazz.getMethod("getInstance", Context::class.java)
-                .invoke(null, context.applicationContext)
+                .invoke(null, BydPermissionContext.wrap(context))
             val types = Array(args.size) { Int::class.javaPrimitiveType!! }
             val method = clazz.getMethod(methodName, *types)
             (method.invoke(instance, *args.toTypedArray()) as? Number)?.toInt()

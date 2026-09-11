@@ -214,7 +214,7 @@ object DolphinLogger {
     private fun vehicleInt(context: Context, className: String, method: String, vararg args: Int): String {
         return try {
             val clazz = Class.forName(className)
-            val instance = clazz.getMethod("getInstance", Context::class.java).invoke(null, context)
+            val instance = clazz.getMethod("getInstance", Context::class.java).invoke(null, com.byd.dolphin.autoassistant.manager.BydPermissionContext.wrap(context))
             val types = Array(args.size) { Int::class.javaPrimitiveType!! }
             val value = clazz.getMethod(method, *types).invoke(instance, *args.toTypedArray())
             value?.toString() ?: "null"

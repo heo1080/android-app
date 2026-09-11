@@ -43,7 +43,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="BYD DOLPHIN ASSISTANT"
+                    android:text="NEON DRIVE // DOLPHIN"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
                     android:textStyle="bold"
@@ -65,14 +65,14 @@
                 android:layout_height="36dp"
                 android:text="원터치 재실행"
                 android:textSize="12sp"
-                android:backgroundTint="#2C2C38"
+                android:backgroundTint="#103348"
                 android:textColor="#80D8FF" />
         </LinearLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#2A2A38" />
+            android:background="#00E5FF" />
 
         <!-- 10대 세분화 메인 메뉴 카드 (2열 고해상도 그래픽 그리드) -->
         <ScrollView
@@ -536,7 +536,7 @@ AVH·주행모드는 원시값 매핑 대기"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="페어링 기기·UUID·SPP 진단
-프로토콜 확인 전 패킷 송신 잠금"
+T900 실험 브리지 활성"
                             android:textColor="#B0BEC5"
                             android:textSize="11sp"
                             android:maxLines="2" />
@@ -1039,7 +1039,7 @@ BYD/HUD 진단 ZIP 추출"
                                 android:paddingHorizontal="5dp"
                                 android:paddingVertical="1dp"
                                 android:background="@drawable/bg_badge_pill"
-                                android:text="180 DPI"
+                                android:text="160 DPI (순정)"
                                 android:textColor="#F4FF81"
                                 android:textSize="9sp" />
 
@@ -1085,7 +1085,7 @@ BYD/HUD 진단 ZIP 추출"
                 android:layout_height="36dp"
                 android:text="← 뒤로"
                 android:textSize="13sp"
-                android:backgroundTint="#2C2C38"
+                android:backgroundTint="#103348"
                 android:textColor="#FFFFFF" />
 
             <TextView
@@ -1140,7 +1140,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="앱 1: 티맵"
                         android:textSize="12sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                     <Button
@@ -1151,7 +1151,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="앱 2: 기본 미디어"
                         android:textSize="12sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                 </GridLayout>
@@ -1402,7 +1402,7 @@ BYD/HUD 진단 ZIP 추출"
                 android:layout_height="36dp"
                 android:text="← 뒤로"
                 android:textSize="13sp"
-                android:backgroundTint="#2C2C38"
+                android:backgroundTint="#103348"
                 android:textColor="#FFFFFF" />
 
             <TextView
@@ -1463,7 +1463,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="P단 (파킹)"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                     <Button
@@ -1474,7 +1474,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="R단 (후진)"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                     <Button
@@ -1485,7 +1485,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="N단 (중립)"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                     <Button
@@ -1496,7 +1496,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="D단 (전진)"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                     <Button
@@ -1507,7 +1507,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="드라이브 모드"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                     <Button
@@ -1518,7 +1518,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="회생 제동"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                     <Button
@@ -1529,7 +1529,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="스노우 모드"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                     <!-- 오토홀드 버튼 ON vs OFF 분리 (신규 요구사항!) -->
@@ -1541,7 +1541,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="오토홀드 버튼 켬"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#69F0AE" />
 
                     <Button
@@ -1552,7 +1552,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="오토홀드 버튼 끔"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FF8A80" />
 
                     <!-- 오토홀드 정차 브레이크 체결 vs 해제 분리 (신규 요구사항!) -->
@@ -1564,7 +1564,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="오토홀드 정차 체결"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#69F0AE" />
 
                     <Button
@@ -1575,7 +1575,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="오토홀드 출발 해제"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FF8A80" />
 
                     <Button
@@ -1586,7 +1586,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="사이드브레이크"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                     <Button
@@ -1597,7 +1597,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="ICC 자율주행"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                     <Button
@@ -1608,7 +1608,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="전방 차량 출발"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                     <!-- 충전 시작과 정상 완료 문구 분리 -->
@@ -1620,7 +1620,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="충전 시작"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#00E5FF" />
 
                     <Button
@@ -1631,7 +1631,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="충전 정상 완료"
                         android:textSize="11sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#00E5FF" />
                 </GridLayout>
 
@@ -1674,7 +1674,7 @@ BYD/HUD 진단 ZIP 추출"
                 android:layout_height="36dp"
                 android:text="← 뒤로"
                 android:textSize="13sp"
-                android:backgroundTint="#2C2C38"
+                android:backgroundTint="#103348"
                 android:textColor="#FFFFFF" />
 
             <TextView
@@ -1726,7 +1726,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_weight="1"
                         android:layout_marginEnd="4dp"
                         android:text="BSD 안내음 미리듣기 설정"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FF8A80" />
 
                     <Button
@@ -1736,9 +1736,19 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_weight="1"
                         android:layout_marginStart="4dp"
                         android:text="차선 안내음 미리듣기 설정"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FF8A80" />
                 </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnTestDriverNavRoute"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="14dp"
+                    android:text="🔊 운전석 / 내비게이션 오디오 경로 테스트"
+                    android:backgroundTint="#00E5FF"
+                    android:textColor="#001018"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -1778,7 +1788,7 @@ BYD/HUD 진단 ZIP 추출"
                 android:layout_height="36dp"
                 android:text="← 뒤로"
                 android:textSize="13sp"
-                android:backgroundTint="#2C2C38"
+                android:backgroundTint="#103348"
                 android:textColor="#FFFFFF" />
 
             <TextView
@@ -1805,7 +1815,7 @@ BYD/HUD 진단 ZIP 추출"
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="T900 연결 정보 수집 (패킷 송신 잠금):"
+                    android:text="T900 huddata 연결 · 실시간 길안내 브리지:"
                     android:textColor="#FFD54F"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -1836,7 +1846,7 @@ BYD/HUD 진단 ZIP 추출"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="SPP/UUID 진단"
+                            android:text="HUDDATA 연결"
                             android:textSize="12sp"
                             android:backgroundTint="#0288D1"
                             android:textColor="#FFFFFF" />
@@ -1862,7 +1872,7 @@ BYD/HUD 진단 ZIP 추출"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Bluetooth 설정 열기"
+                            android:text="HUDAUDIO 상태 확인"
                             android:textSize="12sp"
                             android:backgroundTint="#7B1FA2"
                             android:textColor="#FFFFFF" />
@@ -1874,7 +1884,7 @@ BYD/HUD 진단 ZIP 추출"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
-                    android:text="HUD 화면 밝기 후보 제어 (프로토콜 확인 후 활성화):"
+                    android:text="HUD 화면 밝기 제어 (T900 16-byte 브리지):"
                     android:textColor="#00E5FF"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -1938,7 +1948,7 @@ BYD/HUD 진단 ZIP 추출"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="HUD 오디오 후보 음량 (프로토콜 확인 후 활성화):"
+                    android:text="HUD 내장 오디오 명령 음량:"
                     android:textColor="#00E5FF"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -1979,7 +1989,7 @@ BYD/HUD 진단 ZIP 추출"
                 android:layout_height="36dp"
                 android:text="← 뒤로"
                 android:textSize="13sp"
-                android:backgroundTint="#2C2C38"
+                android:backgroundTint="#103348"
                 android:textColor="#FFFFFF" />
 
             <TextView
@@ -2103,7 +2113,7 @@ BYD/HUD 진단 ZIP 추출"
                 android:layout_height="36dp"
                 android:text="← 뒤로"
                 android:textSize="13sp"
-                android:backgroundTint="#2C2C38"
+                android:backgroundTint="#103348"
                 android:textColor="#FFFFFF" />
 
             <TextView
@@ -2129,7 +2139,7 @@ BYD/HUD 진단 ZIP 추출"
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="항목을 선택한 후 [홈 화면 바로가기] 또는 [플로팅 버튼 독]을 지정하여 생성합니다."
+                    android:text="항목을 선택한 후 [앱서랍 바로가기] 또는 [플로팅 버튼 독]을 지정하여 생성합니다."
                     android:textColor="#AAAAAA"
                     android:textSize="13sp" />
 
@@ -2147,7 +2157,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="⚡ 상단 퀵패널 버튼"
                         android:textSize="12sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                     <Button
@@ -2158,7 +2168,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="🎛️ 하단 도크 버튼"
                         android:textSize="12sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                     <Button
@@ -2169,7 +2179,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="💡 실내 조명 버튼"
                         android:textSize="12sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
 
                     <Button
@@ -2180,7 +2190,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_margin="3dp"
                         android:text="📱 설치 앱·미디어"
                         android:textSize="12sp"
-                        android:backgroundTint="#242434"
+                        android:backgroundTint="#0A2636"
                         android:textColor="#FFFFFF" />
                 </GridLayout>
             
@@ -2297,7 +2307,7 @@ BYD/HUD 진단 ZIP 추출"
                 android:layout_height="36dp"
                 android:text="← 뒤로"
                 android:textSize="13sp"
-                android:backgroundTint="#2C2C38"
+                android:backgroundTint="#103348"
                 android:textColor="#FFFFFF" />
 
             <TextView
@@ -2383,7 +2393,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="P 가상 기어"
-                        android:backgroundTint="#2C2C38"
+                        android:backgroundTint="#103348"
                         android:textColor="#FFFFFF" />
                 </LinearLayout>
             </LinearLayout>
@@ -2415,7 +2425,7 @@ BYD/HUD 진단 ZIP 추출"
                 android:layout_height="36dp"
                 android:text="← 뒤로"
                 android:textSize="13sp"
-                android:backgroundTint="#2C2C38"
+                android:backgroundTint="#103348"
                 android:textColor="#FFFFFF" />
 
             <TextView
@@ -2509,7 +2519,7 @@ BYD/HUD 진단 ZIP 추출"
                 android:layout_height="36dp"
                 android:text="← 뒤로"
                 android:textSize="13sp"
-                android:backgroundTint="#2C2C38"
+                android:backgroundTint="#103348"
                 android:textColor="#FFFFFF" />
 
             <TextView
@@ -2537,7 +2547,7 @@ BYD/HUD 진단 ZIP 추출"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="#1A1A26"
+                    android:background="#061723"
                     android:padding="16dp"
                     android:gravity="center">
 
@@ -2553,7 +2563,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="180 DPI"
+                        android:text="160 DPI (순정)"
                         android:textColor="#00E676"
                         android:textSize="34sp"
                         android:textStyle="bold" />
@@ -2572,27 +2582,27 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_weight="1"
                         android:layout_marginEnd="3dp"
                         android:text="160"
-                        android:backgroundTint="#2C2C38"
+                        android:backgroundTint="#103348"
                         android:textColor="#FFFFFF" />
 
                     <Button
-                        android:id="@+id/btnPreset180"
+                        android:id="@+id/btnPreset120"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginHorizontal="2dp"
-                        android:text="180 (추천)"
+                        android:text="120"
                         android:backgroundTint="#0288D1"
                         android:textColor="#FFFFFF" />
 
                     <Button
-                        android:id="@+id/btnPreset200"
+                        android:id="@+id/btnPreset140"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginHorizontal="2dp"
-                        android:text="200"
-                        android:backgroundTint="#2C2C38"
+                        android:text="140"
+                        android:backgroundTint="#103348"
                         android:textColor="#FFFFFF" />
 
                     <Button
@@ -2605,6 +2615,43 @@ BYD/HUD 진단 ZIP 추출"
                         android:backgroundTint="#424250"
                         android:textColor="#FFFFFF" />
                 </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/edtCustomDpi"
+                        android:layout_width="0dp"
+                        android:layout_height="46dp"
+                        android:layout_weight="1"
+                        android:inputType="number"
+                        android:hint="수동 DPI (120~640)"
+                        android:paddingHorizontal="12dp"
+                        android:background="#101B28"
+                        android:textColor="#EAFBFF"
+                        android:textColorHint="#6F91A8" />
+
+                    <Button
+                        android:id="@+id/btnApplyCustomDpi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="46dp"
+                        android:layout_marginStart="6dp"
+                        android:text="수동 적용"
+                        android:backgroundTint="#00E5FF"
+                        android:textColor="#001018"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="이 차량 순정은 160 DPI입니다. 숫자가 낮아질수록 UI가 더 작아지고 한 화면에 더 많이 표시됩니다."
+                    android:textColor="#8FE8FF"
+                    android:textSize="12sp" />
 
                 <!-- ADB 권한 자동 실행 버튼 및 가이드 -->
                 <TextView
@@ -2687,7 +2734,7 @@ BYD/HUD 진단 ZIP 추출"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:padding="10dp"
-                    android:background="#1A1A26"
+                    android:background="#061723"
                     android:text="● 대기 중 · 시작 후 문제 상황을 재현하세요."
                     android:textColor="#80D8FF"
                     android:textSize="12sp" />
@@ -2748,7 +2795,7 @@ BYD/HUD 진단 ZIP 추출"
                         android:layout_height="40dp"
                         android:layout_marginTop="4dp"
                         android:text="📖 BYD 차량 화면에서 무선 ADB(5555) 활성화하는 법"
-                        android:backgroundTint="#2C2C38"
+                        android:backgroundTint="#103348"
                         android:textColor="#FFD54F"
                         android:textSize="12sp" />
 

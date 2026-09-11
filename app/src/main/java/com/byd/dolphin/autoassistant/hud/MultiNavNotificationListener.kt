@@ -1,5 +1,6 @@
 package com.byd.dolphin.autoassistant.hud
 
+import android.os.Bundle
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import com.byd.dolphin.autoassistant.util.DolphinLogger
@@ -9,20 +10,21 @@ class MultiNavNotificationListener : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         val pkg = sbn?.packageName ?: return
-        val channelId = sbn.notification?.channelId ?: ""
+        val notification = sbn.notification ?: return
+        val channelId = notification.channelId ?: ""
+        if (!NavGuidanceParser.isNavApp(pkg, channelId)) return
 
-        if (NavGuidanceParser.isNavApp(pkg, channelId)) {
-            val extras = sbn.notification?.extras ?: return
-            val title = extras.getCharSequence("android.title")?.toString().orEmpty()
-            val text = extras.getCharSequence("android.text")?.toString().orEmpty()
-            val subText = extras.getCharSequence("android.subText")?.toString().orEmpty()
-
-            DolphinLogger.logNavigationNotification(this, "MULTI_NAV", pkg, title, text, subText)
-            if (NavGuidanceParser.parseAndForward(this, pkg, title, text, subText)) {
-                synchronized(activeGuidanceNotifications) {
-                    activeGuidanceNotifications += notificationKey(sbn)
-                }
-            }
+        val extras = notification.extras ?: Bundle.EMPTY
+        val title = extras.getCharSequence("android.title")?.toString().orEmpty()
+        val subText = extras.getCharSequence("android.subText")?.toString().orEmpty()
+        val richText = collectText(extras, notification.tickerText?.toString())
+        val keyTypes = extras.keySet().sorted().joinToString(limit = 30) { key ->
+            "$key:${extras.get(key)?.javaClass?.simpleName ?: "null"}"
+        }
+        DolphinLogger.i("MULTI_NAV", "pkg=$pkg channel=$channelId extras=[$keyTypes]")
+        DolphinLogger.logNavigationNotification(this, "MULTI_NAV", pkg, title, richText, subText)
+        if (NavGuidanceParser.parseAndForward(this, pkg, title, richText, subText)) {
+            synchronized(activeGuidanceNotifications) { activeGuidanceNotifications += notificationKey(sbn) }
         }
     }
 
@@ -38,6 +40,20 @@ class MultiNavNotificationListener : NotificationListenerService() {
                 NavGuidanceParser.clear(this)
             }
         }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun collectText(extras: Bundle, ticker: String?): String {
+        val out = linkedSetOf<String>()
+        ticker?.takeIf { it.isNotBlank() }?.let(out::add)
+        extras.keySet().forEach { key ->
+            when (val value = extras.get(key)) {
+                is CharSequence -> value.toString().takeIf { it.isNotBlank() }?.let(out::add)
+                is Array<*> -> value.filterIsInstance<CharSequence>().forEach { cs -> if (cs.isNotBlank()) out += cs.toString() }
+                is Iterable<*> -> value.filterIsInstance<CharSequence>().forEach { cs -> if (cs.isNotBlank()) out += cs.toString() }
+            }
+        }
+        return out.joinToString(" | ").take(2_000)
     }
 
     private fun notificationKey(sbn: StatusBarNotification): String = sbn.key

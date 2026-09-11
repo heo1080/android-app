@@ -24,31 +24,18 @@ object AdbPermissionManager {
         "android.permission.WRITE_SECURE_SETTINGS"
     )
 
-    // DiLink 3 framework.jar가 실제 enforce하는 권한까지 모두 시도한다.
-    // 일부는 signature/privileged 권한일 수 있으므로 실패해도 다음 권한을 계속 검사한다.
+    // COMMON 권한만 pm grant 가능한 런타임 권한이다. GET/SET은 이 차량에서
+    // signature/privileged라 pm grant가 항상 실패한다. GET/SET 호출은
+    // BydPermissionContext를 통해 BYD SDK의 client-side Context 검사 경로를 사용한다.
     private val BYD_GRANT_PERMISSIONS = listOf(
         "android.permission.BYDAUTO_SETTING_COMMON",
-        "android.permission.BYDAUTO_SETTING_GET",
-        "android.permission.BYDAUTO_SETTING_SET",
         "android.permission.BYDAUTO_AC_COMMON",
-        "android.permission.BYDAUTO_AC_GET",
-        "android.permission.BYDAUTO_AC_SET",
         "android.permission.BYDAUTO_BODYWORK_COMMON",
-        "android.permission.BYDAUTO_BODYWORK_GET",
-        "android.permission.BYDAUTO_BODYWORK_SET",
         "android.permission.BYDAUTO_LIGHT_COMMON",
-        "android.permission.BYDAUTO_LIGHT_GET",
-        "android.permission.BYDAUTO_LIGHT_SET",
         "android.permission.BYDAUTO_RADAR_COMMON",
-        "android.permission.BYDAUTO_RADAR_GET",
-        "android.permission.BYDAUTO_SPEED_GET",
-        "android.permission.BYDAUTO_GEARBOX_GET",
-        "android.permission.BYDAUTO_CHARGING_GET",
-        "android.permission.BYDAUTO_ADAS_GET",
-        "android.permission.BYDAUTO_INSTRUMENT_COMMON",
-        "android.permission.BYDAUTO_INSTRUMENT_GET",
-        "android.permission.BYDAUTO_INSTRUMENT_SET"
+        "android.permission.BYDAUTO_INSTRUMENT_COMMON"
     )
+
 
     fun isAllGranted(context: Context): Boolean {
         return isOverlayGranted(context) && isSecureSettingsGranted(context) && isNotificationListenerGranted(context)
@@ -162,16 +149,16 @@ object AdbPermissionManager {
             DolphinLogger.i(
                 TAG,
                 "ADB 권한 진단 완료: commandSuccess=$successCount commandFailure=$failureCount " +
-                    "bydGranted=$bydGranted/${BYD_GRANT_PERMISSIONS.size} overlay=${isOverlayGranted(context)} " +
+                    "bydCommonGranted=$bydGranted/${BYD_GRANT_PERMISSIONS.size} bydContextWrapper=true overlay=${isOverlayGranted(context)} " +
                     "secure=${isSecureSettingsGranted(context)} notification=${isNotificationListenerGranted(context)}"
             )
             failures.take(6).forEach { DolphinLogger.w(TAG, "권한 실패 상세: $it") }
 
             val coreReady = isOverlayGranted(context) && isNotificationListenerGranted(context)
             val message = when {
-                bydGranted == BYD_GRANT_PERMISSIONS.size -> "차량 API 권한 포함 자동 승인 완료"
-                bydGranted > 0 -> "기본 권한 완료 · BYD 차량 권한 $bydGranted/${BYD_GRANT_PERMISSIONS.size} 승인"
-                coreReady -> "기본 권한 완료 · BYD 차량 권한은 시스템 서명 제한"
+                bydGranted == BYD_GRANT_PERMISSIONS.size -> "BYD COMMON 승인 완료 · GET/SET은 차량 API Context 브리지 사용"
+                bydGranted > 0 -> "기본 권한 완료 · BYD COMMON $bydGranted/${BYD_GRANT_PERMISSIONS.size} 승인 · Context 브리지 사용"
+                coreReady -> "기본 권한 완료 · BYD GET/SET은 pm grant 대신 Context 브리지 사용"
                 else -> "ADB 진단 완료 · 일부 기본/BYD 권한 미승인"
             }
 

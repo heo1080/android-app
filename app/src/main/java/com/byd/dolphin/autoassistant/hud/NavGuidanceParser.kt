@@ -60,9 +60,10 @@ object NavGuidanceParser {
 
         var turnType = HudSemanticValues.TURN_STRAIGHT
         when {
-            combined.contains("유턴") -> turnType = HudSemanticValues.TURN_UTURN
-            combined.contains("좌회전") -> turnType = HudSemanticValues.TURN_LEFT
-            combined.contains("우회전") -> turnType = HudSemanticValues.TURN_RIGHT
+            combined.contains("유턴") || combined.contains("U턴", true) -> turnType = HudSemanticValues.TURN_UTURN
+            listOf("좌회전", "왼쪽", "좌측").any(combined::contains) -> turnType = HudSemanticValues.TURN_LEFT
+            listOf("우회전", "오른쪽", "우측").any(combined::contains) -> turnType = HudSemanticValues.TURN_RIGHT
+            combined.contains("직진") -> turnType = HudSemanticValues.TURN_FRONT
         }
 
         var speedLimit = 0
@@ -86,7 +87,7 @@ object NavGuidanceParser {
             }
         }
 
-        val hasGuidance = turnDistance > 0 || listOf("직진", "좌회전", "우회전", "유턴")
+        val hasGuidance = turnDistance > 0 || listOf("직진", "좌회전", "우회전", "유턴", "왼쪽", "오른쪽", "좌측", "우측")
             .any(combined::contains)
         if (!hasGuidance) {
             DolphinLogger.d("NAV_PARSED", "길안내 필드가 없어 계기판/HUD 전달 생략: pkg=$pkg")

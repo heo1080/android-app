@@ -252,7 +252,7 @@ class MainActivity : AppCompatActivity() {
     private fun updateDashboardCards() {
         val curDpi = DpiManager.getCurrentDensity(this)
         findViewById<TextView>(R.id.tvMainCardDpiDesc).text =
-            "현재 밀도: $curDpi · 원터치 프리셋\n15분 자동 수집 · 진단 ZIP 추출"
+            "현재 밀도: $curDpi · 120/140/160 + 수동\n15분 자동 수집 · 진단 ZIP 추출"
     }
 
     // =========================================================================
@@ -473,7 +473,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 text = "🔹 기본 문구:\n\"$defaultPhrase\""
                 textSize = 11f
-                backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2C2C38"))
+                backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#103348"))
                 setTextColor(Color.parseColor("#80D8FF"))
                 setOnClickListener {
                     input.setText(defaultPhrase)
@@ -565,6 +565,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnConfigLdpAlert).setOnClickListener {
             showBsdLdpConfigDialog("차선 안내음 미리듣기 설정", isBsd = false)
         }
+        findViewById<Button>(R.id.btnTestDriverNavRoute).setOnClickListener {
+            audioManager.playNavigationRouteTest()
+            Toast.makeText(this, "내비게이션 오디오 경로 테스트음을 전송했습니다.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun showBsdLdpConfigDialog(title: String, isBsd: Boolean) {
@@ -576,7 +580,8 @@ class MainActivity : AppCompatActivity() {
                     0 -> {
                         if (isBsd) SettingsManager.setBsdAlertMode(this, "BEEP")
                         else SettingsManager.setLdpAlertMode(this, "BEEP")
-                        Toast.makeText(this, "현대/기아 스타일 경고음 적용", Toast.LENGTH_SHORT).show()
+                        audioManager.playNavigationRouteTest()
+                        Toast.makeText(this, "내비게이션 경로 비프음으로 적용·미리듣기", Toast.LENGTH_SHORT).show()
                     }
                     1 -> {
                         val recText = if (isBsd) "후측방에 차량이 접근 중입니다." else "차선을 이탈했습니다."
@@ -624,22 +629,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     // =========================================================================
-    // 5. 티맵 Plus HUD (Bluetooth 연결 진단; 패킷 송신 잠금)
+    // 5. 티맵 Plus HUD / T900 브리지
     // =========================================================================
     private fun setupHudSubScreen() {
         val tvDataStatus = findViewById<TextView>(R.id.tvHudDataStatus)
         val tvAudioStatus = findViewById<TextView>(R.id.tvHudAudioStatus)
-        val protocolConfirmed = SettingsManager.isHudProtocolConfirmed(this)
-        tvDataStatus.text = if (protocolConfirmed) "TMAP Plus HUD / T900 프로토콜 확인됨" else "T900 확인 · 패킷 형식 미확인으로 송신 잠금"
-        tvAudioStatus.text = "오디오 연결 상태는 Bluetooth 설정에서 확인"
+        tvDataStatus.text = "T900 16-byte 브리지 준비 · HUDDATA 연결 필요"
+        tvAudioStatus.text = "HUDAUDIO 프로필 / 내장 사운드 상태 확인 가능"
 
         findViewById<Button>(R.id.btnConnectHudData).setOnClickListener {
             if (!ensureBluetoothPermission()) return@setOnClickListener
-            tvDataStatus.text = "페어링 기기/UUID 및 SPP 연결 진단 중..."
+            tvDataStatus.text = "Hudaudio/T900 UUID 순차 연결 중..."
             TmapPlusHudBluetoothManager.connectHudData(this) { ok, msg ->
                 runOnUiThread {
-                    tvDataStatus.text = if (ok) "데이터(huddata): 연결 성공" else "데이터: " + msg
+                    tvDataStatus.text = msg
                     tvDataStatus.setTextColor(if (ok) Color.parseColor("#00E676") else Color.parseColor("#FF5252"))
+                    if (ok) {
+                        val testOk = HudDataManager.sendTestData(this@MainActivity)
+                        DolphinLogger.i("HUD_UI", "연결 직후 테스트 프레임 send=$testOk")
+                    }
                 }
             }
         }
@@ -647,8 +655,11 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnConnectHudAudio).setOnClickListener {
             if (!ensureBluetoothPermission()) return@setOnClickListener
             TmapPlusHudBluetoothManager.connectHudAudio(this) { ok, msg ->
-                tvAudioStatus.text = msg
-                tvAudioStatus.setTextColor(Color.parseColor("#FFD54F"))
+                runOnUiThread {
+                    tvAudioStatus.text = msg
+                    tvAudioStatus.setTextColor(if (ok) Color.parseColor("#00E676") else Color.parseColor("#FFD54F"))
+                    if (ok && TmapPlusHudBluetoothManager.isHudDataConnected) HudAudioManager.playTestBeep(this@MainActivity)
+                }
             }
         }
 
@@ -660,10 +671,10 @@ class MainActivity : AppCompatActivity() {
         val sbManual = findViewById<SeekBar>(R.id.sbHudBrightness)
         val tvManual = findViewById<TextView>(R.id.tvHudBrightnessValue)
 
-        swAuto.isEnabled = protocolConfirmed
-        sbMin.isEnabled = protocolConfirmed
-        sbMax.isEnabled = protocolConfirmed
-        sbManual.isEnabled = protocolConfirmed
+        swAuto.isEnabled = true
+        sbMin.isEnabled = true
+        sbMax.isEnabled = true
+        sbManual.isEnabled = true
 
         swAuto.isChecked = SettingsManager.isHudBrightnessAuto(this)
         sbMin.progress = SettingsManager.getHudBrightnessMin(this)
@@ -712,7 +723,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         val sbAudioVol = findViewById<SeekBar>(R.id.sbSubHudAudioVolume)
-        sbAudioVol.isEnabled = protocolConfirmed
+        sbAudioVol.isEnabled = true
         sbAudioVol.progress = SettingsManager.getHudAudioVolume(this)
         sbAudioVol.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -909,12 +920,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showDualCreationOptionDialog(item: FloatingItem) {
-        val options = arrayOf("홈 화면 바로가기 요청", "플로팅 버튼 독에 추가")
+        val options = arrayOf("앱서랍 바로가기 만들기", "플로팅 버튼 독에 추가")
         AlertDialog.Builder(this)
             .setTitle(item.title + " 생성 방식 선택")
             .setItems(options) { _, which ->
                 if (which == 0) {
-                    requestPinnedShortcut(item)
+                    createAppDrawerShortcut(item)
                 } else {
                     FloatingItemManager.addItem(this, item)
                     if (AdbPermissionManager.isOverlayGranted(this)) {
@@ -929,47 +940,23 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun requestPinnedShortcut(item: FloatingItem) {
-        val manager = getSystemService(ShortcutManager::class.java)
-        if (manager == null || !manager.isRequestPinShortcutSupported) {
-            Toast.makeText(this, "현재 BYD 런처는 홈 바로가기 추가를 지원하지 않습니다.", Toast.LENGTH_LONG).show()
+    private fun createAppDrawerShortcut(item: FloatingItem) {
+        val slot = AppDrawerShortcutManager.assign(this, item)
+        if (slot == null) {
+            AlertDialog.Builder(this)
+                .setTitle("앱서랍 바로가기 슬롯이 가득 찼습니다")
+                .setMessage("커스텀 앱서랍 슬롯 16개가 모두 사용 중입니다. 전체 슬롯을 초기화한 뒤 다시 만들 수 있습니다.")
+                .setPositiveButton("16개 슬롯 초기화") { _, _ ->
+                    AppDrawerShortcutManager.clearAll(this)
+                    Toast.makeText(this, "커스텀 앱서랍 바로가기를 모두 숨겼습니다.", Toast.LENGTH_LONG).show()
+                }
+                .setNegativeButton("취소", null)
+                .show()
             return
         }
-        val launchIntent = Intent(this, ShortcutActionActivity::class.java).apply {
-            action = Intent.ACTION_VIEW
-            putExtra(ShortcutActionActivity.EXTRA_ID, item.id)
-            putExtra(ShortcutActionActivity.EXTRA_TITLE, item.title)
-            putExtra(ShortcutActionActivity.EXTRA_PACKAGE, if (item.isApp) item.packageName else "")
-            putExtra(
-                ShortcutActionActivity.EXTRA_TOKEN,
-                ShortcutActionActivity.getOrCreateToken(this@MainActivity)
-            )
-        }
-        val shortcutIcon = if (item.isApp) {
-            runCatching {
-                Icon.createWithBitmap(packageManager.getApplicationIcon(item.packageName).toBitmap(96, 96))
-            }.getOrElse { Icon.createWithResource(this, R.drawable.ic_byd_dolphin) }
-        } else {
-            val iconRes = when (item.id) {
-                FloatingItemManager.ID_DEFROST,
-                FloatingItemManager.ID_REAR_DEFROST -> R.drawable.ic_defrost_toggle
-                FloatingItemManager.ID_INSIDE_LIGHT -> R.drawable.ic_light_toggle
-                FloatingItemManager.ID_LIGHT_ON -> R.drawable.ic_light_on
-                FloatingItemManager.ID_LIGHT_OFF -> R.drawable.ic_light_off
-                else -> R.drawable.ic_byd_dolphin
-            }
-            Icon.createWithResource(this, iconRes)
-        }
-        val shortcut = ShortcutInfo.Builder(this, "dolphin_${item.id.hashCode().toUInt().toString(16)}")
-            .setShortLabel(item.title.take(18))
-            .setLongLabel(item.title)
-            .setIcon(shortcutIcon)
-            .setIntent(launchIntent)
-            .build()
-        val accepted = runCatching { manager.requestPinShortcut(shortcut, null) }.getOrDefault(false)
         Toast.makeText(
             this,
-            if (accepted) "런처에 바로가기 추가 요청을 보냈습니다." else "런처가 바로가기 요청을 거부했습니다.",
+            "앱서랍에 '커스텀 바로가기 ${slot.toString().padStart(2, '0')}' 생성 완료\n실행 동작: ${item.title}",
             Toast.LENGTH_LONG
         ).show()
     }
@@ -1081,7 +1068,7 @@ class MainActivity : AppCompatActivity() {
                 gravity = Gravity.CENTER_VERTICAL
                 setPadding(12, 10, 12, 10)
                 background = GradientDrawable().apply {
-                    setColor(Color.parseColor("#1C1C28"))
+                    setColor(Color.parseColor("#071B29"))
                     cornerRadius = 12f
                 }
                 layoutParams = LinearLayout.LayoutParams(
@@ -1112,7 +1099,7 @@ class MainActivity : AppCompatActivity() {
                 text = "삭제"
                 textSize = 11f
                 setTextColor(Color.parseColor("#FF5252"))
-                backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2C2C38"))
+                backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#103348"))
                 setOnClickListener {
                     SettingsManager.removeCustomScenario(this@MainActivity, item.id)
                     refreshCustomScenarioList()
@@ -1222,7 +1209,7 @@ class MainActivity : AppCompatActivity() {
                 orientation = LinearLayout.VERTICAL
                 setPadding(16, 10, 16, 10)
                 background = GradientDrawable().apply {
-                    setColor(Color.parseColor("#1C1C28"))
+                    setColor(Color.parseColor("#071B29"))
                     cornerRadius = 12f
                 }
                 layoutParams = LinearLayout.LayoutParams(
@@ -1264,7 +1251,7 @@ class MainActivity : AppCompatActivity() {
                 text = "편집"
                 textSize = 11f
                 setTextColor(Color.parseColor("#80D8FF"))
-                backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2C2C38"))
+                backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#103348"))
                 setOnClickListener { showBootDelayDialog(item.packageName, item.appName, item) }
             }
             actions.addView(btnEdit)
@@ -1273,7 +1260,7 @@ class MainActivity : AppCompatActivity() {
                 text = "삭제"
                 textSize = 11f
                 setTextColor(Color.parseColor("#FF5252"))
-                backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#2C2C38"))
+                backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#103348"))
                 setOnClickListener {
                     SettingsManager.removeBootApp(this@MainActivity, item.packageName)
                     refreshBootAppList()
@@ -1312,9 +1299,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
         findViewById<Button>(R.id.btnPreset160).setOnClickListener { applyDpi(160) }
-        findViewById<Button>(R.id.btnPreset180).setOnClickListener { applyDpi(180) }
-        findViewById<Button>(R.id.btnPreset200).setOnClickListener { applyDpi(200) }
+        findViewById<Button>(R.id.btnPreset120).setOnClickListener { applyDpi(120) }
+        findViewById<Button>(R.id.btnPreset140).setOnClickListener { applyDpi(140) }
         findViewById<Button>(R.id.btnPresetReset).setOnClickListener { applyDpi(null) }
+        findViewById<Button>(R.id.btnApplyCustomDpi).setOnClickListener {
+            val value = findViewById<EditText>(R.id.edtCustomDpi).text.toString().trim().toIntOrNull()
+            if (value == null || value !in 120..640) {
+                Toast.makeText(this, "수동 DPI는 120~640 사이 숫자로 입력하세요.", Toast.LENGTH_LONG).show()
+            } else {
+                applyDpi(value)
+            }
+        }
 
         findViewById<Button>(R.id.btnWirelessAdbGuide).setOnClickListener {
             AlertDialog.Builder(this)
@@ -1347,7 +1342,7 @@ adb shell cmd notification allow_listener com.byd.dolphin.autoassistant/.hud.Mul
 
             AlertDialog.Builder(this)
                 .setTitle("ADB 권한 명령어 복사 완료")
-                .setMessage("이 명령은 초기 ADB 권한 준비용이며 일반 진단 수집에는 필요하지 않습니다. ADB 셸에서 한 줄씩 실행하세요:\n\n$cmds\n\nBYD 서명 권한은 일반 pm grant로 우회할 수 없으며, 진단 ZIP에서 실제 승인 여부를 확인합니다.")
+                .setMessage("이 명령은 초기 ADB 권한 준비용이며 일반 진단 수집에는 필요하지 않습니다. ADB 셸에서 한 줄씩 실행하세요:\n\n$cmds\n\nBYD GET/SET은 일반 pm grant 대상이 아니며, v30.1부터 BYD API용 Context 브리지를 사용합니다. 실제 setter 반환값은 진단 ZIP에서 확인합니다.")
                 .setPositiveButton("확인", null)
                 .show()
         }

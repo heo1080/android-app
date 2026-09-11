@@ -73,7 +73,7 @@ object InsideLightManager {
             val stateVal = if (enable) 1 else 2
             val clazz = Class.forName("android.hardware.bydauto.setting.BYDAutoSettingDevice")
             val getInstance = clazz.getMethod("getInstance", Context::class.java)
-            val instance = getInstance.invoke(null, context)
+            val instance = getInstance.invoke(null, BydPermissionContext.wrap(context))
             val method = clazz.getMethod("setInsideLightDoorState", Int::class.javaPrimitiveType)
             val result = (method.invoke(instance, stateVal) as? Number)?.toInt()
             DolphinLogger.i(TAG, "도어 연동 실내등 설정 완료: $enable (value=$stateVal)")
@@ -88,7 +88,7 @@ object InsideLightManager {
         return try {
             val clazz = Class.forName("android.hardware.bydauto.setting.BYDAutoSettingDevice")
             val instance = clazz.getMethod("getInstance", Context::class.java)
-                .invoke(null, context.applicationContext)
+                .invoke(null, BydPermissionContext.wrap(context))
             val value = (clazz.getMethod("getInsideLightDoorState").invoke(instance) as? Number)?.toInt()
             when (value) {
                 1 -> true
@@ -114,7 +114,7 @@ object InsideLightManager {
         return try {
             val clazz = Class.forName("android.hardware.bydauto.setting.BYDAutoSettingDevice")
             val getInstance = clazz.getMethod("getInstance", Context::class.java)
-            val instance = getInstance.invoke(null, context)
+            val instance = getInstance.invoke(null, BydPermissionContext.wrap(context))
 
             val method = clazz.getMethod("turnOffInsideLight", Int::class.javaPrimitiveType)
             val result = (method.invoke(instance, param) as? Number)?.toInt()

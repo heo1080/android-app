@@ -136,6 +136,57 @@
             <intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter>
         </activity-alias>
 
+
+        <!-- BYD 순정 런처용 커스텀 앱서랍 바로가기 슬롯. 홈 pin shortcut을 사용하지 않는다. -->
+        <activity android:name=".activity.DrawerSlotActivity01" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 01" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity02" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 02" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity03" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 03" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity04" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 04" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity05" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 05" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity06" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 06" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity07" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 07" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity08" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 08" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity09" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 09" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity10" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 10" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity11" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 11" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity12" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 12" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity13" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 13" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity14" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 14" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity15" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 15" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+        <activity android:name=".activity.DrawerSlotActivity16" android:enabled="false" android:exported="true" android:excludeFromRecents="true" android:noHistory="true" android:icon="@drawable/ic_byd_dolphin" android:label="커스텀 바로가기 16" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+        </activity>
+
         <service
             android:name=".service.DolphinService"
             android:enabled="true"
@@ -173,6 +224,7 @@
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
                 <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
 

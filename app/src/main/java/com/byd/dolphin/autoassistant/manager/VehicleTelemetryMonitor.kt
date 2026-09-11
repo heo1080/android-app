@@ -185,7 +185,7 @@ class VehicleTelemetryMonitor(
         return try {
             val instance = devices.getOrPut(className) {
                 val clazz = Class.forName(className)
-                clazz.getMethod("getInstance", Context::class.java).invoke(null, appContext)
+                clazz.getMethod("getInstance", Context::class.java).invoke(null, BydPermissionContext.wrap(appContext))
                     ?: error("getInstance returned null")
             }
             val method = methods.getOrPut(key) {

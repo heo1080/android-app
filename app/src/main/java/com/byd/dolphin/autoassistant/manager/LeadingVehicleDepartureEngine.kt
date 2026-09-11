@@ -48,7 +48,7 @@ class LeadingVehicleDepartureEngine(
     private fun initRadar() {
         try {
             val clazz = Class.forName(RADAR_CLASS)
-            radarInstance = clazz.getMethod("getInstance", Context::class.java).invoke(null, appContext)
+            radarInstance = clazz.getMethod("getInstance", Context::class.java).invoke(null, BydPermissionContext.wrap(appContext))
             distanceMethod = clazz.getMethod("getRadarObstacleDistance", Int::class.javaPrimitiveType)
             DolphinLogger.i(TAG, "레이더 API 확인: getRadarObstacleDistance(int), areas=7/8")
         } catch (e: Exception) {

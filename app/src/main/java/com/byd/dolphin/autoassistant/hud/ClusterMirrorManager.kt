@@ -1,6 +1,7 @@
 package com.byd.dolphin.autoassistant.hud
 
 import android.content.Context
+import com.byd.dolphin.autoassistant.manager.BydPermissionContext
 import com.byd.dolphin.autoassistant.manager.SettingsManager
 import com.byd.dolphin.autoassistant.util.DolphinLogger
 
@@ -101,7 +102,7 @@ object ClusterMirrorManager {
     private fun instrument(context: Context): Any {
         val clazz = Class.forName(INSTRUMENT_CLASS)
         return clazz.getMethod("getInstance", Context::class.java)
-            .invoke(null, context.applicationContext)
+            .invoke(null, BydPermissionContext.wrap(context))
             ?: error("BYDAutoInstrumentDevice.getInstance returned null")
     }
 

@@ -3,11 +3,9 @@ package com.byd.dolphin.autoassistant.hud
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothProfile
 import android.bluetooth.BluetoothSocket
 import android.content.Context
-import android.content.Intent
-import android.provider.Settings
-import com.byd.dolphin.autoassistant.manager.SettingsManager
 import com.byd.dolphin.autoassistant.util.DolphinLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,20 +15,15 @@ import kotlinx.coroutines.withContext
 import java.io.OutputStream
 import java.util.UUID
 
-/**
- * TMAP Plus HUD discovery/SPP diagnostic transport.
- *
- * Connection probing is safe, but payload transmission remains locked until the
- * user's exact HUD protocol is confirmed from a Bluetooth capture. Merely opening
- * Android Bluetooth settings is never reported as an audio connection.
- */
 object TmapPlusHudBluetoothManager {
-    private const val TAG = "TMAP_PLUS_HUD_DIAGNOSTIC"
-    private val sppUuid: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+    private const val TAG = "TMAP_PLUS_HUD"
+    private val standardSpp: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+    private val observedHudSpp: UUID = UUID.fromString("fe010000-1234-5678-abcd-00805f9b34fb")
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private var socket: BluetoothSocket? = null
     private var output: OutputStream? = null
+    private var targetAddress: String? = null
 
     var isHudDataConnected: Boolean = false
         private set
@@ -40,90 +33,121 @@ object TmapPlusHudBluetoothManager {
 
     @SuppressLint("MissingPermission")
     fun connectHudData(context: Context, onResult: ((Boolean, String) -> Unit)? = null) {
-        val appContext = context.applicationContext
         val adapter = BluetoothAdapter.getDefaultAdapter()
         if (adapter == null || !adapter.isEnabled) {
             onResult?.invoke(false, "블루투스가 꺼져 있습니다.")
             return
         }
-
         scope.launch {
             try {
                 val paired = adapter.bondedDevices.orEmpty()
                 logPairedDevices(paired)
                 val target = paired.firstOrNull(::looksLikeHud)
                 if (target == null) {
-                    withContext(Dispatchers.Main) {
-                        onResult?.invoke(false, "페어링 목록에서 티맵 Plus HUD 후보를 찾지 못했습니다. 진단 로그를 보내주세요.")
-                    }
+                    withContext(Dispatchers.Main) { onResult?.invoke(false, "페어링 목록에서 Hudaudio/T900 HUD를 찾지 못했습니다.") }
                     return@launch
                 }
-
                 adapter.cancelDiscovery()
                 closeTransport()
-                val advertisedSpp = target.uuids?.firstOrNull { it.uuid == sppUuid }?.uuid ?: sppUuid
-                DolphinLogger.i(
-                    TAG,
-                    "SPP 연결 시험: name=${target.name} address=${maskedAddress(target.address)} uuid=$advertisedSpp"
-                )
-                val candidate = target.createRfcommSocketToServiceRecord(advertisedSpp)
-                candidate.connect()
-                socket = candidate
-                output = candidate.outputStream
-                isHudDataConnected = true
+                targetAddress = target.address
+                val advertised = target.uuids?.map { it.uuid }.orEmpty()
+                val candidates = linkedSetOf<UUID>().apply {
+                    if (observedHudSpp in advertised) add(observedHudSpp)
+                    addAll(advertised.filter { it == standardSpp || it == observedHudSpp })
+                    add(observedHudSpp)
+                    add(standardSpp)
+                }
+                var lastError: Throwable? = null
+                for (uuid in candidates) {
+                    try {
+                        DolphinLogger.i(TAG, "RFCOMM 연결 시험 name=${target.name} address=${maskedAddress(target.address)} uuid=$uuid")
+                        val candidate = target.createRfcommSocketToServiceRecord(uuid)
+                        candidate.connect()
+                        socket = candidate
+                        output = candidate.outputStream
+                        isHudDataConnected = true
+                        DolphinLogger.i(TAG, "HUDDATA 연결 성공 uuid=$uuid")
+                        break
+                    } catch (t: Throwable) {
+                        lastError = t
+                        DolphinLogger.w(TAG, "RFCOMM uuid=$uuid 실패: ${t.message}")
+                        closeTransport(keepTarget = true)
+                    }
+                }
                 withContext(Dispatchers.Main) {
-                    val suffix = if (SettingsManager.isHudProtocolConfirmed(appContext)) "송신 사용 가능" else "프로토콜 미확인 — 송신 잠금"
-                    onResult?.invoke(true, "SPP 연결 성공 (${target.name}), $suffix")
+                    if (isHudDataConnected) onResult?.invoke(true, "HUDDATA 연결 성공 (${target.name}) · T900 브리지 송신 활성")
+                    else onResult?.invoke(false, "HUDDATA 연결 실패: ${lastError?.message ?: "지원 UUID 없음"}")
                 }
             } catch (e: SecurityException) {
                 DolphinLogger.e(TAG, "블루투스 권한 없음", e)
                 withContext(Dispatchers.Main) { onResult?.invoke(false, "근처 기기 권한이 필요합니다.") }
-            } catch (e: Exception) {
-                DolphinLogger.e(TAG, "SPP 연결 실패", e)
+            } catch (e: Throwable) {
+                DolphinLogger.e(TAG, "HUDDATA 연결 실패", e)
                 closeTransport()
-                withContext(Dispatchers.Main) { onResult?.invoke(false, "SPP 연결 실패: ${e.message}") }
+                withContext(Dispatchers.Main) { onResult?.invoke(false, "HUDDATA 연결 실패: ${e.message}") }
             }
         }
     }
 
+    /**
+     * Do not launch BYD's blocked Bluetooth settings activity. Query the two
+     * public audio profiles directly and report whether the bonded HUD itself is connected.
+     */
+    @SuppressLint("MissingPermission")
     fun connectHudAudio(context: Context, onResult: ((Boolean, String) -> Unit)? = null) {
-        isHudAudioConnected = false
-        runCatching {
-            context.startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        }.onSuccess {
-            DolphinLogger.i(TAG, "블루투스 오디오 설정 화면 열림 — 연결로 간주하지 않음")
-            onResult?.invoke(false, "설정 화면을 열었습니다. 티맵 Plus HUD 오디오 프로필 연결 후 진단 로그를 생성하세요.")
-        }.onFailure {
-            DolphinLogger.e(TAG, "블루투스 설정 열기 실패", it)
-            onResult?.invoke(false, "설정 열기 실패: ${it.message}")
+        val adapter = BluetoothAdapter.getDefaultAdapter()
+        if (adapter == null || !adapter.isEnabled) {
+            onResult?.invoke(false, "블루투스가 꺼져 있습니다.")
+            return
         }
+        val target = adapter.bondedDevices.orEmpty().firstOrNull(::looksLikeHud)
+        if (target == null) {
+            onResult?.invoke(false, "Hudaudio/T900 페어링 기기를 찾지 못했습니다.")
+            return
+        }
+        var anyConnected = false
+        val listener = object : BluetoothProfile.ServiceListener {
+            override fun onServiceConnected(profile: Int, proxy: BluetoothProfile) {
+                val hit = proxy.connectedDevices.any { it.address == target.address }
+                anyConnected = anyConnected || hit
+                isHudAudioConnected = anyConnected
+                DolphinLogger.i(TAG, "audio profile=$profile targetConnected=$hit names=${proxy.connectedDevices.map { it.name }}")
+                adapter.closeProfileProxy(profile, proxy)
+                onResult?.invoke(
+                    anyConnected,
+                    if (anyConnected) "HUDAUDIO 프로필 연결 확인" else "HUDAUDIO 페어링됨 · profile=$profile 미연결"
+                )
+            }
+            override fun onServiceDisconnected(profile: Int) {
+                DolphinLogger.i(TAG, "audio profile=$profile disconnected")
+            }
+        }
+        val a2dp = adapter.getProfileProxy(context.applicationContext, listener, BluetoothProfile.A2DP)
+        val headset = adapter.getProfileProxy(context.applicationContext, listener, BluetoothProfile.HEADSET)
+        if (!a2dp && !headset) onResult?.invoke(false, "오디오 프로필 조회를 시작할 수 없습니다.")
+        if (isHudDataConnected) DolphinLogger.i(TAG, "HUDDATA 연결 상태에서 HUD 내장 사운드 명령 사용 가능")
     }
 
     @Synchronized
     fun sendPacket(context: Context, packet: ByteArray): Boolean {
-        if (!SettingsManager.isHudProtocolConfirmed(context)) {
-            DolphinLogger.w(TAG, "미확인 티맵 Plus HUD 프로토콜 송신 차단: bytes=${packet.size}")
-            return false
-        }
         if (!isHudDataConnected || output == null) {
-            DolphinLogger.w(TAG, "티맵 Plus HUD SPP 미연결로 송신 불가")
+            DolphinLogger.w(TAG, "HUDDATA 미연결로 송신 불가 bytes=${packet.size}")
             return false
         }
         return try {
-            output?.write(packet)
-            output?.flush()
-            DolphinLogger.i(TAG, "패킷 송신 ${packet.size} bytes")
+            output!!.write(packet)
+            output!!.flush()
+            DolphinLogger.i(TAG, "T900 packet tx=${packet.joinToString("") { "%02X".format(it.toInt() and 0xFF) }}")
             true
-        } catch (e: Exception) {
-            DolphinLogger.e(TAG, "패킷 송신 실패", e)
+        } catch (e: Throwable) {
+            DolphinLogger.e(TAG, "HUD 패킷 송신 실패", e)
             closeTransport()
             false
         }
     }
 
-    /** Compatibility overload; intentionally refuses unscoped payloads. */
     fun sendPacket(packet: ByteArray) {
-        DolphinLogger.w(TAG, "Context 없는 미확인 패킷 송신 차단: bytes=${packet.size}")
+        DolphinLogger.w(TAG, "Context 없는 패킷 송신 생략 bytes=${packet.size}")
     }
 
     @SuppressLint("MissingPermission")
@@ -131,11 +155,7 @@ object TmapPlusHudBluetoothManager {
         DolphinLogger.i(TAG, "페어링 기기 수=${devices.size}")
         devices.forEach { device ->
             val uuidText = device.uuids?.joinToString { it.uuid.toString() } ?: "none"
-            DolphinLogger.i(
-                TAG,
-                "bonded name=${device.name} address=${maskedAddress(device.address)} " +
-                    "type=${device.type} uuids=$uuidText"
-            )
+            DolphinLogger.i(TAG, "bonded name=${device.name} address=${maskedAddress(device.address)} type=${device.type} uuids=$uuidText")
         }
     }
 
@@ -147,19 +167,21 @@ object TmapPlusHudBluetoothManager {
     @SuppressLint("MissingPermission")
     private fun looksLikeHud(device: BluetoothDevice): Boolean {
         val name = device.name.orEmpty()
-        return name.contains("T900", true) || name.contains("T800", true) ||
+        return name.contains("Hudaudio", true) || name.contains("huddata", true) ||
+            name.contains("T900", true) || name.contains("T800", true) ||
             name.contains("HUD", true) || name.contains("TMAP", true) ||
             name.contains("TMHP", true) || name.contains("JARVIS", true) ||
             name.contains("INFORA", true)
     }
 
     @Synchronized
-    private fun closeTransport() {
+    private fun closeTransport(keepTarget: Boolean = false) {
         runCatching { output?.close() }
         runCatching { socket?.close() }
         output = null
         socket = null
         isHudDataConnected = false
+        if (!keepTarget) targetAddress = null
     }
 
     fun disconnect() {

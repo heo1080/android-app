@@ -336,10 +336,10 @@ object SettingsManager {
         getPrefs(context).getBoolean(KEY_HUD_BRIDGE, true) && isHudProtocolConfirmed(context)
     fun setHudBridgeEnabled(context: Context, enabled: Boolean) = getPrefs(context).edit().putBoolean(KEY_HUD_BRIDGE, enabled).apply()
 
-    fun isHudDataEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_HUD_DATA_ENABLED, false)
+    fun isHudDataEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_HUD_DATA_ENABLED, true)
     fun setHudDataEnabled(context: Context, enabled: Boolean) = getPrefs(context).edit().putBoolean(KEY_HUD_DATA_ENABLED, enabled).apply()
 
-    fun isHudAudioEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_HUD_AUDIO_ENABLED, false)
+    fun isHudAudioEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_HUD_AUDIO_ENABLED, true)
     fun setHudAudioEnabled(context: Context, enabled: Boolean) = getPrefs(context).edit().putBoolean(KEY_HUD_AUDIO_ENABLED, enabled).apply()
 
     fun getHudAudioVolume(context: Context): Int = getPrefs(context).getInt(KEY_HUD_AUDIO_VOLUME, 10)
@@ -357,9 +357,9 @@ object SettingsManager {
     fun getHudBrightnessMax(context: Context): Int = getPrefs(context).getInt(KEY_HUD_BRIGHTNESS_MAX, 15)
     fun setHudBrightnessMax(context: Context, level: Int) = getPrefs(context).edit().putInt(KEY_HUD_BRIGHTNESS_MAX, level).apply()
 
-    /** A source update is required after a capture confirms the exact TMAP Plus HUD framing/checksum. */
+    /** v30.1 integrates the project's 16-byte T900 experimental bridge framing. */
     @Suppress("UNUSED_PARAMETER")
-    fun isHudProtocolConfirmed(context: Context): Boolean = false
+    fun isHudProtocolConfirmed(context: Context): Boolean = true
 
     // 부팅 시 다중 앱 자동 실행 관리 (0.1초 단위)
     fun isBootAutoEnabled(context: Context): Boolean = getPrefs(context).getBoolean(KEY_BOOT_AUTO_ENABLED, false)

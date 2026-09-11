@@ -1,0 +1,30 @@
+BYD Dolphin Auto Assistant v30.1 - Static Validation
+Date: 2026-09-12 KST
+Version: 3.0.1-v30.1-neon (31)
+
+XML_OK=26/26
+KOTLIN_LEXICAL_OK=41/41
+R_ID_REFS=127
+R_ID_DECLARATIONS=128
+R_ID_MISSING=0
+APP_DRAWER_SLOTS_MANIFEST=16
+APP_DRAWER_SLOTS_CODE=16
+APP_DRAWER_SLOTS_MATCH=YES
+OLD_DPI_PRESET_180_200=0
+OLD_HOME_PIN_SHORTCUT_UI=REMOVED
+HUD_TX_LOCK=REMOVED_EXPERIMENTAL_BRIDGE_ENABLED
+BYD_CONTEXT_BRIDGE=ENABLED
+BOOT_ADB_FALLBACK=ENABLED
+NAVIGATION_AUDIO_USAGE=USAGE_ASSISTANCE_NAVIGATION_GUIDANCE
+
+Build attempt:
+  ./gradlew :app:assembleDebug --stacktrace
+Result:
+  NOT COMPILED IN THIS WORKSPACE
+  Gradle wrapper tried to download gradle-8.7-bin.zip and failed before Android compilation:
+  java.net.UnknownHostException: services.gradle.org
+
+Notes:
+- Static validation cannot replace Android/Kotlin type checking or real-device verification.
+- .github/workflows/build.yml is included for an online build.
+- T900 payload transmission is experimental and all transmitted frames are logged in HEX.

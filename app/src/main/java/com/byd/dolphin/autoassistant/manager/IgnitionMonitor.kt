@@ -93,7 +93,7 @@ class IgnitionMonitor(
             if (bodyworkDevice == null || getPowerLevelMethod == null) {
                 val clazz = Class.forName(BODYWORK_CLASS)
                 val getInstance = clazz.getMethod("getInstance", Context::class.java)
-                bodyworkDevice = getInstance.invoke(null, appContext)
+                bodyworkDevice = getInstance.invoke(null, BydPermissionContext.wrap(appContext))
                 getPowerLevelMethod = clazz.getMethod("getPowerLevel")
                 DolphinLogger.i(TAG, "BYDAutoBodyworkDevice 연결 완료")
             }

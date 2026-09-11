@@ -60,15 +60,36 @@ class BootAutomationController(context: Context) {
     }
 
     private fun launch(item: BootAppItem) {
+        val pkg = item.packageName.trim()
+        if (!pkg.matches(Regex("[A-Za-z0-9._]+"))) {
+            DolphinLogger.w(TAG, "잘못된 패키지명으로 실행 생략: $pkg")
+            return
+        }
+
+        // BYD Android 10 can silently reject background startActivity(). The local
+        // vehicle ADB endpoint is already authorized by this app, so use a shell
+        // launcher first; it is not subject to the background-activity restriction.
+        if (NativeAdbClient.isPortOpen()) {
+            val shell = NativeAdbClient.executeShell(
+                appContext,
+                "monkey -p $pkg -c android.intent.category.LAUNCHER 1"
+            )
+            if (shell.success) {
+                DolphinLogger.i(TAG, "ADB 앱 실행 성공: ${item.appName}, 시동 +${item.delaySeconds}초")
+                return
+            }
+            DolphinLogger.w(TAG, "ADB 실행 실패, Android API fallback: ${item.appName} (${shell.message})")
+        }
+
         try {
-            val intent = appContext.packageManager.getLaunchIntentForPackage(item.packageName)
+            val intent = appContext.packageManager.getLaunchIntentForPackage(pkg)
             if (intent == null) {
-                DolphinLogger.w(TAG, "실행 인텐트 없음: ${item.appName} (${item.packageName})")
+                DolphinLogger.w(TAG, "실행 인텐트 없음: ${item.appName} ($pkg)")
                 return
             }
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
             appContext.startActivity(intent)
-            DolphinLogger.i(TAG, "앱 실행: ${item.appName}, 시동 +${item.delaySeconds}초")
+            DolphinLogger.i(TAG, "Android API 앱 실행 요청: ${item.appName}, 시동 +${item.delaySeconds}초")
         } catch (e: Exception) {
             DolphinLogger.e(TAG, "앱 실행 실패: ${item.appName}", e)
         }

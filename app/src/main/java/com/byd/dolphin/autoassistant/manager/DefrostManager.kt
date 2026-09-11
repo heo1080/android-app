@@ -109,7 +109,7 @@ object DefrostManager {
         return try {
             val clazz = Class.forName(AC_CLASS)
             val instance = clazz.getMethod("getInstance", Context::class.java)
-                .invoke(null, context.applicationContext)
+                .invoke(null, BydPermissionContext.wrap(context))
             val types = Array(args.size) { Int::class.javaPrimitiveType!! }
             val method = clazz.getMethod(methodName, *types)
             (method.invoke(instance, *args.toTypedArray()) as? Number)?.toInt()
