@@ -16,22 +16,22 @@ import com.byd.dolphin.autoassistant.util.DolphinLogger
  */
 class BydPermissionContext private constructor(base: Context) : ContextWrapper(base.applicationContext) {
 
-    override fun enforceCallingOrSelfPermission(permission: String?, message: String?) {
+    override fun enforceCallingOrSelfPermission(permission: String, message: String?) {
         if (isBydPermission(permission)) return
         super.enforceCallingOrSelfPermission(permission, message)
     }
 
-    override fun checkCallingOrSelfPermission(permission: String?): Int {
+    override fun checkCallingOrSelfPermission(permission: String): Int {
         if (isBydPermission(permission)) return PackageManager.PERMISSION_GRANTED
         return super.checkCallingOrSelfPermission(permission)
     }
 
-    override fun enforcePermission(permission: String?, pid: Int, uid: Int, message: String?) {
+    override fun enforcePermission(permission: String, pid: Int, uid: Int, message: String?) {
         if (isBydPermission(permission)) return
         super.enforcePermission(permission, pid, uid, message)
     }
 
-    override fun checkPermission(permission: String?, pid: Int, uid: Int): Int {
+    override fun checkPermission(permission: String, pid: Int, uid: Int): Int {
         if (isBydPermission(permission)) return PackageManager.PERMISSION_GRANTED
         return super.checkPermission(permission, pid, uid)
     }

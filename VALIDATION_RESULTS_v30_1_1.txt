@@ -1,0 +1,18 @@
+BYD Dolphin Auto Assistant v30.1.1 build-fix validation
+Date: 2026-09-12 KST
+
+SOURCE_VERSION_CODE=32
+SOURCE_VERSION_NAME=3.0.2-v30.1.1-neon-buildfix
+USER_BUILD_FAILURE=:app:compileDebugKotlin
+FAILURE_FILE=BydPermissionContext.kt
+FAILURE_CAUSE=nullable permission parameter did not match Android Context override signature
+FIXED_PERMISSION_OVERRIDES=4
+KOTLINC_STUB_SIGNATURE_CHECK=PASS
+XML_PARSE=PASS (26 files)
+KOTLIN_STRUCTURE=PASS (41 files)
+R_ID_REFERENCES=127
+R_ID_DECLARATIONS=128
+R_ID_MISSING=0
+SAME_BAD_PERMISSION_OVERRIDE_PATTERN_REMAINING=0
+FULL_GRADLE_BUILD_NOT_RUN_IN_THIS_SANDBOX=YES
+NEXT_VERIFICATION=GitHub Actions ./gradlew :app:assembleDebug --stacktrace

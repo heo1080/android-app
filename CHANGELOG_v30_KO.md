@@ -47,3 +47,9 @@
 
 - BYD 차량 권한은 일반 Android 권한 대화상자만으로 허용되지 않을 수 있으며, 차량 펌웨어의 서명·화이트리스트 정책에 좌우됩니다.
 - 두 번째 GitHub Actions 실행으로 첫 오류 2건의 해결과 Kotlin·Java·DEX 단계 통과가 확인됐습니다. 현재 소스에는 이후 발견된 Java 리소스 충돌 수정까지 반영되어 정적 검사를 다시 통과했습니다. 현재 작업 환경에서는 Gradle 배포 파일을 내려받을 수 없으므로 최종 APK 조립 여부는 GitHub Actions 재실행으로 확인해야 합니다. 자세한 내용은 `VERIFICATION_REPORT_v30_KO.md`를 확인하십시오.
+
+## 2026-09-12 v30.1.1 build fix
+- `BydPermissionContext.kt`의 Android Context permission override 시그니처 수정
+- `permission: String?` → `permission: String` 4개 메서드
+- GitHub Actions `compileDebugKotlin`의 `overrides nothing` / nullable type mismatch 오류 대응
+- versionCode 32, versionName `3.0.2-v30.1.1-neon-buildfix`
