@@ -42,6 +42,7 @@
     <uses-permission android:name="android.permission.BYDAUTO_GEARBOX_GET" />
     <uses-permission android:name="android.permission.BYDAUTO_CHARGING_GET" />
     <uses-permission android:name="android.permission.BYDAUTO_ADAS_GET" />
+    <uses-permission android:name="android.permission.BYDAUTO_INSTRUMENT_COMMON" />
     <uses-permission android:name="android.permission.BYDAUTO_INSTRUMENT_GET" />
     <uses-permission android:name="android.permission.BYDAUTO_INSTRUMENT_SET" />
 
@@ -50,6 +51,8 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+        <package android:name="br.com.rory.reference" />
+        <package android:name="br.com.rory.electro" />
     </queries>
 
     <application

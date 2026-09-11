@@ -69,6 +69,21 @@ object ClusterMirrorManager {
         }
     }
 
+    fun capabilitySummary(context: Context): String {
+        return runCatching {
+            val target = instrument(context)
+            val names = target.javaClass.methods.map { it.name }.toSet()
+            val required = listOf(
+                "sendAutoNaviStatus", "sendSimpleGuidanceInfo", "sendNextPathName",
+                "sendCameraGuidanceInfo", "sendSafeGuidanceInfo", "sendMusicState", "sendMusicInfo"
+            )
+            required.joinToString(",") { "$it=${it in names}" }
+        }.getOrElse { error ->
+            val cause = error.cause ?: error
+            "UNAVAILABLE:${cause.javaClass.simpleName}:${cause.message}"
+        }
+    }
+
     fun clearClusterTbt(context: Context): Boolean {
         if (!SettingsManager.isClusterTbtEnabled(context)) return false
         return runCatching {

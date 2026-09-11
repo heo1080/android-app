@@ -191,6 +191,12 @@ object DiagnosticCaptureManager {
                 .onFailure { appendFailure(session, "snapshot", "device_snapshot", it) }
             runCatching { writeFrameworkInventory(session) }
                 .onFailure { appendFailure(session, "framework", "inventory", it) }
+            runCatching {
+                File(session.directory, "reference_capabilities.json").writeText(
+                    ReferenceResearchProbe.snapshot(appContext).toString(2)
+                )
+                appendEvent(session, "reference", "capability_probe_written", force = true)
+            }.onFailure { appendFailure(session, "reference", "capability_probe", it) }
             runCatching { writeInitialVehicleSnapshot(appContext, session) }
                 .onFailure { appendFailure(session, "vehicle", "initial_snapshot", it) }
         }
@@ -735,6 +741,7 @@ object DiagnosticCaptureManager {
             - diagnostic_report.txt: 권한, 기능 상태, 최근 앱 로그, 접근 가능한 logcat
             - device_snapshot.json: 앱/차량 OS/권한/페어링 기기와 HUD UUID 상태
             - framework_methods.txt: 차량 런타임에 실제 존재하는 BYD 공개 메서드 목록
+            - reference_capabilities.json: 공개 BYD 연구자료와 현재 차량의 HAL/localhost bridge 존재 여부 대조
             - vehicle_initial_state.json: 수집 시작 시 읽기 전용 차량 원시값
             - session_summary.json: 수집 시간과 개인정보 옵션
 

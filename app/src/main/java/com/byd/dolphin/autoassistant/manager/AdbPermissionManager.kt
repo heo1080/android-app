@@ -20,8 +20,34 @@ object AdbPermissionManager {
 
     private const val TAG = "AdbPermissionManager"
 
-    private val REQUIRED_PERMISSIONS = listOf(
+    private val SYSTEM_GRANT_PERMISSIONS = listOf(
         "android.permission.WRITE_SECURE_SETTINGS"
+    )
+
+    // DiLink 3 framework.jar가 실제 enforce하는 권한까지 모두 시도한다.
+    // 일부는 signature/privileged 권한일 수 있으므로 실패해도 다음 권한을 계속 검사한다.
+    private val BYD_GRANT_PERMISSIONS = listOf(
+        "android.permission.BYDAUTO_SETTING_COMMON",
+        "android.permission.BYDAUTO_SETTING_GET",
+        "android.permission.BYDAUTO_SETTING_SET",
+        "android.permission.BYDAUTO_AC_COMMON",
+        "android.permission.BYDAUTO_AC_GET",
+        "android.permission.BYDAUTO_AC_SET",
+        "android.permission.BYDAUTO_BODYWORK_COMMON",
+        "android.permission.BYDAUTO_BODYWORK_GET",
+        "android.permission.BYDAUTO_BODYWORK_SET",
+        "android.permission.BYDAUTO_LIGHT_COMMON",
+        "android.permission.BYDAUTO_LIGHT_GET",
+        "android.permission.BYDAUTO_LIGHT_SET",
+        "android.permission.BYDAUTO_RADAR_COMMON",
+        "android.permission.BYDAUTO_RADAR_GET",
+        "android.permission.BYDAUTO_SPEED_GET",
+        "android.permission.BYDAUTO_GEARBOX_GET",
+        "android.permission.BYDAUTO_CHARGING_GET",
+        "android.permission.BYDAUTO_ADAS_GET",
+        "android.permission.BYDAUTO_INSTRUMENT_COMMON",
+        "android.permission.BYDAUTO_INSTRUMENT_GET",
+        "android.permission.BYDAUTO_INSTRUMENT_SET"
     )
 
     fun isAllGranted(context: Context): Boolean {
@@ -70,56 +96,87 @@ object AdbPermissionManager {
     }
 
     fun autoGrantPermissionsOnLaunch(context: Context, onStatus: (Boolean, String) -> Unit) {
-        if (isAllGranted(context)) {
-            DolphinLogger.i(TAG, "모든 필수 권한이 이미 승인되어 있습니다.")
-            onStatus(true, "권한 이미 승인됨")
-            return
-        }
-
         CoroutineScope(Dispatchers.IO).launch {
             val pkg = context.packageName
-            val commands = mutableListOf<String>()
-            for (p in REQUIRED_PERMISSIONS) {
-                commands.add("pm grant $pkg $p")
-            }
-            commands.add("appops set $pkg SYSTEM_ALERT_WINDOW allow")
-            commands.add("cmd notification allow_listener $pkg/.hud.MultiNavNotificationListener")
+            val host = "127.0.0.1"
 
-            // 권한 부여는 차량 자체의 loopback ADB에만 제한합니다.
-            val candidateHosts = listOf("127.0.0.1")
-
-            var anySuccess = false
-            var lastError = "5555 포트 미응답"
-
-            for (host in candidateHosts) {
-                try {
-                    DolphinLogger.i(TAG, "차량 로컬 ADB 연결 시도: $host:5555")
-                    NativeAdbClient.connectAndExecute(
-                        context = context,
-                        host = host,
-                        port = 5555,
-                        commands = commands
-                    ) { success, msg ->
-                        if (success) {
-                            anySuccess = true
-                            DolphinLogger.i(TAG, "차량 ADB 권한 승인 성공 ($host:5555)")
-                        } else {
-                            lastError = msg
-                        }
-                    }
-                    if (anySuccess) break
-                } catch (e: Exception) {
-                    lastError = e.message ?: "연결 거부"
+            if (!NativeAdbClient.isPortOpen(host, 5555)) {
+                withContext(Dispatchers.Main) {
+                    onStatus(false, "차량 로컬 ADB 포트(5555) 미개방")
                 }
+                return@launch
+            }
+
+            DolphinLogger.i(TAG, "차량 로컬 ADB 연결/권한 진단 시작: $host:5555")
+
+            // 가장 먼저 무해한 명령으로 shell 채널 자체가 정상인지 확인한다.
+            val identity = NativeAdbClient.executeShell(context, "id", host, 5555)
+            if (!identity.success) {
+                DolphinLogger.w(TAG, "ADB 연결은 열렸지만 shell 실행 실패: ${identity.message}")
+                withContext(Dispatchers.Main) {
+                    onStatus(false, "ADB 연결됨 · shell 실행 실패 (${identity.message})")
+                }
+                return@launch
+            }
+
+            var successCount = 0
+            var failureCount = 0
+            val failures = mutableListOf<String>()
+
+            val grantTargets = SYSTEM_GRANT_PERMISSIONS + BYD_GRANT_PERMISSIONS
+            for (permission in grantTargets) {
+                val result = NativeAdbClient.executeShell(
+                    context,
+                    "pm grant $pkg $permission",
+                    host,
+                    5555
+                )
+                if (result.success) {
+                    successCount++
+                    DolphinLogger.i(TAG, "grant 성공: $permission")
+                } else {
+                    failureCount++
+                    val reason = result.message.take(180)
+                    failures += "$permission=$reason"
+                    DolphinLogger.w(TAG, "grant 실패: $permission ($reason)")
+                }
+            }
+
+            // pm grant 하나가 실패해도 appops/알림 리스너는 반드시 별도로 계속 실행한다.
+            val supplementalCommands = listOf(
+                "appops set $pkg SYSTEM_ALERT_WINDOW allow",
+                "cmd notification allow_listener $pkg/.hud.MultiNavNotificationListener"
+            )
+            for (command in supplementalCommands) {
+                val result = NativeAdbClient.executeShell(context, command, host, 5555)
+                if (result.success) successCount++ else {
+                    failureCount++
+                    failures += "$command=${result.message.take(180)}"
+                }
+            }
+
+            // 실제 앱 프로세스 기준으로 최종 권한 상태를 재검사한다.
+            val bydGranted = BYD_GRANT_PERMISSIONS.count {
+                context.checkCallingOrSelfPermission(it) == PackageManager.PERMISSION_GRANTED
+            }
+            DolphinLogger.i(
+                TAG,
+                "ADB 권한 진단 완료: commandSuccess=$successCount commandFailure=$failureCount " +
+                    "bydGranted=$bydGranted/${BYD_GRANT_PERMISSIONS.size} overlay=${isOverlayGranted(context)} " +
+                    "secure=${isSecureSettingsGranted(context)} notification=${isNotificationListenerGranted(context)}"
+            )
+            failures.take(6).forEach { DolphinLogger.w(TAG, "권한 실패 상세: $it") }
+
+            val coreReady = isOverlayGranted(context) && isNotificationListenerGranted(context)
+            val message = when {
+                bydGranted == BYD_GRANT_PERMISSIONS.size -> "차량 API 권한 포함 자동 승인 완료"
+                bydGranted > 0 -> "기본 권한 완료 · BYD 차량 권한 $bydGranted/${BYD_GRANT_PERMISSIONS.size} 승인"
+                coreReady -> "기본 권한 완료 · BYD 차량 권한은 시스템 서명 제한"
+                else -> "ADB 진단 완료 · 일부 기본/BYD 권한 미승인"
             }
 
             withContext(Dispatchers.Main) {
-                if (anySuccess || isAllGranted(context)) {
-                    onStatus(true, "차량 권한 자동 부여 완료")
-                } else {
-                    DolphinLogger.w(TAG, "로컬 ADB 자동 연결 실패: $lastError")
-                    onStatus(false, "차량 로컬 ADB 포트(5555) 미개방 ($lastError)")
-                }
+                onStatus(coreReady, message)
             }
         }
     }

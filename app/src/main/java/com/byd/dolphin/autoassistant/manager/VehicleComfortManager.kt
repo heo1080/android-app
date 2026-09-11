@@ -20,7 +20,7 @@ object VehicleComfortManager {
 
     fun getSeatHeatingLevel(context: Context, seat: Int): Int? {
         if (seat != SEAT_DRIVER && seat != SEAT_PASSENGER) return null
-        val raw = invokeInt(context, SETTING_CLASS, "getSeatHeatingState", seat) ?: return null
+        val raw = invokeIntFirst(context, SETTING_CLASS, listOf("getSeatHeatingState", "getSeatHeatingState1"), seat) ?: return null
         return when (raw) {
             1 -> HEAT_OFF
             2 -> HEAT_LOW
@@ -33,7 +33,7 @@ object VehicleComfortManager {
         if (seat != SEAT_DRIVER && seat != SEAT_PASSENGER) return false
         val safeLevel = level.coerceIn(HEAT_OFF, HEAT_HIGH)
         val raw = safeLevel + 1
-        val accepted = invokeCommand(context, SETTING_CLASS, "setSeatHeatingState", seat, raw)
+        val accepted = invokeCommandFirst(context, SETTING_CLASS, listOf("setSeatHeatingState", "setSeatHeatingState1"), seat, raw)
         if (accepted) verifySeatHeating(context.applicationContext, seat, safeLevel, raw, retry = true)
         return accepted
     }
@@ -104,7 +104,7 @@ object VehicleComfortManager {
                 DolphinLogger.i(TAG, "시트 열선 확인 완료: seat=$seat level=$expected")
             } else if (retry) {
                 DolphinLogger.w(TAG, "시트 열선 확인 불일치: seat=$seat expected=$expected actual=$actual, 1회 재시도")
-                invokeCommand(context, SETTING_CLASS, "setSeatHeatingState", seat, raw)
+                invokeCommandFirst(context, SETTING_CLASS, listOf("setSeatHeatingState", "setSeatHeatingState1"), seat, raw)
                 verifySeatHeating(context, seat, expected, raw, retry = false)
             } else {
                 DolphinLogger.w(TAG, "시트 열선 적용 확인 실패: seat=$seat expected=$expected actual=$actual")
@@ -127,6 +127,74 @@ object VehicleComfortManager {
         }, 350L)
     }
 
+
+    private fun invokeCommandFirst(
+        context: Context,
+        className: String,
+        methodNames: List<String>,
+        vararg args: Int
+    ): Boolean {
+        methodNames.forEach { methodName ->
+            val result = invokeRaw(context, className, methodName, *args)
+            if (result.methodMissing) return@forEach
+            val success = result.error == null && when (val value = result.value) {
+                null -> result.returnedVoid
+                is Number -> value.toInt() == 0
+                is Boolean -> value
+                else -> false
+            }
+            if (success) {
+                DolphinLogger.i(TAG, "$methodName 명령 전송 성공")
+                return true
+            }
+            DolphinLogger.w(TAG, "$methodName 명령 거부/실패: value=${result.value} error=${result.error?.message}")
+        }
+        return false
+    }
+
+    private fun invokeIntFirst(
+        context: Context,
+        className: String,
+        methodNames: List<String>,
+        vararg args: Int
+    ): Int? {
+        methodNames.forEach { methodName ->
+            val result = invokeRaw(context, className, methodName, *args)
+            if (result.methodMissing) return@forEach
+            if (result.error == null) return (result.value as? Number)?.toInt()
+        }
+        return null
+    }
+
+    private data class InvokeResult(
+        val value: Any? = null,
+        val returnedVoid: Boolean = false,
+        val methodMissing: Boolean = false,
+        val error: Throwable? = null
+    )
+
+    private fun invokeRaw(
+        context: Context,
+        className: String,
+        methodName: String,
+        vararg args: Int
+    ): InvokeResult {
+        return try {
+            val clazz = Class.forName(className)
+            val instance = clazz.getMethod("getInstance", Context::class.java)
+                .invoke(null, context.applicationContext)
+            val types = Array(args.size) { Int::class.javaPrimitiveType!! }
+            val method = try { clazz.getMethod(methodName, *types) } catch (_: NoSuchMethodException) {
+                return InvokeResult(methodMissing = true)
+            }
+            val value = method.invoke(instance, *args.toTypedArray())
+            InvokeResult(value = value, returnedVoid = method.returnType == Void.TYPE)
+        } catch (e: Throwable) {
+            val cause = e.cause ?: e
+            DolphinLogger.e(TAG, "$methodName 호출 실패", cause)
+            InvokeResult(error = cause)
+        }
+    }
     private fun invokeCommand(context: Context, className: String, methodName: String, vararg args: Int): Boolean {
         val result = invokeInt(context, className, methodName, *args)
         val success = result == 0

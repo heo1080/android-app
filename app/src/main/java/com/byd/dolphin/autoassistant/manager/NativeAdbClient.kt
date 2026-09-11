@@ -41,11 +41,45 @@ object NativeAdbClient {
     ): ShellResult = synchronized(lock) {
         try {
             val adb = getConnection(context.applicationContext, host, port)
-            val response = adb.shell(command)
-            val output = response.allOutput
-            val success = response.exitCode == 0
-            DolphinLogger.i(TAG, "shell exit=${response.exitCode}: $command")
-            ShellResult(success, response.exitCode, output, if (success) "ok" else output.trim())
+            val result = AtomicReference<ShellResult?>()
+            val error = AtomicReference<Throwable?>()
+            val thread = Thread({
+                try {
+                    val response = adb.shell(command)
+                    val output = response.allOutput
+                    val success = response.exitCode == 0
+                    result.set(
+                        ShellResult(
+                            success = success,
+                            exitCode = response.exitCode,
+                            output = output,
+                            message = if (success) "ok" else output.trim().ifBlank { "exit=${response.exitCode}" }
+                        )
+                    )
+                } catch (t: Throwable) {
+                    error.set(t)
+                }
+            }, "dolphin-adb-shell").apply { isDaemon = true }
+
+            thread.start()
+            thread.join(SHELL_TIMEOUT_MS)
+            if (thread.isAlive) {
+                thread.interrupt()
+                closeLocked()
+                val message = "ADB shell ${SHELL_TIMEOUT_MS}ms 시간 초과"
+                DolphinLogger.w(TAG, "$message: $command")
+                return@synchronized ShellResult(false, -1, "", message)
+            }
+
+            error.get()?.let { throw if (it is Exception) it else Exception(it) }
+            val shellResult = result.get() ?: ShellResult(false, -1, "", "ADB shell 결과 없음")
+            val compactOutput = shellResult.output.replace('\n', ' ').trim().take(240)
+            DolphinLogger.i(
+                TAG,
+                "shell exit=${shellResult.exitCode}: $command" +
+                    if (compactOutput.isNotBlank()) " output=$compactOutput" else ""
+            )
+            shellResult
         } catch (e: Exception) {
             closeLocked()
             val message = e.message ?: e.javaClass.simpleName
@@ -130,4 +164,5 @@ object NativeAdbClient {
     }
 
     private const val CONNECT_TIMEOUT_MS = 10_000L
+    private const val SHELL_TIMEOUT_MS = 4_000L
 }
