@@ -1,9 +1,11 @@
 package com.byd.dolphin.autoassistant.manager
 
 import android.content.Context
+import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioFormat
+import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.media.AudioTrack
 import android.media.SoundPool
@@ -56,11 +58,21 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
         .build()
 
+    private val mediaToneAttributes = AudioAttributes.Builder()
+        .setUsage(AudioAttributes.USAGE_MEDIA)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+        .build()
+
+    private val attemptedTtsEngines = linkedSetOf<String>()
+    @Volatile private var currentTtsEngineLabel: String = "DEFAULT"
+    private val discoveredTtsEngines: List<String> by lazy { discoverTtsEngines() }
+
     private var audioFocusRequest: AudioFocusRequest? = null
 
     init {
         DolphinLogger.i("AUDIO", "TTS 초기화 시작; route=USAGE_ASSISTANCE_NAVIGATION_GUIDANCE")
-        tts = TextToSpeech(context.applicationContext, this)
+        DolphinLogger.i("AUDIO", "TTS 엔진 후보=${discoveredTtsEngines.ifEmpty { listOf("<none>") }}")
+        startTtsEngine(null)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
                 .setAudioAttributes(navigationAudioAttributes)
@@ -73,7 +85,9 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
     override fun onInit(status: Int) {
         if (status != TextToSpeech.SUCCESS) {
             isTtsReady = false
-            DolphinLogger.e("AUDIO", "TTS 초기화 실패 status=$status")
+            DolphinLogger.e("AUDIO", "TTS 초기화 실패 status=$status engine=$currentTtsEngineLabel")
+            if (tryNextTtsEngine()) return
+            DolphinLogger.e("AUDIO", "TTS 사용 가능 엔진 없음/전체 실패 candidates=$discoveredTtsEngines")
             return
         }
         val languageResult = tts?.setLanguage(Locale.KOREAN) ?: TextToSpeech.LANG_NOT_SUPPORTED
@@ -99,10 +113,43 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
             languageResult != TextToSpeech.LANG_NOT_SUPPORTED
         DolphinLogger.i(
             "AUDIO",
-            "TTS 준비=${isTtsReady} languageResult=$languageResult " +
+            "TTS 준비=${isTtsReady} languageResult=$languageResult engine=$currentTtsEngineLabel " +
                 "usage=NAVIGATION_GUIDANCE outputs=${describeOutputs()}"
         )
     }
+
+    private fun discoverTtsEngines(): List<String> = runCatching {
+        val intent = Intent(TextToSpeech.Engine.INTENT_ACTION_TTS_SERVICE)
+        context.packageManager.queryIntentServices(intent, 0)
+            .mapNotNull { it.serviceInfo?.packageName }
+            .distinct()
+    }.getOrElse {
+        DolphinLogger.e("AUDIO", "TTS 엔진 탐색 실패", it)
+        emptyList()
+    }
+
+    private fun startTtsEngine(enginePackage: String?) {
+        val label = enginePackage ?: "DEFAULT"
+        if (!attemptedTtsEngines.add(label)) return
+        currentTtsEngineLabel = label
+        runCatching { tts?.shutdown() }
+        isTtsReady = false
+        DolphinLogger.i("AUDIO", "TTS 엔진 시도=$label")
+        tts = if (enginePackage == null) {
+            TextToSpeech(context.applicationContext, this)
+        } else {
+            TextToSpeech(context.applicationContext, this, enginePackage)
+        }
+    }
+
+    private fun tryNextTtsEngine(): Boolean {
+        val next = discoveredTtsEngines.firstOrNull { !attemptedTtsEngines.contains(it) } ?: return false
+        startTtsEngine(next)
+        return true
+    }
+
+    fun ttsEngineDiagnosticSummary(): String =
+        "ready=$isTtsReady current=$currentTtsEngineLabel candidates=${discoveredTtsEngines.ifEmpty { listOf("<none>") }}"
 
     private fun requestAudioFocus(): Int {
         val result = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -159,17 +206,25 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
         }
     }
 
-    /** Human-readable labels for the real-vehicle four-route comparison. */
+    /**
+     * v30.3 routes are based on the real vehicle's enumerated output devices:
+     * TYPE_BUILTIN_EARPIECE(1), TYPE_BUILTIN_SPEAKER(2), TYPE_TELEPHONY(18).
+     * The first five probes use 48 kHz stereo because the BYD/Qualcomm NAV path
+     * is documented and community-tested in that format.
+     */
     fun driverRouteProbeLabel(routeIndex: Int): String = when (routeIndex) {
-        1 -> "표준 NAV 44.1k / SONIFICATION"
-        2 -> "커뮤니티 NAV SoundPool / SPEECH"
-        3 -> "BYD 후보 legacy-attribute stream 14"
-        4 -> "레거시 AudioTrack stream 14"
+        1 -> "NAV 48k stereo / 자동 라우팅"
+        2 -> "NAV 48k stereo / Earpiece(type=1) 직접 지정"
+        3 -> "NAV 48k stereo / Telephony(type=18) 직접 지정"
+        4 -> "NAV 48k stereo / Speaker(type=2) 직접 지정 (대조군)"
+        5 -> "MEDIA 48k stereo / Earpiece(type=1) 직접 지정"
+        6 -> "커뮤니티 SoundPool / NAV SPEECH"
+        7 -> "레거시 AudioTrack stream 14"
         else -> "알 수 없는 경로"
     }
 
     /**
-     * Runs all four candidates in order. Route N emits N short beeps so the user
+     * Runs all seven candidates in order. Route N emits N short beeps so the user
      * can identify the physically correct speaker without looking at the screen.
      */
     fun playDriverRouteComparison(
@@ -178,20 +233,20 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
     ) {
         if (routeProbeJob?.isActive == true) return
         routeProbeJob = soundScope.launch {
-            DolphinLogger.i("AUDIO_PROBE", "===== 4경로 운전석 오디오 비교 시작 =====")
+            DolphinLogger.i("AUDIO_PROBE", "===== 7경로 운전석 오디오 비교 시작 =====")
             logAudioEnvironment("comparison_start")
             try {
-                for (route in 1..4) {
+                for (route in 1..7) {
                     val label = driverRouteProbeLabel(route)
                     onStep?.invoke(route, label)
                     DolphinLogger.i("AUDIO_PROBE", "ROUTE_$route START label=$label beepCount=$route")
                     playDriverRouteProbeInternal(route, route)
                     DolphinLogger.i("AUDIO_PROBE", "ROUTE_$route END label=$label")
-                    if (route < 4) delay(1_400L)
+                    if (route < 7) delay(1_400L)
                 }
             } finally {
                 logAudioEnvironment("comparison_end")
-                DolphinLogger.i("AUDIO_PROBE", "===== 4경로 운전석 오디오 비교 종료 =====")
+                DolphinLogger.i("AUDIO_PROBE", "===== 7경로 운전석 오디오 비교 종료 =====")
                 onDone?.invoke()
             }
         }
@@ -202,7 +257,7 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
         routeIndex: Int,
         onDone: (() -> Unit)? = null
     ) {
-        if (routeIndex !in 1..4 || routeProbeJob?.isActive == true) return
+        if (routeIndex !in 1..7 || routeProbeJob?.isActive == true) return
         routeProbeJob = soundScope.launch {
             val label = driverRouteProbeLabel(routeIndex)
             DolphinLogger.i("AUDIO_PROBE", "단일 경로 테스트 시작 route=$routeIndex label=$label")
@@ -220,36 +275,93 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
     private suspend fun playDriverRouteProbeInternal(routeIndex: Int, beepCount: Int) {
         requestAudioFocus()
         try {
-            val frequency = 760.0 + routeIndex * 120.0
+            val frequency = 700.0 + routeIndex * 95.0
             repeat(beepCount) { beep ->
                 when (routeIndex) {
-                    1 -> playProbeWithAttributes(
-                        routeIndex = 1,
-                        label = driverRouteProbeLabel(1),
-                        attributes = navigationToneAttributes,
-                        sampleRate = 44_100,
-                        frequencyHz = frequency,
-                        durationMs = 260
-                    )
-                    2 -> playProbeWithCommunitySoundPool(
-                        routeIndex = 2,
-                        label = driverRouteProbeLabel(2)
-                    )
-                    3 -> playProbeWithLegacyAttribute14(
-                        routeIndex = 3,
-                        frequencyHz = frequency,
-                        durationMs = 260
-                    )
-                    4 -> playProbeWithLegacyAudioTrack14(
-                        routeIndex = 4,
-                        frequencyHz = frequency,
-                        durationMs = 260
-                    )
+                    1 -> playProbe48kStereo(routeIndex, driverRouteProbeLabel(1), navigationToneAttributes, null, frequency, 260)
+                    2 -> playProbe48kStereo(routeIndex, driverRouteProbeLabel(2), navigationToneAttributes, AudioDeviceInfo.TYPE_BUILTIN_EARPIECE, frequency, 260)
+                    3 -> playProbe48kStereo(routeIndex, driverRouteProbeLabel(3), navigationToneAttributes, AudioDeviceInfo.TYPE_TELEPHONY, frequency, 260)
+                    4 -> playProbe48kStereo(routeIndex, driverRouteProbeLabel(4), navigationToneAttributes, AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, frequency, 260)
+                    5 -> playProbe48kStereo(routeIndex, driverRouteProbeLabel(5), mediaToneAttributes, AudioDeviceInfo.TYPE_BUILTIN_EARPIECE, frequency, 260)
+                    6 -> playProbeWithCommunitySoundPool(routeIndex, driverRouteProbeLabel(6))
+                    7 -> playProbeWithLegacyAudioTrack14(routeIndex, frequency, 260)
                 }
                 if (beep < beepCount - 1) delay(120L)
             }
         } finally {
             releaseAudioFocus()
+        }
+    }
+
+    private fun findOutputDevice(type: Int): AudioDeviceInfo? = runCatching {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS).firstOrNull { it.type == type }
+        } else null
+    }.getOrNull()
+
+    private fun buildStereoToneSamples(sampleRate: Int, frequencyHz: Double, durationMs: Int, amplitude: Double): ShortArray {
+        val frameCount = (sampleRate * durationMs / 1000.0).toInt().coerceAtLeast(1)
+        val mono = ShortArray(frameCount) { index ->
+            (Short.MAX_VALUE * amplitude * sin(2.0 * PI * index * frequencyHz / sampleRate)).toInt().toShort()
+        }
+        return ShortArray(frameCount * 2) { i -> mono[i / 2] }
+    }
+
+    private fun playProbe48kStereo(
+        routeIndex: Int,
+        label: String,
+        attributes: AudioAttributes,
+        preferredDeviceType: Int?,
+        frequencyHz: Double,
+        durationMs: Int
+    ) {
+        val sampleRate = 48_000
+        val samples = buildStereoToneSamples(sampleRate, frequencyHz, durationMs, 0.28)
+        var track: AudioTrack? = null
+        try {
+            val minBuffer = AudioTrack.getMinBufferSize(
+                sampleRate,
+                AudioFormat.CHANNEL_OUT_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT
+            ).coerceAtLeast(0)
+            val bufferBytes = maxOf(samples.size * 2, minBuffer)
+            val candidate = AudioTrack.Builder()
+                .setAudioAttributes(attributes)
+                .setAudioFormat(
+                    AudioFormat.Builder()
+                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                        .setSampleRate(sampleRate)
+                        .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
+                        .build()
+                )
+                .setTransferMode(AudioTrack.MODE_STATIC)
+                .setBufferSizeInBytes(bufferBytes)
+                .build()
+            track = candidate
+
+            val requestedDevice = preferredDeviceType?.let { findOutputDevice(it) }
+            val preferredAccepted = if (preferredDeviceType != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (requestedDevice != null) candidate.setPreferredDevice(requestedDevice) else false
+            } else false
+
+            val written = candidate.write(samples, 0, samples.size)
+            DolphinLogger.i(
+                "AUDIO_PROBE",
+                "ROUTE_$routeIndex built label=$label usage=${attributes.usage} content=${attributes.contentType} " +
+                    "sampleRate=$sampleRate stereo=true minBuffer=$minBuffer bufferBytes=$bufferBytes write=$written " +
+                    "preferredType=$preferredDeviceType requestedDevice=${requestedDevice?.let { "id=${it.id},type=${it.type},name=${it.productName}" } ?: "none"} " +
+                    "preferredAccepted=$preferredAccepted"
+            )
+            candidate.setVolume(0.78f)
+            candidate.play()
+            Thread.sleep(90L)
+            logTrackRoute(routeIndex, label, candidate)
+            Thread.sleep((durationMs - 20).coerceAtLeast(60).toLong())
+            runCatching { candidate.stop() }
+        } catch (t: Throwable) {
+            DolphinLogger.e("AUDIO_PROBE", "ROUTE_$routeIndex 48k stereo 실패 label=$label", t)
+        } finally {
+            runCatching { track?.release() }
         }
     }
 
@@ -534,30 +646,43 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
     }
 
     private fun playPcmTone(frequencyHz: Double, durationMs: Int) {
-        val sampleRate = 16_000
-        val samples = buildToneSamples(sampleRate, frequencyHz, durationMs, amplitude = 0.32)
+        // v30.2 실차 로그에서 16 kHz mono AudioTrack.write()는 성공했지만 실제 소리는 나지 않았다.
+        // BYD/Qualcomm NAV 경로에 맞춰 48 kHz stereo로 고정한다.
+        val sampleRate = 48_000
+        val samples = buildStereoToneSamples(sampleRate, frequencyHz, durationMs, amplitude = 0.32)
         var audioTrack: AudioTrack? = null
         try {
+            val minBuffer = AudioTrack.getMinBufferSize(
+                sampleRate,
+                AudioFormat.CHANNEL_OUT_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT
+            ).coerceAtLeast(0)
             val track = AudioTrack.Builder()
                 .setAudioAttributes(navigationToneAttributes)
                 .setAudioFormat(
                     AudioFormat.Builder()
                         .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
                         .setSampleRate(sampleRate)
-                        .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                        .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
                         .build()
                 )
                 .setTransferMode(AudioTrack.MODE_STATIC)
-                .setBufferSizeInBytes(samples.size * 2)
+                .setBufferSizeInBytes(maxOf(samples.size * 2, minBuffer))
                 .build()
             audioTrack = track
             val written = track.write(samples, 0, samples.size)
-            DolphinLogger.i("AUDIO", "NAV tone write=$written freq=$frequencyHz duration=$durationMs session=${track.audioSessionId}")
+            DolphinLogger.i(
+                "AUDIO",
+                "NAV tone 48k stereo write=$written freq=$frequencyHz duration=$durationMs session=${track.audioSessionId}"
+            )
+            track.setVolume(0.78f)
             track.play()
-            Thread.sleep(durationMs.toLong() + 30L)
+            Thread.sleep(80L)
+            logTrackRoute(0, "NAV_WARNING_48K_AUTO", track)
+            Thread.sleep(durationMs.toLong().coerceAtLeast(80L))
             runCatching { track.stop() }
         } catch (e: Exception) {
-            DolphinLogger.e("AUDIO", "NAV tone 출력 실패", e)
+            DolphinLogger.e("AUDIO", "NAV tone 48k stereo 출력 실패", e)
         } finally {
             audioTrack?.release()
         }
@@ -587,7 +712,11 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
     fun speak(text: String) {
         if (text.isBlank()) return
         if (!isTtsReady) {
-            DolphinLogger.w("AUDIO", "TTS 미준비로 출력 생략: len=${text.length}")
+            DolphinLogger.w(
+                "AUDIO",
+                "TTS 미준비: 음성 대신 48k NAV 비프 fallback; len=${text.length}; ${ttsEngineDiagnosticSummary()}"
+            )
+            soundScope.launch { playNavigationBeepPattern(1180.0, 170, 2, 100) }
             return
         }
         val focus = requestAudioFocus()

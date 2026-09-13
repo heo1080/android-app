@@ -572,23 +572,27 @@ class MainActivity : AppCompatActivity() {
 
     private fun showDriverAudioRouteProbeDialog() {
         val options = arrayOf(
-            "전체 4경로 순차 비교 (추천)",
+            "전체 7경로 순차 비교 (추천)",
             "1. ${audioManager.driverRouteProbeLabel(1)}",
             "2. ${audioManager.driverRouteProbeLabel(2)}",
             "3. ${audioManager.driverRouteProbeLabel(3)}",
-            "4. ${audioManager.driverRouteProbeLabel(4)}"
+            "4. ${audioManager.driverRouteProbeLabel(4)}",
+            "5. ${audioManager.driverRouteProbeLabel(5)}",
+            "6. ${audioManager.driverRouteProbeLabel(6)}",
+            "7. ${audioManager.driverRouteProbeLabel(7)}"
         )
         AlertDialog.Builder(this)
             .setTitle("운전석 전용 오디오 경로 실차 비교")
             .setMessage(
-                "정차 상태에서 테스트하세요. 전체 비교를 누르면 1번은 1회, 2번은 2회, " +
-                    "3번은 3회, 4번은 4회 비프가 납니다. 운전석 쪽에서만 들리는 번호를 기억해 주세요."
+                "정차 상태에서 테스트하세요. 실차에서 확인된 Earpiece(type=1), Speaker(type=2), " +
+                    "Telephony(type=18)를 직접 지정합니다. 경로 번호만큼 비프가 납니다. " +
+                    "운전석 쪽에서만 들리는 번호를 기억해 주세요."
             )
             .setItems(options) { _, which ->
                 if (which == 0) {
                     Toast.makeText(
                         this,
-                        "4경로 비교 시작: 비프 횟수로 경로 번호를 구분하세요.",
+                        "7경로 비교 시작: 비프 횟수로 경로 번호를 구분하세요.",
                         Toast.LENGTH_LONG
                     ).show()
                     audioManager.playDriverRouteComparison(
