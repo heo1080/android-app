@@ -9,6 +9,7 @@ import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.media.AudioTrack
 import android.media.SoundPool
+import android.media.ToneGenerator
 import android.os.Build
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
@@ -230,11 +231,17 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
     fun playDriverRouteComparison(
         onStep: ((Int, String) -> Unit)? = null,
         onDone: (() -> Unit)? = null
-    ) {
-        if (routeProbeJob?.isActive == true) return
+    ): Boolean {
+        if (routeProbeJob?.isActive == true) {
+            DolphinLogger.w("AUDIO_PROBE", "comparison REJECTED: routeProbeJob already active")
+            return false
+        }
+        DolphinLogger.i("AUDIO_PROBE", "comparison ACCEPTED from UI")
         routeProbeJob = soundScope.launch {
             DolphinLogger.i("AUDIO_PROBE", "===== 7경로 운전석 오디오 비교 시작 =====")
             logAudioEnvironment("comparison_start")
+            playExecutionMarker()
+            delay(650L)
             try {
                 for (route in 1..7) {
                     val label = driverRouteProbeLabel(route)
@@ -250,18 +257,29 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
                 onDone?.invoke()
             }
         }
+        return true
     }
 
     /** Runs one candidate only; useful when the user wants to repeat a winner. */
     fun playDriverRouteProbe(
         routeIndex: Int,
         onDone: (() -> Unit)? = null
-    ) {
-        if (routeIndex !in 1..7 || routeProbeJob?.isActive == true) return
+    ): Boolean {
+        if (routeIndex !in 1..7) {
+            DolphinLogger.w("AUDIO_PROBE", "single route REJECTED invalid route=$routeIndex")
+            return false
+        }
+        if (routeProbeJob?.isActive == true) {
+            DolphinLogger.w("AUDIO_PROBE", "single route REJECTED: routeProbeJob already active route=$routeIndex")
+            return false
+        }
+        DolphinLogger.i("AUDIO_PROBE", "single route ACCEPTED from UI route=$routeIndex")
         routeProbeJob = soundScope.launch {
             val label = driverRouteProbeLabel(routeIndex)
             DolphinLogger.i("AUDIO_PROBE", "단일 경로 테스트 시작 route=$routeIndex label=$label")
             logAudioEnvironment("single_route_${routeIndex}_before")
+            playExecutionMarker()
+            delay(650L)
             try {
                 playDriverRouteProbeInternal(routeIndex, routeIndex)
             } finally {
@@ -270,6 +288,30 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
                 onDone?.invoke()
             }
         }
+        return true
+    }
+
+    fun isDriverRouteProbeRunning(): Boolean = routeProbeJob?.isActive == true
+
+    fun stopDriverRouteProbe() {
+        if (routeProbeJob?.isActive == true) {
+            DolphinLogger.w("AUDIO_PROBE", "route probe STOP requested from UI")
+            routeProbeJob?.cancel()
+        } else {
+            DolphinLogger.i("AUDIO_PROBE", "route probe STOP requested but no active job")
+        }
+    }
+
+    /** Audible execution marker only. STREAM_MUSIC intentionally proves the button actually started. */
+    private fun playExecutionMarker() {
+        runCatching {
+            DolphinLogger.i("AUDIO_PROBE", "MEDIA_EXECUTION_MARKER start; not a route judgement tone")
+            val tg = ToneGenerator(AudioManager.STREAM_MUSIC, 80)
+            tg.startTone(ToneGenerator.TONE_PROP_BEEP, 220)
+            Thread.sleep(260L)
+            tg.release()
+            DolphinLogger.i("AUDIO_PROBE", "MEDIA_EXECUTION_MARKER end")
+        }.onFailure { DolphinLogger.e("AUDIO_PROBE", "MEDIA_EXECUTION_MARKER failed", it) }
     }
 
     private suspend fun playDriverRouteProbeInternal(routeIndex: Int, beepCount: Int) {

@@ -566,11 +566,31 @@ class MainActivity : AppCompatActivity() {
             showBsdLdpConfigDialog("차선 안내음 미리듣기 설정", isBsd = false)
         }
         findViewById<Button>(R.id.btnTestDriverNavRoute).setOnClickListener {
+            DolphinLogger.i("AUDIO_PROBE_UI", "btnTestDriverNavRoute CLICKED")
+            val status = findViewById<TextView>(R.id.tvDriverAudioProbeStatus)
+            status.text = "테스트 상태: 버튼 입력 확인 · 경로 선택 창을 여는 중"
+            status.setBackgroundColor(Color.rgb(0, 80, 100))
             showDriverAudioRouteProbeDialog()
+        }
+        findViewById<Button>(R.id.btnStopDriverNavRoute).setOnClickListener {
+            DolphinLogger.w("AUDIO_PROBE_UI", "btnStopDriverNavRoute CLICKED")
+            audioManager.stopDriverRouteProbe()
+            findViewById<ProgressBar>(R.id.pbDriverAudioProbe).progress = 0
+            findViewById<TextView>(R.id.tvDriverAudioProbeStatus).apply {
+                text = "테스트 상태: 중지 요청됨"
+                setBackgroundColor(Color.rgb(110, 35, 35))
+            }
+            findViewById<Button>(R.id.btnTestDriverNavRoute).apply {
+                isEnabled = true
+                text = "🔊 v30.3.1 운전석 오디오 테스트"
+            }
         }
     }
 
     private fun showDriverAudioRouteProbeDialog() {
+        val testButton = findViewById<Button>(R.id.btnTestDriverNavRoute)
+        val statusView = findViewById<TextView>(R.id.tvDriverAudioProbeStatus)
+        val progress = findViewById<ProgressBar>(R.id.pbDriverAudioProbe)
         val options = arrayOf(
             "전체 7경로 순차 비교 (추천)",
             "1. ${audioManager.driverRouteProbeLabel(1)}",
@@ -584,105 +604,75 @@ class MainActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle("운전석 전용 오디오 경로 실차 비교")
             .setMessage(
-                "정차 상태에서 테스트하세요. 실차에서 확인된 Earpiece(type=1), Speaker(type=2), " +
-                    "Telephony(type=18)를 직접 지정합니다. 경로 번호만큼 비프가 납니다. " +
-                    "운전석 쪽에서만 들리는 번호를 기억해 주세요."
+                "소리가 안 나도 화면의 '테스트 상태'와 진행률이 계속 바뀝니다. " +
+                    "테스트 시작 직후 MEDIA 확인음 1회는 실행 확인용이며 경로 판정용이 아닙니다. " +
+                    "정차 상태에서만 시험하세요."
             )
             .setItems(options) { _, which ->
+                DolphinLogger.i("AUDIO_PROBE_UI", "route option selected which=$which")
                 if (which == 0) {
-                    Toast.makeText(
-                        this,
-                        "7경로 비교 시작: 비프 횟수로 경로 번호를 구분하세요.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    audioManager.playDriverRouteComparison(
+                    progress.max = 7
+                    progress.progress = 0
+                    statusView.text = "테스트 상태: 시작 요청 · MEDIA 확인음 후 1번 경로로 진행"
+                    statusView.setBackgroundColor(Color.rgb(0, 80, 100))
+                    testButton.isEnabled = false
+                    testButton.text = "▶ 실행 중 · 준비"
+                    val started = audioManager.playDriverRouteComparison(
                         onStep = { route, label ->
                             runOnUiThread {
-                                Toast.makeText(
-                                    this,
-                                    "$route 번 · $label · ${route}회 비프",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                progress.progress = route
+                                statusView.text = "테스트 실행 중: $route/7\n$label\n${route}회 비프 시도 중"
+                                statusView.setBackgroundColor(Color.rgb(0, 105, 120))
+                                testButton.text = "▶ 실행 중 · $route/7"
                             }
                         },
                         onDone = {
                             runOnUiThread {
-                                Toast.makeText(
-                                    this,
-                                    "비교 종료. 운전석만 들린 경로 번호를 기록하고 진단 ZIP을 내보내 주세요.",
-                                    Toast.LENGTH_LONG
-                                ).show()
+                                progress.progress = 7
+                                statusView.text = "테스트 상태: 완료 · 7/7\n소리가 없었어도 진단 ZIP의 AUDIO_PROBE 로그를 보내주세요."
+                                statusView.setBackgroundColor(Color.rgb(30, 100, 55))
+                                testButton.isEnabled = true
+                                testButton.text = "🔊 v30.3.1 운전석 오디오 테스트"
                             }
                         }
                     )
+                    if (!started) {
+                        testButton.isEnabled = true
+                        testButton.text = "🔊 v30.3.1 운전석 오디오 테스트"
+                        statusView.text = "테스트 상태: 시작 거부 · 기존 테스트가 이미 실행 중"
+                        statusView.setBackgroundColor(Color.rgb(130, 70, 0))
+                        DolphinLogger.w("AUDIO_PROBE_UI", "comparison did not start")
+                    }
                 } else {
                     val route = which
                     val label = audioManager.driverRouteProbeLabel(route)
-                    Toast.makeText(this, "$route 번 경로 반복 테스트: $label", Toast.LENGTH_LONG).show()
-                    audioManager.playDriverRouteProbe(route) {
+                    progress.max = 7
+                    progress.progress = route
+                    statusView.text = "테스트 상태: $route 번 시작 요청\n$label"
+                    statusView.setBackgroundColor(Color.rgb(0, 80, 100))
+                    testButton.isEnabled = false
+                    testButton.text = "▶ 실행 중 · $route 번"
+                    val started = audioManager.playDriverRouteProbe(route) {
                         runOnUiThread {
-                            Toast.makeText(this, "$route 번 경로 테스트 종료", Toast.LENGTH_SHORT).show()
+                            statusView.text = "테스트 상태: $route 번 완료\n$label"
+                            statusView.setBackgroundColor(Color.rgb(30, 100, 55))
+                            testButton.isEnabled = true
+                            testButton.text = "🔊 v30.3.1 운전석 오디오 테스트"
                         }
+                    }
+                    if (!started) {
+                        testButton.isEnabled = true
+                        testButton.text = "🔊 v30.3.1 운전석 오디오 테스트"
+                        statusView.text = "테스트 상태: $route 번 시작 실패 · 이미 다른 테스트 실행 중"
+                        statusView.setBackgroundColor(Color.rgb(130, 70, 0))
+                        DolphinLogger.w("AUDIO_PROBE_UI", "single route did not start route=$route")
                     }
                 }
             }
-            .setNegativeButton("취소", null)
-            .show()
-    }
-
-    private fun showBsdLdpConfigDialog(title: String, isBsd: Boolean) {
-        val options = arrayOf("1. 현대/기아 스타일 경고음 (비프)", "2. 추천 안내 음성 (TTS)", "3. 사용자 수동 직접 입력 (TTS)")
-        AlertDialog.Builder(this)
-            .setTitle(title)
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> {
-                        if (isBsd) SettingsManager.setBsdAlertMode(this, "BEEP")
-                        else SettingsManager.setLdpAlertMode(this, "BEEP")
-                        audioManager.playNavigationRouteTest()
-                        Toast.makeText(this, "내비게이션 경로 비프음으로 적용·미리듣기", Toast.LENGTH_SHORT).show()
-                    }
-                    1 -> {
-                        val recText = if (isBsd) "후측방에 차량이 접근 중입니다." else "차선을 이탈했습니다."
-                        if (isBsd) {
-                            SettingsManager.setBsdAlertMode(this, "VOICE_RECOMMENDED")
-                            SettingsManager.setBsdCustomText(this, recText)
-                        } else {
-                            SettingsManager.setLdpAlertMode(this, "VOICE_RECOMMENDED")
-                            SettingsManager.setLdpCustomText(this, recText)
-                        }
-                        audioManager.speak(recText)
-                        Toast.makeText(this, "추천 안내 음성 적용", Toast.LENGTH_SHORT).show()
-                    }
-                    2 -> {
-                        val currentText = if (isBsd) SettingsManager.getBsdCustomText(this) else SettingsManager.getLdpCustomText(this)
-                        val input = EditText(this).apply { setText(currentText) }
-                        AlertDialog.Builder(this)
-                            .setTitle("수동 멘트 입력")
-                            .setView(input)
-                            .setNeutralButton("미리듣기") { _, _ -> }
-                            .setPositiveButton("저장") { _, _ ->
-                                val text = input.text.toString().trim()
-                                if (text.isNotEmpty()) {
-                                    if (isBsd) {
-                                        SettingsManager.setBsdAlertMode(this, "VOICE_CUSTOM")
-                                        SettingsManager.setBsdCustomText(this, text)
-                                    } else {
-                                        SettingsManager.setLdpAlertMode(this, "VOICE_CUSTOM")
-                                        SettingsManager.setLdpCustomText(this, text)
-                                    }
-                                    Toast.makeText(this, "저장되었습니다.", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                            .setNegativeButton("취소", null)
-                            .create().apply {
-                                show()
-                                getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                                    audioManager.speak(input.text.toString().trim())
-                                }
-                            }
-                    }
-                }
+            .setNegativeButton("취소") { _, _ ->
+                statusView.text = "테스트 상태: 경로 선택 취소"
+                statusView.setBackgroundColor(Color.rgb(45, 60, 70))
+                DolphinLogger.i("AUDIO_PROBE_UI", "route dialog cancelled")
             }
             .show()
     }
