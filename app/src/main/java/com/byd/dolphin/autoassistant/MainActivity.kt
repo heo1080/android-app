@@ -677,6 +677,63 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    private fun showBsdLdpConfigDialog(title: String, isBsd: Boolean) {
+        val options = arrayOf("1. 현대/기아 스타일 경고음 (비프)", "2. 추천 안내 음성 (TTS)", "3. 사용자 수동 직접 입력 (TTS)")
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> {
+                        if (isBsd) SettingsManager.setBsdAlertMode(this, "BEEP")
+                        else SettingsManager.setLdpAlertMode(this, "BEEP")
+                        audioManager.playNavigationRouteTest()
+                        Toast.makeText(this, "내비게이션 경로 비프음으로 적용·미리듣기", Toast.LENGTH_SHORT).show()
+                    }
+                    1 -> {
+                        val recText = if (isBsd) "후측방에 차량이 접근 중입니다." else "차선을 이탈했습니다."
+                        if (isBsd) {
+                            SettingsManager.setBsdAlertMode(this, "VOICE_RECOMMENDED")
+                            SettingsManager.setBsdCustomText(this, recText)
+                        } else {
+                            SettingsManager.setLdpAlertMode(this, "VOICE_RECOMMENDED")
+                            SettingsManager.setLdpCustomText(this, recText)
+                        }
+                        audioManager.speak(recText)
+                        Toast.makeText(this, "추천 안내 음성 적용", Toast.LENGTH_SHORT).show()
+                    }
+                    2 -> {
+                        val currentText = if (isBsd) SettingsManager.getBsdCustomText(this) else SettingsManager.getLdpCustomText(this)
+                        val input = EditText(this).apply { setText(currentText) }
+                        AlertDialog.Builder(this)
+                            .setTitle("수동 멘트 입력")
+                            .setView(input)
+                            .setNeutralButton("미리듣기") { _, _ -> }
+                            .setPositiveButton("저장") { _, _ ->
+                                val text = input.text.toString().trim()
+                                if (text.isNotEmpty()) {
+                                    if (isBsd) {
+                                        SettingsManager.setBsdAlertMode(this, "VOICE_CUSTOM")
+                                        SettingsManager.setBsdCustomText(this, text)
+                                    } else {
+                                        SettingsManager.setLdpAlertMode(this, "VOICE_CUSTOM")
+                                        SettingsManager.setLdpCustomText(this, text)
+                                    }
+                                    Toast.makeText(this, "저장되었습니다.", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                            .setNegativeButton("취소", null)
+                            .create().apply {
+                                show()
+                                getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                                    audioManager.speak(input.text.toString().trim())
+                                }
+                            }
+                    }
+                }
+            }
+            .show()
+    }
+
     // =========================================================================
     // 5. 티맵 Plus HUD / T900 브리지
     // =========================================================================
