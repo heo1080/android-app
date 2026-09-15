@@ -566,11 +566,8 @@ class MainActivity : AppCompatActivity() {
             showBsdLdpConfigDialog("차선 안내음 미리듣기 설정", isBsd = false)
         }
         findViewById<Button>(R.id.btnTestDriverNavRoute).setOnClickListener {
-            DolphinLogger.i("AUDIO_PROBE_UI", "btnTestDriverNavRoute CLICKED")
-            val status = findViewById<TextView>(R.id.tvDriverAudioProbeStatus)
-            status.text = "테스트 상태: 버튼 입력 확인 · 경로 선택 창을 여는 중"
-            status.setBackgroundColor(Color.rgb(0, 80, 100))
-            showDriverAudioRouteProbeDialog()
+            DolphinLogger.i("AUDIO_PROBE_UI", "btnTestDriverNavRoute CLICKED -> direct 7-route start")
+            startDriverAudioRouteComparisonFromUi()
         }
         findViewById<Button>(R.id.btnStopDriverNavRoute).setOnClickListener {
             DolphinLogger.w("AUDIO_PROBE_UI", "btnStopDriverNavRoute CLICKED")
@@ -582,8 +579,55 @@ class MainActivity : AppCompatActivity() {
             }
             findViewById<Button>(R.id.btnTestDriverNavRoute).apply {
                 isEnabled = true
-                text = "🔊 v30.3.1 운전석 오디오 테스트"
+                text = "🔊 v30.3.2 원터치 1~7 경로 테스트"
             }
+        }
+    }
+
+
+    /**
+     * v30.3.2: DiLink 3에서 AlertDialog 경로 선택 목록이 화면에 떠 있어도
+     * 항목 선택 이벤트가 전달되지 않는 실차 사례가 확인되어 선택창을 제거했다.
+     * 메인 테스트 버튼을 한 번 누르면 곧바로 1~7 경로가 순차 실행된다.
+     */
+    private fun startDriverAudioRouteComparisonFromUi() {
+        val testButton = findViewById<Button>(R.id.btnTestDriverNavRoute)
+        val statusView = findViewById<TextView>(R.id.tvDriverAudioProbeStatus)
+        val progress = findViewById<ProgressBar>(R.id.pbDriverAudioProbe)
+
+        progress.max = 7
+        progress.progress = 0
+        statusView.text = "테스트 상태: 즉시 시작 요청 · 선택창 없음 · 1/7 준비"
+        statusView.setBackgroundColor(Color.rgb(0, 80, 100))
+        testButton.isEnabled = false
+        testButton.text = "▶ 실행 중 · 준비"
+
+        val started = audioManager.playDriverRouteComparison(
+            onStep = { route, label ->
+                runOnUiThread {
+                    progress.progress = route
+                    statusView.text = "테스트 실행 중: $route/7\n$label\n$route 회 비프 시도 중"
+                    statusView.setBackgroundColor(Color.rgb(0, 105, 120))
+                    testButton.text = "▶ 실행 중 · $route/7"
+                }
+            },
+            onDone = {
+                runOnUiThread {
+                    progress.progress = 7
+                    statusView.text = "테스트 상태: 완료 · 7/7\n진단 ZIP을 저장해서 보내주세요."
+                    statusView.setBackgroundColor(Color.rgb(30, 100, 55))
+                    testButton.isEnabled = true
+                    testButton.text = "🔊 v30.3.2 원터치 1~7 경로 테스트"
+                }
+            }
+        )
+
+        if (!started) {
+            testButton.isEnabled = true
+            testButton.text = "🔊 v30.3.2 원터치 1~7 경로 테스트"
+            statusView.text = "테스트 상태: 시작 실패 · 기존 테스트가 실행 중입니다. 아래 중지를 누른 뒤 다시 시도하세요."
+            statusView.setBackgroundColor(Color.rgb(130, 70, 0))
+            DolphinLogger.w("AUDIO_PROBE_UI", "direct comparison did not start")
         }
     }
 
@@ -632,13 +676,13 @@ class MainActivity : AppCompatActivity() {
                                 statusView.text = "테스트 상태: 완료 · 7/7\n소리가 없었어도 진단 ZIP의 AUDIO_PROBE 로그를 보내주세요."
                                 statusView.setBackgroundColor(Color.rgb(30, 100, 55))
                                 testButton.isEnabled = true
-                                testButton.text = "🔊 v30.3.1 운전석 오디오 테스트"
+                                testButton.text = "🔊 v30.3.2 원터치 1~7 경로 테스트"
                             }
                         }
                     )
                     if (!started) {
                         testButton.isEnabled = true
-                        testButton.text = "🔊 v30.3.1 운전석 오디오 테스트"
+                        testButton.text = "🔊 v30.3.2 원터치 1~7 경로 테스트"
                         statusView.text = "테스트 상태: 시작 거부 · 기존 테스트가 이미 실행 중"
                         statusView.setBackgroundColor(Color.rgb(130, 70, 0))
                         DolphinLogger.w("AUDIO_PROBE_UI", "comparison did not start")
@@ -657,12 +701,12 @@ class MainActivity : AppCompatActivity() {
                             statusView.text = "테스트 상태: $route 번 완료\n$label"
                             statusView.setBackgroundColor(Color.rgb(30, 100, 55))
                             testButton.isEnabled = true
-                            testButton.text = "🔊 v30.3.1 운전석 오디오 테스트"
+                            testButton.text = "🔊 v30.3.2 원터치 1~7 경로 테스트"
                         }
                     }
                     if (!started) {
                         testButton.isEnabled = true
-                        testButton.text = "🔊 v30.3.1 운전석 오디오 테스트"
+                        testButton.text = "🔊 v30.3.2 원터치 1~7 경로 테스트"
                         statusView.text = "테스트 상태: $route 번 시작 실패 · 이미 다른 테스트 실행 중"
                         statusView.setBackgroundColor(Color.rgb(130, 70, 0))
                         DolphinLogger.w("AUDIO_PROBE_UI", "single route did not start route=$route")

@@ -240,8 +240,8 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
         routeProbeJob = soundScope.launch {
             DolphinLogger.i("AUDIO_PROBE", "===== 7경로 운전석 오디오 비교 시작 =====")
             logAudioEnvironment("comparison_start")
-            playExecutionMarker()
-            delay(650L)
+            DolphinLogger.i("AUDIO_PROBE", "v30.3.2 no MEDIA execution marker; starting route tones directly")
+            delay(300L)
             try {
                 for (route in 1..7) {
                     val label = driverRouteProbeLabel(route)
@@ -278,8 +278,8 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
             val label = driverRouteProbeLabel(routeIndex)
             DolphinLogger.i("AUDIO_PROBE", "단일 경로 테스트 시작 route=$routeIndex label=$label")
             logAudioEnvironment("single_route_${routeIndex}_before")
-            playExecutionMarker()
-            delay(650L)
+            DolphinLogger.i("AUDIO_PROBE", "v30.3.2 single route: no MEDIA execution marker")
+            delay(300L)
             try {
                 playDriverRouteProbeInternal(routeIndex, routeIndex)
             } finally {

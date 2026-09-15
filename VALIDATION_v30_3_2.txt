@@ -1,0 +1,12 @@
+v30.3.2 static validation
+{
+  "xml_count": 25,
+  "xml_errors": [],
+  "direct_click": true,
+  "no_dialog_call_from_button": true,
+  "comparison_call": true,
+  "no_media_marker_comparison": true,
+  "version_code_36": true,
+  "version_name": true,
+  "bsd_function_present": true
+}

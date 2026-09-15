@@ -11,8 +11,8 @@ android {
         applicationId = "com.byd.dolphin.autoassistant"
         minSdk = 29
         targetSdk = 34
-        versionCode = 35
-        versionName = "3.0.5-v30.3.1-probe-visibility"
+        versionCode = 36
+        versionName = "3.0.6-v30.3.2-one-tap-probe"
     }
 
     buildTypes {
