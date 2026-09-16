@@ -40,6 +40,7 @@ jobs:
         python3 ci/apply_v30_5_3_tts_engine.py
         python3 ci/apply_v30_5_4_updater_fix.py
         python3 ci/apply_v30_6_integrated_beta.py
+        python3 ci/fix_v30_6_compile.py
 
     - name: Build unsigned Release APK
       run: ./gradlew :app:assembleRelease --stacktrace
