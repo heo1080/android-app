@@ -11,8 +11,8 @@ android {
         applicationId = "com.byd.dolphin.autoassistant"
         minSdk = 29
         targetSdk = 34
-        versionCode = 36
-        versionName = "3.0.6-v30.3.2-one-tap-probe"
+        versionCode = 37
+        versionName = "3.0.7-v30.4-driver-dsp-probe"
     }
 
     buildTypes {
