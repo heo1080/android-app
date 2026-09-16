@@ -185,7 +185,7 @@ object MirrorMemoryManager {
     }
 
     fun applyPresetForStationaryTest(context: Context, reverse: Boolean): Boolean {
-        val target = if (reverse) reversePreset(context) else normalPreset(context) ?: return false
+        val target = (if (reverse) reversePreset(context) else normalPreset(context)) ?: return false
         return applyPosition(context.applicationContext, target, if (reverse) "TEST_REVERSE" else "TEST_NORMAL", takeOwnership = false)
     }
 
