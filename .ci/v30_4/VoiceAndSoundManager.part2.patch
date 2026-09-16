@@ -1,0 +1,145 @@
+diff --git a/app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt b/app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt
+index 09ecea6..3e7086d 100644
+--- a/app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt
++++ b/app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt
+@@ -318,23 +324,130 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
+         requestAudioFocus()
+         try {
+             val frequency = 700.0 + routeIndex * 95.0
+-            repeat(beepCount) { beep ->
+-                when (routeIndex) {
+-                    1 -> playProbe48kStereo(routeIndex, driverRouteProbeLabel(1), navigationToneAttributes, null, frequency, 260)
+-                    2 -> playProbe48kStereo(routeIndex, driverRouteProbeLabel(2), navigationToneAttributes, AudioDeviceInfo.TYPE_BUILTIN_EARPIECE, frequency, 260)
+-                    3 -> playProbe48kStereo(routeIndex, driverRouteProbeLabel(3), navigationToneAttributes, AudioDeviceInfo.TYPE_TELEPHONY, frequency, 260)
+-                    4 -> playProbe48kStereo(routeIndex, driverRouteProbeLabel(4), navigationToneAttributes, AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, frequency, 260)
+-                    5 -> playProbe48kStereo(routeIndex, driverRouteProbeLabel(5), mediaToneAttributes, AudioDeviceInfo.TYPE_BUILTIN_EARPIECE, frequency, 260)
+-                    6 -> playProbeWithCommunitySoundPool(routeIndex, driverRouteProbeLabel(6))
+-                    7 -> playProbeWithLegacyAudioTrack14(routeIndex, frequency, 260)
++            when (routeIndex) {
++                7 -> playMcuHwL1DirectionSweep(routeIndex)
++                else -> repeat(beepCount) { beep ->
++                    when (routeIndex) {
++                        1 -> playProbe48kStereo(routeIndex, driverRouteProbeLabel(1), navigationToneAttributes, null, frequency, 260)
++                        2 -> playTelephonyVoiceCommunicationProbe(routeIndex, frequency, 300)
++                        3 -> playLegacyVoiceCallTelephonyProbe(routeIndex, frequency, 300)
++                        4 -> playNavTelephonyCommunicationModeProbe(routeIndex, frequency, 300)
++                        5 -> playProbeWithLegacyAudioTrack14(routeIndex, frequency, 300)
++                        6 -> playProbeWithLegacyAttribute14(routeIndex, frequency, 300)
++                    }
++                    if (beep < beepCount - 1) delay(120L)
+                 }
+-                if (beep < beepCount - 1) delay(120L)
+             }
+         } finally {
+             releaseAudioFocus()
+         }
+     }
+ 
++    private inline fun <T> withTemporaryCommunicationAudio(block: () -> T): T {
++        val previousMode = audioManager.mode
++        val previousVoiceVolume = runCatching { audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL) }.getOrDefault(-1)
++        val maxVoice = runCatching { audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL) }.getOrDefault(-1)
++        try {
++            runCatching { audioManager.mode = AudioManager.MODE_IN_COMMUNICATION }
++                .onFailure { DolphinLogger.e("AUDIO_PROBE", "MODE_IN_COMMUNICATION 설정 실패", it) }
++            if (maxVoice > 0) {
++                val target = maxOf(1, (maxVoice * 0.7).toInt())
++                runCatching { audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, target, 0) }
++                    .onFailure { DolphinLogger.e("AUDIO_PROBE", "STREAM_VOICE_CALL 임시 볼륨 설정 실패", it) }
++                DolphinLogger.i("AUDIO_PROBE", "voice env mode=${audioManager.mode} voiceVol=$previousVoiceVolume->$target/$maxVoice")
++            } else {
++                DolphinLogger.i("AUDIO_PROBE", "voice env mode=${audioManager.mode} voiceVol=unavailable current=$previousVoiceVolume max=$maxVoice")
++            }
++            return block()
++        } finally {
++            if (previousVoiceVolume >= 0) {
++                runCatching { audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, previousVoiceVolume, 0) }
++            }
++            runCatching { audioManager.mode = previousMode }
++            DolphinLogger.i("AUDIO_PROBE", "voice env restored mode=$previousMode voiceVol=$previousVoiceVolume")
++        }
++    }
++
++    private fun playTelephonyVoiceCommunicationProbe(routeIndex: Int, frequencyHz: Double, durationMs: Int) {
++        withTemporaryCommunicationAudio {
++            playProbe48kStereo(
++                routeIndex, driverRouteProbeLabel(routeIndex), voiceCommunicationAttributes,
++                AudioDeviceInfo.TYPE_TELEPHONY, frequencyHz, durationMs
++            )
++        }
++    }
++
++    @Suppress("DEPRECATION")
++    private fun playLegacyVoiceCallTelephonyProbe(routeIndex: Int, frequencyHz: Double, durationMs: Int) {
++        withTemporaryCommunicationAudio {
++            val label = driverRouteProbeLabel(routeIndex)
++            val sampleRate = 48_000
++            val samples = buildStereoToneSamples(sampleRate, frequencyHz, durationMs, 0.28)
++            var track: AudioTrack? = null
++            try {
++                val minBuffer = AudioTrack.getMinBufferSize(sampleRate, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT).coerceAtLeast(0)
++                val candidate = AudioTrack(
++                    AudioManager.STREAM_VOICE_CALL, sampleRate, AudioFormat.CHANNEL_OUT_STEREO,
++                    AudioFormat.ENCODING_PCM_16BIT, maxOf(samples.size * 2, minBuffer), AudioTrack.MODE_STATIC
++                )
++                track = candidate
++                val requested = findOutputDevice(AudioDeviceInfo.TYPE_TELEPHONY)
++                val accepted = if (requested != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) candidate.setPreferredDevice(requested) else false
++                val preState = candidate.state
++                val written = candidate.write(samples, 0, samples.size)
++                DolphinLogger.i("AUDIO_PROBE", "ROUTE_$routeIndex voicecall built preState=$preState write=$written telephony=${requested != null} preferredAccepted=$accepted")
++                candidate.setVolume(0.78f)
++                candidate.play()
++                Thread.sleep(100L)
++                logTrackRoute(routeIndex, label, candidate)
++                Thread.sleep(durationMs.toLong())
++                runCatching { candidate.stop() }
++            } catch (t: Throwable) {
++                DolphinLogger.e("AUDIO_PROBE", "ROUTE_$routeIndex STREAM_VOICE_CALL telephony 실패", t)
++            } finally {
++                runCatching { track?.release() }
++            }
++        }
++    }
++
++    private fun playNavTelephonyCommunicationModeProbe(routeIndex: Int, frequencyHz: Double, durationMs: Int) {
++        withTemporaryCommunicationAudio {
++            playProbe48kStereo(
++                routeIndex, driverRouteProbeLabel(routeIndex), navigationToneAttributes,
++                AudioDeviceInfo.TYPE_TELEPHONY, frequencyHz, durationMs
++            )
++        }
++    }
++
++    private fun playMcuHwL1DirectionSweep(routeIndex: Int) {
++        val snap = bydAudioMcuProbe.snapshot()
++        DolphinLogger.i("MCU_AUDIO_PROBE", "snapshot=$snap")
++        val original = snap.hwL1DirectionState
++        if (!bydAudioMcuProbe.canSafelySweepHwL1(original)) {
++            DolphinLogger.w("MCU_AUDIO_PROBE", "HW_L1 sweep SKIP: readable restorable original unavailable value=$original")
++            playProbe48kStereo(routeIndex, "MCU HW_L1 SKIP / NAV baseline", navigationToneAttributes, null, 1360.0, 420)
++            return
++        }
++        try {
++            for (value in 0..3) {
++                val setResult = bydAudioMcuProbe.writeInt(BydAudioMcuProbe.FID_HW_L1_DIRECTION_SET, value)
++                Thread.sleep(220L)
++                val readback = bydAudioMcuProbe.readInt(BydAudioMcuProbe.FID_HW_L1_DIRECTION_STATUS)
++                DolphinLogger.i("MCU_AUDIO_PROBE", "HW_L1 candidate=$value setResult=$setResult readback=$readback original=$original")
++                repeat(value + 1) { idx ->
++                    playProbe48kStereo(routeIndex, "MCU HW_L1 dir=$value group=${value + 1}", navigationToneAttributes, null, 980.0 + value * 140.0, 260)
++                    if (idx < value) Thread.sleep(120L)
++                }
++                Thread.sleep(650L)
++            }
++        } finally {
++            val restoreResult = bydAudioMcuProbe.writeInt(BydAudioMcuProbe.FID_HW_L1_DIRECTION_SET, original!!)
++            Thread.sleep(220L)
++            val restoreReadback = bydAudioMcuProbe.readInt(BydAudioMcuProbe.FID_HW_L1_DIRECTION_STATUS)
++            DolphinLogger.i("MCU_AUDIO_PROBE", "HW_L1 RESTORE original=$original setResult=$restoreResult readback=$restoreReadback")
++        }
++    }
++
+     private fun findOutputDevice(type: Int): AudioDeviceInfo? = runCatching {
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+             audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS).firstOrNull { it.type == type }
