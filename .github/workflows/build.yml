@@ -39,15 +39,23 @@ jobs:
         DOLPHIN_KEYSTORE_PASSWORD: ${{ secrets.DOLPHIN_KEYSTORE_PASSWORD }}
       run: |
         set -euo pipefail
-        printf '%s' "$DOLPHIN_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/dolphin-release.jks"
-        test -s "$RUNNER_TEMP/dolphin-release.jks"
+        KEYSTORE="$RUNNER_TEMP/dolphin-release.jks"
+        printf '%s' "$DOLPHIN_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE"
+        test -s "$KEYSTORE"
+        EXPECTED_KEYSTORE_SHA256="6f343e0060b185d82a6002cf4be8650099a4ef02849083b210fba3bbe3889953"
+        ACTUAL_KEYSTORE_SHA256="$(sha256sum "$KEYSTORE" | awk '{print $1}')"
+        if [ "$ACTUAL_KEYSTORE_SHA256" != "$EXPECTED_KEYSTORE_SHA256" ]; then
+          echo "Stable keystore identity MISMATCH"
+          exit 41
+        fi
+        echo "Stable keystore identity OK"
         DOLPHIN_KS_PASS="$(printf '%s' "$DOLPHIN_KEYSTORE_PASSWORD" | tr -d '\r\n')"
         test -n "$DOLPHIN_KS_PASS"
         keytool -list \
-          -keystore "$RUNNER_TEMP/dolphin-release.jks" \
+          -keystore "$KEYSTORE" \
           -storepass "$DOLPHIN_KS_PASS" \
           -alias dolphinassistant >/dev/null
-        echo "Stable keystore preflight OK"
+        echo "Stable keystore password/alias preflight OK"
 
     - name: Build unsigned Release APK
       run: ./gradlew :app:assembleRelease --stacktrace
