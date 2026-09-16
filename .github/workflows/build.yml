@@ -32,13 +32,15 @@ jobs:
     - name: Grant Execute Permission for Gradlew
       run: chmod +x gradlew
 
-    - name: Apply v30.5.4 stream14 diagnostic TTS and Android 10 updater patches
+    - name: Apply v30.6 integrated beta patches
       run: |
         python3 ci/apply_v30_5.py
         python3 ci/fix_v30_5_1.py
         python3 ci/apply_v30_5_2_update.py
         python3 ci/apply_v30_5_3_tts_engine.py
         python3 ci/apply_v30_5_4_updater_fix.py
+        python3 ci/apply_v30_6_integrated_beta.py
+        python3 ci/fix_v30_6_compile.py
 
     - name: Build unsigned Release APK
       run: ./gradlew :app:assembleRelease --stacktrace
@@ -46,7 +48,7 @@ jobs:
     - name: Upload unsigned Release APK for recovery signing
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-v30.5.4-Unsigned
+        name: DolphinAssistant-v30.6.0-Unsigned
         path: app/build/outputs/apk/release/app-release-unsigned.apk
         if-no-files-found: error
         retention-days: 7
@@ -77,7 +79,7 @@ jobs:
           -alias dolphinassistant >/dev/null
         echo "Stable keystore password/alias preflight OK"
 
-    - name: Sign v30.5.4 stable APK
+    - name: Sign v30.6.0 stable APK
       if: github.event_name != 'pull_request'
       shell: bash
       env:
@@ -89,7 +91,7 @@ jobs:
         APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
         test -x "$APKSIGNER"
         UNSIGNED="app/build/outputs/apk/release/app-release-unsigned.apk"
-        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v30.5.4-stable.apk"
+        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v30.6.0-stable.apk"
         test -s "$UNSIGNED"
         "$APKSIGNER" sign \
           --ks "$RUNNER_TEMP/dolphin-release.jks" \
@@ -99,37 +101,37 @@ jobs:
           --out "$SIGNED" \
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
-        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.5.4-stable.sha256
+        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.6.0-stable.sha256
 
     - name: Upload stable APK artifact
       if: github.event_name != 'pull_request'
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-v30.5.4-Stable
+        name: DolphinAssistant-v30.6.0-Stable
         path: |
-          app/build/outputs/apk/release/DolphinAssistant-v30.5.4-stable.apk
-          app/build/outputs/apk/release/DolphinAssistant-v30.5.4-stable.sha256
+          app/build/outputs/apk/release/DolphinAssistant-v30.6.0-stable.apk
+          app/build/outputs/apk/release/DolphinAssistant-v30.6.0-stable.sha256
         if-no-files-found: error
         retention-days: 30
 
-    - name: Publish v30.5.4 GitHub Release
+    - name: Publish v30.6.0 GitHub Release
       if: github.event_name != 'pull_request'
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
         set -euo pipefail
-        TAG="v30.5.4"
-        APK="app/build/outputs/apk/release/DolphinAssistant-v30.5.4-stable.apk"
-        SHA="app/build/outputs/apk/release/DolphinAssistant-v30.5.4-stable.sha256"
-        NOTES="Android 10 updater compatibility fix: request both GET_SIGNING_CERTIFICATES and legacy GET_SIGNATURES when validating downloaded APKs, fall back safely when API 29 returns signingInfo=null, and log installed/downloaded signer SHA-256 values for diagnostics. Includes the v30.5.3 Korean sherpa-onnx TTS recovery and confirmed BYD legacy stream14 driver-only audio route."
+        TAG="v30.6.0"
+        APK="app/build/outputs/apk/release/DolphinAssistant-v30.6.0-stable.apk"
+        SHA="app/build/outputs/apk/release/DolphinAssistant-v30.6.0-stable.sha256"
+        NOTES="Integrated real-vehicle beta: Google Chirp 3 HD natural-voice cache with direct BYD stream14 playback and local-TTS fallback; calibrated R-down mirror memory using actual mirror getters/setters with manual-override protection; expanded display/font diagnostics; read-only seat/cluster feature discovery; safer interior-light OFF fallback; app-specific driver-audio arbitration research scaffold. Existing HUD/TBT, diagnostics auto-upload, Android 10 updater and verified stream14 warning path are preserved."
         if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
           gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
-          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant v30.5.4" --notes "$NOTES" --latest
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant v30.6.0" --notes "$NOTES" --latest
         else
           gh release create "$TAG" "$APK" "$SHA" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "DolphinAssistant v30.5.4" \
+            --title "DolphinAssistant v30.6.0" \
             --notes "$NOTES" \
             --latest
         fi
