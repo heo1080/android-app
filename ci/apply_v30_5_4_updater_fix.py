@@ -18,7 +18,7 @@ build = build_path.read_text(encoding="utf-8")
 build = replace_once(build, "versionCode = 41", "versionCode = 42", "versionCode 42")
 build = replace_once(
     build,
-    'versionName = "3.0.11-v30.5.3-korean-tts"',
+    'versionName = "3.0.11-v30.5.3-korean-tts-engine"',
     'versionName = "3.0.12-v30.5.4-api29-updater-fix"',
     "versionName v30.5.4",
 )
