@@ -32,15 +32,25 @@ jobs:
     - name: Apply v30.5 stream14 production patch
       run: python3 ci/apply_v30_5.py
 
-    - name: Build unsigned Release APK
-      run: ./gradlew :app:assembleRelease --stacktrace
-
-    - name: Decode stable signing keystore
+    - name: Decode and validate stable signing keystore
       shell: bash
+      env:
+        DOLPHIN_KEYSTORE_BASE64: ${{ secrets.DOLPHIN_KEYSTORE_BASE64 }}
+        DOLPHIN_KEYSTORE_PASSWORD: ${{ secrets.DOLPHIN_KEYSTORE_PASSWORD }}
       run: |
         set -euo pipefail
-        printf '%s' "${{ secrets.DOLPHIN_KEYSTORE_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/dolphin-release.jks"
+        printf '%s' "$DOLPHIN_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/dolphin-release.jks"
         test -s "$RUNNER_TEMP/dolphin-release.jks"
+        DOLPHIN_KS_PASS="$(printf '%s' "$DOLPHIN_KEYSTORE_PASSWORD" | tr -d '\r\n')"
+        test -n "$DOLPHIN_KS_PASS"
+        keytool -list \
+          -keystore "$RUNNER_TEMP/dolphin-release.jks" \
+          -storepass "$DOLPHIN_KS_PASS" \
+          -alias dolphinassistant >/dev/null
+        echo "Stable keystore preflight OK"
+
+    - name: Build unsigned Release APK
+      run: ./gradlew :app:assembleRelease --stacktrace
 
     - name: Sign v30.5 stable APK
       shell: bash
@@ -48,6 +58,8 @@ jobs:
         DOLPHIN_KEYSTORE_PASSWORD: ${{ secrets.DOLPHIN_KEYSTORE_PASSWORD }}
       run: |
         set -euo pipefail
+        DOLPHIN_KS_PASS="$(printf '%s' "$DOLPHIN_KEYSTORE_PASSWORD" | tr -d '\r\n')"
+        export DOLPHIN_KS_PASS
         APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
         test -x "$APKSIGNER"
         UNSIGNED="app/build/outputs/apk/release/app-release-unsigned.apk"
@@ -56,8 +68,8 @@ jobs:
         "$APKSIGNER" sign \
           --ks "$RUNNER_TEMP/dolphin-release.jks" \
           --ks-key-alias dolphinassistant \
-          --ks-pass env:DOLPHIN_KEYSTORE_PASSWORD \
-          --key-pass env:DOLPHIN_KEYSTORE_PASSWORD \
+          --ks-pass env:DOLPHIN_KS_PASS \
+          --key-pass env:DOLPHIN_KS_PASS \
           --out "$SIGNED" \
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
@@ -67,6 +79,8 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: DolphinAssistant-v30.5-Stable
-        path: app/build/outputs/apk/release/DolphinAssistant-v30.5-stable.apk
+        path: |
+          app/build/outputs/apk/release/DolphinAssistant-v30.5-stable.apk
+          app/build/outputs/apk/release/DolphinAssistant-v30.5-stable.sha256
         if-no-files-found: error
         retention-days: 30
