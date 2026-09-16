@@ -1,0 +1,44 @@
+name: Apply v30.4 source patch
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - ".github/workflows/apply-v30-4.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  apply-v30-4:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply v30.4 patches
+        run: |
+          set -euxo pipefail
+          git apply .ci/v30_4/build.gradle.kts.patch
+          git apply .ci/v30_4/AndroidManifest.xml.patch
+          git apply .ci/v30_4/MainActivity.kt.patch
+          git apply .ci/v30_4/activity_main.xml.patch
+          git apply .ci/v30_4/VoiceAndSoundManager.part1.patch
+          git apply .ci/v30_4/VoiceAndSoundManager.part2.patch
+          git apply .ci/v30_4/VoiceAndSoundManager.part3.patch
+          grep -n '3.0.7-v30.4-driver-dsp-probe' app/build.gradle.kts
+          grep -n 'MCU_AUDIO_PROBE' app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt
+
+      - name: Commit patched source and cleanup staging files
+        run: |
+          set -euxo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .chatgpt-write-test.txt
+          git rm -f .ci/v30_4/*.patch
+          git rm -f .github/workflows/apply-v30-4.yml
+          git add -A
+          git commit -m "Apply v30.4 driver DSP audio probe"
+          git push origin HEAD:main
