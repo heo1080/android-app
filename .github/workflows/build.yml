@@ -29,12 +29,44 @@ jobs:
     - name: Grant Execute Permission for Gradlew
       run: chmod +x gradlew
 
-    - name: Build Debug APK
-      run: ./gradlew :app:assembleDebug --stacktrace
+    - name: Apply v30.5 stream14 production patch
+      run: python3 ci/apply_v30_5.py
 
-    - name: Upload APK Artifact
+    - name: Build unsigned Release APK
+      run: ./gradlew :app:assembleRelease --stacktrace
+
+    - name: Decode stable signing keystore
+      shell: bash
+      run: |
+        set -euo pipefail
+        printf '%s' "${{ secrets.DOLPHIN_KEYSTORE_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/dolphin-release.jks"
+        test -s "$RUNNER_TEMP/dolphin-release.jks"
+
+    - name: Sign v30.5 stable APK
+      shell: bash
+      env:
+        DOLPHIN_KEYSTORE_PASSWORD: ${{ secrets.DOLPHIN_KEYSTORE_PASSWORD }}
+      run: |
+        set -euo pipefail
+        APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+        test -x "$APKSIGNER"
+        UNSIGNED="app/build/outputs/apk/release/app-release-unsigned.apk"
+        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v30.5-stable.apk"
+        test -s "$UNSIGNED"
+        "$APKSIGNER" sign \
+          --ks "$RUNNER_TEMP/dolphin-release.jks" \
+          --ks-key-alias dolphinassistant \
+          --ks-pass env:DOLPHIN_KEYSTORE_PASSWORD \
+          --key-pass env:DOLPHIN_KEYSTORE_PASSWORD \
+          --out "$SIGNED" \
+          "$UNSIGNED"
+        "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
+        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.5-stable.sha256
+
+    - name: Upload stable APK artifact
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAutoAssistant-v30-Debug
-        path: app/build/outputs/apk/debug/app-debug.apk
+        name: DolphinAssistant-v30.5-Stable
+        path: app/build/outputs/apk/release/DolphinAssistant-v30.5-stable.apk
         if-no-files-found: error
+        retention-days: 30
