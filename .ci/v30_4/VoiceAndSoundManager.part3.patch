@@ -1,0 +1,30 @@
+diff --git a/app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt b/app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt
+index 09ecea6..3e7086d 100644
+--- a/app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt
++++ b/app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt
+@@ -585,15 +698,22 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
+                 AudioTrack.MODE_STATIC
+             )
+             track = candidate
+-            if (candidate.state != AudioTrack.STATE_INITIALIZED) {
+-                throw IllegalStateException("AudioTrack stream14 state=${candidate.state}")
++            val preWriteState = candidate.state
++            // MODE_STATIC legitimately reports STATE_NO_STATIC_DATA(2) until write().
++            // v30.3.2 incorrectly aborted here, so route 7 was never actually tested.
++            if (preWriteState != AudioTrack.STATE_INITIALIZED && preWriteState != AudioTrack.STATE_NO_STATIC_DATA) {
++                throw IllegalStateException("AudioTrack stream14 unexpected preWriteState=$preWriteState")
+             }
+             val written = candidate.write(samples, 0, samples.size)
++            val postWriteState = candidate.state
+             DolphinLogger.i(
+                 "AUDIO_PROBE",
+                 "ROUTE_$routeIndex built label=$label rawStream=14 sampleRate=$sampleRate " +
+-                    "minBuffer=$minBuffer bufferBytes=$bufferBytes write=$written"
++                    "minBuffer=$minBuffer bufferBytes=$bufferBytes preState=$preWriteState postState=$postWriteState write=$written"
+             )
++            if (postWriteState != AudioTrack.STATE_INITIALIZED) {
++                throw IllegalStateException("AudioTrack stream14 postWriteState=$postWriteState written=$written")
++            }
+             candidate.setVolume(0.72f)
+             candidate.play()
+             Thread.sleep(70L)
