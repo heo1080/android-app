@@ -32,7 +32,7 @@ jobs:
     - name: Grant Execute Permission for Gradlew
       run: chmod +x gradlew
 
-    - name: Apply v30.6.1 integrated beta patches
+    - name: Apply v30.6.2 runtime fixes
       run: |
         python3 ci/apply_v30_5.py
         python3 ci/fix_v30_5_1.py
@@ -41,6 +41,18 @@ jobs:
         python3 ci/apply_v30_5_4_updater_fix.py
         python3 ci/apply_v30_6_integrated_beta.py
         python3 ci/fix_v30_6_compile.py
+        python3 ci/apply_v30_6_2_runtime_fixes.py
+
+    - name: Download in-app sherpa-onnx Android runtime
+      shell: bash
+      run: |
+        set -euo pipefail
+        mkdir -p app/libs
+        curl -fL --retry 4 --retry-delay 2 \
+          -o app/libs/sherpa-onnx-1.13.4.aar \
+          https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.4/sherpa-onnx-1.13.4.aar
+        test -s app/libs/sherpa-onnx-1.13.4.aar
+        ls -lh app/libs/sherpa-onnx-1.13.4.aar
 
     - name: Build unsigned Release APK
       run: ./gradlew :app:assembleRelease --stacktrace
@@ -48,7 +60,7 @@ jobs:
     - name: Upload unsigned Release APK for recovery signing
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-v30.6.1-Unsigned
+        name: DolphinAssistant-v30.6.2-Unsigned
         path: app/build/outputs/apk/release/app-release-unsigned.apk
         if-no-files-found: error
         retention-days: 7
@@ -79,7 +91,7 @@ jobs:
           -alias dolphinassistant >/dev/null
         echo "Stable keystore password/alias preflight OK"
 
-    - name: Sign v30.6.1 stable APK
+    - name: Sign v30.6.2 stable APK
       if: github.event_name != 'pull_request'
       shell: bash
       env:
@@ -91,7 +103,7 @@ jobs:
         APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
         test -x "$APKSIGNER"
         UNSIGNED="app/build/outputs/apk/release/app-release-unsigned.apk"
-        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v30.6.1-stable.apk"
+        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v30.6.2-stable.apk"
         test -s "$UNSIGNED"
         "$APKSIGNER" sign \
           --ks "$RUNNER_TEMP/dolphin-release.jks" \
@@ -101,37 +113,37 @@ jobs:
           --out "$SIGNED" \
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
-        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.6.1-stable.sha256
+        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.6.2-stable.sha256
 
     - name: Upload stable APK artifact
       if: github.event_name != 'pull_request'
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-v30.6.1-Stable
+        name: DolphinAssistant-v30.6.2-Stable
         path: |
-          app/build/outputs/apk/release/DolphinAssistant-v30.6.1-stable.apk
-          app/build/outputs/apk/release/DolphinAssistant-v30.6.1-stable.sha256
+          app/build/outputs/apk/release/DolphinAssistant-v30.6.2-stable.apk
+          app/build/outputs/apk/release/DolphinAssistant-v30.6.2-stable.sha256
         if-no-files-found: error
         retention-days: 30
 
-    - name: Publish v30.6.1 GitHub Release
+    - name: Publish v30.6.2 GitHub Release
       if: github.event_name != 'pull_request'
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
         set -euo pipefail
-        TAG="v30.6.1"
-        APK="app/build/outputs/apk/release/DolphinAssistant-v30.6.1-stable.apk"
-        SHA="app/build/outputs/apk/release/DolphinAssistant-v30.6.1-stable.sha256"
-        NOTES="Visibility hotfix for the v30.6 integrated real-vehicle beta. Adds an explicit 'v30.6.1 통합 설정 · 실차 LAB' card to the main dashboard. The card opens a dedicated scrollable panel with Cloud Run URL/token input, Chirp 3 HD voice selection/cache controls, calibrated reverse-mirror settings, interior-light tests, display/font diagnostics, cluster lab, and per-app driver-audio research settings. Core v30.6 functionality is unchanged."
+        TAG="v30.6.2"
+        APK="app/build/outputs/apk/release/DolphinAssistant-v30.6.2-stable.apk"
+        SHA="app/build/outputs/apk/release/DolphinAssistant-v30.6.2-stable.sha256"
+        NOTES="20:27 live-log fixes. Replaces Android TextToSpeech playback with in-app sherpa-onnx Supertonic 3 Korean synthesis and cached BYD stream14 driver-only playback. Adds individual voice toggles and vehicle-state wiring for gear, regen, drive/snow modes, AutoHold, EPB, ICC and leading-car departure; suppresses duplicate lane-departure warning. Fixes mirror calibration by using the validated 0..8 setter range instead of invalid getter values, improves interior-light OFF handling and font-scale refresh, and replaces manual package-name entry with an installed-app picker for per-app driver-audio research."
         if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
           gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
-          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant v30.6.1" --notes "$NOTES" --latest
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant v30.6.2" --notes "$NOTES" --latest
         else
           gh release create "$TAG" "$APK" "$SHA" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "DolphinAssistant v30.6.1" \
+            --title "DolphinAssistant v30.6.2" \
             --notes "$NOTES" \
             --latest
         fi
