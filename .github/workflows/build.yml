@@ -45,6 +45,7 @@ jobs:
         python3 ci/apply_v30_6_2_runtime_fixes.py
         python3 ci/fix_v30_6_2_followup.py
         python3 ci/apply_v30_6_3_live_fixes.py
+        python3 ci/fix_v30_6_3_font_current_user.py
 
     - name: Download in-app sherpa-onnx Android runtime
       shell: bash
@@ -139,7 +140,7 @@ jobs:
         TAG="v30.6.3"
         APK="app/build/outputs/apk/release/DolphinAssistant-v30.6.3-stable.apk"
         SHA="app/build/outputs/apk/release/DolphinAssistant-v30.6.3-stable.sha256"
-        NOTES="Live vehicle follow-up. Keeps confirmed gear/EPB/snow/stream14 voice paths intact. Fixes Dolphin regen mapping to 2=STANDARD and 3=HIGH, moves drive-mode detection to BYDAutoEnergyDevice.getOperationMode(), separates AutoHold switch speech from physical hold/release inference using D/speed/brake/accelerator signals, expands raw diagnostics for drive/regen/AutoHold/turn, adds interior-light raw calibration 0..4, and exposes the real per-app audio-routing blocker by reporting MODIFY_AUDIO_ROUTING plus output devices. Mirror 0..8 calibration remains available for direct stationary testing."
+        NOTES="Live vehicle follow-up. Keeps confirmed gear/EPB/snow/stream14 voice paths intact. Fixes Dolphin regen mapping to 2=STANDARD and 3=HIGH, moves drive-mode detection to BYDAutoEnergyDevice.getOperationMode(), separates AutoHold switch speech from physical hold/release inference using D/speed/brake/accelerator signals, expands raw diagnostics for drive/regen/AutoHold/turn, adds interior-light raw calibration 0..4, uses the active Android user for font-scale writes, and exposes the real per-app audio-routing blocker by reporting MODIFY_AUDIO_ROUTING plus output devices. Mirror 0..8 calibration remains available for direct stationary testing."
         if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
           gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
           gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant v30.6.3" --notes "$NOTES" --latest
