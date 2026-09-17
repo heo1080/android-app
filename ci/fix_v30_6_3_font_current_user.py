@@ -15,7 +15,7 @@ replacement = '''    fun setFontScale(context: Context, scale: Float): Boolean {
         val normalized = "%.2f".format(java.util.Locale.US, scale)
         val currentUserResult = NativeAdbClient.executeShell(context.applicationContext, "am get-current-user")
         val currentUser = currentUserResult.output.trim().lineSequence().lastOrNull()?.trim()
-            ?.takeIf { it.matches(Regex("\\d+")) }
+            ?.takeIf { it.matches(Regex("[0-9]+")) }
             ?: "current"
         val before = NativeAdbClient.executeShell(
             context.applicationContext,
