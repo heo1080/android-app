@@ -32,7 +32,7 @@ jobs:
     - name: Grant Execute Permission for Gradlew
       run: chmod +x gradlew
 
-    - name: Apply v30.6.2 runtime fixes
+    - name: Apply v30.6.3 live fixes
       run: |
         python3 ci/apply_v30_5.py
         python3 ci/fix_v30_5_1.py
@@ -44,6 +44,7 @@ jobs:
         python3 ci/prep_v30_6_2_compat.py
         python3 ci/apply_v30_6_2_runtime_fixes.py
         python3 ci/fix_v30_6_2_followup.py
+        python3 ci/apply_v30_6_3_live_fixes.py
 
     - name: Download in-app sherpa-onnx Android runtime
       shell: bash
@@ -62,7 +63,7 @@ jobs:
     - name: Upload unsigned Release APK for recovery signing
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-v30.6.2-Unsigned
+        name: DolphinAssistant-v30.6.3-Unsigned
         path: app/build/outputs/apk/release/app-release-unsigned.apk
         if-no-files-found: error
         retention-days: 7
@@ -93,7 +94,7 @@ jobs:
           -alias dolphinassistant >/dev/null
         echo "Stable keystore password/alias preflight OK"
 
-    - name: Sign v30.6.2 stable APK
+    - name: Sign v30.6.3 stable APK
       if: github.event_name != 'pull_request'
       shell: bash
       env:
@@ -105,7 +106,7 @@ jobs:
         APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
         test -x "$APKSIGNER"
         UNSIGNED="app/build/outputs/apk/release/app-release-unsigned.apk"
-        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v30.6.2-stable.apk"
+        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v30.6.3-stable.apk"
         test -s "$UNSIGNED"
         "$APKSIGNER" sign \
           --ks "$RUNNER_TEMP/dolphin-release.jks" \
@@ -115,37 +116,37 @@ jobs:
           --out "$SIGNED" \
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
-        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.6.2-stable.sha256
+        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.6.3-stable.sha256
 
     - name: Upload stable APK artifact
       if: github.event_name != 'pull_request'
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-v30.6.2-Stable
+        name: DolphinAssistant-v30.6.3-Stable
         path: |
-          app/build/outputs/apk/release/DolphinAssistant-v30.6.2-stable.apk
-          app/build/outputs/apk/release/DolphinAssistant-v30.6.2-stable.sha256
+          app/build/outputs/apk/release/DolphinAssistant-v30.6.3-stable.apk
+          app/build/outputs/apk/release/DolphinAssistant-v30.6.3-stable.sha256
         if-no-files-found: error
         retention-days: 30
 
-    - name: Publish v30.6.2 GitHub Release
+    - name: Publish v30.6.3 GitHub Release
       if: github.event_name != 'pull_request'
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
         set -euo pipefail
-        TAG="v30.6.2"
-        APK="app/build/outputs/apk/release/DolphinAssistant-v30.6.2-stable.apk"
-        SHA="app/build/outputs/apk/release/DolphinAssistant-v30.6.2-stable.sha256"
-        NOTES="20:27 live-log fixes. Replaces Android TextToSpeech playback with in-app sherpa-onnx Supertonic 3 Korean synthesis and cached BYD stream14 driver-only playback. Adds individual voice toggles and vehicle-state wiring for gear, regen, drive/snow modes, AutoHold, EPB, ICC and leading-car departure; suppresses duplicate lane-departure warning. Fixes mirror calibration by using the validated 0..8 setter range instead of invalid getter values, improves interior-light OFF handling and font-scale refresh, and replaces manual package-name entry with an installed-app picker for per-app driver-audio research."
+        TAG="v30.6.3"
+        APK="app/build/outputs/apk/release/DolphinAssistant-v30.6.3-stable.apk"
+        SHA="app/build/outputs/apk/release/DolphinAssistant-v30.6.3-stable.sha256"
+        NOTES="Live vehicle follow-up. Keeps confirmed gear/EPB/snow/stream14 voice paths intact. Fixes Dolphin regen mapping to 2=STANDARD and 3=HIGH, moves drive-mode detection to BYDAutoEnergyDevice.getOperationMode(), separates AutoHold switch speech from physical hold/release inference using D/speed/brake/accelerator signals, expands raw diagnostics for drive/regen/AutoHold/turn, adds interior-light raw calibration 0..4, and exposes the real per-app audio-routing blocker by reporting MODIFY_AUDIO_ROUTING plus output devices. Mirror 0..8 calibration remains available for direct stationary testing."
         if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
           gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
-          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant v30.6.2" --notes "$NOTES" --latest
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant v30.6.3" --notes "$NOTES" --latest
         else
           gh release create "$TAG" "$APK" "$SHA" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "DolphinAssistant v30.6.2" \
+            --title "DolphinAssistant v30.6.3" \
             --notes "$NOTES" \
             --latest
         fi
