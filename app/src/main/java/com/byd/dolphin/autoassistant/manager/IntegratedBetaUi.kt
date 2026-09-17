@@ -9,20 +9,139 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.GridLayout
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import androidx.cardview.widget.CardView
 import com.byd.dolphin.autoassistant.hud.ClusterMirrorManager
 
-/** Dynamic v30.6 beta panels so the verified v30 UI/XML remains intact. */
+/** Dynamic v30.6/v30.6.1 beta UI. */
 object IntegratedBetaUi {
+
+    /**
+     * v30.6.0 attached the new panels after full-height sub-screen ScrollViews.
+     * They were technically in the view hierarchy but outside the visible area.
+     * v30.6.1 adds one explicit dashboard card that opens a dedicated scrollable
+     * dialog containing every new control, so URL/token/mirror/display labs are
+     * always reachable regardless of the legacy sub-screen XML structure.
+     */
+    fun attachDashboardEntry(activity: AppCompatActivity, dashboardRoot: View, audioManager: VoiceAndSoundManager) {
+        val grid = findFirstGridLayout(dashboardRoot) ?: run {
+            Toast.makeText(activity, "v30.6.1 설정 메뉴를 붙일 위치를 찾지 못했습니다.", Toast.LENGTH_LONG).show()
+            return
+        }
+        val marker = "v30_6_1_integrated_menu"
+        if ((0 until grid.childCount).any { grid.getChildAt(it).tag == marker }) return
+
+        val density = activity.resources.displayMetrics.density
+        fun dp(value: Int) = (value * density).toInt()
+
+        val card = CardView(activity).apply {
+            tag = marker
+            radius = 16f * density
+            cardElevation = 4f * density
+            setCardBackgroundColor(Color.parseColor("#0B1E2B"))
+            foreground = activity.obtainStyledAttributes(intArrayOf(android.R.attr.selectableItemBackground)).run {
+                val drawable = getDrawable(0)
+                recycle()
+                drawable
+            }
+            layoutParams = GridLayout.LayoutParams().apply {
+                width = 0
+                height = dp(164)
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+                setMargins(dp(5), dp(5), dp(5), dp(5))
+            }
+        }
+
+        val body = LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), dp(12), dp(12), dp(12))
+            background = GradientDrawable().apply {
+                setColor(Color.parseColor("#10293A"))
+                cornerRadius = 16f * density
+                setStroke(dp(1).coerceAtLeast(1), Color.parseColor("#00E5FF"))
+            }
+            addView(TextView(activity).apply {
+                text = "v30.6.1 // INTEGRATED LAB"
+                textSize = 10f
+                setTextColor(Color.parseColor("#00E5FF"))
+            })
+            addView(TextView(activity).apply {
+                text = "통합 설정 · 실차 LAB"
+                textSize = 16f
+                setTextColor(Color.WHITE)
+                setPadding(0, dp(8), 0, dp(3))
+            })
+            addView(TextView(activity).apply {
+                text = "HD 자연음성 · 토큰 입력\n다운미러 · 실내등 · DPI · 계기판 · 앱별 오디오"
+                textSize = 11f
+                setTextColor(Color.parseColor("#B0BEC5"))
+                maxLines = 3
+            })
+            addView(TextView(activity).apply {
+                text = "여기를 눌러 새 기능 설정 열기"
+                textSize = 10f
+                setTextColor(Color.parseColor("#80D8FF"))
+                setPadding(0, dp(10), 0, 0)
+            })
+        }
+        card.addView(body)
+        card.setOnClickListener { showIntegratedDialog(activity, audioManager) }
+        grid.addView(card)
+    }
+
+    private fun showIntegratedDialog(activity: AppCompatActivity, audioManager: VoiceAndSoundManager) {
+        val density = activity.resources.displayMetrics.density
+        val content = LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = (10 * density).toInt()
+            setPadding(pad, pad, pad, (24 * density).toInt())
+            setBackgroundColor(Color.parseColor("#07151F"))
+        }
+
+        content.addView(TextView(activity).apply {
+            text = "v30.6.1 통합 설정"
+            textSize = 20f
+            setTextColor(Color.WHITE)
+        })
+        content.addView(TextView(activity).apply {
+            text = "아래에서 Cloud Run URL/토큰 입력부터 다운미러·실내등·디스플레이·계기판·앱별 오디오 연구 설정까지 모두 확인할 수 있습니다."
+            textSize = 12f
+            setTextColor(Color.parseColor("#B0BEC5"))
+            setPadding(0, (4 * density).toInt(), 0, (8 * density).toInt())
+        })
+
+        attachNaturalVoice(activity, content, audioManager)
+        attachComfortLab(activity, content)
+        attachAppAudioLab(activity, content)
+        attachClusterLab(activity, content)
+        attachDisplayLab(activity, content)
+
+        val scroll = ScrollView(activity).apply {
+            isFillViewport = true
+            addView(content, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        }
+
+        val dialog = AlertDialog.Builder(activity)
+            .setView(scroll)
+            .setNegativeButton("닫기", null)
+            .create()
+        dialog.setOnShowListener {
+            dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        }
+        dialog.show()
+    }
 
     fun attachNaturalVoice(activity: AppCompatActivity, rootView: View, audioManager: VoiceAndSoundManager) {
         val root = rootView as? ViewGroup ?: return
-        val panel = panel(activity, "자연음성 HD 캐시 · v30.6", "Google Chirp 3 HD로 한 번 생성 → 차량 캐시 → 검증된 stream14 운전석 전용 재생. 캐시가 없거나 서버가 끊기면 기존 로컬 TTS로 즉시 fallback 합니다.")
+        val panel = panel(activity, "자연음성 HD 캐시 · v30.6.1", "Google Chirp 3 HD로 한 번 생성 → 차량 캐시 → 검증된 stream14 운전석 전용 재생. 캐시가 없거나 서버가 끊기면 기존 로컬 TTS로 즉시 fallback 합니다.")
         val config = NaturalVoiceCacheManager.getConfig(activity)
 
         val enabled = SwitchCompat(activity).apply {
@@ -188,6 +307,17 @@ object IntegratedBetaUi {
         panel.addView(save)
         panel.addView(status)
         root.addView(panel)
+    }
+
+    private fun findFirstGridLayout(view: View): GridLayout? {
+        if (view is GridLayout) return view
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                val found = findFirstGridLayout(view.getChildAt(i))
+                if (found != null) return found
+            }
+        }
+        return null
     }
 
     private fun panel(context: Context, title: String, description: String): LinearLayout {
