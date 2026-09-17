@@ -41,7 +41,9 @@ jobs:
         python3 ci/apply_v30_5_4_updater_fix.py
         python3 ci/apply_v30_6_integrated_beta.py
         python3 ci/fix_v30_6_compile.py
+        python3 ci/prep_v30_6_2_compat.py
         python3 ci/apply_v30_6_2_runtime_fixes.py
+        python3 ci/fix_v30_6_2_followup.py
 
     - name: Download in-app sherpa-onnx Android runtime
       shell: bash
