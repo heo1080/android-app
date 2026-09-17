@@ -16,11 +16,11 @@ def replace_once(text: str, old: str, new: str, label: str) -> str:
 # ---------------------------------------------------------------------------
 build_path = ROOT / "app/build.gradle.kts"
 build = build_path.read_text(encoding="utf-8")
-build = replace_once(build, "versionCode = 42", "versionCode = 43", "versionCode")
+build = replace_once(build, "versionCode = 42", "versionCode = 44", "versionCode")
 build = replace_once(
     build,
     'versionName = "3.0.12-v30.5.4-api29-updater-fix"',
-    'versionName = "3.1.0-v30.6.0-integrated-beta"',
+    'versionName = "3.1.1-v30.6.1-visible-menu-fix"',
     "versionName",
 )
 build_path.write_text(build, encoding="utf-8")
@@ -78,7 +78,6 @@ diag_path.write_text(diag, encoding="utf-8")
 
 # ---------------------------------------------------------------------------
 # Interior-light OFF fallback: runtime inventory confirms both int and no-arg overloads.
-# ON remains the known int(2) path; we do not invent another command.
 # ---------------------------------------------------------------------------
 light_path = ROOT / "app/src/main/java/com/byd/dolphin/autoassistant/manager/InsideLightManager.kt"
 light = light_path.read_text(encoding="utf-8")
@@ -91,38 +90,32 @@ light = replace_once(
 light_path.write_text(light, encoding="utf-8")
 
 # ---------------------------------------------------------------------------
-# Dynamic UI panels. Existing XML and verified v30 controls remain untouched.
+# v30.6.1 visible integrated menu.
+# v30.6.0 appended panels after full-height legacy ScrollViews, leaving them off-screen.
+# A dedicated dashboard card now opens all new controls in its own scrollable dialog.
 # ---------------------------------------------------------------------------
 main_path = ROOT / "app/src/main/java/com/byd/dolphin/autoassistant/MainActivity.kt"
 main = main_path.read_text(encoding="utf-8")
 main = replace_once(
     main,
-    '''        setupSeatSubScreen()\n        setupVoiceSubScreen()\n        setupSafetyAudioSubScreen()\n        setupHudSubScreen()\n        setupClusterSubScreen()\n''',
-    '''        setupSeatSubScreen()\n        setupVoiceSubScreen()\n        setupSafetyAudioSubScreen()\n        setupHudSubScreen()\n        setupClusterSubScreen()\n''',
-    "main setup anchor",
-)
-# Attach only after all original sub-screen setup code has bound its own controls.
-main = replace_once(
-    main,
     '''        setupDpiAdbSubScreen()\n\n        // 1. 앱 실행 즉시 백그라운드 서비스 및 플로팅 독 가동\n''',
-    '''        setupDpiAdbSubScreen()\n\n        IntegratedBetaUi.attachComfortLab(this, subLayoutComfort)\n        IntegratedBetaUi.attachNaturalVoice(this, subLayoutVoice, audioManager)\n        IntegratedBetaUi.attachAppAudioLab(this, subLayoutSafetyAudio)\n        IntegratedBetaUi.attachClusterLab(this, subLayoutCluster)\n        IntegratedBetaUi.attachDisplayLab(this, subLayoutDpiAdb)\n\n        // 1. 앱 실행 즉시 백그라운드 서비스 및 플로팅 독 가동\n''',
-    "integrated beta UI hook",
+    '''        setupDpiAdbSubScreen()\n\n        IntegratedBetaUi.attachDashboardEntry(this, layoutMainDashboard, audioManager)\n\n        // 1. 앱 실행 즉시 백그라운드 서비스 및 플로팅 독 가동\n''',
+    "v30.6.1 visible integrated menu hook",
 )
 main_path.write_text(main, encoding="utf-8")
 
-# Sanity checks fail the CI early rather than shipping a half-applied beta.
 checks = {
-    "version": '3.1.0-v30.6.0-integrated-beta' in build_path.read_text(encoding="utf-8"),
+    "version": '3.1.1-v30.6.1-visible-menu-fix' in build_path.read_text(encoding="utf-8"),
     "natural cache hook": "NaturalVoiceCacheManager.playCachedOrPrepare" in voice_path.read_text(encoding="utf-8"),
     "mirror gear hook": "MirrorMemoryManager.onGearChanged" in service_path.read_text(encoding="utf-8"),
     "mirror motion hook": "MirrorMemoryManager.onVehicleMotion" in service_path.read_text(encoding="utf-8"),
     "display diagnostics": "DisplayDiagnosticsManager.writeSnapshot" in diag_path.read_text(encoding="utf-8"),
     "feature diagnostics": "VehicleFeatureLabManager.writeSnapshot" in diag_path.read_text(encoding="utf-8"),
-    "integrated UI": "IntegratedBetaUi.attachNaturalVoice" in main_path.read_text(encoding="utf-8"),
+    "visible integrated menu": "IntegratedBetaUi.attachDashboardEntry" in main_path.read_text(encoding="utf-8"),
     "inside light fallback": "OFF no-arg fallback" in light_path.read_text(encoding="utf-8"),
 }
 failed = [name for name, ok in checks.items() if not ok]
 if failed:
-    raise SystemExit("v30.6 sanity check failed: " + ", ".join(failed))
+    raise SystemExit("v30.6.1 sanity check failed: " + ", ".join(failed))
 
-print("v30.6 integrated beta patch applied: " + ", ".join(checks))
+print("v30.6.1 visible-menu patch applied: " + ", ".join(checks))
