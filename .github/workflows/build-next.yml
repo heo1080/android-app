@@ -56,8 +56,8 @@ jobs:
         BADGING="$("$AAPT" dump badging "$APK" | head -n 1)"
         echo "$BADGING"
         echo "$BADGING" | grep -q "name='com.byd.dolphin.autoassistant'"
-        echo "$BADGING" | grep -q "versionCode='105'"
-        echo "$BADGING" | grep -q "v32.2.1"
+        echo "$BADGING" | grep -q "versionCode='106'"
+        echo "$BADGING" | grep -q "v32.3.0"
 
     - name: Decode and validate stable signing keystore
       shell: bash
@@ -85,7 +85,7 @@ jobs:
         export PASS
         APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
         UNSIGNED="nextapp/build/outputs/apk/release/nextapp-release-unsigned.apk"
-        SIGNED="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v32.2.1.apk"
+        SIGNED="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v32.3.0.apk"
         "$APKSIGNER" sign \
           --ks "$RUNNER_TEMP/dolphin-release.jks" \
           --ks-key-alias dolphinassistant \
@@ -94,7 +94,7 @@ jobs:
           --out "$SIGNED" \
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
-        sha256sum "$SIGNED" | tee nextapp/build/outputs/apk/release/DolphinAssistant-Next-v32.2.1.sha256
+        sha256sum "$SIGNED" | tee nextapp/build/outputs/apk/release/DolphinAssistant-Next-v32.3.0.sha256
 
     - name: Publish updater-visible Next release
       shell: bash
@@ -102,25 +102,25 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       run: |
         set -euo pipefail
-        TAG="v32.2.1"
-        APK="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v32.2.1.apk"
-        SHA="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v32.2.1.sha256"
-        NOTES="DolphinAssistant Next v32.2.1 unifies diagnostics and log delivery into one DOLPHIN DIAGNOSTICS / TEST DRIVE flow. It runs TTS -> BEEP -> GEAR -> AUTO HOLD -> REGEN -> DRIVE MODE -> DRIVER AUDIO, reports PASS / FAIL / NO SIGNAL with latency and confidence, detects delayed TTS starting after a beep request, keeps a rolling log buffer, creates a FAIL_ONLY ZIP only when needed, and automatically uploads it to the existing private heo1080/dolphin-diagnostics repository using the preserved v30.5.1 Android Keystore token/prefs. diagnostics/latest.json is updated last. Manual EXPORT ONLY FAILURES appears only as fallback when automatic upload is unavailable or fails. LAB no longer contains separate diagnostic/export controls. Surrounding Vision stays read-only and demand-polled."
+        TAG="v32.3.0"
+        APK="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v32.3.0.apk"
+        SHA="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v32.3.0.sha256"
+        NOTES="DolphinAssistant Next v32.3.0 upgrades TEST DRIVE into combined immediate + retrospective diagnostics. While the app is running it continuously keeps a 90-minute rolling recent-drive record of gear, drive mode, regen, AutoHold raw transitions, BSD events and live alert audio request/start timing. RUN TEST DRIVE snapshots that history first, then runs the existing seven immediate checks: TTS -> BEEP -> GEAR -> AUTO HOLD -> REGEN -> DRIVE MODE -> DRIVER AUDIO. DOLPHIN HEALTH remains the seven immediate checks, with RECENT DRIVE shown separately as OBSERVED / NOT USED / NO SIGNAL / ISSUE so an unused feature is not falsely marked failed. Live audio starts over 2 seconds and live audio errors are flagged as recent-drive ISSUE. Failure ZIPs now include recent_drive.json and recent_drive_events.txt and continue to auto-upload to the private heo1080/dolphin-diagnostics repository. Preview audio is excluded from normal-drive timing. VERIFIED/BETA classifications and stale-signal handling are preserved."
 
         if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
           gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
-          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant Next v32.2.1" --notes "$NOTES"
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant Next v32.3.0" --notes "$NOTES"
         else
           gh release create "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" \
-            --target "$GITHUB_SHA" --title "DolphinAssistant Next v32.2.1" --notes "$NOTES"
+            --target "$GITHUB_SHA" --title "DolphinAssistant Next v32.3.0" --notes "$NOTES"
         fi
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-Next-v32.2.1
+        name: DolphinAssistant-Next-v32.3.0
         path: |
-          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v32.2.1.apk
-          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v32.2.1.sha256
+          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v32.3.0.apk
+          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v32.3.0.sha256
         if-no-files-found: error
         retention-days: 30
