@@ -46,7 +46,16 @@ class VehicleRepository(context: Context) {
         val gearRaw = gateway.readNumber(BydGateway.GEARBOX, "getCurrentGear")?.toInt()
         val instrumentDriveRaw = gateway.readNumber(BydGateway.INSTRUMENT, "getCurrentDriveInterFace")?.toInt()
         val operationRaw = gateway.readNumber(BydGateway.ENERGY, "getOperationMode")?.toInt()
-        val regenRaw = gateway.readNumber(BydGateway.SETTING, "getEnergyFeedback")?.toInt()
+        val regenSettingRaw = gateway.readNumber(BydGateway.SETTING, "getEnergyFeedback")?.toInt()
+        val regenInstrumentRaw = gateway.readNumber(BydGateway.INSTRUMENT, "getEnergyFeedback")?.toInt()
+        val regenRaw = when {
+            regenSettingRaw == 1 || regenSettingRaw == 2 -> regenSettingRaw
+            regenInstrumentRaw == 1 || regenInstrumentRaw == 2 -> {
+                NextLogger.w("SIGNAL", "regen using Instrument fallback raw=" + regenInstrumentRaw)
+                regenInstrumentRaw
+            }
+            else -> null
+        }
         val snowRaw = gateway.readNumber(BydGateway.ENERGY, "getRoadSurfaceMode")?.toInt()
         val avhRaw = gateway.readNumber(BydGateway.ADAS, "getAVHState")?.toInt()
         val iccRaw = gateway.readNumber(BydGateway.ADAS, "getTJAState")?.toInt()
@@ -55,6 +64,12 @@ class VehicleRepository(context: Context) {
         val speed = gateway.readNumber(BydGateway.SPEED, "getCurrentSpeed")?.toDouble()
         val brake = gateway.readNumber(BydGateway.SPEED, "getBrakeDeepness")?.toInt()
         val accel = gateway.readNumber(BydGateway.SPEED, "getAccelerateDeepness")?.toInt()
+        val epbRaw = gateway.readNumber(BydGateway.GEARBOX, "getEPBState")?.toInt()
+        val epbApplied = when (epbRaw) {
+            1 -> false
+            3 -> true
+            else -> null
+        }
         val visionActive = surroundingVisionActive
         val panoramaWorkRaw = if (visionActive) {
             gateway.readNumber(BydGateway.PANORAMA, "getPanoWorkState")?.toInt()
@@ -114,6 +129,7 @@ class VehicleRepository(context: Context) {
             driverHeat = driverHeat,
             passengerHeat = passengerHeat,
             steeringHeat = steeringHeat,
+            epbApplied = next(previous.epbApplied, epbApplied, epbRaw, Confidence.VERIFIED, now),
             panoramaWork = next(previous.panoramaWork, panoramaWorkRaw, panoramaWorkRaw, Confidence.BETA, now),
             panoramaOutput = next(previous.panoramaOutput, panoramaOutputRaw, panoramaOutputRaw, Confidence.BETA, now),
             parkingSensors = buildParkingSensors(
