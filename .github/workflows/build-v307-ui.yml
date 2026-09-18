@@ -45,6 +45,7 @@ jobs:
         python3 ci/apply_v30_6_3_live_fixes.py
         python3 ci/fix_v30_6_3_font_current_user.py
         python3 ci/apply_v30_7_ui_reset.py
+        python3 ci/apply_v30_7_1_audio_profiles.py
 
     - name: Download in-app sherpa-onnx Android runtime
       shell: bash
@@ -75,7 +76,7 @@ jobs:
         DOLPHIN_KS_PASS="$(printf '%s' "$DOLPHIN_KEYSTORE_PASSWORD" | tr -d '\r\n')"
         keytool -list -keystore "$KEYSTORE" -storepass "$DOLPHIN_KS_PASS" -alias dolphinassistant >/dev/null
 
-    - name: Sign v30.7.0 UI preview APK
+    - name: Sign v30.7.1 audio studio APK
       shell: bash
       env:
         DOLPHIN_KEYSTORE_PASSWORD: ${{ secrets.DOLPHIN_KEYSTORE_PASSWORD }}
@@ -85,7 +86,7 @@ jobs:
         export DOLPHIN_KS_PASS
         APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
         UNSIGNED="app/build/outputs/apk/release/app-release-unsigned.apk"
-        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v30.7.0-ui-preview.apk"
+        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v30.7.1-audio-studio.apk"
         "$APKSIGNER" sign \
           --ks "$RUNNER_TEMP/dolphin-release.jks" \
           --ks-key-alias dolphinassistant \
@@ -94,14 +95,14 @@ jobs:
           --out "$SIGNED" \
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
-        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.7.0-ui-preview.sha256
+        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.7.1-audio-studio.sha256
 
     - name: Upload signed UI preview
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-v30.7.0-UI-Preview
+        name: DolphinAssistant-v30.7.1-Audio-Studio
         path: |
-          app/build/outputs/apk/release/DolphinAssistant-v30.7.0-ui-preview.apk
-          app/build/outputs/apk/release/DolphinAssistant-v30.7.0-ui-preview.sha256
+          app/build/outputs/apk/release/DolphinAssistant-v30.7.1-audio-studio.apk
+          app/build/outputs/apk/release/DolphinAssistant-v30.7.1-audio-studio.sha256
         if-no-files-found: error
         retention-days: 30
