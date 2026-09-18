@@ -51,6 +51,7 @@ import com.byd.dolphin.autoassistant.next.integrated.IntegratedSettings
 import com.byd.dolphin.autoassistant.next.integrated.MirrorSeatLab
 import com.byd.dolphin.autoassistant.next.integrated.VehicleActionController
 import com.byd.dolphin.autoassistant.next.overlay.QuickDockOverlay
+import com.byd.dolphin.autoassistant.next.permissions.NotificationAccessBridge
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -305,11 +306,13 @@ fun IntegratedDisplayPanel() {
                 hudAuto = !hudAuto
                 IntegratedSettings.setHudAutoForward(context, hudAuto)
             }
-            SmallButton("알림 접근 설정", IFCyan) {
-                context.startActivity(
-                    Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
+            SmallButton("알림/TBT 권한 확인", IFCyan) {
+                scope.launch {
+                    status = withContext(Dispatchers.IO) {
+                        val result = NotificationAccessBridge.ensure(context)
+                        "알림/TBT 권한=" + result.enabled + " · " + result.detail
+                    }
+                }
             }
         }
         StatusText(status)
@@ -373,11 +376,13 @@ fun IntegratedAutomationPanel() {
                 BootAutomationController(context).testNow()
                 status = "현재 규칙으로 즉시 테스트 시작 · 미디어 앱은 전면 실행 없이 MEDIA_BG 경로 사용"
             }
-            SmallButton("미디어 세션 접근", IFCyan) {
-                context.startActivity(
-                    Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
+            SmallButton("미디어 세션 권한 확인", IFCyan) {
+                scope.launch {
+                    status = withContext(Dispatchers.IO) {
+                        val result = NotificationAccessBridge.ensure(context)
+                        "미디어 세션 권한=" + result.enabled + " · " + result.detail
+                    }
+                }
             }
         }
         Spacer(Modifier.height(10.dp))
