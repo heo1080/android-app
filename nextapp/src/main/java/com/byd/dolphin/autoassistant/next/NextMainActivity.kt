@@ -8,6 +8,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.byd.dolphin.autoassistant.next.audio.NextAudioEngine
 import com.byd.dolphin.autoassistant.next.core.NextLogger
+import com.byd.dolphin.autoassistant.next.diagnostics.DolphinDiagnostics
 import com.byd.dolphin.autoassistant.next.events.NextEventEngine
 import com.byd.dolphin.autoassistant.next.ui.NextApp
 import com.byd.dolphin.autoassistant.next.vehicle.VehicleRepository
@@ -16,6 +17,7 @@ class NextMainActivity : ComponentActivity() {
     private lateinit var repository: VehicleRepository
     private lateinit var audio: NextAudioEngine
     private lateinit var events: NextEventEngine
+    private lateinit var diagnostics: DolphinDiagnostics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,11 +32,16 @@ class NextMainActivity : ComponentActivity() {
         repository = VehicleRepository(this)
         audio = NextAudioEngine(this)
         events = NextEventEngine(repository, audio)
+        diagnostics = DolphinDiagnostics(this, repository, audio)
         repository.start()
         events.start()
 
         setContent {
-            NextApp(repository = repository, audio = audio)
+            NextApp(
+                repository = repository,
+                audio = audio,
+                diagnostics = diagnostics
+            )
         }
     }
 
