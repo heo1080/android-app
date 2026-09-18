@@ -1,6 +1,5 @@
 package com.byd.dolphin.autoassistant.next.update
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Intent
@@ -8,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.ComponentComponentActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.byd.dolphin.autoassistant.BuildConfig
@@ -33,7 +33,7 @@ object NextUpdater {
         val shaUrl: String
     )
 
-    fun check(activity: Activity, manual: Boolean = true) {
+    fun check(activity: ComponentActivity, manual: Boolean = true) {
         activity.lifecycleScope.launch {
             val result = withContext(Dispatchers.IO) { runCatching { latestRelease() } }
             val release = result.getOrElse {
@@ -71,14 +71,14 @@ object NextUpdater {
         }
     }
 
-    private fun begin(activity: Activity, release: Release) {
+    private fun begin(activity: ComponentActivity, release: Release) {
         if (!activity.packageManager.canRequestPackageInstalls()) {
             AlertDialog.Builder(activity)
                 .setTitle("업데이트 설치 권한")
                 .setMessage("DolphinAssistant가 내려받은 APK를 설치하려면 이 출처 허용이 필요합니다.")
                 .setNegativeButton("취소", null)
                 .setPositiveButton("설정 열기") { _, _ ->
-                    activity.startActivity(
+                    activity.startComponentActivity(
                         Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
                             Uri.parse("package:" + activity.packageName))
                     )
@@ -153,7 +153,7 @@ object NextUpdater {
         return Release(root.optString("tag_name"), name, url, sha)
     }
 
-    private fun downloadAndVerify(activity: Activity, release: Release): File {
+    private fun downloadAndVerify(activity: ComponentActivity, release: Release): File {
         val expected = Regex("(?i)\\b[0-9a-f]{64}\\b")
             .find(httpText(release.shaUrl))?.value?.lowercase()
             ?: error("SHA-256 형식 오류")
@@ -168,7 +168,7 @@ object NextUpdater {
     }
 
     @Suppress("DEPRECATION")
-    private fun verifyPackageAndSigner(activity: Activity, file: File) {
+    private fun verifyPackageAndSigner(activity: ComponentActivity, file: File) {
         val pm = activity.packageManager
         val archive = pm.getPackageArchiveInfo(file.absolutePath, PackageManager.GET_SIGNING_CERTIFICATES)
             ?: error("APK 패키지 정보를 읽지 못했습니다.")
@@ -184,13 +184,13 @@ object NextUpdater {
         }
     }
 
-    private fun openInstaller(activity: Activity, file: File) {
+    private fun openInstaller(activity: ComponentActivity, file: File) {
         val uri = FileProvider.getUriForFile(
             activity,
             activity.packageName + ".fileprovider",
             file
         )
-        activity.startActivity(Intent(Intent.ACTION_VIEW).apply {
+        activity.startComponentActivity(Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "application/vnd.android.package-archive")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         })
