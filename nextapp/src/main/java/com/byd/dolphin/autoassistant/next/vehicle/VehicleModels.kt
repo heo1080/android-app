@@ -35,6 +35,7 @@ data class VehicleState(
     val driverHeat: SignalValue<Int> = SignalValue(null),
     val passengerHeat: SignalValue<Int> = SignalValue(null),
     val steeringHeat: SignalValue<Boolean> = SignalValue(null),
+    val epbApplied: SignalValue<Boolean> = SignalValue(null),
     val panoramaWork: SignalValue<Int> = SignalValue(null),
     val panoramaOutput: SignalValue<Int> = SignalValue(null),
     val parkingSensors: List<ParkingSensorSample> = emptyList(),
