@@ -2,6 +2,7 @@ package com.byd.dolphin.autoassistant.next
 
 import android.content.Context
 import com.byd.dolphin.autoassistant.next.audio.NextAudioEngine
+import com.byd.dolphin.autoassistant.next.capability.CapabilityRouter
 import com.byd.dolphin.autoassistant.next.core.NextLogger
 import com.byd.dolphin.autoassistant.next.diagnostics.DolphinDiagnostics
 import com.byd.dolphin.autoassistant.next.diagnostics.RecentDriveRecorder
@@ -42,6 +43,7 @@ object NextRuntime {
         launcherVehicleInfo = LauncherVehicleInfoRepository(app)
 
         repository.start()
+        CapabilityRouter.start(app)
         audio.warmup()
         events.start()
         recentDrive.start()
