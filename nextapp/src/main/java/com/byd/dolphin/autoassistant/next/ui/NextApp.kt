@@ -172,7 +172,7 @@ private fun RailMenu(current: Page, onSelect: (Page) -> Unit) {
         }
         Spacer(Modifier.height(8.dp))
         Text("DolphinAssistant", color = TextMain, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-        Text("NEXT · v32", color = Cyan, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+        Text("NEXT · v33", color = Cyan, fontSize = 9.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(18.dp))
 
         Page.entries.forEach { item ->
@@ -514,7 +514,7 @@ private fun DiagnosticsPanel(
                 )
                 Text(
                     if (diag.running) "원터치 진단 실행 중"
-                    else if (diag.total == 0) "최근 주행 자동 기록 중 · TEST DRIVE = 최근 주행 분석 + 즉시 7개 검사"
+                    else if (diag.total == 0) "최근 주행 자동 기록 중 · TEST DRIVE = 최근 주행 분석 + 핵심 상태/오디오 검사"
                     else "마지막 진단 · 실패/NO SIGNAL " + diag.failures + "건",
                     color = TextMuted,
                     fontSize = 10.sp
