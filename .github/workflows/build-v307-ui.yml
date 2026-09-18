@@ -98,7 +98,7 @@ jobs:
         sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.7.2-update-channel.sha256
 
 
-    - name: Publish updater-visible prerelease
+    - name: Publish updater-visible release
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
@@ -116,7 +116,7 @@ jobs:
           gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
           gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant $TAG" --notes "$NOTES"
         else
-          gh release create "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "DolphinAssistant $TAG Preview" --notes "$NOTES" --prerelease
+          gh release create "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "DolphinAssistant $TAG" --notes "$NOTES"
         fi
 
     - name: Upload signed UI preview
