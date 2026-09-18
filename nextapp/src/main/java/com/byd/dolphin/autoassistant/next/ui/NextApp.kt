@@ -29,6 +29,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -115,7 +116,7 @@ fun NextApp(repository: VehicleRepository, audio: NextAudioEngine) {
                     Spacer(Modifier.height(14.dp))
                     when (page) {
                         Page.HOME -> HomePage(state = state, onGo = { page = it })
-                        Page.DRIVE -> DrivePage(state = state, onAudio = { page = Page.AUDIO })
+                        Page.DRIVE -> DrivePage(state = state, repository = repository, onAudio = { page = Page.AUDIO })
                         Page.VEHICLE -> VehiclePage(state = state, repository = repository)
                         Page.AUDIO -> key(settingsEpoch) {
                             AudioPage(
@@ -269,7 +270,12 @@ private fun HomePage(state: VehicleState, onGo: (Page) -> Unit) {
 }
 
 @Composable
-private fun DrivePage(state: VehicleState, onAudio: () -> Unit) {
+private fun DrivePage(state: VehicleState, repository: VehicleRepository, onAudio: () -> Unit) {
+    DisposableEffect(repository) {
+        repository.setSurroundingVisionActive(true)
+        onDispose { repository.setSurroundingVisionActive(false) }
+    }
+
     Banner("이 화면은 감지 상태만 보여줍니다. 비프/TTS 종류와 문구는 오디오 · 경고에서만 설정합니다.")
 
     Section("FSD / Surrounding Vision")
