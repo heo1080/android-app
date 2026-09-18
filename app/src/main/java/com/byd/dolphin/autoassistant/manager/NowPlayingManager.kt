@@ -52,7 +52,7 @@ class NowPlayingManager(context: Context) {
         val raw = runCatching {
             Settings.Secure.getString(
                 app.contentResolver,
-                Settings.Secure.ENABLED_NOTIFICATION_LISTENERS
+                "enabled_notification_listeners"
             )
         }.getOrNull().orEmpty()
 
