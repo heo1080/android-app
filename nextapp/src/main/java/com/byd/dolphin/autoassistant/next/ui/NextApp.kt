@@ -201,7 +201,7 @@ private fun RailMenu(current: Page, onSelect: (Page) -> Unit) {
         }
         Spacer(Modifier.height(8.dp))
         Text("DolphinAssistant", color = TextMain, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-        Text("NEXT · v33", color = Cyan, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+        Text("NEXT · v34", color = Cyan, fontSize = 9.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(18.dp))
 
         Page.entries.forEach { item ->
