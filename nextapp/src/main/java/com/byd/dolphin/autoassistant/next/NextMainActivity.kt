@@ -10,6 +10,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.byd.dolphin.autoassistant.next.automation.NextRuntimeService
 import com.byd.dolphin.autoassistant.next.core.NextLogger
+import com.byd.dolphin.autoassistant.next.launcher.LauncherNavigationBus
 import com.byd.dolphin.autoassistant.next.ui.NextApp
 
 class NextMainActivity : ComponentActivity() {
@@ -24,6 +25,7 @@ class NextMainActivity : ComponentActivity() {
         }
 
         NextRuntime.start(this)
+        LauncherNavigationBus.requestHome(intent?.getStringExtra("launcher_reason") ?: "activity_create")
         ContextCompat.startForegroundService(
             this,
             Intent(this, NextRuntimeService::class.java)
@@ -38,4 +40,11 @@ class NextMainActivity : ComponentActivity() {
         }
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        LauncherNavigationBus.requestHome(
+            intent?.getStringExtra("launcher_reason") ?: "home_or_relaunch"
+        )
+    }
 }
