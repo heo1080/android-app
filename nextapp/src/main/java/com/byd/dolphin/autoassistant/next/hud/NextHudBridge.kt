@@ -154,12 +154,26 @@ object NextHudBridge {
     }
 
     fun clearCluster(context: Context) {
-        if (!IntegratedSettings.clusterTbtEnabled(context)) return
         runCatching {
             val device = instrument(context)
             val result = invokeInt(device, "sendAutoNaviStatus", 4)
             NextLogger.i("CLUSTER_TBT", "clear result=" + result)
         }.onFailure { NextLogger.e("CLUSTER_TBT", "clear failed", it.cause ?: it) }
+    }
+
+    fun sendClusterTest(context: Context): Pair<Boolean, String> = runCatching {
+        val device = instrument(context)
+        val status = invokeInt(device, "sendAutoNaviStatus", 2)
+        val guidance = invokeInt(device, "sendSimpleGuidanceInfo", 7, 300)
+        val road = invokeString(device, "sendNextPathName", "Dolphin Cluster Test")
+        val ok = listOf(status, guidance, road).any { it != Int.MIN_VALUE }
+        val detail = "status=" + status + " guidance=" + guidance + " road=" + road
+        NextLogger.i("CLUSTER_TBT", "manual test " + detail)
+        ok to detail
+    }.getOrElse {
+        val detail = (it.cause ?: it).javaClass.simpleName + ":" + (it.cause ?: it).message
+        NextLogger.e("CLUSTER_TBT", "manual test failed", it.cause ?: it)
+        false to detail
     }
 
     fun clusterCapability(context: Context): String = runCatching {
