@@ -1,10 +1,8 @@
 package com.byd.dolphin.autoassistant.next.automation
 
 import android.content.Context
-import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
-import android.view.KeyEvent
 import com.byd.dolphin.autoassistant.next.core.NextLogger
 import com.byd.dolphin.autoassistant.next.integrated.BootAppRule
 import com.byd.dolphin.autoassistant.next.integrated.IntegratedSettings
@@ -23,14 +21,18 @@ class BootAutomationController(context: Context) {
             .filter { it.enabled && it.packageName.isNotBlank() }
             .sortedBy { it.delaySeconds }
         NextLogger.i("BOOT_AUTO", "rules=" + rules.size)
+
         rules.forEach { rule ->
             schedule(rule.delaySeconds) {
                 if (!active) return@schedule
-                launch(rule)
+
                 if (rule.mediaPlay) {
+                    prepareBackgroundMedia(rule)
                     schedule(rule.mediaDelaySeconds) {
-                        if (active) playMedia(rule)
+                        if (active) playBackgroundMedia(rule)
                     }
+                } else {
+                    launchForeground(rule)
                 }
             }
         }
@@ -39,11 +41,12 @@ class BootAutomationController(context: Context) {
     fun onIgnitionOff() {
         active = false
         cancel()
+        BackgroundMediaPlaybackController.release()
     }
 
     fun testNow() = onIgnitionOn()
 
-    private fun launch(rule: BootAppRule) {
+    private fun launchForeground(rule: BootAppRule) {
         val pkg = rule.packageName
         var launched = false
         if (NextAdb.isPortOpen()) {
@@ -61,16 +64,41 @@ class BootAutomationController(context: Context) {
                 true
             }.getOrDefault(false)
         }
-        NextLogger.i("BOOT_AUTO", "launch " + rule.label + " pkg=" + pkg + " ok=" + launched)
+        NextLogger.i(
+            "BOOT_AUTO",
+            "foreground launch label=" + rule.label + " pkg=" + pkg + " ok=" + launched
+        )
     }
 
-    private fun playMedia(rule: BootAppRule) {
-        val audio = app.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val eventDown = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY)
-        val eventUp = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY)
-        audio.dispatchMediaKeyEvent(eventDown)
-        audio.dispatchMediaKeyEvent(eventUp)
-        NextLogger.i("BOOT_AUTO", "media PLAY sent for " + rule.label)
+    private fun prepareBackgroundMedia(rule: BootAppRule) {
+        NextLogger.i(
+            "BOOT_AUTO",
+            "media background prepare label=" + rule.label +
+                " pkg=" + rule.packageName +
+                " playDelay=" + rule.mediaDelaySeconds
+        )
+        BackgroundMediaPlaybackController.prepare(app, rule.packageName) { result ->
+            NextLogger.i(
+                "BOOT_AUTO",
+                "media prepare label=" + rule.label +
+                    " success=" + result.success +
+                    " stage=" + result.stage +
+                    " detail=" + result.detail
+            )
+        }
+    }
+
+    private fun playBackgroundMedia(rule: BootAppRule) {
+        BackgroundMediaPlaybackController.play(app, rule.packageName) { result ->
+            NextLogger.i(
+                "BOOT_AUTO",
+                "media background PLAY label=" + rule.label +
+                    " pkg=" + rule.packageName +
+                    " success=" + result.success +
+                    " stage=" + result.stage +
+                    " detail=" + result.detail
+            )
+        }
     }
 
     private fun schedule(seconds: Double, action: () -> Unit) {
