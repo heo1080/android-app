@@ -40,11 +40,11 @@ class NextMainActivity : ComponentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         LauncherNavigationBus.requestHome(
-            intent?.getStringExtra("launcher_reason") ?: "home_or_relaunch"
+            intent.getStringExtra("launcher_reason") ?: "home_or_relaunch"
         )
     }
 }
