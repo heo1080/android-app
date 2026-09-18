@@ -101,7 +101,8 @@ object SettingsManager {
     private const val KEY_PHRASE_DRIVE_ECO = "key_phrase_drive_eco"
     private const val KEY_PHRASE_DRIVE_NORMAL = "key_phrase_drive_normal"
     private const val KEY_PHRASE_DRIVE_SPORT = "key_phrase_drive_sport"
-    private const val KEY_PHRASE_REGEN_ECO = "key_phrase_regen_eco"
+    private const val KEY_PHRASE_REGEN_STANDARD = "key_phrase_regen_standard"
+    private const val KEY_PHRASE_REGEN_ECO_LEGACY = "key_phrase_regen_eco"
     private const val KEY_PHRASE_REGEN_HIGH = "key_phrase_regen_high"
     private const val KEY_PHRASE_SNOW_MODE = "key_phrase_snow_mode"
 
@@ -114,6 +115,7 @@ object SettingsManager {
     private const val KEY_PHRASE_EPB_ON = "key_phrase_epb_on"
     private const val KEY_PHRASE_EPB_OFF = "key_phrase_epb_off"
     private const val KEY_PHRASE_ICC_ON = "key_phrase_icc_on"
+    private const val KEY_PHRASE_ICC_OFF = "key_phrase_icc_off"
     private const val KEY_PHRASE_LEADING_CAR = "key_phrase_leading_car"
 
     // 충전: 시작 vs 종료 분리
@@ -258,11 +260,17 @@ object SettingsManager {
         return if (regen.contains("HIGH", ignoreCase = true)) {
             prefs.getString(KEY_PHRASE_REGEN_HIGH, "회생제동 하이") ?: "회생제동 하이"
         } else {
-            prefs.getString(KEY_PHRASE_REGEN_ECO, "회생제동 에코") ?: "회생제동 에코"
+            when {
+                prefs.contains(KEY_PHRASE_REGEN_STANDARD) ->
+                    prefs.getString(KEY_PHRASE_REGEN_STANDARD, "회생제동 스탠다드") ?: "회생제동 스탠다드"
+                prefs.contains(KEY_PHRASE_REGEN_ECO_LEGACY) ->
+                    prefs.getString(KEY_PHRASE_REGEN_ECO_LEGACY, "회생제동 스탠다드") ?: "회생제동 스탠다드"
+                else -> "회생제동 스탠다드"
+            }
         }
     }
     fun setRegenModePhrase(context: Context, regen: String, phrase: String) {
-        val key = if (regen.contains("HIGH", ignoreCase = true)) KEY_PHRASE_REGEN_HIGH else KEY_PHRASE_REGEN_ECO
+        val key = if (regen.contains("HIGH", ignoreCase = true)) KEY_PHRASE_REGEN_HIGH else KEY_PHRASE_REGEN_STANDARD
         getPrefs(context).edit().putString(key, phrase).apply()
     }
 
@@ -314,8 +322,17 @@ object SettingsManager {
         getPrefs(context).edit().putString(key, phrase).apply()
     }
 
-    fun getIccPhrase(context: Context): String = getPrefs(context).getString(KEY_PHRASE_ICC_ON, "자율주행이 켜졌습니다.") ?: "자율주행이 켜졌습니다."
-    fun setIccPhrase(context: Context, phrase: String) = getPrefs(context).edit().putString(KEY_PHRASE_ICC_ON, phrase).apply()
+    fun getIccPhrase(context: Context, isActive: Boolean): String {
+        val key = if (isActive) KEY_PHRASE_ICC_ON else KEY_PHRASE_ICC_OFF
+        val fallback = if (isActive) "자율주행 ON" else "자율주행 OFF"
+        return getPrefs(context).getString(key, fallback) ?: fallback
+    }
+    fun setIccPhrase(context: Context, isActive: Boolean, phrase: String) {
+        val key = if (isActive) KEY_PHRASE_ICC_ON else KEY_PHRASE_ICC_OFF
+        getPrefs(context).edit().putString(key, phrase).apply()
+    }
+    fun getIccPhrase(context: Context): String = getIccPhrase(context, true)
+    fun setIccPhrase(context: Context, phrase: String) = setIccPhrase(context, true, phrase)
 
     fun getLeadingCarPhrase(context: Context): String = getPrefs(context).getString(KEY_PHRASE_LEADING_CAR, "전방 차량이 출발했습니다.") ?: "전방 차량이 출발했습니다."
     fun setLeadingCarPhrase(context: Context, phrase: String) = getPrefs(context).edit().putString(KEY_PHRASE_LEADING_CAR, phrase).apply()
