@@ -17,10 +17,10 @@ def require(text, needle, label):
 
 # Final recovery version is applied after every historical compatibility patch.
 p, text = read("app/build.gradle.kts")
-text = re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 48', text, count=1)
+text = re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 100', text, count=1)
 text = re.sub(
     r'versionName\s*=\s*"[^"]+"',
-    'versionName = "3.2.2-v32.2.0-regression-recovery"',
+    'versionName = "3.4.3-v34.3.0-premium-hmi"',
     text,
     count=1,
 )
