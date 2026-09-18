@@ -1,12 +1,15 @@
 package com.byd.dolphin.autoassistant.manager
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.service.notification.NotificationListenerService
 import androidx.core.app.NotificationManagerCompat
+import com.byd.dolphin.autoassistant.hud.MultiNavNotificationListener
 import com.byd.dolphin.autoassistant.util.DolphinLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +24,9 @@ object AdbPermissionManager {
     private const val TAG = "AdbPermissionManager"
 
     private val SYSTEM_GRANT_PERMISSIONS = listOf(
-        "android.permission.WRITE_SECURE_SETTINGS"
+        "android.permission.WRITE_SECURE_SETTINGS",
+        "android.permission.MEDIA_CONTENT_CONTROL",
+        "android.permission.MODIFY_AUDIO_ROUTING"
     )
 
     // COMMON 권한만 pm grant 가능한 런타임 권한이다. GET/SET은 이 차량에서
@@ -33,6 +38,7 @@ object AdbPermissionManager {
         "android.permission.BYDAUTO_BODYWORK_COMMON",
         "android.permission.BYDAUTO_LIGHT_COMMON",
         "android.permission.BYDAUTO_RADAR_COMMON",
+        "android.permission.BYDAUTO_TYRE_COMMON",
         "android.permission.BYDAUTO_INSTRUMENT_COMMON"
     )
 
@@ -132,6 +138,8 @@ object AdbPermissionManager {
             // pm grant 하나가 실패해도 appops/알림 리스너는 반드시 별도로 계속 실행한다.
             val supplementalCommands = listOf(
                 "appops set $pkg SYSTEM_ALERT_WINDOW allow",
+                "appops set $pkg GET_USAGE_STATS allow",
+                "appops set $pkg RUN_IN_BACKGROUND allow",
                 "cmd notification allow_listener $pkg/.hud.MultiNavNotificationListener"
             )
             for (command in supplementalCommands) {
@@ -140,6 +148,15 @@ object AdbPermissionManager {
                     failureCount++
                     failures += "$command=${result.message.take(180)}"
                 }
+            }
+
+            runCatching {
+                NotificationListenerService.requestRebind(
+                    ComponentName(context, MultiNavNotificationListener::class.java)
+                )
+                DolphinLogger.i(TAG, "notification listener rebind requested")
+            }.onFailure {
+                DolphinLogger.w(TAG, "notification listener rebind failed: ${it.message}")
             }
 
             // 실제 앱 프로세스 기준으로 최종 권한 상태를 재검사한다.

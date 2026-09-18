@@ -865,7 +865,7 @@ class VoiceAndSoundManager(private val context: Context) : TextToSpeech.OnInitLi
     fun speakAutoHoldBrake(isEngaged: Boolean) { if (SettingsManager.isAutoHoldVoiceEnabled(context)) speak(SettingsManager.getAutoHoldBrakePhrase(context, isEngaged)) }
     fun speakAutoHold(isActive: Boolean) = speakAutoHoldBrake(isActive)
     fun speakEpb(isEngaged: Boolean) { if (SettingsManager.isEpbVoiceEnabled(context)) speak(SettingsManager.getEpbPhrase(context, isEngaged)) }
-    fun speakIcc(isActive: Boolean) { if (SettingsManager.isIccVoiceEnabled(context)) speak(SettingsManager.getIccPhrase(context)) }
+    fun speakIcc(isActive: Boolean) { if (SettingsManager.isIccVoiceEnabled(context)) speak(SettingsManager.getIccPhrase(context, isActive)) }
     fun speakLeadingCarDeparture() { if (SettingsManager.isLeadingCarVoiceEnabled(context)) speak(SettingsManager.getLeadingCarPhrase(context)) }
     fun speakChargingStart() { if (SettingsManager.isChargingVoiceEnabled(context)) speak(SettingsManager.getChargingStartPhrase(context)) }
     fun speakChargingEnd() { if (SettingsManager.isChargingVoiceEnabled(context)) speak(SettingsManager.getChargingEndPhrase(context)) }

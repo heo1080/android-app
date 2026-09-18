@@ -3,14 +3,31 @@ package com.byd.dolphin.autoassistant.hud
 import android.os.Bundle
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import com.byd.dolphin.autoassistant.manager.MediaNotificationCache
 import com.byd.dolphin.autoassistant.util.DolphinLogger
 
 class MultiNavNotificationListener : NotificationListenerService() {
     private val activeGuidanceNotifications = mutableSetOf<String>()
 
+    override fun onListenerConnected() {
+        super.onListenerConnected()
+        val active = runCatching { activeNotifications?.toList().orEmpty() }.getOrDefault(emptyList())
+        DolphinLogger.i("MULTI_NAV", "notification listener connected active=${active.size}")
+        active.forEach { posted ->
+            runCatching { handlePosted(posted) }
+                .onFailure { DolphinLogger.w("MULTI_NAV", "active notification replay failed: ${it.message}") }
+        }
+    }
+
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        val pkg = sbn?.packageName ?: return
-        val notification = sbn.notification ?: return
+        val posted = sbn ?: return
+        handlePosted(posted)
+    }
+
+    private fun handlePosted(posted: StatusBarNotification) {
+        MediaNotificationCache.onPosted(this, posted)
+        val pkg = posted.packageName
+        val notification = posted.notification ?: return
         val channelId = notification.channelId ?: ""
         if (!NavGuidanceParser.isNavApp(pkg, channelId)) return
 
@@ -24,15 +41,17 @@ class MultiNavNotificationListener : NotificationListenerService() {
         DolphinLogger.i("MULTI_NAV", "pkg=$pkg channel=$channelId extras=[$keyTypes]")
         DolphinLogger.logNavigationNotification(this, "MULTI_NAV", pkg, title, richText, subText)
         if (NavGuidanceParser.parseAndForward(this, pkg, title, richText, subText)) {
-            synchronized(activeGuidanceNotifications) { activeGuidanceNotifications += notificationKey(sbn) }
+            synchronized(activeGuidanceNotifications) { activeGuidanceNotifications += notificationKey(posted) }
         }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        val pkg = sbn?.packageName ?: return
+        val removedNotification = sbn ?: return
+        MediaNotificationCache.onRemoved(removedNotification)
+        val pkg = removedNotification.packageName
         if (NavGuidanceParser.isNavApp(pkg)) {
             val shouldClear = synchronized(activeGuidanceNotifications) {
-                val removed = activeGuidanceNotifications.remove(notificationKey(sbn))
+                val removed = activeGuidanceNotifications.remove(notificationKey(removedNotification))
                 removed && activeGuidanceNotifications.isEmpty()
             }
             if (shouldClear) {

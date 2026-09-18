@@ -32,7 +32,7 @@ jobs:
     - name: Grant Execute Permission for Gradlew
       run: chmod +x gradlew
 
-    - name: Apply v32.2.0 command center + regression recovery
+    - name: Apply v34.3.0 command center + regression recovery
       run: |
         python3 ci/apply_v30_5.py
         python3 ci/fix_v30_5_1.py
@@ -66,7 +66,7 @@ jobs:
     - name: Upload unsigned Release APK for recovery signing
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-v32.2.0-Unsigned
+        name: DolphinAssistant-v34.3.0-Unsigned
         path: app/build/outputs/apk/release/app-release-unsigned.apk
         if-no-files-found: error
         retention-days: 7
@@ -97,7 +97,7 @@ jobs:
           -alias dolphinassistant >/dev/null
         echo "Stable keystore password/alias preflight OK"
 
-    - name: Sign v32.2.0 stable APK
+    - name: Sign v34.3.0 stable APK
       if: github.event_name != 'pull_request'
       shell: bash
       env:
@@ -109,7 +109,7 @@ jobs:
         APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
         test -x "$APKSIGNER"
         UNSIGNED="app/build/outputs/apk/release/app-release-unsigned.apk"
-        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v32.2.0-stable.apk"
+        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v34.3.0-stable.apk"
         test -s "$UNSIGNED"
         "$APKSIGNER" sign \
           --ks "$RUNNER_TEMP/dolphin-release.jks" \
@@ -119,37 +119,37 @@ jobs:
           --out "$SIGNED" \
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
-        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v32.2.0-stable.sha256
+        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v34.3.0-stable.sha256
 
     - name: Upload stable APK artifact
       if: github.event_name != 'pull_request'
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-v32.2.0-Stable
+        name: DolphinAssistant-v34.3.0-Stable
         path: |
-          app/build/outputs/apk/release/DolphinAssistant-v32.2.0-stable.apk
-          app/build/outputs/apk/release/DolphinAssistant-v32.2.0-stable.sha256
+          app/build/outputs/apk/release/DolphinAssistant-v34.3.0-stable.apk
+          app/build/outputs/apk/release/DolphinAssistant-v34.3.0-stable.sha256
         if-no-files-found: error
         retention-days: 30
 
-    - name: Publish v32.2.0 GitHub Release
+    - name: Publish v34.3.0 GitHub Release
       if: github.event_name != 'pull_request'
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
         set -euo pipefail
-        TAG="v32.2.0"
-        APK="app/build/outputs/apk/release/DolphinAssistant-v32.2.0-stable.apk"
-        SHA="app/build/outputs/apk/release/DolphinAssistant-v32.2.0-stable.sha256"
-        NOTES="v32.2.0 regression recovery. Restores the proven live drive-mode mapping (NORMAL/ECO/SPORT), fixes the stale regen STANDARD speech key, keeps the split/app-drawer/multi-app boot backends reachable, and replaces the command center with the approved dark-navy/cyan dashboard layout. App-audio routing remains fail-open until privileged UID routing and the driver-only output device are verified on the vehicle."
+        TAG="v34.3.0"
+        APK="app/build/outputs/apk/release/DolphinAssistant-v34.3.0-stable.apk"
+        SHA="app/build/outputs/apk/release/DolphinAssistant-v34.3.0-stable.sha256"
+        NOTES="v34.3.0 premium HMI. Adds the concept-matched navy/cyan home HMI, live vehicle-info wiring, read-only DiLink TPMS with verified-unit handling, now-playing media controls, restored TTS phrase editing, dedicated seat-memory capability UI, and safer reverse-mirror calibration. Unverified vehicle signals remain explicitly marked instead of fabricated."
         if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
           gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
-          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant v32.2.0" --notes "$NOTES" --latest
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant v34.3.0" --notes "$NOTES" --latest
         else
           gh release create "$TAG" "$APK" "$SHA" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "DolphinAssistant v32.2.0" \
+            --title "DolphinAssistant v34.3.0" \
             --notes "$NOTES" \
             --latest
         fi

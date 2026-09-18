@@ -48,14 +48,22 @@ write(p, text)
 # Settings: exact requested phrases, ICC ON/OFF, and a BSD-specific toggle.
 # ---------------------------------------------------------------------------
 p, text = read("app/src/main/java/com/byd/dolphin/autoassistant/manager/SettingsManager.kt")
-text = replace_once(
-    text,
-    '    private const val KEY_PHRASE_ICC_ON = "key_phrase_icc_on"\n',
-    '    private const val KEY_PHRASE_ICC_ON = "key_phrase_icc_on"\n'
-    '    private const val KEY_PHRASE_ICC_OFF = "key_phrase_icc_off"\n'
-    '    private const val KEY_BSD_ALERT_ENABLED = "key_bsd_alert_enabled"\n',
-    'add icc off/bsd keys',
-)
+if 'private const val KEY_PHRASE_ICC_OFF = "key_phrase_icc_off"' not in text:
+    text = replace_once(
+        text,
+        '    private const val KEY_PHRASE_ICC_ON = "key_phrase_icc_on"\n',
+        '    private const val KEY_PHRASE_ICC_ON = "key_phrase_icc_on"\n'
+        '    private const val KEY_PHRASE_ICC_OFF = "key_phrase_icc_off"\n'
+        '    private const val KEY_BSD_ALERT_ENABLED = "key_bsd_alert_enabled"\n',
+        'add icc off/bsd keys',
+    )
+elif 'private const val KEY_BSD_ALERT_ENABLED = "key_bsd_alert_enabled"' not in text:
+    text = text.replace(
+        '    private const val KEY_PHRASE_ICC_OFF = "key_phrase_icc_off"\n',
+        '    private const val KEY_PHRASE_ICC_OFF = "key_phrase_icc_off"\n'
+        '    private const val KEY_BSD_ALERT_ENABLED = "key_bsd_alert_enabled"\n',
+        1,
+    )
 # Exact default wording requested by the driver.
 text = text.replace('"회생제동 하이"', '"하이"')
 text = text.replace('"회생제동 에코"', '"스탠다드"')
@@ -88,7 +96,23 @@ new_icc = '''    fun getIccPhrase(context: Context, isActive: Boolean): String {
     fun setBsdAlertEnabled(context: Context, enabled: Boolean) =
         getPrefs(context).edit().putBoolean(KEY_BSD_ALERT_ENABLED, enabled).apply()
 '''
-text = replace_once(text, old_icc, new_icc, 'replace ICC settings')
+if old_icc in text:
+    text = text.replace(old_icc, new_icc, 1)
+elif 'fun getIccPhrase(context: Context, isActive: Boolean): String' in text:
+    if 'fun isBsdAlertEnabled(context: Context): Boolean' not in text:
+        compat_anchor = '    fun setIccPhrase(context: Context, phrase: String) = setIccPhrase(context, true, phrase)\n'
+        text = text.replace(
+            compat_anchor,
+            compat_anchor + '''
+    fun isBsdAlertEnabled(context: Context): Boolean =
+        getPrefs(context).getBoolean(KEY_BSD_ALERT_ENABLED, true)
+    fun setBsdAlertEnabled(context: Context, enabled: Boolean) =
+        getPrefs(context).edit().putBoolean(KEY_BSD_ALERT_ENABLED, enabled).apply()
+''',
+            1,
+        )
+else:
+    raise SystemExit('replace ICC settings: neither legacy nor updated ICC block found')
 write(p, text)
 
 # ---------------------------------------------------------------------------
@@ -140,23 +164,28 @@ write(p, text)
 
 # ---------------------------------------------------------------------------
 # Mirror: the live getter returned -1/44 but setter accepts discrete 0..8.
-# Reject invalid captured values and expose explicit calibrated presets.
+# Source may already contain the calibrated implementation on newer branches.
+# Keep this historical build patch idempotent so it never duplicates constants
+# or helper methods that are already present in source.
 # ---------------------------------------------------------------------------
 p, text = read("app/src/main/java/com/byd/dolphin/autoassistant/manager/MirrorMemoryManager.kt")
-text = replace_once(
-    text,
-    '    private const val COMMAND_SETTLE_MS = 900L\n',
-    '    private const val COMMAND_SETTLE_MS = 900L\n    private const val MIN_SETTER_INDEX = 0\n    private const val MAX_SETTER_INDEX = 8\n',
-    'mirror index bounds',
-)
-insert_after = '''    fun readCurrent(context: Context): Position? = runCatching {
+if "private const val MIN_SETTER_INDEX = 0" not in text:
+    text = replace_once(
+        text,
+        '    private const val COMMAND_SETTLE_MS = 900L\n',
+        '    private const val COMMAND_SETTLE_MS = 900L\n    private const val MIN_SETTER_INDEX = 0\n    private const val MAX_SETTER_INDEX = 8\n',
+        'mirror index bounds',
+    )
+
+if "fun saveCalibratedNormal(" not in text:
+    insert_after = '''    fun readCurrent(context: Context): Position? = runCatching {
         val target = setting(context)
         val left = invokeInt(target, "getLeftViewMirrorFlipAngle")
         val right = invokeInt(target, "getRightViewMirrorFlipAngle")
         if (left == null || right == null) null else Position(left, right)
     }.onFailure { DolphinLogger.e(TAG, "mirror getter failed", it.cause ?: it) }.getOrNull()
 '''
-addition = insert_after + '''
+    addition = insert_after + '''
     private fun isSetterPositionValid(position: Position): Boolean =
         position.left in MIN_SETTER_INDEX..MAX_SETTER_INDEX &&
             position.right in MIN_SETTER_INDEX..MAX_SETTER_INDEX
@@ -190,27 +219,29 @@ addition = insert_after + '''
         return applyPosition(context.applicationContext, position, "CALIBRATION_PREVIEW", takeOwnership = false)
     }
 '''
-text = replace_once(text, insert_after, addition, 'mirror calibration API')
-# Never save getter values that cannot be written back.
-text = text.replace(
-    '        if (pos == null) {\n            state = State.ERROR\n            return null\n        }\n        prefs(context).edit()',
-    '        if (pos == null || !isSetterPositionValid(pos)) {\n            state = State.ERROR\n            DolphinLogger.w(TAG, "getter value is not a valid setter index: $pos; use 0..8 calibrated preset")\n            return null\n        }\n        prefs(context).edit()',
-)
-# Invalidate old -1/44 style presets at read time.
-text = text.replace(
-    '        return Position(p.getInt(KEY_NORMAL_LEFT, 0), p.getInt(KEY_NORMAL_RIGHT, 0))',
-    '        val pos = Position(p.getInt(KEY_NORMAL_LEFT, 0), p.getInt(KEY_NORMAL_RIGHT, 0))\n        return pos.takeIf(::isSetterPositionValid)'
-)
-text = text.replace(
-    '        return Position(p.getInt(KEY_REVERSE_LEFT, 0), p.getInt(KEY_REVERSE_RIGHT, 0))',
-    '        val pos = Position(p.getInt(KEY_REVERSE_LEFT, 0), p.getInt(KEY_REVERSE_RIGHT, 0))\n        return pos.takeIf(::isSetterPositionValid)'
-)
-# Getter semantics differ from setter semantics on the target car, so don't let an
-# out-of-range getter falsely look like a manual override.
-text = text.replace(
-    '        val actual = readCurrent(context) ?: return\n        if (actual != expected) {',
-    '        val actual = readCurrent(context) ?: return\n        if (!isSetterPositionValid(actual)) return\n        if (actual != expected) {'
-)
+    text = replace_once(text, insert_after, addition, 'mirror calibration API')
+
+if "getter value is not a valid setter index" not in text and "raw mirror getter cannot be saved as setter index" not in text:
+    text = text.replace(
+        '        if (pos == null) {\n            state = State.ERROR\n            return null\n        }\n        prefs(context).edit()',
+        '        if (pos == null || !isSetterPositionValid(pos)) {\n            state = State.ERROR\n            DolphinLogger.w(TAG, "getter value is not a valid setter index: $pos; use 0..8 calibrated preset")\n            return null\n        }\n        prefs(context).edit()',
+    )
+
+if "return pos.takeIf(::isSetterPositionValid)" not in text:
+    text = text.replace(
+        '        return Position(p.getInt(KEY_NORMAL_LEFT, 0), p.getInt(KEY_NORMAL_RIGHT, 0))',
+        '        val pos = Position(p.getInt(KEY_NORMAL_LEFT, 0), p.getInt(KEY_NORMAL_RIGHT, 0))\n        return pos.takeIf(::isSetterPositionValid)'
+    )
+    text = text.replace(
+        '        return Position(p.getInt(KEY_REVERSE_LEFT, 0), p.getInt(KEY_REVERSE_RIGHT, 0))',
+        '        val pos = Position(p.getInt(KEY_REVERSE_LEFT, 0), p.getInt(KEY_REVERSE_RIGHT, 0))\n        return pos.takeIf(::isSetterPositionValid)'
+    )
+
+if "if (!isSetterPositionValid(actual)) return" not in text:
+    text = text.replace(
+        '        val actual = readCurrent(context) ?: return\n        if (actual != expected) {',
+        '        val actual = readCurrent(context) ?: return\n        if (!isSetterPositionValid(actual)) return\n        if (actual != expected) {'
+    )
 write(p, text)
 
 # ---------------------------------------------------------------------------

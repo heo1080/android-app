@@ -406,20 +406,20 @@ class MainActivity : AppCompatActivity() {
         setupVoiceEditButton(R.id.btnVoiceGearN, "N단 (중립)", "중립", "중립 기어 상태입니다. 브레이크 페달을 유지하세요.") { SettingsManager.getGearPhrase(this, "N") }
         setupVoiceEditButton(R.id.btnVoiceGearD, "D단 (전진)", "전진", "전진 기어가 체결되었습니다. 안전 운전하십시오.") { SettingsManager.getGearPhrase(this, "D") }
         setupVoiceEditButton(R.id.btnVoiceDriveMode, "드라이브 모드", "노멀 모드", "드라이브 모드가 정상적으로 전환되었습니다.") { SettingsManager.getDriveModePhrase(this, "NORMAL") }
-        setupVoiceEditButton(R.id.btnVoiceRegenMode, "회생 제동", "회생제동 에코", "회생제동 감속 제어가 적용되었습니다.") { SettingsManager.getRegenModePhrase(this, "ECO") }
+        setupVoiceEditButton(R.id.btnVoiceRegenMode, "회생 제동 STANDARD", "스탠다드", "회생제동 스탠다드 모드입니다.") { SettingsManager.getRegenModePhrase(this, "STANDARD") }
 
         // 스노우모드 기본 문구는 사용자 요청에 따라 "스노우 모드"로 고정!
-        setupVoiceEditButton(R.id.btnVoiceSnowMode, "스노우 모드", "스노우 모드", "노면 미끄럼 방지 스노우 모드가 작동합니다.") { SettingsManager.getSnowModePhrase(this) }
+        setupVoiceEditButton(R.id.btnVoiceSnowMode, "스노우 모드", "스노우모드", "노면 미끄럼 방지 스노우 모드가 작동합니다.") { SettingsManager.getSnowModePhrase(this) }
 
         // 오토홀드 버튼 켬/끔
-        setupVoiceEditButton(R.id.btnVoiceAutoHoldSwitchOn, "오토홀드 버튼 켬", "오토홀드가 켜졌습니다.", "오토홀드 대기 모드가 활성화되었습니다.") { SettingsManager.getAutoHoldSwitchPhrase(this, true) }
-        setupVoiceEditButton(R.id.btnVoiceAutoHoldSwitchOff, "오토홀드 버튼 끔", "오토홀드가 꺼졌습니다.", "오토홀드 대기 모드가 해제되었습니다.") { SettingsManager.getAutoHoldSwitchPhrase(this, false) }
+        setupVoiceEditButton(R.id.btnVoiceAutoHoldSwitchOn, "오토홀드 버튼 켬", "오토홀드 ON", "오토홀드 대기 모드가 활성화되었습니다.") { SettingsManager.getAutoHoldSwitchPhrase(this, true) }
+        setupVoiceEditButton(R.id.btnVoiceAutoHoldSwitchOff, "오토홀드 버튼 끔", "오토홀드 OFF", "오토홀드 대기 모드가 해제되었습니다.") { SettingsManager.getAutoHoldSwitchPhrase(this, false) }
 
         // 오토홀드 정차 체결/해제
-        setupVoiceEditButton(R.id.btnVoiceAutoHoldBrakeEngaged, "오토홀드 정차 체결", "오토홀드가 체결되었습니다.", "차량이 정차되었습니다. 오토홀드가 유지됩니다.") { SettingsManager.getAutoHoldBrakePhrase(this, true) }
-        setupVoiceEditButton(R.id.btnVoiceAutoHoldBrakeReleased, "오토홀드 출발 해제", "오토홀드가 해제되었습니다.", "오토홀드가 해제되었습니다. 서서히 출발합니다.") { SettingsManager.getAutoHoldBrakePhrase(this, false) }
+        setupVoiceEditButton(R.id.btnVoiceAutoHoldBrakeEngaged, "오토홀드 정차 체결", "오토홀드 체결 유", "차량이 정차되었습니다. 오토홀드가 유지됩니다.") { SettingsManager.getAutoHoldBrakePhrase(this, true) }
+        setupVoiceEditButton(R.id.btnVoiceAutoHoldBrakeReleased, "오토홀드 출발 해제", "오토홀드 체결 무", "오토홀드가 해제되었습니다. 서서히 출발합니다.") { SettingsManager.getAutoHoldBrakePhrase(this, false) }
 
-        setupVoiceEditButton(R.id.btnVoiceEpb, "사이드브레이크", "사이드브레이크가 체결되었습니다.", "전자식 주차 브레이크가 안전하게 체결되었습니다.") { SettingsManager.getEpbPhrase(this, true) }
+        setupVoiceEditButton(R.id.btnVoiceEpb, "사이드브레이크", "사이드브레이크 체결 유", "전자식 주차 브레이크가 안전하게 체결되었습니다.") { SettingsManager.getEpbPhrase(this, true) }
         setupVoiceEditButton(R.id.btnVoiceIcc, "ICC 자율주행", "자율주행이 켜졌습니다.", "스마트 크루즈 어시스트가 주행을 보조합니다.") { SettingsManager.getIccPhrase(this) }
         setupVoiceEditButton(R.id.btnVoiceLeadingCar, "전방 차량 출발", "전방 차량이 출발했습니다.", "전방 차량이 출발했습니다. 주변을 확인한 뒤 안전하게 출발하세요.") { SettingsManager.getLeadingCarPhrase(this) }
 
@@ -541,7 +541,7 @@ class MainActivity : AppCompatActivity() {
             R.id.btnVoiceGearN -> SettingsManager.setGearPhrase(this, "N", phrase)
             R.id.btnVoiceGearD -> SettingsManager.setGearPhrase(this, "D", phrase)
             R.id.btnVoiceDriveMode -> SettingsManager.setDriveModePhrase(this, "NORMAL", phrase)
-            R.id.btnVoiceRegenMode -> SettingsManager.setRegenModePhrase(this, "ECO", phrase)
+            R.id.btnVoiceRegenMode -> SettingsManager.setRegenModePhrase(this, "STANDARD", phrase)
             R.id.btnVoiceSnowMode -> SettingsManager.setSnowModePhrase(this, phrase)
             R.id.btnVoiceAutoHoldSwitchOn -> SettingsManager.setAutoHoldSwitchPhrase(this, true, phrase)
             R.id.btnVoiceAutoHoldSwitchOff -> SettingsManager.setAutoHoldSwitchPhrase(this, false, phrase)

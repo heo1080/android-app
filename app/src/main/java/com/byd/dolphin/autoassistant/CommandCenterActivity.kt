@@ -10,19 +10,34 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.byd.dolphin.autoassistant.drive.DriveFrame
 import com.byd.dolphin.autoassistant.drive.DriveSignalReader
+import com.byd.dolphin.autoassistant.drive.DriveSafetyBus
 import com.byd.dolphin.autoassistant.drive.DriveVisionActivity
 import com.byd.dolphin.autoassistant.manager.AdbPermissionManager
 import com.byd.dolphin.autoassistant.manager.DiagnosticCaptureManager
 import com.byd.dolphin.autoassistant.manager.FloatingOverlayManager
+import com.byd.dolphin.autoassistant.manager.NowPlayingManager
+import com.byd.dolphin.autoassistant.manager.NowPlayingSnapshot
+import com.byd.dolphin.autoassistant.manager.SeatMemoryCapabilityManager
+import com.byd.dolphin.autoassistant.manager.TpmsReader
+import com.byd.dolphin.autoassistant.manager.TpmsSnapshot
+import com.byd.dolphin.autoassistant.manager.VehicleInfoReader
+import com.byd.dolphin.autoassistant.manager.VehicleInfoSnapshot
+import com.byd.dolphin.autoassistant.manager.VoiceAndSoundManager
+import com.byd.dolphin.autoassistant.ui.NowPlayingCardView
+import com.byd.dolphin.autoassistant.ui.HomeHmiView
+import com.byd.dolphin.autoassistant.ui.VoicePhraseCatalog
+import com.byd.dolphin.autoassistant.ui.VoicePhraseSpec
 import com.byd.dolphin.autoassistant.service.DolphinService
 import com.byd.dolphin.autoassistant.util.DolphinLogger
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +61,7 @@ class CommandCenterActivity : AppCompatActivity() {
         AUTOMATION("자동화", "AUTOMATION"),
         ALERTS("주행 알림", "DRIVE ALERTS"),
         HUD("HUD / 클러스터", "DISPLAY LINK"),
+        SEAT("메모리 시트", "SEAT MEMORY"),
         APPS("앱", "APP & SHORTCUT"),
         LAB("실험실", "LAB"),
         LOG("로그", "DIAGNOSTICS"),
@@ -60,6 +76,15 @@ class CommandCenterActivity : AppCompatActivity() {
     private var selected = Section.HOME
 
     private lateinit var driveReader: DriveSignalReader
+    private lateinit var nowPlayingManager: NowPlayingManager
+    private lateinit var vehicleInfoReader: VehicleInfoReader
+    private lateinit var tpmsReader: TpmsReader
+    private lateinit var voicePreviewManager: VoiceAndSoundManager
+    private var nowPlaying = NowPlayingSnapshot()
+    private var vehicleInfo = VehicleInfoSnapshot()
+    private var tpms = TpmsSnapshot()
+    private var nowPlayingCard: NowPlayingCardView? = null
+    private var homeHmiView: HomeHmiView? = null
     private var frame = DriveFrame()
     private var speedValue: TextView? = null
     private var gearValue: TextView? = null
@@ -83,9 +108,14 @@ class CommandCenterActivity : AppCompatActivity() {
         DolphinLogger.init(this)
         DiagnosticCaptureManager.recoverInterruptedSession(this)
         driveReader = DriveSignalReader(this)
+        nowPlayingManager = NowPlayingManager(this)
+        vehicleInfoReader = VehicleInfoReader(this)
+        tpmsReader = TpmsReader(this)
+        voicePreviewManager = VoiceAndSoundManager(this)
 
         setContentView(buildUi())
         ensureNotificationPermission()
+        startAutomaticPermissionRecovery()
         startAssistantService()
         render(Section.HOME)
         startTelemetry()
@@ -93,6 +123,8 @@ class CommandCenterActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         driveReader.close()
+        if (::tpmsReader.isInitialized) tpmsReader.close()
+        if (::voicePreviewManager.isInitialized) voicePreviewManager.release()
         super.onDestroy()
     }
 
@@ -207,11 +239,15 @@ class CommandCenterActivity : AppCompatActivity() {
         speedValue = null
         gearValue = null
         turnValue = null
+        nowPlayingCard = null
+        homeHmiView = null
 
-        content.addView(text(section.sub, 9f, cyan, true))
-        content.addView(text(section.label, 25f, Color.WHITE, true).apply {
-            setPadding(0, dp(1), 0, dp(10))
-        })
+        if (section != Section.HOME) {
+            content.addView(text(section.sub, 9f, cyan, true))
+            content.addView(text(section.label, 25f, Color.WHITE, true).apply {
+                setPadding(0, dp(1), 0, dp(10))
+            })
+        }
 
         when (section) {
             Section.HOME -> renderHome()
@@ -222,6 +258,7 @@ class CommandCenterActivity : AppCompatActivity() {
             Section.AUTOMATION -> renderAutomation()
             Section.ALERTS -> renderAlerts()
             Section.HUD -> renderHud()
+            Section.SEAT -> renderSeatMemory()
             Section.APPS -> renderApps()
             Section.LAB -> renderLab()
             Section.LOG -> renderLog()
@@ -231,90 +268,23 @@ class CommandCenterActivity : AppCompatActivity() {
     }
 
     private fun renderHome() {
-        addHero()
-
-        val live = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-        speedValue = statusTile(live, "SPEED", "--", 0)
-        gearValue = statusTile(live, "GEAR", "--", 1)
-        turnValue = statusTile(live, "TURN", "--", 2)
-        content.addView(live, LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT, dp(78)
-        ).apply { setMargins(0, 0, 0, dp(10)) })
-
-        addCardRow(
-            featureCard(
-                "FLOATING BAR", "플로팅 바",
-                "최대 8개 표시 · 초과 시 가로 스크롤 · 크기/투명도/자동 접기",
-                listOf(
-                    Action("설정") { openLegacy("button") },
-                    Action("바로 표시") { showFloatingNow() }
-                )
-            ),
-            featureCard(
-                "QUICK CONTROLS", "빠른 제어",
-                "차량 편의 제어와 퀵패널/하단바 기능을 한 곳에서 연결",
-                listOf(
-                    Action("차량 제어") { openLegacy("comfort") },
-                    Action("버튼 만들기") { openLegacy("button") }
-                )
-            ),
-            featureCard(
-                "AUDIO ROUTING", "오디오 라우팅",
-                "지정 앱 선택 · 운전석 전용 경로 연구 · 순정 안전 경고 우선 유지",
-                listOf(
-                    Action("앱 추가") { openLegacy("audio_lab") },
-                    Action("경로 테스트") { openLegacy("safety") }
+        val hmiHeight = (resources.displayMetrics.heightPixels - dp(112)).coerceAtLeast(dp(620))
+        homeHmiView = HomeHmiView(this).also { view ->
+            view.onDriveView = { openDriveView() }
+            view.onSeatMemory = { render(Section.SEAT) }
+            view.onQuickControl = { render(Section.QUICK) }
+            view.onMediaPrevious = { nowPlayingManager.previous() }
+            view.onMediaPlayPause = { nowPlayingManager.playPause() }
+            view.onMediaNext = { nowPlayingManager.next() }
+            view.bind(frame, vehicleInfo, tpms, nowPlaying, DriveSafetyBus.current())
+            content.addView(
+                view,
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    hmiHeight
                 )
             )
-        )
-
-        addCardRow(
-            featureCard(
-                "MULTI WINDOW", "멀티 윈도우",
-                "앱 2개 선택 · 20~80% 비율 제어 · DiLink 분할 경로 복구",
-                listOf(Action("2분할 설정") { openLegacy("split") })
-            ),
-            featureCard(
-                "STARTUP AUTOMATION", "시동 자동화",
-                "여러 앱 등록 · 앱별 0.x초 실행 지연 · 미디어 자동재생 예약",
-                listOf(
-                    Action("+ 앱 추가") { openLegacy("boot") },
-                    Action("자동화") { openLegacy("automation") }
-                )
-            ),
-            featureCard(
-                "NAV / HUD / CLUSTER", "내비 · HUD · 클러스터",
-                "지원 내비 TBT와 T900 HUD, 계기판 표시 연구를 통합 관리",
-                listOf(
-                    Action("HUD") { openLegacy("hud") },
-                    Action("클러스터") { openLegacy("cluster") }
-                )
-            )
-        )
-
-        addCardRow(
-            featureCard(
-                "DRIVE ALERTS", "주행 알림",
-                "기어 · 주행모드 · 회생제동 · 오토홀드 · ICC · BSD · 전방차 출발",
-                listOf(
-                    Action("음성 안내") { openLegacy("voice") },
-                    Action("경고음") { openLegacy("safety") }
-                )
-            ),
-            featureCard(
-                "DIAGNOSTICS / RESEARCH", "진단 · 연구",
-                "차량 RAW 신호 · 권한 · 오디오 출력 · DPI · 진단 세션",
-                listOf(
-                    Action("진단") { openLegacy("dpi") },
-                    Action("주행 시각화") { openDriveView() }
-                )
-            ),
-            featureCard(
-                "APP & SHORTCUT", "앱 / 앱서랍 바로가기",
-                "설치 앱과 차량 동작을 앱서랍 16개 슬롯 또는 플로팅 독에 추가",
-                listOf(Action("바로가기 만들기") { openLegacy("button") })
-            )
-        )
+        }
     }
 
     private fun renderQuick() {
@@ -379,14 +349,129 @@ class CommandCenterActivity : AppCompatActivity() {
     private fun renderAlerts() {
         addWideCard(
             "VOICE & ALERT", "맞춤형 음성 안내",
-            "P/R/N/D · ECO/NORMAL/SPORT · 회생제동 STANDARD/HIGH · AutoHold · EPB · ICC · 전방차 출발",
-            listOf(Action("음성 안내 설정") { openLegacy("voice") })
+            "각 차량 상태별 현재 설정 문구를 직접 확인하고 기본/추천/사용자 문구를 선택·수정·미리듣기합니다.",
+            listOf(
+                Action("기존 상세 설정") { openLegacy("voice") },
+                Action("안전 경고음") { openLegacy("safety") }
+            )
         )
-        addWideCard(
-            "SAFETY AUDIO", "BSD / 경고음 / 오디오",
-            "순정 경고와 충돌하지 않도록 안전 관련 경고음과 오디오 테스트를 별도 관리합니다.",
-            listOf(Action("안전 오디오 설정") { openLegacy("safety") })
-        )
+
+        var lastGroup = ""
+        VoicePhraseCatalog.all(this).forEach { spec ->
+            if (spec.group != lastGroup) {
+                lastGroup = spec.group
+                content.addView(text(lastGroup, 11f, cyanSoft, true).apply {
+                    setPadding(dp(2), dp(7), 0, dp(5))
+                })
+            }
+            addVoicePhraseRow(spec)
+        }
+    }
+
+    private fun addVoicePhraseRow(spec: VoicePhraseSpec) {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(13), dp(9), dp(13), dp(9))
+            background = gradient(cardBg2, cardBg, dp(13).toFloat(), Color.rgb(11, 68, 84))
+        }
+
+        val copy = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        copy.addView(text(spec.label, 12.5f, Color.WHITE, true))
+        copy.addView(text("현재  ·  " + spec.current(), 10f, cyan, true).apply {
+            setPadding(0, dp(2), 0, 0)
+        })
+        copy.addView(text("기본  ·  " + spec.defaultPhrase, 8.8f, Color.rgb(151, 180, 190), false).apply {
+            setPadding(0, dp(2), 0, 0)
+        })
+        copy.addView(text("추천  ·  " + spec.recommendedPhrase, 8.8f, Color.rgb(184, 154, 227), false).apply {
+            setPadding(0, dp(1), 0, 0)
+        })
+        card.addView(copy, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+
+        val preview = actionButton("미리듣기") { voicePreviewManager.speak(spec.current()) }
+        card.addView(preview, LinearLayout.LayoutParams(dp(82), dp(34)).apply {
+            setMargins(dp(6), 0, dp(5), 0)
+        })
+
+        val edit = actionButton("수정") { showVoicePhraseEditor(spec) }
+        card.addView(edit, LinearLayout.LayoutParams(dp(68), dp(34)))
+
+        content.addView(card, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { setMargins(0, 0, 0, dp(6)) })
+    }
+
+    private fun showVoicePhraseEditor(spec: VoicePhraseSpec) {
+        val current = spec.current()
+        val input = EditText(this).apply {
+            setText(current)
+            setSelection(text.length)
+            setTextColor(Color.WHITE)
+            setHintTextColor(muted)
+            backgroundTintList = android.content.res.ColorStateList.valueOf(cyan)
+            minLines = 2
+        }
+
+        val body = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(18), dp(8), dp(18), dp(4))
+        }
+        body.addView(text("현재 설정", 9f, cyanSoft, true))
+        body.addView(text(current, 12f, Color.WHITE, true).apply {
+            setPadding(0, dp(2), 0, dp(7))
+        })
+
+        val presets = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        val defaultButton = actionButton("기본 문구") {
+            input.setText(spec.defaultPhrase)
+            input.setSelection(input.text.length)
+            voicePreviewManager.speak(spec.defaultPhrase)
+        }
+        val recommendedButton = actionButton("추천 문구") {
+            input.setText(spec.recommendedPhrase)
+            input.setSelection(input.text.length)
+            voicePreviewManager.speak(spec.recommendedPhrase)
+        }
+        presets.addView(defaultButton, LinearLayout.LayoutParams(0, dp(38), 1f).apply {
+            setMargins(0, 0, dp(4), 0)
+        })
+        presets.addView(recommendedButton, LinearLayout.LayoutParams(0, dp(38), 1f).apply {
+            setMargins(dp(4), 0, 0, 0)
+        })
+        body.addView(presets)
+
+        body.addView(text("기본 · " + spec.defaultPhrase, 9f, Color.rgb(151, 180, 190), false).apply {
+            setPadding(0, dp(8), 0, 0)
+        })
+        body.addView(text("추천 · " + spec.recommendedPhrase, 9f, Color.rgb(184, 154, 227), false).apply {
+            setPadding(0, dp(2), 0, dp(8))
+        })
+        body.addView(text("사용자 문구", 9f, cyanSoft, true))
+        body.addView(input)
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(spec.group + " · " + spec.label)
+            .setView(body)
+            .setNeutralButton("미리듣기", null)
+            .setNegativeButton("취소", null)
+            .setPositiveButton("저장", null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                input.text.toString().trim().takeIf { it.isNotEmpty() }?.let(voicePreviewManager::speak)
+            }
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val newPhrase = input.text.toString().trim()
+                if (newPhrase.isEmpty()) return@setOnClickListener
+                spec.save(newPhrase)
+                dialog.dismiss()
+                render(Section.ALERTS)
+            }
+        }
+        dialog.show()
     }
 
     private fun renderHud() {
@@ -402,6 +487,63 @@ class CommandCenterActivity : AppCompatActivity() {
                 listOf(Action("클러스터 설정") { openLegacy("cluster") })
             )
         )
+    }
+
+    private fun renderSeatMemory() {
+        val capability = SeatMemoryCapabilityManager.snapshot(this)
+
+        addWideCard(
+            "SEAT MEMORY", "운전석 메모리 M1 / M2 / M3",
+            if (capability.anyWritableMemoryPathVerified) {
+                "실차에서 시트 위치 쓰기 후보 경로가 확인되었습니다. 저장/호출 동작은 안전 인터록과 함께 단계적으로 검증합니다."
+            } else {
+                "전용 메뉴와 프로필 구조는 유지합니다. 현재 펌웨어에서 위치 getter/setter 쌍이 완전히 확인되지 않아 모터 호출만 잠겨 있습니다."
+            },
+            listOf(
+                Action("API 상태 확인") { showSeatMemoryCapabilityDialog() },
+                Action("통합 연구 화면") { openLegacy("audio_lab") }
+            )
+        )
+
+        addCardRow(
+            featureCard(
+                "M1", "메모리 1",
+                if (capability.anyWritableMemoryPathVerified) "시트 위치 저장/호출 후보" else "위치 setter 검증 대기",
+                emptyList()
+            ),
+            featureCard(
+                "M2", "메모리 2",
+                if (capability.anyWritableMemoryPathVerified) "시트 위치 저장/호출 후보" else "위치 setter 검증 대기",
+                emptyList()
+            ),
+            featureCard(
+                "M3", "메모리 3",
+                if (capability.anyWritableMemoryPathVerified) "시트 위치 저장/호출 후보" else "위치 setter 검증 대기",
+                emptyList()
+            )
+        )
+
+        addWideCard(
+            "REVERSE MIRROR", "다운미러",
+            "메모리 시트와 별개로 R단 다운미러는 0~8 setter 단계 캘리브레이션 방식으로 연구 중입니다.",
+            listOf(Action("다운미러 / 편의 LAB") { openLegacy("audio_lab") })
+        )
+
+        addInfo(
+            "현재 실차 판정",
+            SeatMemoryCapabilityManager.summary(this)
+        )
+    }
+
+    private fun showSeatMemoryCapabilityDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("메모리 시트 API 상태")
+            .setMessage(
+                SeatMemoryCapabilityManager.summary(this) +
+                    "\n위치 제어 setter가 확인되기 전에는 M1/M2/M3 모터 이동을 실행하지 않습니다."
+            )
+            .setPositiveButton("확인", null)
+            .show()
     }
 
     private fun renderApps() {
@@ -605,11 +747,16 @@ class CommandCenterActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             while (isActive) {
                 frame = runCatching { driveReader.read() }.getOrDefault(DriveFrame())
+                vehicleInfo = runCatching { vehicleInfoReader.read() }.getOrDefault(VehicleInfoSnapshot())
+                tpms = runCatching { tpmsReader.read() }.getOrDefault(TpmsSnapshot())
+                nowPlaying = runCatching { nowPlayingManager.snapshot() }.getOrDefault(NowPlayingSnapshot())
                 withContext(Dispatchers.Main) {
                     headerStatus.text =
                         "LIVE  ·  ${frame.speedKmh?.toInt()?.toString()?.plus(" km/h") ?: "NO SPEED"}" +
                             "  ·  GEAR ${frame.gear ?: "--"}  ·  ${BuildConfig.VERSION_NAME}"
                     refreshTelemetryLabels()
+                    nowPlayingCard?.bind(nowPlaying)
+                    homeHmiView?.bind(frame, vehicleInfo, tpms, nowPlaying, DriveSafetyBus.current())
                 }
                 delay(1_000L)
             }
@@ -620,6 +767,15 @@ class CommandCenterActivity : AppCompatActivity() {
         speedValue?.text = frame.speedKmh?.toInt()?.toString()?.plus(" km/h") ?: "--"
         gearValue?.text = frame.gear ?: "--"
         turnValue?.text = frame.turn
+    }
+
+    private fun startAutomaticPermissionRecovery() {
+        AdbPermissionManager.autoGrantPermissionsOnLaunch(this) { success, message ->
+            DolphinLogger.i("COMMAND_CENTER", "automatic permission recovery success=$success message=$message")
+            if (!success) {
+                headerStatus.text = "권한 자동 복구 일부 실패 · " + message
+            }
+        }
     }
 
     private fun ensureNotificationPermission() {

@@ -101,7 +101,8 @@ object SettingsManager {
     private const val KEY_PHRASE_DRIVE_ECO = "key_phrase_drive_eco"
     private const val KEY_PHRASE_DRIVE_NORMAL = "key_phrase_drive_normal"
     private const val KEY_PHRASE_DRIVE_SPORT = "key_phrase_drive_sport"
-    private const val KEY_PHRASE_REGEN_ECO = "key_phrase_regen_eco"
+    private const val KEY_PHRASE_REGEN_STANDARD = "key_phrase_regen_standard"
+    private const val KEY_PHRASE_REGEN_ECO_LEGACY = "key_phrase_regen_eco"
     private const val KEY_PHRASE_REGEN_HIGH = "key_phrase_regen_high"
     private const val KEY_PHRASE_SNOW_MODE = "key_phrase_snow_mode"
 
@@ -114,6 +115,8 @@ object SettingsManager {
     private const val KEY_PHRASE_EPB_ON = "key_phrase_epb_on"
     private const val KEY_PHRASE_EPB_OFF = "key_phrase_epb_off"
     private const val KEY_PHRASE_ICC_ON = "key_phrase_icc_on"
+    private const val KEY_PHRASE_ICC_OFF = "key_phrase_icc_off"
+    private const val KEY_BSD_ALERT_ENABLED = "key_bsd_alert_enabled"
     private const val KEY_PHRASE_LEADING_CAR = "key_phrase_leading_car"
 
     // 충전: 시작 vs 종료 분리
@@ -256,26 +259,32 @@ object SettingsManager {
     fun getRegenModePhrase(context: Context, regen: String): String {
         val prefs = getPrefs(context)
         return if (regen.contains("HIGH", ignoreCase = true)) {
-            prefs.getString(KEY_PHRASE_REGEN_HIGH, "회생제동 하이") ?: "회생제동 하이"
+            prefs.getString(KEY_PHRASE_REGEN_HIGH, "하이") ?: "하이"
         } else {
-            prefs.getString(KEY_PHRASE_REGEN_ECO, "회생제동 에코") ?: "회생제동 에코"
+            when {
+                prefs.contains(KEY_PHRASE_REGEN_STANDARD) ->
+                    prefs.getString(KEY_PHRASE_REGEN_STANDARD, "스탠다드") ?: "스탠다드"
+                prefs.contains(KEY_PHRASE_REGEN_ECO_LEGACY) ->
+                    prefs.getString(KEY_PHRASE_REGEN_ECO_LEGACY, "스탠다드") ?: "스탠다드"
+                else -> "스탠다드"
+            }
         }
     }
     fun setRegenModePhrase(context: Context, regen: String, phrase: String) {
-        val key = if (regen.contains("HIGH", ignoreCase = true)) KEY_PHRASE_REGEN_HIGH else KEY_PHRASE_REGEN_ECO
+        val key = if (regen.contains("HIGH", ignoreCase = true)) KEY_PHRASE_REGEN_HIGH else KEY_PHRASE_REGEN_STANDARD
         getPrefs(context).edit().putString(key, phrase).apply()
     }
 
-    fun getSnowModePhrase(context: Context): String = getPrefs(context).getString(KEY_PHRASE_SNOW_MODE, "스노우 모드가 켜졌습니다.") ?: "스노우 모드가 켜졌습니다."
+    fun getSnowModePhrase(context: Context): String = getPrefs(context).getString(KEY_PHRASE_SNOW_MODE, "스노우모드") ?: "스노우모드"
     fun setSnowModePhrase(context: Context, phrase: String) = getPrefs(context).edit().putString(KEY_PHRASE_SNOW_MODE, phrase).apply()
 
     // 1) 오토홀드 물리 스위치 ON/OFF
     fun getAutoHoldSwitchPhrase(context: Context, isSwitchOn: Boolean): String {
         val prefs = getPrefs(context)
         return if (isSwitchOn) {
-            prefs.getString(KEY_PHRASE_AUTOHOLD_SWITCH_ON, "오토홀드가 켜졌습니다.") ?: "오토홀드가 켜졌습니다."
+            prefs.getString(KEY_PHRASE_AUTOHOLD_SWITCH_ON, "오토홀드 ON") ?: "오토홀드 ON"
         } else {
-            prefs.getString(KEY_PHRASE_AUTOHOLD_SWITCH_OFF, "오토홀드가 꺼졌습니다.") ?: "오토홀드가 꺼졌습니다."
+            prefs.getString(KEY_PHRASE_AUTOHOLD_SWITCH_OFF, "오토홀드 OFF") ?: "오토홀드 OFF"
         }
     }
     fun setAutoHoldSwitchPhrase(context: Context, isSwitchOn: Boolean, phrase: String) {
@@ -287,9 +296,9 @@ object SettingsManager {
     fun getAutoHoldBrakePhrase(context: Context, isEngaged: Boolean): String {
         val prefs = getPrefs(context)
         return if (isEngaged) {
-            prefs.getString(KEY_PHRASE_AUTOHOLD_BRAKE_ENGAGED, "오토홀드가 체결되었습니다.") ?: "오토홀드가 체결되었습니다."
+            prefs.getString(KEY_PHRASE_AUTOHOLD_BRAKE_ENGAGED, "오토홀드 체결 유") ?: "오토홀드 체결 유"
         } else {
-            prefs.getString(KEY_PHRASE_AUTOHOLD_BRAKE_RELEASED, "오토홀드가 해제되었습니다.") ?: "오토홀드가 해제되었습니다."
+            prefs.getString(KEY_PHRASE_AUTOHOLD_BRAKE_RELEASED, "오토홀드 체결 무") ?: "오토홀드 체결 무"
         }
     }
     fun setAutoHoldBrakePhrase(context: Context, isEngaged: Boolean, phrase: String) {
@@ -304,9 +313,9 @@ object SettingsManager {
     fun getEpbPhrase(context: Context, isEngaged: Boolean): String {
         val prefs = getPrefs(context)
         return if (isEngaged) {
-            prefs.getString(KEY_PHRASE_EPB_ON, "사이드브레이크가 체결되었습니다.") ?: "사이드브레이크가 체결되었습니다."
+            prefs.getString(KEY_PHRASE_EPB_ON, "사이드브레이크 체결 유") ?: "사이드브레이크 체결 유"
         } else {
-            prefs.getString(KEY_PHRASE_EPB_OFF, "사이드브레이크 해제되었습니다.") ?: "사이드브레이크 해제되었습니다."
+            prefs.getString(KEY_PHRASE_EPB_OFF, "사이드브레이크 체결 무") ?: "사이드브레이크 체결 무"
         }
     }
     fun setEpbPhrase(context: Context, isEngaged: Boolean, phrase: String) {
@@ -314,8 +323,22 @@ object SettingsManager {
         getPrefs(context).edit().putString(key, phrase).apply()
     }
 
-    fun getIccPhrase(context: Context): String = getPrefs(context).getString(KEY_PHRASE_ICC_ON, "자율주행이 켜졌습니다.") ?: "자율주행이 켜졌습니다."
-    fun setIccPhrase(context: Context, phrase: String) = getPrefs(context).edit().putString(KEY_PHRASE_ICC_ON, phrase).apply()
+    fun getIccPhrase(context: Context, isActive: Boolean): String {
+        val key = if (isActive) KEY_PHRASE_ICC_ON else KEY_PHRASE_ICC_OFF
+        val fallback = if (isActive) "자율주행 ON" else "자율주행 OFF"
+        return getPrefs(context).getString(key, fallback) ?: fallback
+    }
+    fun setIccPhrase(context: Context, isActive: Boolean, phrase: String) {
+        val key = if (isActive) KEY_PHRASE_ICC_ON else KEY_PHRASE_ICC_OFF
+        getPrefs(context).edit().putString(key, phrase).apply()
+    }
+    fun getIccPhrase(context: Context): String = getIccPhrase(context, true)
+    fun setIccPhrase(context: Context, phrase: String) = setIccPhrase(context, true, phrase)
+
+    fun isBsdAlertEnabled(context: Context): Boolean =
+        getPrefs(context).getBoolean(KEY_BSD_ALERT_ENABLED, true)
+    fun setBsdAlertEnabled(context: Context, enabled: Boolean) =
+        getPrefs(context).edit().putBoolean(KEY_BSD_ALERT_ENABLED, enabled).apply()
 
     fun getLeadingCarPhrase(context: Context): String = getPrefs(context).getString(KEY_PHRASE_LEADING_CAR, "전방 차량이 출발했습니다.") ?: "전방 차량이 출발했습니다."
     fun setLeadingCarPhrase(context: Context, phrase: String) = getPrefs(context).edit().putString(KEY_PHRASE_LEADING_CAR, phrase).apply()
