@@ -51,7 +51,9 @@ data class DiagnosticsUiState(
     val lastExportName: String? = null,
     val autoUploadMessage: String? = null,
     val autoUploadSuccess: Boolean? = null,
-    val recentDrive: RecentDriveSnapshot? = null
+    val recentDrive: RecentDriveSnapshot? = null,
+    val fullUploadMessage: String? = null,
+    val fullUploadSuccess: Boolean? = null
 ) {
     val passed: Int get() = results.count { it.status == DiagnosticStatus.PASS }
     val total: Int get() = results.size
@@ -390,6 +392,79 @@ class DolphinDiagnostics(
         }?.detail
     }
 
+    suspend fun uploadFullTestSession(): DiagnosticUploadManager.UploadResult =
+        withContext(Dispatchers.IO) {
+            val config = DiagnosticUploadManager.enableAutomaticallyWhenConfigured(app)
+            if (!config.complete) {
+                val result = DiagnosticUploadManager.UploadResult(
+                    false,
+                    "GITHUB LOG UPLOAD NOT CONFIGURED"
+                )
+                _state.value = _state.value.copy(
+                    fullUploadMessage = result.message,
+                    fullUploadSuccess = false
+                )
+                return@withContext result
+            }
+
+            val file = createFullTestZip()
+            val result = DiagnosticUploadManager.uploadDiagnosticBundle(app, file)
+            _state.value = _state.value.copy(
+                fullUploadMessage = result.message,
+                fullUploadSuccess = result.success,
+                lastExportName = file.name
+            )
+            NextLogger.i(
+                "DIAGNOSTICS",
+                "fullTestUpload success=" + result.success +
+                    " message=" + result.message +
+                    " file=" + file.name
+            )
+            result
+        }
+
+    private fun createFullTestZip(): File {
+        val now = System.currentTimeMillis()
+        val id = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date(now))
+        val dir = File(app.getExternalFilesDir(null) ?: app.filesDir, "diagnostics").apply { mkdirs() }
+        dir.listFiles()
+            ?.filter { it.name.startsWith("FULL_TEST_") && it.name.endsWith(".zip") }
+            ?.forEach { it.delete() }
+
+        val file = File(dir, "FULL_TEST_" + id + ".zip")
+        val currentState = repository.state.value
+        val recent = recentDriveRecorder.snapshot()
+        val ui = _state.value
+
+        ZipOutputStream(file.outputStream().buffered()).use { zip ->
+            putText(
+                zip,
+                "integrated_summary.json",
+                JSONObject().apply {
+                    put("app_version", BuildConfig.VERSION_NAME)
+                    put("app_version_code", BuildConfig.VERSION_CODE)
+                    put("created_at_ms", now)
+                    put("diagnostics_mode", "FULL_TEST_SESSION")
+                    put("health_pass", ui.passed)
+                    put("health_total", ui.total)
+                    put("health_failures", ui.failures)
+                    put("recent_drive_duration_ms", recent.durationMs)
+                    put("recent_drive_issue", recent.hasIssue)
+                }.toString(2)
+            )
+            putText(zip, "vehicle_state.json", vehicleStateJson(currentState).toString(2))
+            putText(zip, "recent_drive.json", recentDriveJson(recent).toString(2))
+            putText(zip, "recent_drive_events.txt", recentDriveEventsText(recent))
+            putText(zip, "audio_timeline_full.txt", fullAudioTimeline())
+            putText(zip, "full_integrated_log.txt", fullLogText())
+            if (ui.results.isNotEmpty()) {
+                putText(zip, "last_health_summary.json", summaryJson(ui).toString(2))
+            }
+        }
+        NextLogger.i("DIAGNOSTICS", "full test ZIP created=" + file.absolutePath)
+        return file
+    }
+
     suspend fun createFailuresZip(): File? = withContext(Dispatchers.IO) {
         val snapshot = _state.value
         val failures = snapshot.results.filter {
@@ -509,6 +584,7 @@ class DolphinDiagnostics(
             put("regen_mode", signalJson(state.regenMode))
             put("snow_mode", signalJson(state.snowMode))
             put("auto_hold_raw", signalJson(state.autoHoldRaw))
+            put("epb_applied", signalJson(state.epbApplied))
             put("icc", signalJson(state.iccActive))
             put("bsd_raw", signalJson(state.bsdRaw))
             put("turn", signalJson(state.turn))
@@ -557,6 +633,36 @@ class DolphinDiagnostics(
             }
         }
     }
+
+    private fun fullAudioTimeline(): String {
+        val list = synchronized(probeLock) { probes.toList() }
+        return buildString {
+            list.forEach {
+                append(it.timestampMs)
+                append(" ")
+                append(it.probeKey)
+                append(" ")
+                append(it.phase.name)
+                append(" ")
+                append(it.detail)
+                append("\n")
+            }
+        }
+    }
+
+    private fun fullLogText(): String =
+        buildString {
+            NextLogger.snapshotAll().forEach { e ->
+                append(e.timestampMs)
+                append(" ")
+                append(e.level)
+                append(" ")
+                append(e.tag)
+                append(" ")
+                append(e.message)
+                append("\n")
+            }
+        }
 
     private fun failureWindows(failures: List<DiagnosticResult>): String =
         buildString {
