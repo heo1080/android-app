@@ -76,7 +76,7 @@ jobs:
         DOLPHIN_KS_PASS="$(printf '%s' "$DOLPHIN_KEYSTORE_PASSWORD" | tr -d '\r\n')"
         keytool -list -keystore "$KEYSTORE" -storepass "$DOLPHIN_KS_PASS" -alias dolphinassistant >/dev/null
 
-    - name: Sign v30.7.1 audio studio APK
+    - name: Sign v30.7.2 updater bootstrap APK
       shell: bash
       env:
         DOLPHIN_KEYSTORE_PASSWORD: ${{ secrets.DOLPHIN_KEYSTORE_PASSWORD }}
@@ -86,7 +86,7 @@ jobs:
         export DOLPHIN_KS_PASS
         APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
         UNSIGNED="app/build/outputs/apk/release/app-release-unsigned.apk"
-        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v30.7.1-audio-studio.apk"
+        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v30.7.2-update-channel.apk"
         "$APKSIGNER" sign \
           --ks "$RUNNER_TEMP/dolphin-release.jks" \
           --ks-key-alias dolphinassistant \
@@ -95,7 +95,7 @@ jobs:
           --out "$SIGNED" \
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
-        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.7.1-audio-studio.sha256
+        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.7.2-update-channel.sha256
 
 
     - name: Publish updater-visible prerelease
@@ -108,13 +108,13 @@ jobs:
         TAG="$(printf '%s' "$VERSION_NAME" | grep -oE 'v[0-9]+(\.[0-9]+)+' | head -n 1)"
         test -n "$TAG"
 
-        APK="app/build/outputs/apk/release/DolphinAssistant-v30.7.1-audio-studio.apk"
-        SHA="app/build/outputs/apk/release/DolphinAssistant-v30.7.1-audio-studio.sha256"
-        NOTES="Preview/test release generated from the validated DolphinAssistant build. It is intentionally published as a GitHub prerelease so the in-app updater can discover it. APK integrity is protected by the paired SHA-256 asset and the app verifies the package name and signing certificate before opening Android's installer."
+        APK="app/build/outputs/apk/release/DolphinAssistant-v30.7.2-update-channel.apk"
+        SHA="app/build/outputs/apk/release/DolphinAssistant-v30.7.2-update-channel.sha256"
+        NOTES="Updater-visible DolphinAssistant release generated from the validated signed build. Future preview/test builds are also published as updater-visible Releases. APK integrity is protected by the paired SHA-256 asset and the app verifies the package name and signing certificate before opening Android's installer."
 
         if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
           gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
-          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant $TAG Preview" --notes "$NOTES" --prerelease
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant $TAG" --notes "$NOTES"
         else
           gh release create "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "DolphinAssistant $TAG Preview" --notes "$NOTES" --prerelease
         fi
@@ -122,9 +122,9 @@ jobs:
     - name: Upload signed UI preview
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-v30.7.1-Audio-Studio
+        name: DolphinAssistant-v30.7.2-Update-Channel
         path: |
-          app/build/outputs/apk/release/DolphinAssistant-v30.7.1-audio-studio.apk
-          app/build/outputs/apk/release/DolphinAssistant-v30.7.1-audio-studio.sha256
+          app/build/outputs/apk/release/DolphinAssistant-v30.7.2-update-channel.apk
+          app/build/outputs/apk/release/DolphinAssistant-v30.7.2-update-channel.sha256
         if-no-files-found: error
         retention-days: 30
