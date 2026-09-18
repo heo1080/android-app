@@ -59,18 +59,12 @@ new_back = '''    override fun onBackPressed() {
 '''
 text = one(text, old_back, new_back, "MainActivity command-center back routing")
 
-anchor = '''        setupBootSchedulerSubScreen()
-        setupDpiAdbSubScreen()
-
-        // 1. 앱 실행 즉시 백그라운드 서비스 및 플로팅 독 가동
-'''
-replacement = '''        setupBootSchedulerSubScreen()
-        setupDpiAdbSubScreen()
-        openRequestedPanel(intent.getStringExtra("open_panel"))
-
-        // 1. 앱 실행 즉시 백그라운드 서비스 및 플로팅 독 가동
-'''
-text = one(text, anchor, replacement, "MainActivity open requested panel")
+text = one(
+    text,
+    '        setupDpiAdbSubScreen()\n',
+    '        setupDpiAdbSubScreen()\n        openRequestedPanel(intent.getStringExtra("open_panel"))\n',
+    "MainActivity open requested panel",
+)
 
 method_anchor = '''    private fun performAutoAdbGrant() {
 '''
