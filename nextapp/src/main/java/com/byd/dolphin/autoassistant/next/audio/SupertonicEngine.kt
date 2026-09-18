@@ -99,9 +99,7 @@ object SupertonicEngine {
         if (file.exists() && file.length() > 44) {
             scope.launch {
                 AudioPlaybackGate.serial {
-                    AudioPlaybackGate.serial {
-                        playWav(file, onPlaybackStart)
-                    }
+                    playWav(file, onPlaybackStart)
                 }
             }
             return true
@@ -116,7 +114,9 @@ object SupertonicEngine {
                     NextLogger.w("TTS", "late TTS dropped elapsedMs=" + elapsed + " text=" + clean)
                     onExpired?.invoke()
                 } else {
-                    playWav(file, onPlaybackStart)
+                    AudioPlaybackGate.serial {
+                        playWav(file, onPlaybackStart)
+                    }
                 }
             } catch (t: Throwable) {
                 NextLogger.e("TTS", "synthesis/play failed", t)
