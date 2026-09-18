@@ -52,11 +52,11 @@ if "import com.byd.dolphin.autoassistant.util.DolphinLogger" not in shell:
 write(shell_path, shell)
 
 
-# 4) v30.7.0 is an architecture/UI reset; no vehicle-control semantics are
-# intentionally changed here.
+# 4) v30.7.0 must be a real Android upgrade from v30.6.3 (versionCode 46).
+# Keep vehicle-control semantics unchanged; this is an architecture/UI reset.
 gradle_path, gradle = read("app/build.gradle.kts")
-gradle, count_code = re.subn(r"versionCode\s*=\s*\d+", "versionCode = 41", gradle, count=1)
-gradle, count_name = re.subn(r'versionName\s*=\s*"[^"]+"', 'versionName = "3.0.7-v30.7-ui-reset"', gradle, count=1)
+gradle, count_code = re.subn(r"versionCode\s*=\s*\d+", "versionCode = 47", gradle, count=1)
+gradle, count_name = re.subn(r'versionName\s*=\s*"[^"]+"', 'versionName = "3.1.4-v30.7.0-ui-reset"', gradle, count=1)
 if count_code != 1 or count_name != 1:
     raise SystemExit(f"v30.7: version replacement failed code={count_code} name={count_name}")
 write(gradle_path, gradle)
@@ -64,10 +64,12 @@ write(gradle_path, gradle)
 
 # 5) Guard rails: these checks intentionally fail CI if a later v30.6 patch
 # changes the expected integration points.
+final_gradle = gradle_path.read_text(encoding="utf-8")
 checks = {
     "shell-hook": "V307UiShell.attach(this, audioManager)" in main_path.read_text(encoding="utf-8"),
     "lab-public-entry": "fun openLab(activity: AppCompatActivity, audioManager: VoiceAndSoundManager)" in lab_path.read_text(encoding="utf-8"),
-    "v30.7-version": "3.0.7-v30.7-ui-reset" in gradle_path.read_text(encoding="utf-8"),
+    "v30.7-version-name": "3.1.4-v30.7.0-ui-reset" in final_gradle,
+    "v30.7-version-code": "versionCode = 47" in final_gradle,
     "research-status-model": all(x in shell_path.read_text(encoding="utf-8") for x in ("VERIFIED", "BETA", "LAB")),
 }
 failed = [k for k, ok in checks.items() if not ok]
