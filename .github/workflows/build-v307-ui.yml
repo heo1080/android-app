@@ -86,7 +86,7 @@ jobs:
         export DOLPHIN_KS_PASS
         APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
         UNSIGNED="app/build/outputs/apk/release/app-release-unsigned.apk"
-        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v30.7.2-update-channel.apk"
+        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v30.7.2-stable.apk"
         "$APKSIGNER" sign \
           --ks "$RUNNER_TEMP/dolphin-release.jks" \
           --ks-key-alias dolphinassistant \
@@ -95,7 +95,7 @@ jobs:
           --out "$SIGNED" \
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
-        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.7.2-update-channel.sha256
+        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.7.2-stable.sha256
 
 
     - name: Publish updater-visible release
@@ -108,8 +108,8 @@ jobs:
         TAG="$(printf '%s' "$VERSION_NAME" | grep -oE 'v[0-9]+(\.[0-9]+)+' | head -n 1)"
         test -n "$TAG"
 
-        APK="app/build/outputs/apk/release/DolphinAssistant-v30.7.2-update-channel.apk"
-        SHA="app/build/outputs/apk/release/DolphinAssistant-v30.7.2-update-channel.sha256"
+        APK="app/build/outputs/apk/release/DolphinAssistant-v30.7.2-stable.apk"
+        SHA="app/build/outputs/apk/release/DolphinAssistant-v30.7.2-stable.sha256"
         NOTES="Updater-visible DolphinAssistant release generated from the validated signed build. Future preview/test builds are also published as updater-visible Releases. APK integrity is protected by the paired SHA-256 asset and the app verifies the package name and signing certificate before opening Android's installer."
 
         if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
@@ -124,7 +124,7 @@ jobs:
       with:
         name: DolphinAssistant-v30.7.2-Update-Channel
         path: |
-          app/build/outputs/apk/release/DolphinAssistant-v30.7.2-update-channel.apk
-          app/build/outputs/apk/release/DolphinAssistant-v30.7.2-update-channel.sha256
+          app/build/outputs/apk/release/DolphinAssistant-v30.7.2-stable.apk
+          app/build/outputs/apk/release/DolphinAssistant-v30.7.2-stable.sha256
         if-no-files-found: error
         retention-days: 30
