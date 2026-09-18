@@ -611,7 +611,7 @@ private fun DiagnosticsPanel(
                 if (!diag.running) diagnostics.runFullDiagnostics()
             }
 
-            if (!diag.running && diag.failures > 0) {
+            if (!diag.running && diag.failures > 0 && diag.autoUploadSuccess != true) {
                 ActionButton("EXPORT ONLY FAILURES", Green) {
                     scope.launch {
                         val file = diagnostics.createFailuresZip()
@@ -637,9 +637,26 @@ private fun DiagnosticsPanel(
             }
         }
 
-        if (diag.lastExportName != null) {
+        if (diag.autoUploadMessage != null) {
+            Spacer(Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Badge(
+                    if (diag.autoUploadSuccess == true) "GITHUB AUTO UPLOAD"
+                    else "GITHUB UPLOAD",
+                    if (diag.autoUploadSuccess == true) Green else Amber
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    diag.autoUploadMessage,
+                    color = if (diag.autoUploadSuccess == true) Green else TextMuted,
+                    fontSize = 9.sp
+                )
+            }
+        }
+
+        if (diag.lastExportName != null && diag.autoUploadSuccess != true) {
             Text(
-                "최근 실패 ZIP · " + diag.lastExportName,
+                "로컬 실패 ZIP · " + diag.lastExportName,
                 color = TextMuted,
                 fontSize = 8.sp,
                 modifier = Modifier.padding(top = 8.dp)
