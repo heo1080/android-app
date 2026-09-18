@@ -50,7 +50,8 @@ data class DiagnosticsUiState(
     val finishedAtMs: Long = 0L,
     val lastExportName: String? = null,
     val autoUploadMessage: String? = null,
-    val autoUploadSuccess: Boolean? = null
+    val autoUploadSuccess: Boolean? = null,
+    val recentDrive: RecentDriveSnapshot? = null
 ) {
     val passed: Int get() = results.count { it.status == DiagnosticStatus.PASS }
     val total: Int get() = results.size
@@ -62,7 +63,8 @@ data class DiagnosticsUiState(
 class DolphinDiagnostics(
     context: Context,
     private val repository: VehicleRepository,
-    private val audio: NextAudioEngine
+    private val audio: NextAudioEngine,
+    private val recentDriveRecorder: RecentDriveRecorder
 ) {
     private val app = context.applicationContext
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -92,11 +94,13 @@ class DolphinDiagnostics(
         if (sessionJob?.isActive == true) return
         sessionJob = scope.launch {
             val started = System.currentTimeMillis()
+            val driveSnapshot = recentDriveRecorder.snapshot()
             val id = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date(started))
             _state.value = DiagnosticsUiState(
                 running = true,
                 sessionId = id,
-                startedAtMs = started
+                startedAtMs = started,
+                recentDrive = driveSnapshot
             )
             NextLogger.i("DIAGNOSTICS", "session start id=" + id)
 
@@ -144,7 +148,8 @@ class DolphinDiagnostics(
             _state.value = _state.value.copy(
                 running = false,
                 finishedAtMs = finished,
-                results = results.toList()
+                results = results.toList(),
+                recentDrive = driveSnapshot
             )
             NextLogger.i(
                 "DIAGNOSTICS",
@@ -157,7 +162,8 @@ class DolphinDiagnostics(
                 it.status == DiagnosticStatus.FAIL ||
                     it.status == DiagnosticStatus.NO_SIGNAL
             }
-            if (hasFailures) {
+            val hasRecentDriveIssue = driveSnapshot.hasIssue
+            if (hasFailures || hasRecentDriveIssue) {
                 val config = DiagnosticUploadManager
                     .enableAutomaticallyWhenConfigured(app)
                 val failureZip = createFailuresZip()
@@ -193,6 +199,8 @@ class DolphinDiagnostics(
                     autoUploadSuccess = true
                 )
             }
+
+            recentDriveRecorder.reset()
         }
     }
 
@@ -387,7 +395,12 @@ class DolphinDiagnostics(
         val failures = snapshot.results.filter {
             it.status == DiagnosticStatus.FAIL || it.status == DiagnosticStatus.NO_SIGNAL
         }
-        if (snapshot.running || snapshot.sessionId == null || failures.isEmpty()) return@withContext null
+        val driveIssue = snapshot.recentDrive?.hasIssue == true
+        if (
+            snapshot.running ||
+            snapshot.sessionId == null ||
+            (failures.isEmpty() && !driveIssue)
+        ) return@withContext null
 
         val dir = File(app.getExternalFilesDir(null) ?: app.filesDir, "diagnostics").apply { mkdirs() }
         dir.listFiles()
@@ -404,6 +417,10 @@ class DolphinDiagnostics(
             putText(zip, "vehicle_state.json", vehicleStateJson(lastVehicleState).toString(2))
             putText(zip, "audio_timeline.txt", audioTimeline(snapshot.startedAtMs, snapshot.finishedAtMs))
             putText(zip, "failure_windows.txt", failureWindows(failures))
+            snapshot.recentDrive?.let { recent ->
+                putText(zip, "recent_drive.json", recentDriveJson(recent).toString(2))
+                putText(zip, "recent_drive_events.txt", recentDriveEventsText(recent))
+            }
         }
 
         _state.value = snapshot.copy(lastExportName = file.name)
@@ -419,6 +436,10 @@ class DolphinDiagnostics(
             put("finished_at_ms", state.finishedAtMs)
             put("health_pass", state.passed)
             put("health_total", state.total)
+            state.recentDrive?.let { recent ->
+                put("recent_drive_duration_ms", recent.durationMs)
+                put("recent_drive_issue", recent.hasIssue)
+            }
             put("results", JSONArray().apply {
                 state.results.forEach { r ->
                     put(JSONObject().apply {
@@ -432,6 +453,53 @@ class DolphinDiagnostics(
                     })
                 }
             })
+        }
+
+    private fun recentDriveJson(snapshot: RecentDriveSnapshot): JSONObject =
+        JSONObject().apply {
+            put("started_at_ms", snapshot.startedAtMs)
+            put("captured_at_ms", snapshot.capturedAtMs)
+            put("duration_ms", snapshot.durationMs)
+            put("max_speed_kph", snapshot.maxSpeedKph ?: JSONObject.NULL)
+            put("live_audio_requests", snapshot.liveAudioRequests)
+            put("live_audio_starts", snapshot.liveAudioStarts)
+            put("slow_audio_starts_over_2s", snapshot.slowAudioStarts)
+            put("audio_errors", snapshot.audioErrors)
+            put("has_issue", snapshot.hasIssue)
+            put("observations", JSONArray().apply {
+                snapshot.observations.forEach { observation ->
+                    put(JSONObject().apply {
+                        put("id", observation.id)
+                        put("title", observation.title)
+                        put("status", observation.status.name)
+                        put("detail", observation.detail)
+                        put("confidence", observation.confidence.name)
+                    })
+                }
+            })
+        }
+
+    private fun recentDriveEventsText(snapshot: RecentDriveSnapshot): String =
+        buildString {
+            append("session ")
+            append(snapshot.startedAtMs)
+            append(" -> ")
+            append(snapshot.capturedAtMs)
+            append("\n")
+            snapshot.events.forEach { event ->
+                append(event.timestampMs)
+                append(" ")
+                append(event.type)
+                append(" ")
+                append(event.value)
+                event.raw?.let {
+                    append(" raw=")
+                    append(it)
+                }
+                append(" confidence=")
+                append(event.confidence.name)
+                append("\n")
+            }
         }
 
     private fun vehicleStateJson(state: VehicleState): JSONObject =
