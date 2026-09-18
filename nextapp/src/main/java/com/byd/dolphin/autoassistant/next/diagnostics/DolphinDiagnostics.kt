@@ -124,6 +124,15 @@ class DolphinDiagnostics(
             publish(autoHoldResult(snapshot))
             publish(signalResult("REGEN", "REGEN", snapshot.regenMode) { it })
             publish(signalResult("DRIVE", "DRIVE MODE", snapshot.driveMode) { it })
+            publish(signalResult("EPB", "SIDE BRAKE", snapshot.epbApplied) {
+                if (it) "ON" else "OFF"
+            })
+            publish(signalResult("SNOW", "SNOW MODE", snapshot.snowMode) {
+                if (it) "ON" else "OFF"
+            })
+            publish(signalResult("ICC", "ICC", snapshot.iccActive) {
+                if (it) "ON" else "OFF"
+            })
 
             val route = latestRouteForSession(started)
             publish(
