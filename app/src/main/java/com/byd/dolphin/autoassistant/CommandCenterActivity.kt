@@ -27,6 +27,7 @@ import com.byd.dolphin.autoassistant.manager.DiagnosticCaptureManager
 import com.byd.dolphin.autoassistant.manager.FloatingOverlayManager
 import com.byd.dolphin.autoassistant.manager.NowPlayingManager
 import com.byd.dolphin.autoassistant.manager.NowPlayingSnapshot
+import com.byd.dolphin.autoassistant.manager.SeatMemoryCapabilityManager
 import com.byd.dolphin.autoassistant.manager.VoiceAndSoundManager
 import com.byd.dolphin.autoassistant.ui.NowPlayingCardView
 import com.byd.dolphin.autoassistant.ui.VoicePhraseCatalog
@@ -54,6 +55,7 @@ class CommandCenterActivity : AppCompatActivity() {
         AUTOMATION("자동화", "AUTOMATION"),
         ALERTS("주행 알림", "DRIVE ALERTS"),
         HUD("HUD / 클러스터", "DISPLAY LINK"),
+        SEAT("메모리 시트", "SEAT MEMORY"),
         APPS("앱", "APP & SHORTCUT"),
         LAB("실험실", "LAB"),
         LOG("로그", "DIAGNOSTICS"),
@@ -239,6 +241,7 @@ class CommandCenterActivity : AppCompatActivity() {
             Section.AUTOMATION -> renderAutomation()
             Section.ALERTS -> renderAlerts()
             Section.HUD -> renderHud()
+            Section.SEAT -> renderSeatMemory()
             Section.APPS -> renderApps()
             Section.LAB -> renderLab()
             Section.LOG -> renderLog()
@@ -338,6 +341,12 @@ class CommandCenterActivity : AppCompatActivity() {
                 "설치 앱과 차량 동작을 앱서랍 16개 슬롯 또는 플로팅 독에 추가",
                 listOf(Action("바로가기 만들기") { openLegacy("button") })
             )
+        )
+
+        addWideCard(
+            "SEAT MEMORY", "메모리 시트",
+            "M1/M2/M3 프로필 · 실차 시트 API 상태 · 다운미러 연구를 전용 화면에서 관리합니다.",
+            listOf(Action("메모리 시트") { render(Section.SEAT) })
         )
     }
 
@@ -541,6 +550,63 @@ class CommandCenterActivity : AppCompatActivity() {
                 listOf(Action("클러스터 설정") { openLegacy("cluster") })
             )
         )
+    }
+
+    private fun renderSeatMemory() {
+        val capability = SeatMemoryCapabilityManager.snapshot(this)
+
+        addWideCard(
+            "SEAT MEMORY", "운전석 메모리 M1 / M2 / M3",
+            if (capability.anyWritableMemoryPathVerified) {
+                "실차에서 시트 위치 쓰기 후보 경로가 확인되었습니다. 저장/호출 동작은 안전 인터록과 함께 단계적으로 검증합니다."
+            } else {
+                "전용 메뉴와 프로필 구조는 유지합니다. 현재 펌웨어에서 위치 getter/setter 쌍이 완전히 확인되지 않아 모터 호출만 잠겨 있습니다."
+            },
+            listOf(
+                Action("API 상태 확인") { showSeatMemoryCapabilityDialog() },
+                Action("통합 연구 화면") { openLegacy("audio_lab") }
+            )
+        )
+
+        addCardRow(
+            featureCard(
+                "M1", "메모리 1",
+                if (capability.anyWritableMemoryPathVerified) "시트 위치 저장/호출 후보" else "위치 setter 검증 대기",
+                emptyList()
+            ),
+            featureCard(
+                "M2", "메모리 2",
+                if (capability.anyWritableMemoryPathVerified) "시트 위치 저장/호출 후보" else "위치 setter 검증 대기",
+                emptyList()
+            ),
+            featureCard(
+                "M3", "메모리 3",
+                if (capability.anyWritableMemoryPathVerified) "시트 위치 저장/호출 후보" else "위치 setter 검증 대기",
+                emptyList()
+            )
+        )
+
+        addWideCard(
+            "REVERSE MIRROR", "다운미러",
+            "메모리 시트와 별개로 R단 다운미러는 0~8 setter 단계 캘리브레이션 방식으로 연구 중입니다.",
+            listOf(Action("다운미러 / 편의 LAB") { openLegacy("audio_lab") })
+        )
+
+        addInfo(
+            "현재 실차 판정",
+            SeatMemoryCapabilityManager.summary(this)
+        )
+    }
+
+    private fun showSeatMemoryCapabilityDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("메모리 시트 API 상태")
+            .setMessage(
+                SeatMemoryCapabilityManager.summary(this) +
+                    "\n위치 제어 setter가 확인되기 전에는 M1/M2/M3 모터 이동을 실행하지 않습니다."
+            )
+            .setPositiveButton("확인", null)
+            .show()
     }
 
     private fun renderApps() {
