@@ -56,8 +56,8 @@ jobs:
         BADGING="$("$AAPT" dump badging "$APK" | head -n 1)"
         echo "$BADGING"
         echo "$BADGING" | grep -q "name='com.byd.dolphin.autoassistant'"
-        echo "$BADGING" | grep -q "versionCode='110'"
-        echo "$BADGING" | grep -q "v34.0.0"
+        echo "$BADGING" | grep -q "versionCode='111'"
+        echo "$BADGING" | grep -q "v34.1.0"
 
     - name: Decode and validate stable signing keystore
       shell: bash
@@ -85,7 +85,7 @@ jobs:
         export PASS
         APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
         UNSIGNED="nextapp/build/outputs/apk/release/nextapp-release-unsigned.apk"
-        SIGNED="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.0.0.apk"
+        SIGNED="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.1.0.apk"
         "$APKSIGNER" sign \
           --ks "$RUNNER_TEMP/dolphin-release.jks" \
           --ks-key-alias dolphinassistant \
@@ -94,7 +94,7 @@ jobs:
           --out "$SIGNED" \
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
-        sha256sum "$SIGNED" | tee nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.0.0.sha256
+        sha256sum "$SIGNED" | tee nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.1.0.sha256
 
     - name: Publish updater-visible Next release
       shell: bash
@@ -102,25 +102,25 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       run: |
         set -euo pipefail
-        TAG="v34.0.0"
-        APK="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.0.0.apk"
-        SHA="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.0.0.sha256"
-        NOTES="DolphinAssistant Next v34.0.0 transforms the approved dashboard concept into DolphinAssistant Launcher. HOME no longer uses the legacy left rail/header: it is a single full-screen automotive dashboard with live MediaSession album art/app/title/artist/progress and playback controls on the left, compact FSD / SAFE DRIVE Surrounding Vision in the center, and a live vehicle-information panel on the right for TPMS candidates, gear, speed, remaining range candidates, charge-cycle distance, previous charge-cycle distance, regen, drive mode, lights, AutoHold, EPB and ICC. The lower area is split into Assistant menu tiles and an icon-first Quick Bar for heating, defrost, fan, temperature, HVAC, interior-light LAB, trunk/sunshade LAB and app drawer. Installed apps use their real icons in the launcher app drawer. DolphinAssistant is now registered as an Android HOME candidate with a safe HOME settings shortcut, while ignition ON independently auto-opens the launcher through the persistent foreground runtime using explicit local ADB start when available with Android startActivity fallback. HOME/relaunch always returns to the launcher dashboard. Existing v33.1.0 Cluster Hub, T90P HUD/TBT, split/multi-window, background-first media boot automation, diagnostics and private GitHub full-session upload remain included."
+        TAG="v34.1.0"
+        APK="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.1.0.apk"
+        SHA="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.1.0.sha256"
+        NOTES="DolphinAssistant Next v34.1.0 keeps the v34 Launcher and integrates the latest BYD Dolphin research probes. A central Capability Router now classifies BYD device families as READ_WRITE_CANDIDATE, READ_ONLY, BLOCKED or MISSING using read-only getInstance/getter probes plus setter inventory; results are visible in LAB and exported as capability_router.json. Ignition startup now includes a lightweight 60-second Launcher Watchdog that stops as soon as the Launcher resumes, otherwise retries explicit HOME start at most twice and never keeps stealing focus afterward. Cluster Hub adds a read-only 60-second TBT CORRELATION test for AUTONAVI_STANDARD_BROADCAST_SEND: it observes real OEM broadcasts, receiver/package candidates, Amap/autonavi service evidence and relevant logcat without sending a synthetic navigation broadcast. Cluster Hub also adds a read-only RESOURCE INSPECTOR that inventories candidate cluster_theme RCC/QML/QM/font/libBydCluster resources, file metadata/SHA256 and selected strings without modifying OEM files. FULL TEST SESSION now includes capability_router.json and tbt_correlation.json in addition to the full integrated log. All v34 Launcher media/FSD/vehicle dashboard, Quick Bar, background media startup, Cluster Hub projection labs, T90P HUD, multi-window and diagnostics remain included."
 
         if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
           gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
-          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant Next v34.0.0" --notes "$NOTES"
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant Next v34.1.0" --notes "$NOTES"
         else
           gh release create "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" \
-            --target "$GITHUB_SHA" --title "DolphinAssistant Next v34.0.0" --notes "$NOTES"
+            --target "$GITHUB_SHA" --title "DolphinAssistant Next v34.1.0" --notes "$NOTES"
         fi
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-Next-v34.0.0
+        name: DolphinAssistant-Next-v34.1.0
         path: |
-          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.0.0.apk
-          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.0.0.sha256
+          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.1.0.apk
+          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.1.0.sha256
         if-no-files-found: error
         retention-days: 30
