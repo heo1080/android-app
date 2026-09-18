@@ -21,7 +21,9 @@ object AdbPermissionManager {
     private const val TAG = "AdbPermissionManager"
 
     private val SYSTEM_GRANT_PERMISSIONS = listOf(
-        "android.permission.WRITE_SECURE_SETTINGS"
+        "android.permission.WRITE_SECURE_SETTINGS",
+        "android.permission.MEDIA_CONTENT_CONTROL",
+        "android.permission.MODIFY_AUDIO_ROUTING"
     )
 
     // COMMON 권한만 pm grant 가능한 런타임 권한이다. GET/SET은 이 차량에서
@@ -132,6 +134,8 @@ object AdbPermissionManager {
             // pm grant 하나가 실패해도 appops/알림 리스너는 반드시 별도로 계속 실행한다.
             val supplementalCommands = listOf(
                 "appops set $pkg SYSTEM_ALERT_WINDOW allow",
+                "appops set $pkg GET_USAGE_STATS allow",
+                "appops set $pkg RUN_IN_BACKGROUND allow",
                 "cmd notification allow_listener $pkg/.hud.MultiNavNotificationListener"
             )
             for (command in supplementalCommands) {
