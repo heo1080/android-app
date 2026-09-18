@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.byd.dolphin.autoassistant.next.audio.NextAudioEngine
 import com.byd.dolphin.autoassistant.next.core.NextLogger
 import com.byd.dolphin.autoassistant.next.diagnostics.DolphinDiagnostics
+import com.byd.dolphin.autoassistant.next.diagnostics.RecentDriveRecorder
 import com.byd.dolphin.autoassistant.next.events.NextEventEngine
 import com.byd.dolphin.autoassistant.next.ui.NextApp
 import com.byd.dolphin.autoassistant.next.vehicle.VehicleRepository
@@ -18,6 +19,7 @@ class NextMainActivity : ComponentActivity() {
     private lateinit var audio: NextAudioEngine
     private lateinit var events: NextEventEngine
     private lateinit var diagnostics: DolphinDiagnostics
+    private lateinit var recentDrive: RecentDriveRecorder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,9 +34,11 @@ class NextMainActivity : ComponentActivity() {
         repository = VehicleRepository(this)
         audio = NextAudioEngine(this)
         events = NextEventEngine(repository, audio)
-        diagnostics = DolphinDiagnostics(this, repository, audio)
+        recentDrive = RecentDriveRecorder(repository, audio)
+        diagnostics = DolphinDiagnostics(this, repository, audio, recentDrive)
         repository.start()
         events.start()
+        recentDrive.start()
 
         setContent {
             NextApp(
@@ -46,6 +50,7 @@ class NextMainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        recentDrive.stop()
         events.stop()
         repository.stop()
         super.onDestroy()
