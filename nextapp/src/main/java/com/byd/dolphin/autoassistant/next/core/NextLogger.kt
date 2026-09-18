@@ -3,9 +3,6 @@ package com.byd.dolphin.autoassistant.next.core
 import android.content.Context
 import android.util.Log
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 object NextLogger {
     data class Entry(
@@ -17,15 +14,15 @@ object NextLogger {
 
     private const val ROOT = "DA_NEXT"
     private const val RING_MAX = 2400
-    @Volatile private var logFile: File? = null
     private val ring = ArrayDeque<Entry>()
     private val ringLock = Any()
 
     fun init(context: Context) {
-        if (logFile != null) return
-        val dir = File(context.getExternalFilesDir(null) ?: context.filesDir, "diagnostics").apply { mkdirs() }
-        logFile = File(dir, "DolphinAssistant_Next.log")
-        i("BOOT", "logger initialized")
+        runCatching {
+            val dir = File(context.getExternalFilesDir(null) ?: context.filesDir, "diagnostics").apply { mkdirs() }
+            File(dir, "DolphinAssistant_Next.log").delete()
+        }
+        i("BOOT", "rolling in-memory logger initialized")
     }
 
     fun d(tag: String, msg: String) = write("D", tag, msg, null)
@@ -49,11 +46,6 @@ object NextLogger {
             "I" -> Log.i(fullTag, msg, t)
             "W" -> Log.w(fullTag, msg, t)
             else -> Log.e(fullTag, msg, t)
-        }
-        runCatching {
-            val stamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(Date())
-            val extra = t?.let { "\n" + Log.getStackTraceString(it) }.orEmpty()
-            logFile?.appendText(stamp + " " + level + " " + tag + " " + msg + extra + "\n")
         }
     }
 }
