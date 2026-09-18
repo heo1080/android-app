@@ -76,9 +76,9 @@ import kotlinx.coroutines.withContext
 import kotlin.math.max
 
 private val LBg = Color(0xFF050A0F)
-private val LPanel = Color(0xFF0C151D)
-private val LPanel2 = Color(0xFF101D27)
-private val LBorder = Color(0xFF263A47)
+private val LPanel = Color(0xFF0A141C)
+private val LPanel2 = Color(0xFF111E27)
+private val LBorder = Color(0xFF233946)
 private val LText = Color(0xFFF4F8FA)
 private val LMuted = Color(0xFF8EA2B1)
 private val LCyan = Color(0xFF36D7FF)
@@ -182,7 +182,7 @@ fun DolphinLauncherHome(
                 activity = activity,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(74.dp),
+                    .height(68.dp),
                 onApps = { appDrawer = true }
             )
         }
@@ -754,20 +754,40 @@ private fun LauncherMenuTile(
 ) {
     Surface(
         modifier = Modifier
-            .width(154.dp)
+            .width(138.dp)
             .fillMaxHeight(),
         color = LPanel,
-        shape = RoundedCornerShape(17.dp),
-        border = BorderStroke(1.dp, accent.copy(alpha = 0.35f)),
+        shape = RoundedCornerShape(20.dp),
+        border = BorderStroke(1.dp, accent.copy(alpha = 0.38f)),
         onClick = onClick
     ) {
         Column(
-            modifier = Modifier.padding(11.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(icon, color = accent, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(5.dp))
-            Text(title, color = LText, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            Surface(
+                modifier = Modifier.size(38.dp),
+                color = accent.copy(alpha = 0.10f),
+                shape = RoundedCornerShape(14.dp),
+                border = BorderStroke(1.dp, accent.copy(alpha = 0.48f))
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        icon,
+                        color = accent,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                title,
+                color = LText,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1
+            )
             Text(
                 subtitle,
                 color = LMuted,
@@ -888,17 +908,17 @@ private fun LauncherQuickBar(
 @Composable
 private fun QuickIcon(glyph: String, description: String, onClick: () -> Unit) {
     Surface(
-        modifier = Modifier.size(55.dp),
-        color = LPanel2,
-        shape = RoundedCornerShape(15.dp),
-        border = BorderStroke(1.dp, LBorder),
+        modifier = Modifier.size(52.dp),
+        color = Color(0xFF0D1922),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, LCyan.copy(alpha = 0.20f)),
         onClick = onClick
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(
                 glyph,
-                color = LText,
-                fontSize = if (glyph.length <= 1) 22.sp else 13.sp,
+                color = Color(0xFFE8F3F7),
+                fontSize = if (glyph.length <= 1) 20.sp else 12.sp,
                 fontWeight = FontWeight.Bold
             )
         }
