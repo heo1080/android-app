@@ -11,8 +11,8 @@ android {
         applicationId = "com.byd.dolphin.autoassistant"
         minSdk = 29
         targetSdk = 34
-        versionCode = 111
-        versionName = "7.1.0-v34.1.0-research-probes"
+        versionCode = 112
+        versionName = "7.1.1-v34.1.1-dilink-install-fix"
     }
 
     buildTypes {
