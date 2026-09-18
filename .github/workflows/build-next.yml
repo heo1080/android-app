@@ -1,0 +1,88 @@
+name: Build DolphinAssistant Next
+
+on:
+  push:
+    branches: [ "next/foundation" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Gradle 8.9
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: "8.9"
+
+      - name: Build Next release
+        run: gradle -p next :app:assembleRelease --stacktrace
+
+      - name: Decode and validate stable signing keystore
+        shell: bash
+        env:
+          DOLPHIN_KEYSTORE_BASE64: ${{ secrets.DOLPHIN_KEYSTORE_BASE64 }}
+          DOLPHIN_KEYSTORE_PASSWORD: ${{ secrets.DOLPHIN_KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          KEYSTORE="$RUNNER_TEMP/dolphin-release.jks"
+          printf '%s' "$DOLPHIN_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE"
+          test -s "$KEYSTORE"
+          EXPECTED="6f343e0060b185d82a6002cf4be8650099a4ef02849083b210fba3bbe3889953"
+          ACTUAL="$(sha256sum "$KEYSTORE" | awk '{print $1}')"
+          test "$ACTUAL" = "$EXPECTED"
+          PASS="$(printf '%s' "$DOLPHIN_KEYSTORE_PASSWORD" | tr -d '\r\n')"
+          keytool -list -keystore "$KEYSTORE" -storepass "$PASS" -alias dolphinassistant >/dev/null
+
+      - name: Sign Next APK
+        shell: bash
+        env:
+          DOLPHIN_KEYSTORE_PASSWORD: ${{ secrets.DOLPHIN_KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          PASS="$(printf '%s' "$DOLPHIN_KEYSTORE_PASSWORD" | tr -d '\r\n')"
+          export PASS
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+          UNSIGNED="next/app/build/outputs/apk/release/app-release-unsigned.apk"
+          SIGNED="next/app/build/outputs/apk/release/DolphinAssistant-v32.0.0-next.apk"
+          "$APKSIGNER" sign             --ks "$RUNNER_TEMP/dolphin-release.jks"             --ks-key-alias dolphinassistant             --ks-pass env:PASS             --key-pass env:PASS             --out "$SIGNED"             "$UNSIGNED"
+          "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
+          sha256sum "$SIGNED" | tee next/app/build/outputs/apk/release/DolphinAssistant-v32.0.0-next.sha256
+
+      - name: Publish updater-visible Next release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="v32.0.0"
+          APK="next/app/build/outputs/apk/release/DolphinAssistant-v32.0.0-next.apk"
+          SHA="next/app/build/outputs/apk/release/DolphinAssistant-v32.0.0-next.sha256"
+          NOTES="DolphinAssistant Next Foundation. Completely new codebase under next/: Compose UI, VehicleGateway isolation, timestamp/confidence VehicleState, VERIFIED/BETA/LAB separation, verified front-seat and steering-wheel heating controls, clean in-app updater. Legacy v30/v31 UI and patch chain are not used by this APK."
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant Next v32.0.0" --notes "$NOTES"
+          else
+            gh release create "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY"               --target "$GITHUB_SHA" --title "DolphinAssistant Next v32.0.0" --notes "$NOTES"
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DolphinAssistant-Next-v32.0.0
+          path: |
+            next/app/build/outputs/apk/release/DolphinAssistant-v32.0.0-next.apk
+            next/app/build/outputs/apk/release/DolphinAssistant-v32.0.0-next.sha256
+          if-no-files-found: error
+          retention-days: 30
