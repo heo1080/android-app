@@ -1,12 +1,15 @@
 package com.byd.dolphin.autoassistant.manager
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.service.notification.NotificationListenerService
 import androidx.core.app.NotificationManagerCompat
+import com.byd.dolphin.autoassistant.hud.MultiNavNotificationListener
 import com.byd.dolphin.autoassistant.util.DolphinLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -144,6 +147,15 @@ object AdbPermissionManager {
                     failureCount++
                     failures += "$command=${result.message.take(180)}"
                 }
+            }
+
+            runCatching {
+                NotificationListenerService.requestRebind(
+                    ComponentName(context, MultiNavNotificationListener::class.java)
+                )
+                DolphinLogger.i(TAG, "notification listener rebind requested")
+            }.onFailure {
+                DolphinLogger.w(TAG, "notification listener rebind failed: ${it.message}")
             }
 
             // 실제 앱 프로세스 기준으로 최종 권한 상태를 재검사한다.
