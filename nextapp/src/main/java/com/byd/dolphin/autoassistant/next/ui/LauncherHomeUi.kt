@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.byd.dolphin.autoassistant.next.NextRuntime
 import com.byd.dolphin.autoassistant.next.diagnostics.DolphinDiagnostics
+import com.byd.dolphin.autoassistant.next.diagnostics.DiagnosticStatus
 import com.byd.dolphin.autoassistant.next.integrated.InstalledAppItem
 import com.byd.dolphin.autoassistant.next.integrated.InstalledApps
 import com.byd.dolphin.autoassistant.next.integrated.VehicleActionController
@@ -104,6 +105,7 @@ fun DolphinLauncherHome(
     val vehicleInfo by NextRuntime.launcherVehicleInfo.state.collectAsState()
     val diag by diagnostics.state.collectAsState()
     var appDrawer by remember { mutableStateOf(false) }
+    var showDiagnostics by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -163,8 +165,8 @@ fun DolphinLauncherHome(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 LauncherMenuTile("◉", "진단", healthLabel(diag.passed, diag.total, diag.failures), LCyan) {
+                    showDiagnostics = true
                     diagnostics.runFullDiagnostics()
-                    Toast.makeText(context, "DOLPHIN DIAGNOSTICS 시작", Toast.LENGTH_SHORT).show()
                 }
                 LauncherMenuTile("♫", "오디오", "TTS · 비프 · 경고", LBlue, onAudio)
                 LauncherMenuTile("▣", "화면 · HUD", "분할 · T90P · CLUSTER", LCyan, onScreen)
@@ -192,6 +194,191 @@ fun DolphinLauncherHome(
             onDismiss = { appDrawer = false }
         )
     }
+
+    if (showDiagnostics) {
+        LauncherDiagnosticsDialog(
+            diagnostics = diagnostics,
+            onDismiss = { showDiagnostics = false }
+        )
+    }
+}
+
+@Composable
+private fun LauncherDiagnosticsDialog(
+    diagnostics: DolphinDiagnostics,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val state by diagnostics.state.collectAsState()
+
+    AlertDialog(
+        onDismissRequest = {
+            if (!state.running) onDismiss()
+        },
+        title = {
+            Column {
+                Text(
+                    "DOLPHIN DIAGNOSTICS",
+                    color = LText,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    if (state.running) {
+                        "검사 진행 중 · " + state.passed + "/" + state.total
+                    } else {
+                        "완료 · PASS " + state.passed + "/" + state.total +
+                            " · CHECK " + state.failures
+                    },
+                    color = if (state.failures == 0 && !state.running) LGreen else LCyan,
+                    fontSize = 9.sp
+                )
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .height(470.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                if (state.results.isEmpty()) {
+                    Text(
+                        "TTS → BEEP → 차량 신호 → 운전석 오디오 순서로 검사합니다.",
+                        color = LMuted,
+                        fontSize = 10.sp
+                    )
+                } else {
+                    state.results.forEach { item ->
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            color = LPanel2,
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(
+                                1.dp,
+                                when (item.status) {
+                                    DiagnosticStatus.PASS -> LGreen.copy(alpha = 0.6f)
+                                    DiagnosticStatus.RUNNING -> LCyan.copy(alpha = 0.6f)
+                                    DiagnosticStatus.FAIL -> LRed.copy(alpha = 0.6f)
+                                    DiagnosticStatus.NO_SIGNAL -> LAmber.copy(alpha = 0.6f)
+                                }
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(Modifier.weight(1f)) {
+                                    Text(
+                                        item.title,
+                                        color = LText,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        item.detail,
+                                        color = LMuted,
+                                        fontSize = 8.sp
+                                    )
+                                }
+                                LauncherBadge(
+                                    item.status.name,
+                                    when (item.status) {
+                                        DiagnosticStatus.PASS -> LGreen
+                                        DiagnosticStatus.RUNNING -> LCyan
+                                        DiagnosticStatus.FAIL -> LRed
+                                        DiagnosticStatus.NO_SIGNAL -> LAmber
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                state.autoUploadMessage?.let {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "실패 자동 업로드 · " + it,
+                        color = if (state.autoUploadSuccess == true) LGreen else LAmber,
+                        fontSize = 8.sp
+                    )
+                }
+
+                state.fullUploadMessage?.let {
+                    Spacer(Modifier.height(5.dp))
+                    Text(
+                        "통합 세션 · " + it,
+                        color = if (state.fullUploadSuccess == true) LGreen else LAmber,
+                        fontSize = 8.sp
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Surface(
+                    color = LCyan.copy(alpha = 0.14f),
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.dp, LCyan.copy(alpha = 0.55f)),
+                    onClick = {
+                        if (!state.running) diagnostics.runFullDiagnostics()
+                    }
+                ) {
+                    Text(
+                        if (state.running) "검사 중" else "다시 검사",
+                        color = LText,
+                        fontSize = 9.sp,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp)
+                    )
+                }
+
+                Surface(
+                    color = LAmber.copy(alpha = 0.14f),
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.dp, LAmber.copy(alpha = 0.55f)),
+                    onClick = {
+                        if (!state.running) {
+                            scope.launch {
+                                val result = diagnostics.uploadFullTestSession()
+                                Toast.makeText(
+                                    context,
+                                    if (result.success) "통합 테스트 로그 업로드 완료"
+                                    else result.message,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        }
+                    }
+                ) {
+                    Text(
+                        "FULL TEST 업로드",
+                        color = LText,
+                        fontSize = 9.sp,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp)
+                    )
+                }
+
+                Surface(
+                    color = LPanel2,
+                    shape = RoundedCornerShape(10.dp),
+                    border = BorderStroke(1.dp, LBorder),
+                    onClick = {
+                        if (!state.running) onDismiss()
+                    }
+                ) {
+                    Text(
+                        "닫기",
+                        color = LText,
+                        fontSize = 9.sp,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp)
+                    )
+                }
+            }
+        },
+        containerColor = LPanel
+    )
 }
 
 @Composable
