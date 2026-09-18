@@ -34,6 +34,31 @@ class BydGateway(context: Context) {
         }
     }
 
+    fun readIntArray(className: String, methodName: String): IntArray? {
+        val key = className + "#" + methodName + "/array"
+        return try {
+            val instance = devices.getOrPut(className) {
+                val clazz = Class.forName(className)
+                clazz.getMethod("getInstance", Context::class.java)
+                    .invoke(null, BydPermissionContext.wrap(app))
+                    ?: error("getInstance returned null")
+            }
+            val method = methods.getOrPut(key) {
+                instance.javaClass.getMethod(methodName)
+            }
+            when (val value = method.invoke(instance)) {
+                is IntArray -> value
+                is Array<*> -> value.mapNotNull { (it as? Number)?.toInt() }.toIntArray()
+                else -> null
+            }
+        } catch (t: Throwable) {
+            devices.remove(className)
+            methods.remove(key)
+            reportOnce(key, t.cause ?: t)
+            null
+        }
+    }
+
     fun command(className: String, methodNames: List<String>, vararg args: Int): Boolean {
         for (name in methodNames) {
             val result = invokeRaw(className, name, *args)
@@ -108,5 +133,7 @@ class BydGateway(context: Context) {
         const val SPEED = "android.hardware.bydauto.speed.BYDAutoSpeedDevice"
         const val GEARBOX = "android.hardware.bydauto.gearbox.BYDAutoGearboxDevice"
         const val AC = "android.hardware.bydauto.ac.BYDAutoAcDevice"
+        const val RADAR = "android.hardware.bydauto.radar.BYDAutoRadarDevice"
+        const val PANORAMA = "android.hardware.bydauto.panorama.BYDAutoPanoramaDevice"
     }
 }
