@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import com.byd.dolphin.autoassistant.next.automation.NextRuntimeService
 import com.byd.dolphin.autoassistant.next.core.NextLogger
 import com.byd.dolphin.autoassistant.next.launcher.LauncherNavigationBus
+import com.byd.dolphin.autoassistant.next.launcher.LauncherPresenceTracker
 import com.byd.dolphin.autoassistant.next.ui.NextApp
 
 class NextMainActivity : ComponentActivity() {
@@ -38,6 +39,16 @@ class NextMainActivity : ComponentActivity() {
                 diagnostics = NextRuntime.diagnostics
             )
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        LauncherPresenceTracker.onResumed()
+    }
+
+    override fun onPause() {
+        LauncherPresenceTracker.onPaused()
+        super.onPause()
     }
 
     override fun onNewIntent(intent: Intent) {
