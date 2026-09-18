@@ -8,6 +8,7 @@ import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.byd.dolphin.autoassistant.next.NextRuntime
 import com.byd.dolphin.autoassistant.next.core.NextLogger
+import com.byd.dolphin.autoassistant.next.cluster.TbtCorrelationProbe
 import com.byd.dolphin.autoassistant.next.integrated.IntegratedSettings
 import com.byd.dolphin.autoassistant.next.launcher.LauncherStartController
 import com.byd.dolphin.autoassistant.next.launcher.LauncherWatchdog
@@ -31,6 +32,7 @@ class NextRuntimeService : Service() {
                 .build()
         )
         NextRuntime.start(this)
+        TbtCorrelationProbe.register(this)
         bootAutomation = BootAutomationController(this)
         launcherWatchdog = LauncherWatchdog(this)
         ignition = NextIgnitionMonitor(
@@ -57,6 +59,7 @@ class NextRuntimeService : Service() {
     override fun onDestroy() {
         ignition.stop()
         launcherWatchdog.stop()
+        TbtCorrelationProbe.unregister(this)
         QuickDockOverlay.hideFloating(this)
         super.onDestroy()
     }
