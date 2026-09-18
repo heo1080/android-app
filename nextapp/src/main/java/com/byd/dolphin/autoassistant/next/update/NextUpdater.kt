@@ -78,7 +78,7 @@ object NextUpdater {
                 .setMessage("DolphinAssistant가 내려받은 APK를 설치하려면 이 출처 허용이 필요합니다.")
                 .setNegativeButton("취소", null)
                 .setPositiveButton("설정 열기") { _, _ ->
-                    activity.startComponentActivity(
+                    activity.startActivity(
                         Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
                             Uri.parse("package:" + activity.packageName))
                     )
@@ -190,7 +190,7 @@ object NextUpdater {
             activity.packageName + ".fileprovider",
             file
         )
-        activity.startComponentActivity(Intent(Intent.ACTION_VIEW).apply {
+        activity.startActivity(Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "application/vnd.android.package-archive")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         })
