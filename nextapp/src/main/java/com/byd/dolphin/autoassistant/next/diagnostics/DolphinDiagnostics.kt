@@ -347,6 +347,9 @@ class DolphinDiagnostics(
         if (snapshot.running || snapshot.sessionId == null || failures.isEmpty()) return@withContext null
 
         val dir = File(app.getExternalFilesDir(null) ?: app.filesDir, "diagnostics").apply { mkdirs() }
+        dir.listFiles()
+            ?.filter { it.name.startsWith("FAIL_ONLY_") && it.name.endsWith(".zip") }
+            ?.forEach { it.delete() }
         val file = File(
             dir,
             "FAIL_ONLY_" + snapshot.sessionId + ".zip"
