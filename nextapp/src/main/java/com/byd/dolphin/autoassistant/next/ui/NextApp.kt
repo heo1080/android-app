@@ -1,5 +1,7 @@
 package com.byd.dolphin.autoassistant.next.ui
 
+import android.content.Intent
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
@@ -36,6 +38,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,12 +49,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.byd.dolphin.autoassistant.BuildConfig
 import com.byd.dolphin.autoassistant.next.audio.NextAudioEngine
+import com.byd.dolphin.autoassistant.next.diagnostics.DiagnosticStatus
+import com.byd.dolphin.autoassistant.next.diagnostics.DolphinDiagnostics
 import com.byd.dolphin.autoassistant.next.settings.AlertMode
 import com.byd.dolphin.autoassistant.next.settings.AlertProfile
 import com.byd.dolphin.autoassistant.next.settings.AlertSpec
 import com.byd.dolphin.autoassistant.next.settings.NextSettings
 import com.byd.dolphin.autoassistant.next.settings.PhraseMode
 import com.byd.dolphin.autoassistant.next.update.NextUpdater
+import androidx.core.content.FileProvider
+import kotlinx.coroutines.launch
 import com.byd.dolphin.autoassistant.next.vehicle.Confidence
 import com.byd.dolphin.autoassistant.next.vehicle.SignalValue
 import com.byd.dolphin.autoassistant.next.vehicle.VehicleRepository
@@ -77,11 +84,11 @@ private enum class Page(val title: String, val eyebrow: String) {
     AUDIO("오디오 · 경고", "AUDIO"),
     SCREEN("내비 · 화면", "DISPLAY"),
     AUTOMATION("자동화", "AUTO"),
-    LAB("LAB · 진단", "LAB")
+    LAB("LAB", "LAB")
 }
 
 @Composable
-fun NextApp(repository: VehicleRepository, audio: NextAudioEngine) {
+fun NextApp(repository: VehicleRepository, audio: NextAudioEngine, diagnostics: DolphinDiagnostics) {
     val context = LocalContext.current
     val activity = context as ComponentActivity
     val state by repository.state.collectAsState()
@@ -115,7 +122,7 @@ fun NextApp(repository: VehicleRepository, audio: NextAudioEngine) {
                     )
                     Spacer(Modifier.height(14.dp))
                     when (page) {
-                        Page.HOME -> HomePage(state = state, onGo = { page = it })
+                        Page.HOME -> HomePage(state = state, diagnostics = diagnostics, activity = activity, onGo = { page = it })
                         Page.DRIVE -> DrivePage(state = state, repository = repository, onAudio = { page = Page.AUDIO })
                         Page.VEHICLE -> VehiclePage(state = state, repository = repository)
                         Page.AUDIO -> key(settingsEpoch) {
@@ -126,7 +133,7 @@ fun NextApp(repository: VehicleRepository, audio: NextAudioEngine) {
                         }
                         Page.SCREEN -> ScreenPage()
                         Page.AUTOMATION -> AutomationPage()
-                        Page.LAB -> LabPage(state)
+                        Page.LAB -> LabPage()
                     }
                     Spacer(Modifier.height(32.dp))
                 }
@@ -238,11 +245,19 @@ private fun Header(page: Page, onUpdate: () -> Unit) {
 }
 
 @Composable
-private fun HomePage(state: VehicleState, onGo: (Page) -> Unit) {
+private fun HomePage(
+    state: VehicleState,
+    diagnostics: DolphinDiagnostics,
+    activity: ComponentActivity,
+    onGo: (Page) -> Unit
+) {
     HeroCard(
         title = "완전히 새로 시작한 DolphinAssistant",
         body = "화면만 바꾼 것이 아니라 BYD 신호, 상태, 이벤트, 오디오, UI를 각각 분리했습니다. 기존 패치 체인은 Next 빌드에 사용하지 않습니다."
     )
+
+    Section("DOLPHIN DIAGNOSTICS")
+    DiagnosticsPanel(diagnostics = diagnostics, activity = activity)
     Section("현재 연결 상태")
     Grid2(
         { SignalCard("기어", state.gear) },
@@ -491,8 +506,8 @@ private fun AutomationPage() {
 }
 
 @Composable
-private fun LabPage(state: VehicleState) {
-    Banner("LAB은 읽기·진단 중심입니다. 실차 검증 전에는 일반 제어 버튼으로 승격하지 않습니다.")
+private fun LabPage() {
+    Banner("LAB은 연구 후보만 표시합니다. 진단·로그·내보내기는 홈의 DOLPHIN DIAGNOSTICS 하나로 통합했습니다.")
 
     Section("차량 연구")
     InfoCard("실내등: device 1023 / FID 1330643002 · ambient 1069547536 후보", Red)
@@ -500,10 +515,137 @@ private fun LabPage(state: VehicleState) {
     InfoCard("전방 radar track: 0x280–0x289 후보 · read-only correlation", Red)
     InfoCard("계기판: 순정 TBT broadcast → AmapService → CAN 경로 correlation", Red)
     InfoCard("운전석 오디오: 앱 자체 stream14는 사용, 타 앱 UID routing은 LAB", Red)
+}
 
-    Section("현재 raw")
-    Grid2({ SignalCard("AVH raw", state.autoHoldRaw) }, { SignalCard("BSD raw", state.bsdRaw) })
-    Grid2({ SignalCard("브레이크", state.brakeDepth) }, { SignalCard("가속", state.acceleratorDepth) })
+@Composable
+private fun DiagnosticsPanel(
+    diagnostics: DolphinDiagnostics,
+    activity: ComponentActivity
+) {
+    val diag by diagnostics.state.collectAsState()
+    val scope = rememberCoroutineScope()
+
+    AppCard {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "DOLPHIN HEALTH · " + diag.passed + "/" + diag.total,
+                    color = TextMain,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    if (diag.running) "원터치 진단 실행 중"
+                    else if (diag.total == 0) "TTS → BEEP → GEAR → AUTO HOLD → REGEN → DRIVE MODE → DRIVER AUDIO"
+                    else "마지막 진단 · 실패/NO SIGNAL " + diag.failures + "건",
+                    color = TextMuted,
+                    fontSize = 10.sp
+                )
+            }
+            Badge(
+                if (diag.running) "RUNNING"
+                else if (diag.total == 0) "READY"
+                else if (diag.failures == 0) "PASS" else "CHECK",
+                if (diag.running) Cyan
+                else if (diag.total == 0) TextMuted
+                else if (diag.failures == 0) Green else Amber
+            )
+        }
+
+        if (diag.results.isNotEmpty()) {
+            Spacer(Modifier.height(12.dp))
+            diag.results.forEach { result ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        result.title,
+                        color = TextMain,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.width(112.dp)
+                    )
+                    Badge(
+                        when (result.status) {
+                            DiagnosticStatus.PASS -> "PASS"
+                            DiagnosticStatus.FAIL -> "FAIL"
+                            DiagnosticStatus.NO_SIGNAL -> "NO SIGNAL"
+                            DiagnosticStatus.RUNNING -> "RUNNING"
+                        },
+                        when (result.status) {
+                            DiagnosticStatus.PASS -> Green
+                            DiagnosticStatus.FAIL -> Red
+                            DiagnosticStatus.NO_SIGNAL -> Amber
+                            DiagnosticStatus.RUNNING -> Cyan
+                        }
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        result.detail,
+                        color = TextMuted,
+                        fontSize = 10.sp,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        result.confidence.name,
+                        color = confidenceColor(result.confidence),
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            ActionButton(
+                if (diag.running) "TEST DRIVE RUNNING" else "RUN TEST DRIVE",
+                Cyan
+            ) {
+                if (!diag.running) diagnostics.runFullDiagnostics()
+            }
+
+            if (!diag.running && diag.failures > 0) {
+                ActionButton("EXPORT ONLY FAILURES", Green) {
+                    scope.launch {
+                        val file = diagnostics.createFailuresZip()
+                        if (file == null) {
+                            Toast.makeText(activity, "내보낼 실패 항목이 없습니다.", Toast.LENGTH_SHORT).show()
+                            return@launch
+                        }
+                        val uri = FileProvider.getUriForFile(
+                            activity,
+                            activity.packageName + ".fileprovider",
+                            file
+                        )
+                        val send = Intent(Intent.ACTION_SEND).apply {
+                            type = "application/zip"
+                            putExtra(Intent.EXTRA_STREAM, uri)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        activity.startActivity(
+                            Intent.createChooser(send, "DOLPHIN DIAGNOSTICS")
+                        )
+                    }
+                }
+            }
+        }
+
+        if (diag.lastExportName != null) {
+            Text(
+                "최근 실패 ZIP · " + diag.lastExportName,
+                color = TextMuted,
+                fontSize = 8.sp,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+    }
 }
 
 @Composable
