@@ -10,9 +10,11 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -25,7 +27,10 @@ import com.byd.dolphin.autoassistant.manager.DiagnosticCaptureManager
 import com.byd.dolphin.autoassistant.manager.FloatingOverlayManager
 import com.byd.dolphin.autoassistant.manager.NowPlayingManager
 import com.byd.dolphin.autoassistant.manager.NowPlayingSnapshot
+import com.byd.dolphin.autoassistant.manager.VoiceAndSoundManager
 import com.byd.dolphin.autoassistant.ui.NowPlayingCardView
+import com.byd.dolphin.autoassistant.ui.VoicePhraseCatalog
+import com.byd.dolphin.autoassistant.ui.VoicePhraseSpec
 import com.byd.dolphin.autoassistant.service.DolphinService
 import com.byd.dolphin.autoassistant.util.DolphinLogger
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +69,7 @@ class CommandCenterActivity : AppCompatActivity() {
 
     private lateinit var driveReader: DriveSignalReader
     private lateinit var nowPlayingManager: NowPlayingManager
+    private lateinit var voicePreviewManager: VoiceAndSoundManager
     private var nowPlaying = NowPlayingSnapshot()
     private var nowPlayingCard: NowPlayingCardView? = null
     private var frame = DriveFrame()
@@ -90,6 +96,7 @@ class CommandCenterActivity : AppCompatActivity() {
         DiagnosticCaptureManager.recoverInterruptedSession(this)
         driveReader = DriveSignalReader(this)
         nowPlayingManager = NowPlayingManager(this)
+        voicePreviewManager = VoiceAndSoundManager(this)
 
         setContentView(buildUi())
         ensureNotificationPermission()
@@ -101,6 +108,7 @@ class CommandCenterActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         driveReader.close()
+        if (::voicePreviewManager.isInitialized) voicePreviewManager.release()
         super.onDestroy()
     }
 
@@ -395,14 +403,129 @@ class CommandCenterActivity : AppCompatActivity() {
     private fun renderAlerts() {
         addWideCard(
             "VOICE & ALERT", "맞춤형 음성 안내",
-            "P/R/N/D · ECO/NORMAL/SPORT · 회생제동 STANDARD/HIGH · AutoHold · EPB · ICC · 전방차 출발",
-            listOf(Action("음성 안내 설정") { openLegacy("voice") })
+            "각 차량 상태별 현재 설정 문구를 직접 확인하고 기본/추천/사용자 문구를 선택·수정·미리듣기합니다.",
+            listOf(
+                Action("기존 상세 설정") { openLegacy("voice") },
+                Action("안전 경고음") { openLegacy("safety") }
+            )
         )
-        addWideCard(
-            "SAFETY AUDIO", "BSD / 경고음 / 오디오",
-            "순정 경고와 충돌하지 않도록 안전 관련 경고음과 오디오 테스트를 별도 관리합니다.",
-            listOf(Action("안전 오디오 설정") { openLegacy("safety") })
-        )
+
+        var lastGroup = ""
+        VoicePhraseCatalog.all(this).forEach { spec ->
+            if (spec.group != lastGroup) {
+                lastGroup = spec.group
+                content.addView(text(lastGroup, 11f, cyanSoft, true).apply {
+                    setPadding(dp(2), dp(7), 0, dp(5))
+                })
+            }
+            addVoicePhraseRow(spec)
+        }
+    }
+
+    private fun addVoicePhraseRow(spec: VoicePhraseSpec) {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(13), dp(9), dp(13), dp(9))
+            background = gradient(cardBg2, cardBg, dp(13).toFloat(), Color.rgb(11, 68, 84))
+        }
+
+        val copy = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        copy.addView(text(spec.label, 12.5f, Color.WHITE, true))
+        copy.addView(text("현재  ·  " + spec.current(), 10f, cyan, true).apply {
+            setPadding(0, dp(2), 0, 0)
+        })
+        copy.addView(text("기본  ·  " + spec.defaultPhrase, 8.8f, Color.rgb(151, 180, 190), false).apply {
+            setPadding(0, dp(2), 0, 0)
+        })
+        copy.addView(text("추천  ·  " + spec.recommendedPhrase, 8.8f, Color.rgb(184, 154, 227), false).apply {
+            setPadding(0, dp(1), 0, 0)
+        })
+        card.addView(copy, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+
+        val preview = actionButton("미리듣기") { voicePreviewManager.speak(spec.current()) }
+        card.addView(preview, LinearLayout.LayoutParams(dp(82), dp(34)).apply {
+            setMargins(dp(6), 0, dp(5), 0)
+        })
+
+        val edit = actionButton("수정") { showVoicePhraseEditor(spec) }
+        card.addView(edit, LinearLayout.LayoutParams(dp(68), dp(34)))
+
+        content.addView(card, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { setMargins(0, 0, 0, dp(6)) })
+    }
+
+    private fun showVoicePhraseEditor(spec: VoicePhraseSpec) {
+        val current = spec.current()
+        val input = EditText(this).apply {
+            setText(current)
+            setSelection(text.length)
+            setTextColor(Color.WHITE)
+            setHintTextColor(muted)
+            backgroundTintList = android.content.res.ColorStateList.valueOf(cyan)
+            minLines = 2
+        }
+
+        val body = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(18), dp(8), dp(18), dp(4))
+        }
+        body.addView(text("현재 설정", 9f, cyanSoft, true))
+        body.addView(text(current, 12f, Color.WHITE, true).apply {
+            setPadding(0, dp(2), 0, dp(7))
+        })
+
+        val presets = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        val defaultButton = actionButton("기본 문구") {
+            input.setText(spec.defaultPhrase)
+            input.setSelection(input.text.length)
+            voicePreviewManager.speak(spec.defaultPhrase)
+        }
+        val recommendedButton = actionButton("추천 문구") {
+            input.setText(spec.recommendedPhrase)
+            input.setSelection(input.text.length)
+            voicePreviewManager.speak(spec.recommendedPhrase)
+        }
+        presets.addView(defaultButton, LinearLayout.LayoutParams(0, dp(38), 1f).apply {
+            setMargins(0, 0, dp(4), 0)
+        })
+        presets.addView(recommendedButton, LinearLayout.LayoutParams(0, dp(38), 1f).apply {
+            setMargins(dp(4), 0, 0, 0)
+        })
+        body.addView(presets)
+
+        body.addView(text("기본 · " + spec.defaultPhrase, 9f, Color.rgb(151, 180, 190), false).apply {
+            setPadding(0, dp(8), 0, 0)
+        })
+        body.addView(text("추천 · " + spec.recommendedPhrase, 9f, Color.rgb(184, 154, 227), false).apply {
+            setPadding(0, dp(2), 0, dp(8))
+        })
+        body.addView(text("사용자 문구", 9f, cyanSoft, true))
+        body.addView(input)
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(spec.group + " · " + spec.label)
+            .setView(body)
+            .setNeutralButton("미리듣기", null)
+            .setNegativeButton("취소", null)
+            .setPositiveButton("저장", null)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                input.text.toString().trim().takeIf { it.isNotEmpty() }?.let(voicePreviewManager::speak)
+            }
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val newPhrase = input.text.toString().trim()
+                if (newPhrase.isEmpty()) return@setOnClickListener
+                spec.save(newPhrase)
+                dialog.dismiss()
+                render(Section.ALERTS)
+            }
+        }
+        dialog.show()
     }
 
     private fun renderHud() {
