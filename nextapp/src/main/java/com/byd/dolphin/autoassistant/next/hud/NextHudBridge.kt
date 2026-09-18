@@ -6,6 +6,8 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothProfile
 import android.bluetooth.BluetoothSocket
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import com.byd.dolphin.autoassistant.next.core.BydPermissionContext
 import com.byd.dolphin.autoassistant.next.core.NextLogger
 import com.byd.dolphin.autoassistant.next.integrated.IntegratedSettings
@@ -27,6 +29,7 @@ data class NavCue(
 
 object NextHudBridge {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val main = Handler(Looper.getMainLooper())
     private val spp = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
     private val observed = UUID.fromString("fe010000-1234-5678-abcd-00805f9b34fb")
     private var socket: BluetoothSocket? = null
@@ -38,27 +41,39 @@ object NextHudBridge {
         private set
 
     @SuppressLint("MissingPermission")
-    fun scanPaired(context: Context): List<String> {
-        val adapter = BluetoothAdapter.getDefaultAdapter() ?: return listOf("BluetoothAdapter unavailable")
-        val items = adapter.bondedDevices.orEmpty().map { d ->
-            "name=" + d.name + " addr=" + mask(d.address) + " type=" + d.type +
-                " uuids=" + d.uuids?.joinToString { it.uuid.toString() }.orEmpty()
+    fun scanPaired(context: Context): List<String> =
+        runCatching {
+            val adapter = BluetoothAdapter.getDefaultAdapter()
+                ?: return@runCatching listOf("BluetoothAdapter unavailable")
+            val items = adapter.bondedDevices.orEmpty().map { d ->
+                "name=" + d.name + " addr=" + mask(d.address) + " type=" + d.type +
+                    " uuids=" + d.uuids?.joinToString { it.uuid.toString() }.orEmpty()
+            }
+            NextLogger.i("HUD_BT", "paired=" + items.joinToString(" | "))
+            items
+        }.getOrElse {
+            NextLogger.e("HUD_BT", "paired scan failed", it)
+            listOf("HUD Bluetooth scan failed: " + it.javaClass.simpleName + ":" + it.message)
         }
-        NextLogger.i("HUD_BT", "paired=" + items.joinToString(" | "))
-        return items
-    }
 
     @SuppressLint("MissingPermission")
     fun connectData(context: Context, callback: (Boolean, String) -> Unit) {
-        val adapter = BluetoothAdapter.getDefaultAdapter()
-        if (adapter == null || !adapter.isEnabled) {
-            callback(false, "Bluetooth OFF")
+        val adapter = runCatching { BluetoothAdapter.getDefaultAdapter() }.getOrNull()
+        if (adapter == null || !runCatching { adapter.isEnabled }.getOrDefault(false)) {
+            deliver(callback, false, "Bluetooth OFF")
             return
         }
         scope.launch {
-            val target = adapter.bondedDevices.orEmpty().firstOrNull(::looksLikeHud)
+            try {
+                val target = runCatching {
+                    adapter.bondedDevices.orEmpty().firstOrNull(::looksLikeHud)
+                }.getOrElse {
+                    NextLogger.e("HUD_BT", "bondedDevices failed", it)
+                    deliver(callback, false, "HUD Bluetooth permission/API error: " + it.javaClass.simpleName)
+                    return@launch
+                }
             if (target == null) {
-                callback(false, "T90P/HUDDATA/HUDAUDIO bonded device not found")
+                deliver(callback, false, "T90P/HUDDATA/HUDAUDIO bonded device not found")
                 return@launch
             }
             close()
@@ -78,7 +93,7 @@ object NextHudBridge {
                     dataConnected = true
                     val msg = "HUDDATA connected name=" + target.name + " uuid=" + uuid
                     NextLogger.i("HUD_BT", msg)
-                    callback(true, msg)
+                    deliver(callback, true, msg)
                     return@launch
                 } catch (t: Throwable) {
                     last = t.javaClass.simpleName + ":" + t.message
@@ -86,20 +101,35 @@ object NextHudBridge {
                     close()
                 }
             }
-            callback(false, "HUDDATA connect failed " + last)
+            deliver(callback, false, "HUDDATA connect failed " + last)
+            } catch (t: Throwable) {
+                NextLogger.e("HUD_BT", "connectData fatal guard", t)
+                close()
+                deliver(
+                    callback,
+                    false,
+                    "HUDDATA error " + t.javaClass.simpleName + ":" + t.message
+                )
+            }
         }
     }
 
     @SuppressLint("MissingPermission")
     fun probeAudioProfile(context: Context, callback: (Boolean, String) -> Unit) {
-        val adapter = BluetoothAdapter.getDefaultAdapter()
-        if (adapter == null || !adapter.isEnabled) {
-            callback(false, "Bluetooth OFF")
+        val adapter = runCatching { BluetoothAdapter.getDefaultAdapter() }.getOrNull()
+        if (adapter == null || !runCatching { adapter.isEnabled }.getOrDefault(false)) {
+            deliver(callback, false, "Bluetooth OFF")
             return
         }
-        val target = adapter.bondedDevices.orEmpty().firstOrNull(::looksLikeHud)
+        val target = runCatching {
+            adapter.bondedDevices.orEmpty().firstOrNull(::looksLikeHud)
+        }.getOrElse {
+            NextLogger.e("HUD_AUDIO", "bondedDevices failed", it)
+            deliver(callback, false, "HUDAudio permission/API error: " + it.javaClass.simpleName)
+            return
+        }
         if (target == null) {
-            callback(false, "HUDAudio/T90P bonded device not found")
+            deliver(callback, false, "HUDAudio/T90P bonded device not found")
             return
         }
         var any = false
@@ -112,7 +142,7 @@ object NextHudBridge {
                     " connected=" + proxy.connectedDevices.map { it.name }
                 NextLogger.i("HUD_AUDIO", msg)
                 adapter.closeProfileProxy(profile, proxy)
-                callback(any, msg)
+                deliver(callback, any, msg)
             }
             override fun onServiceDisconnected(profile: Int) {
                 NextLogger.i("HUD_AUDIO", "profile disconnected=" + profile)
@@ -120,7 +150,7 @@ object NextHudBridge {
         }
         val a2dp = adapter.getProfileProxy(context.applicationContext, listener, BluetoothProfile.A2DP)
         val headset = adapter.getProfileProxy(context.applicationContext, listener, BluetoothProfile.HEADSET)
-        if (!a2dp && !headset) callback(false, "cannot query A2DP/HEADSET")
+        if (!a2dp && !headset) deliver(callback, false, "cannot query A2DP/HEADSET")
     }
 
     fun sendTestNavigation(context: Context): Boolean =
@@ -269,6 +299,17 @@ object NextHudBridge {
     private fun invokeString(target: Any, name: String, value: String): Int =
         (target.javaClass.getMethod(name, String::class.java).invoke(target, value) as? Number)?.toInt()
             ?: Int.MIN_VALUE
+
+    private fun deliver(
+        callback: (Boolean, String) -> Unit,
+        ok: Boolean,
+        message: String
+    ) {
+        main.post {
+            runCatching { callback(ok, message) }
+                .onFailure { NextLogger.e("HUD_CALLBACK", "UI callback failed", it) }
+        }
+    }
 
     @Synchronized
     fun close() {
