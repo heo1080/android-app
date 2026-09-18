@@ -38,6 +38,7 @@ object AdbPermissionManager {
         "android.permission.BYDAUTO_BODYWORK_COMMON",
         "android.permission.BYDAUTO_LIGHT_COMMON",
         "android.permission.BYDAUTO_RADAR_COMMON",
+        "android.permission.BYDAUTO_TYRE_COMMON",
         "android.permission.BYDAUTO_INSTRUMENT_COMMON"
     )
 
