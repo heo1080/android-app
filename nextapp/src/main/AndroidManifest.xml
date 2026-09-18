@@ -56,6 +56,19 @@
             android:label="Dolphin Cluster Lab" />
 
         <activity
+            android:name=".next.overlay.QuickBarDrawerActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:label="Dolphin Quick Bar"
+            android:theme="@style/Theme.DolphinNext">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".next.overlay.QuickDockLauncherActivity"
             android:exported="true"
             android:excludeFromRecents="true"
@@ -83,6 +96,7 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
 
