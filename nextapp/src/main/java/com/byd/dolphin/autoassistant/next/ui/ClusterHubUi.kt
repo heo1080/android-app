@@ -19,6 +19,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.byd.dolphin.autoassistant.next.cluster.ClusterHubLab
+import com.byd.dolphin.autoassistant.next.cluster.ClusterResourceInspector
+import com.byd.dolphin.autoassistant.next.cluster.TbtCorrelationProbe
 import com.byd.dolphin.autoassistant.next.integrated.InstalledAppItem
 import com.byd.dolphin.autoassistant.next.integrated.InstalledApps
 import kotlinx.coroutines.Dispatchers
@@ -52,6 +55,8 @@ fun ClusterHubPanel() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val apps = remember { InstalledApps.launcherApps(context) }
+
+    val tbtCorrelation by TbtCorrelationProbe.state.collectAsState()
 
     var selectedPackage by remember { mutableStateOf(apps.firstOrNull()?.packageName.orEmpty()) }
     var picker by remember { mutableStateOf(false) }
@@ -164,10 +169,56 @@ fun ClusterHubPanel() {
                     }
                 }
 
+                HubButton("RESOURCE INSPECTOR", CHRed) {
+                    scope.launch {
+                        status = "Cluster Resource Inspector 실행 중…"
+                        val report = withContext(Dispatchers.IO) {
+                            ClusterResourceInspector.inspect(context)
+                        }
+                        status = report.result + " · files=" + report.files.size +
+                            " · read-only inventory logged"
+                    }
+                }
+
                 HubButton("STOCK RESTORE", CHGreen) {
                     val result = ClusterHubLab.restoreStock(context)
                     status = result.detail
                 }
+            }
+
+            Spacer(Modifier.height(7.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                HubButton(
+                    if (tbtCorrelation.active) "TBT LISTENING…" else "TBT CORRELATION 60s",
+                    CHAmber
+                ) {
+                    if (tbtCorrelation.active) {
+                        TbtCorrelationProbe.stopWindow()
+                        status = "TBT correlation stopped"
+                    } else {
+                        TbtCorrelationProbe.startWindow(context, 60_000L)
+                        status = "60초 동안 순정 TMAP/내비 안내를 발생시키세요. broadcast/service/logcat을 read-only로 관찰합니다."
+                    }
+                }
+                HubButton("TBT RESULT", CHCyan) {
+                    status =
+                        tbtCorrelation.result +
+                        " · events=" + tbtCorrelation.eventCount +
+                        " · receivers=" + tbtCorrelation.receiverCandidates.size +
+                        " · packages=" + tbtCorrelation.packageCandidates.size
+                }
+            }
+
+            if (tbtCorrelation.active || tbtCorrelation.result != "IDLE") {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    "TBT · " + tbtCorrelation.result +
+                        " · events " + tbtCorrelation.eventCount +
+                        " · receiver " + tbtCorrelation.receiverCandidates.size,
+                    color = if (tbtCorrelation.eventCount > 0) CHGreen else CHAmber,
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             Spacer(Modifier.height(9.dp))
