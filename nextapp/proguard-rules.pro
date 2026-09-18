@@ -1,0 +1,3 @@
+-keep class android.hardware.bydauto.** { *; }
+-keep class com.k2fsa.sherpa.onnx.** { *; }
+-keepattributes *Annotation*
