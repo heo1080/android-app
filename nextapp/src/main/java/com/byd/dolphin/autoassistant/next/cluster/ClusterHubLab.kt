@@ -290,7 +290,7 @@ object ClusterHubLab {
         if (!NextRuntime.isStarted()) return false
         val state = NextRuntime.repository.state.value
         val gear = state.gear.value
-        val speed = state.speedKph.value ?: 0.0
-        return gear == "P" || speed <= 0.5
+        val speed = state.speedKph.value
+        return gear == "P" || (speed != null && speed <= 0.5)
     }
 }
