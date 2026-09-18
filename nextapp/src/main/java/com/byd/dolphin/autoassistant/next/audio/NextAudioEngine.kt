@@ -77,23 +77,49 @@ class NextAudioEngine(context: Context) {
         NextLogger.i("AUDIO_PROBE", key + " " + phase.name + " " + detail)
     }
 
-    fun emit(eventKey: String, state: String) {
+    fun emit(eventKey: String, state: String, probePrefix: String = "LIVE") {
         val spec = NextSettings.alertSpecs.firstOrNull { it.key == eventKey } ?: return
         val profile = NextSettings.getAlertProfile(app, eventKey)
         when (profile.mode) {
             AlertMode.OFF -> NextLogger.d("AUDIO", eventKey + " OFF")
             AlertMode.BEEP -> {
                 val preset = NextSettings.getBeep(profile.beepId)
-                scope.launch { playPreset(preset.frequencies, preset.durationMs, preset.gapMs) }
+                val probeKey = probePrefix + "_" + eventKey
+                trace(probeKey, AudioProbePhase.REQUEST, "BEEP")
+                scope.launch {
+                    playPreset(
+                        preset.frequencies,
+                        preset.durationMs,
+                        preset.gapMs,
+                        probeKey = probeKey
+                    )
+                }
             }
             AlertMode.TTS -> {
                 val text = NextSettings.resolveText(spec, profile, state)
                 val voice = NextSettings.getVoice(app, profile)
-                val accepted = SupertonicEngine.speak(app, text, voice.sid, voice.speed)
+                val probeKey = probePrefix + "_" + eventKey
+                trace(probeKey, AudioProbePhase.REQUEST, "TTS")
+                val accepted = SupertonicEngine.speak(
+                    app,
+                    text,
+                    voice.sid,
+                    voice.speed
+                ) { startedAt, route ->
+                    trace(probeKey, AudioProbePhase.START, "TTS / " + route, startedAt)
+                }
                 NextLogger.i("AUDIO", eventKey + " TTS accepted=" + accepted + " voice=" + voice.id + " text=" + text)
                 if (!accepted) {
+                    trace(probeKey, AudioProbePhase.ERROR, "TTS MODEL NOT READY")
                     val preset = NextSettings.getBeep(profile.beepId)
-                    scope.launch { playPreset(preset.frequencies, preset.durationMs, preset.gapMs) }
+                    scope.launch {
+                        playPreset(
+                            preset.frequencies,
+                            preset.durationMs,
+                            preset.gapMs,
+                            probeKey = probePrefix + "_FALLBACK_" + eventKey
+                        )
+                    }
                 }
             }
         }
@@ -113,7 +139,7 @@ class NextAudioEngine(context: Context) {
             NextSettings.EVENT_LEADING -> "출발"
             else -> "안내"
         }
-        emit(eventKey, sample)
+        emit(eventKey, sample, probePrefix = "PREVIEW")
     }
 
     fun previewVoice(voiceId: String) {
