@@ -493,7 +493,7 @@ private fun LabPage(state: VehicleState) {
 
     Section("현재 raw")
     Grid2({ SignalCard("AVH raw", state.autoHoldRaw) }, { SignalCard("BSD raw", state.bsdRaw) })
-    Grid2(SignalCard("브레이크", state.brakeDepth), SignalCard("가속", state.acceleratorDepth))
+    Grid2({ SignalCard("브레이크", state.brakeDepth) }, { SignalCard("가속", state.acceleratorDepth) })
 }
 
 @Composable
