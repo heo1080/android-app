@@ -258,7 +258,7 @@ private fun HomePage(state: VehicleState, onGo: (Page) -> Unit) {
         { LinkCard("오디오 · 경고", "공통 출력 엔진", "ACTIVE", Cyan) { onGo(Page.AUDIO) } }
     )
     Grid2(
-        { LinkCard("BSD", "raw 변화 + 해당 방향 깜박이", "BETA", Amber) { onGo(Page.DRIVE) } },
+        { LinkCard("FSD / Surrounding Vision", "주변센서 + 실차 상태 기반 read-only world model", "BETA", Cyan) { onGo(Page.DRIVE) } },
         { LinkCard("연구 기능", "실내등 · 다운미러 · 계기판 · radar", "LAB", Red) { onGo(Page.LAB) } }
     )
 
@@ -271,6 +271,10 @@ private fun HomePage(state: VehicleState, onGo: (Page) -> Unit) {
 @Composable
 private fun DrivePage(state: VehicleState, onAudio: () -> Unit) {
     Banner("이 화면은 감지 상태만 보여줍니다. 비프/TTS 종류와 문구는 오디오 · 경고에서만 설정합니다.")
+
+    Section("FSD / Surrounding Vision")
+    SurroundingVisionSection(state)
+
     Section("핵심 주행 상태")
     Grid2({ SignalCard("기어", state.gear) }, { SignalCard("주행모드", state.driveMode) })
     Grid2({ SignalCard("회생제동", state.regenMode) }, { SignalCard("스노우", state.snowMode) })
