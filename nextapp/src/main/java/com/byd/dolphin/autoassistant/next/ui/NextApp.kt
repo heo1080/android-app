@@ -637,7 +637,8 @@ private fun DiagnosticsPanel(
             }
         }
 
-        if (diag.autoUploadMessage != null) {
+        val uploadMessage = diag.autoUploadMessage
+        if (uploadMessage != null) {
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Badge(
@@ -647,7 +648,7 @@ private fun DiagnosticsPanel(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    diag.autoUploadMessage,
+                    uploadMessage,
                     color = if (diag.autoUploadSuccess == true) Green else TextMuted,
                     fontSize = 9.sp
                 )
