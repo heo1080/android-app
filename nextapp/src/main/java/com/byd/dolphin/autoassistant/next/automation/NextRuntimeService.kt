@@ -10,11 +10,13 @@ import com.byd.dolphin.autoassistant.next.NextRuntime
 import com.byd.dolphin.autoassistant.next.core.NextLogger
 import com.byd.dolphin.autoassistant.next.integrated.IntegratedSettings
 import com.byd.dolphin.autoassistant.next.launcher.LauncherStartController
+import com.byd.dolphin.autoassistant.next.launcher.LauncherWatchdog
 import com.byd.dolphin.autoassistant.next.overlay.QuickDockOverlay
 
 class NextRuntimeService : Service() {
     private lateinit var ignition: NextIgnitionMonitor
     private lateinit var bootAutomation: BootAutomationController
+    private lateinit var launcherWatchdog: LauncherWatchdog
 
     override fun onCreate() {
         super.onCreate()
@@ -30,11 +32,13 @@ class NextRuntimeService : Service() {
         )
         NextRuntime.start(this)
         bootAutomation = BootAutomationController(this)
+        launcherWatchdog = LauncherWatchdog(this)
         ignition = NextIgnitionMonitor(
             this,
             onPowerOn = {
                 NextLogger.i("RUNTIME", "ignition ON")
                 LauncherStartController.showHome(this, "ignition_on")
+                launcherWatchdog.startForIgnition()
                 bootAutomation.onIgnitionOn()
                 if (IntegratedSettings.floatingEnabled(this)) {
                     QuickDockOverlay.showFloating(this)
@@ -42,6 +46,7 @@ class NextRuntimeService : Service() {
             },
             onPowerOff = {
                 NextLogger.i("RUNTIME", "ignition OFF")
+                launcherWatchdog.stop()
                 bootAutomation.onIgnitionOff()
                 QuickDockOverlay.hideFloating(this)
             }
@@ -51,6 +56,7 @@ class NextRuntimeService : Service() {
 
     override fun onDestroy() {
         ignition.stop()
+        launcherWatchdog.stop()
         QuickDockOverlay.hideFloating(this)
         super.onDestroy()
     }
