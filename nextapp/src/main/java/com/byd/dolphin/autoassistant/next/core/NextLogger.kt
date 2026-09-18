@@ -8,8 +8,18 @@ import java.util.Date
 import java.util.Locale
 
 object NextLogger {
+    data class Entry(
+        val timestampMs: Long,
+        val level: String,
+        val tag: String,
+        val message: String
+    )
+
     private const val ROOT = "DA_NEXT"
+    private const val RING_MAX = 2400
     @Volatile private var logFile: File? = null
+    private val ring = ArrayDeque<Entry>()
+    private val ringLock = Any()
 
     fun init(context: Context) {
         if (logFile != null) return
@@ -23,8 +33,17 @@ object NextLogger {
     fun w(tag: String, msg: String) = write("W", tag, msg, null)
     fun e(tag: String, msg: String, t: Throwable? = null) = write("E", tag, msg, t)
 
+    fun snapshot(fromMs: Long, toMs: Long): List<Entry> = synchronized(ringLock) {
+        ring.filter { it.timestampMs in fromMs..toMs }
+    }
+
     private fun write(level: String, tag: String, msg: String, t: Throwable?) {
         val fullTag = "$ROOT/$tag"
+        val now = System.currentTimeMillis()
+        synchronized(ringLock) {
+            ring.addLast(Entry(now, level, tag, msg))
+            while (ring.size > RING_MAX) ring.removeFirst()
+        }
         when (level) {
             "D" -> Log.d(fullTag, msg, t)
             "I" -> Log.i(fullTag, msg, t)
