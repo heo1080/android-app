@@ -73,12 +73,7 @@
             android:exported="true"
             android:excludeFromRecents="true"
             android:theme="@style/Theme.DolphinNext"
-            android:label="Dolphin Quick Dock">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:label="Dolphin Quick Dock" />
 
         <service
             android:name=".next.automation.NextRuntimeService"
