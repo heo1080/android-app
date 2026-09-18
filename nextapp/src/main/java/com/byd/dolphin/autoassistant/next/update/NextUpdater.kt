@@ -5,6 +5,7 @@ import android.app.ProgressDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -170,19 +171,95 @@ object NextUpdater {
     @Suppress("DEPRECATION")
     private fun verifyPackageAndSigner(activity: ComponentActivity, file: File) {
         val pm = activity.packageManager
-        val archive = pm.getPackageArchiveInfo(file.absolutePath, PackageManager.GET_SIGNING_CERTIFICATES)
-            ?: error("APK 패키지 정보를 읽지 못했습니다.")
-        require(archive.packageName == activity.packageName) { "패키지명이 다릅니다." }
 
-        val installed = pm.getPackageInfo(activity.packageName, PackageManager.GET_SIGNING_CERTIFICATES)
-        val installedDigests = installed.signingInfo?.apkContentsSigners
-            ?.map { sha256(it.toByteArray()) }?.toSet().orEmpty()
-        val archiveDigests = archive.signingInfo?.apkContentsSigners
-            ?.map { sha256(it.toByteArray()) }?.toSet().orEmpty()
-        require(installedDigests.isNotEmpty() && installedDigests == archiveDigests) {
-            "서명이 현재 앱과 다릅니다."
+        val archiveModern = runCatching {
+            pm.getPackageArchiveInfo(
+                file.absolutePath,
+                PackageManager.GET_SIGNING_CERTIFICATES
+            )
+        }.getOrNull()
+
+        val archiveLegacy = runCatching {
+            pm.getPackageArchiveInfo(
+                file.absolutePath,
+                PackageManager.GET_SIGNATURES
+            )
+        }.getOrNull()
+
+        val archive = archiveModern ?: archiveLegacy
+            ?: error("APK 패키지 정보를 읽지 못했습니다.")
+
+        require(archive.packageName == activity.packageName) {
+            "패키지명이 다릅니다."
+        }
+
+        val installedModern = runCatching {
+            pm.getPackageInfo(
+                activity.packageName,
+                PackageManager.GET_SIGNING_CERTIFICATES
+            )
+        }.getOrNull()
+
+        val installedLegacy = runCatching {
+            pm.getPackageInfo(
+                activity.packageName,
+                PackageManager.GET_SIGNATURES
+            )
+        }.getOrNull()
+
+        val installedDigests = linkedSetOf<String>().apply {
+            addAll(signingInfoDigests(installedModern))
+            addAll(legacySignatureDigests(installedLegacy))
+        }
+
+        val archiveDigests = linkedSetOf<String>().apply {
+            addAll(signingInfoDigests(archiveModern))
+            addAll(legacySignatureDigests(archiveLegacy))
+        }
+
+        NextLogger.i(
+            "UPDATE_SIGNER",
+            "sdk=" + Build.VERSION.SDK_INT +
+                " installed=" + installedDigests.joinToString(",") +
+                " archive=" + archiveDigests.joinToString(",")
+        )
+
+        require(installedDigests.isNotEmpty()) {
+            "현재 앱의 서명 정보를 읽지 못했습니다."
+        }
+        require(archiveDigests.isNotEmpty()) {
+            "업데이트 APK의 서명 정보를 읽지 못했습니다."
+        }
+
+        val compatible = installedDigests.intersect(archiveDigests).isNotEmpty()
+        require(compatible) {
+            "서명이 현재 앱과 다릅니다.\n현재=" +
+                installedDigests.joinToString(",") +
+                "\n업데이트=" + archiveDigests.joinToString(",")
         }
     }
+
+    @Suppress("DEPRECATION")
+    private fun signingInfoDigests(info: android.content.pm.PackageInfo?): Set<String> {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return emptySet()
+        val signing = info?.signingInfo ?: return emptySet()
+        val signatures = if (signing.hasPastSigningCertificates()) {
+            signing.signingCertificateHistory
+        } else {
+            signing.apkContentsSigners
+        }
+        return signatures
+            ?.map { sha256(it.toByteArray()) }
+            ?.toSet()
+            .orEmpty()
+    }
+
+    @Suppress("DEPRECATION")
+    private fun legacySignatureDigests(info: android.content.pm.PackageInfo?): Set<String> =
+        info?.signatures
+            ?.map { sha256(it.toByteArray()) }
+            ?.toSet()
+            .orEmpty()
 
     private fun openInstaller(activity: ComponentActivity, file: File) {
         val uri = FileProvider.getUriForFile(
