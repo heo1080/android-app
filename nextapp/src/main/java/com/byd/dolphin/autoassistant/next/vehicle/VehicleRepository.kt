@@ -54,6 +54,14 @@ class VehicleRepository(context: Context) {
         val speed = gateway.readNumber(BydGateway.SPEED, "getCurrentSpeed")?.toDouble()
         val brake = gateway.readNumber(BydGateway.SPEED, "getBrakeDeepness")?.toInt()
         val accel = gateway.readNumber(BydGateway.SPEED, "getAccelerateDeepness")?.toInt()
+        val panoramaWorkRaw = gateway.readNumber(BydGateway.PANORAMA, "getPanoWorkState")?.toInt()
+        val panoramaOutputRaw = gateway.readNumber(BydGateway.PANORAMA, "getPanoOutputState")?.toInt()
+        val radarProbeStates = gateway.readIntArray(BydGateway.RADAR, "getAllRadarProbeStates")
+        val radarDistances = (1..8).map { area ->
+            gateway.readNumber(BydGateway.RADAR, "getRadarObstacleDistance", area)
+                ?.toInt()
+                ?.takeIf { it in 0..155 }
+        }
 
         val gear = SignalResolver.gear(gearRaw)
         val drive = SignalResolver.driveMode(instrumentDriveRaw, operationRaw)
@@ -94,10 +102,57 @@ class VehicleRepository(context: Context) {
             driverHeat = driverHeat,
             passengerHeat = passengerHeat,
             steeringHeat = steeringHeat,
+            panoramaWork = next(previous.panoramaWork, panoramaWorkRaw, panoramaWorkRaw, Confidence.BETA, now),
+            panoramaOutput = next(previous.panoramaOutput, panoramaOutputRaw, panoramaOutputRaw, Confidence.BETA, now),
+            parkingSensors = buildParkingSensors(
+                previous = previous.parkingSensors,
+                probeStates = radarProbeStates,
+                distances = radarDistances,
+                now = now
+            ),
             lastUpdatedMs = now
         )
         logTransitions(previous, nextState, instrumentDriveRaw, operationRaw)
         _state.value = nextState
+    }
+
+    private fun buildParkingSensors(
+        previous: List<ParkingSensorSample>,
+        probeStates: IntArray?,
+        distances: List<Int?>,
+        now: Long
+    ): List<ParkingSensorSample> {
+        val labels = listOf(
+            "좌전", "우전", "좌후", "우후",
+            "좌측", "우측", "전좌중", "전우중"
+        )
+        return labels.indices.map { index ->
+            val prior = previous.getOrNull(index)
+            val probe = probeStates?.getOrNull(index)
+            val distance = distances.getOrNull(index)
+            val hasFresh = probe != null || distance != null
+            if (hasFresh) {
+                ParkingSensorSample(
+                    area = index + 1,
+                    label = labels[index],
+                    probeStateRaw = probe,
+                    distanceCm = distance,
+                    timestampMs = now,
+                    confidence = Confidence.BETA,
+                    stale = false
+                )
+            } else if (prior != null) {
+                val age = if (prior.timestampMs == 0L) Long.MAX_VALUE else now - prior.timestampMs
+                prior.copy(stale = age > 1500L)
+            } else {
+                ParkingSensorSample(
+                    area = index + 1,
+                    label = labels[index],
+                    confidence = Confidence.BETA,
+                    stale = true
+                )
+            }
+        }
     }
 
     fun setSeatHeat(seat: Int, level: Int): Boolean {
