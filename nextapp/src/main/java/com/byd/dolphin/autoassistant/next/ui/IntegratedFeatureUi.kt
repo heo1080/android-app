@@ -197,6 +197,12 @@ fun IntegratedDisplayPanel() {
         StatusText(status)
     }
 
+    FeatureTitle(
+        "계기판 CLUSTER HUB",
+        "Native TBT · 앱 투사 · 커스텀 UI · 테마/Qt/RCC · Display/Surface · 순정 복구"
+    )
+    ClusterHubPanel()
+
     if (pickerSlot >= 0) {
         SingleAppPicker(
             apps = apps,
