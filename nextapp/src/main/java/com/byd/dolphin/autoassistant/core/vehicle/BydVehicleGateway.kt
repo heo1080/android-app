@@ -2,6 +2,7 @@ package com.byd.dolphin.autoassistant.core.vehicle
 
 import android.content.Context
 import com.byd.dolphin.autoassistant.core.NextLog
+import com.byd.dolphin.autoassistant.core.model.SignalStatus
 import com.byd.dolphin.autoassistant.core.model.VehicleState
 import java.lang.reflect.Method
 import java.util.concurrent.ConcurrentHashMap
@@ -56,11 +57,36 @@ class BydVehicleGateway(context: Context) {
             else -> null
         }
 
+        val now = System.currentTimeMillis()
         val any = listOf(speed, gearRaw, driveRaw, regenRaw, avhRaw, bsdRaw).any { it != null }
+        val health = linkedMapOf<String, SignalStatus>()
+        fun mark(id: String, value: Any?, source: String, confidence: Float) {
+            if (value != null) health[id] = SignalStatus(source, now, confidence)
+        }
+        mark("speed", speed, "SPEED.current", .90f)
+        mark("gear", gearRaw, "GEARBOX.currentGear", .98f)
+        mark("epb", epbRaw, "GEARBOX.EPB", .95f)
+        mark("drive", driveRaw, "INSTRUMENT.driveInterface", .70f)
+        mark("regen", regenRaw, "SETTING.energyFeedback", .85f)
+        mark("snow", snowRaw, "ENERGY.roadSurfaceMode", .75f)
+        mark("avh", avhRaw, "ADAS.AVH", .55f)
+        mark("brake", brake, "SPEED.brakeDeepness", .80f)
+        mark("accelerator", accel, "SPEED.accelerateDeepness", .80f)
+        mark("tja", tjaRaw, "ADAS.TJA", .55f)
+        mark("bsd", bsdRaw, "ADAS.BSD", .55f)
+        mark("turn", turnRaw, "LIGHT.turn", .85f)
+        mark("front7", frontLeft, "RADAR.area7", .45f)
+        mark("front8", frontRight, "RADAR.area8", .45f)
+        mark("seatDriver", seatDriver, "SETTING.seat.driver", .98f)
+        mark("seatPassenger", seatPassenger, "SETTING.seat.passenger", .98f)
+        mark("steeringHeat", steering, "SETTING.steeringHeat", .98f)
+        mark("ac", ac, "AC.power", .90f)
 
         return VehicleState(
             connected = any,
-            sampledAtMs = System.currentTimeMillis(),
+            sampledAtMs = now,
+            lastProbeMs = if (any) now else 0L,
+            signals = health,
             speedKmh = speed,
             gear = decodeGear(gearRaw),
             gearRaw = gearRaw,
