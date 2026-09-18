@@ -19,6 +19,7 @@ data class TpmsSnapshot(
     val frontRight: TpmsWheel = TpmsWheel(),
     val rearLeft: TpmsWheel = TpmsWheel(),
     val rearRight: TpmsWheel = TpmsWheel(),
+    val unitRaw: Int? = null,
     val unitLabel: String = "RAW"
 )
 
@@ -63,6 +64,7 @@ class TpmsReader(context: Context) {
         val rl = wheel(lrArea, "getTyrePressureLeftRear")
         val rr = wheel(rrArea, "getTyrePressureRightRear")
         val available = listOf(fl, fr, rl, rr).any { it.pressureRaw != null }
+        val unitRaw = readPressureUnit()
 
         return TpmsSnapshot(
             available = available,
@@ -77,14 +79,49 @@ class TpmsReader(context: Context) {
             frontRight = fr,
             rearLeft = rl,
             rearRight = rr,
-            unitLabel = "RAW"
+            unitRaw = unitRaw,
+            unitLabel = when (unitRaw) {
+                1 -> "bar"
+                2 -> "psi"
+                3 -> "kPa"
+                else -> "RAW"
+            }
         )
+    }
+
+    fun displayPressure(snapshot: TpmsSnapshot, wheel: TpmsWheel): String {
+        val raw = wheel.pressureRaw ?: return "--"
+        return when (snapshot.unitRaw) {
+            1 -> String.format(java.util.Locale.US, "%.1f bar", raw / 10.0)
+            2 -> String.format(java.util.Locale.US, "%.1f psi", raw / 10.0)
+            3 -> String.format(java.util.Locale.US, "%.0f kPa", raw)
+            else -> String.format(java.util.Locale.US, "%.0f RAW", raw)
+        }
     }
 
     fun close() {
         device = null
         clazz = null
     }
+
+    private fun readPressureUnit(): Int? = runCatching {
+        val ic = Class.forName(INSTRUMENT_CLASS)
+        val inst = ic.getMethod("getInstance", Context::class.java)
+            .invoke(null, BydPermissionContext.wrap(app)) ?: return@runCatching null
+        val eventClass = Class.forName(EVENT_VALUE_CLASS)
+        val method = inst.javaClass.methods.firstOrNull {
+            it.name == "get" &&
+                it.parameterTypes.size == 2 &&
+                it.parameterTypes[0] == IntArray::class.java &&
+                it.parameterTypes[1] == Class::class.java
+        } ?: return@runCatching null
+        val value = method.invoke(inst, intArrayOf(PRESSURE_UNIT_FID), eventClass)
+            ?: return@runCatching null
+        runCatching { value.javaClass.getField("intValue").getInt(value) }
+            .recoverCatching {
+                (value.javaClass.getMethod("getIntValue").invoke(value) as Number).toInt()
+            }.getOrNull()
+    }.onFailure { report("pressureUnit", it.cause ?: it) }.getOrNull()
 
     private fun getDevice(): Any? {
         device?.let { return it }
@@ -128,5 +165,8 @@ class TpmsReader(context: Context) {
     companion object {
         private const val TAG = "TPMS"
         private const val TYRE_CLASS = "android.hardware.bydauto.tyre.BYDAutoTyreDevice"
+        private const val INSTRUMENT_CLASS = "android.hardware.bydauto.instrument.BYDAutoInstrumentDevice"
+        private const val EVENT_VALUE_CLASS = "android.hardware.bydauto.BYDAutoEventValue"
+        private const val PRESSURE_UNIT_FID = 4208
     }
 }
