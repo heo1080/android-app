@@ -125,7 +125,7 @@ object UpdateManager {
                     name = obj.optString("name").ifBlank { obj.optString("tag_name") },
                     apkUrl = apk.optString("browser_download_url")
                 )
-            }.maxByOrNull { parse(it.tag) }
+            }.maxWithOrNull(Comparator { a, b -> compare(parse(a.tag), parse(b.tag)) })
         } finally {
             conn.disconnect()
         }
