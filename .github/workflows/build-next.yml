@@ -56,8 +56,8 @@ jobs:
         BADGING="$("$AAPT" dump badging "$APK" | head -n 1)"
         echo "$BADGING"
         echo "$BADGING" | grep -q "name='com.byd.dolphin.autoassistant'"
-        echo "$BADGING" | grep -q "versionCode='108'"
-        echo "$BADGING" | grep -q "v33.0.1"
+        echo "$BADGING" | grep -q "versionCode='109'"
+        echo "$BADGING" | grep -q "v33.1.0"
 
     - name: Decode and validate stable signing keystore
       shell: bash
@@ -85,7 +85,7 @@ jobs:
         export PASS
         APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
         UNSIGNED="nextapp/build/outputs/apk/release/nextapp-release-unsigned.apk"
-        SIGNED="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v33.0.1.apk"
+        SIGNED="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v33.1.0.apk"
         "$APKSIGNER" sign \
           --ks "$RUNNER_TEMP/dolphin-release.jks" \
           --ks-key-alias dolphinassistant \
@@ -94,7 +94,7 @@ jobs:
           --out "$SIGNED" \
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
-        sha256sum "$SIGNED" | tee nextapp/build/outputs/apk/release/DolphinAssistant-Next-v33.0.1.sha256
+        sha256sum "$SIGNED" | tee nextapp/build/outputs/apk/release/DolphinAssistant-Next-v33.1.0.sha256
 
     - name: Publish updater-visible Next release
       shell: bash
@@ -102,25 +102,25 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       run: |
         set -euo pipefail
-        TAG="v33.0.1"
-        APK="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v33.0.1.apk"
-        SHA="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v33.0.1.sha256"
-        NOTES="DolphinAssistant Next v33.0.1 keeps the integrated v33.0.0 real-car test suite and changes ignition media automation to true background-first playback. Rules marked as media no longer launch the app Activity or bring its UI to the foreground. At the app-specific delay, DolphinAssistant first reuses an active MediaSession when available, otherwise connects to the target app's MediaBrowserService in the background and retains the resulting MediaController. After the configured media delay it sends transportControls.play() only to that package. If no active session or MediaBrowserService exists, it attempts an explicit package-scoped MEDIA_BUTTON receiver/service. It deliberately does not use a global AudioManager PLAY fallback because that could resume the wrong media app. The startup UI now labels this behavior as media background playback and links to notification-listener access for active-session discovery. All prepare/play attempts, package names, endpoints and playback-state verification are written to MEDIA_BG/BOOT_AUTO logs and included in the existing FULL TEST SESSION diagnostics. All v33 integrated split-screen, Quick Dock, T90P/cluster TBT, mirror/seat/light LAB, driver-audio research, TTS warmup and event diagnostics remain included."
+        TAG="v33.1.0"
+        APK="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v33.1.0.apk"
+        SHA="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v33.1.0.sha256"
+        NOTES="DolphinAssistant Next v33.1.0 adds a dedicated CLUSTER HUB on top of the integrated v33.0.1 suite. Cluster Hub combines Native BYD Instrument TBT capability and manual TBT test, DisplayManager inventory, SurfaceControl/SurfaceFlinger discovery, app-to-secondary-display projection LAB, Dolphin custom cluster UI projection LAB, Qt/RCC/theme/API candidate scanning, and STOCK RESTORE that clears DolphinAssistant navigation guidance without permanently modifying OEM theme or safety layers. Projection runs only when a non-default display is discovered and the vehicle is in P or a known <=0.5 km/h state; request success alone is not accepted as proof, because dumpsys activity must confirm the target display. The custom cluster UI auto-closes after 20 seconds. Theme/Qt/RCC work is read-only scanning in this release; no unverified theme file injection or OEM warning-layer replacement is performed. v33.0.1 background-first media startup, integrated split/multi-window, Quick Dock, T90P HUD, mirror/seat/light LAB, driver-audio research, TTS warmup, full diagnostics and private GitHub test-session upload remain included."
 
         if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
           gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
-          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant Next v33.0.1" --notes "$NOTES"
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant Next v33.1.0" --notes "$NOTES"
         else
           gh release create "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" \
-            --target "$GITHUB_SHA" --title "DolphinAssistant Next v33.0.1" --notes "$NOTES"
+            --target "$GITHUB_SHA" --title "DolphinAssistant Next v33.1.0" --notes "$NOTES"
         fi
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-Next-v33.0.1
+        name: DolphinAssistant-Next-v33.1.0
         path: |
-          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v33.0.1.apk
-          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v33.0.1.sha256
+          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v33.1.0.apk
+          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v33.1.0.sha256
         if-no-files-found: error
         retention-days: 30
