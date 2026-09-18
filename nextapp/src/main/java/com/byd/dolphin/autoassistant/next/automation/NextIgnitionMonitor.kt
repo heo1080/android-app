@@ -1,6 +1,8 @@
 package com.byd.dolphin.autoassistant.next.automation
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import com.byd.dolphin.autoassistant.next.core.BydPermissionContext
 import com.byd.dolphin.autoassistant.next.core.NextLogger
 import kotlinx.coroutines.CoroutineScope
@@ -18,6 +20,7 @@ class NextIgnitionMonitor(
 ) {
     private val app = context.applicationContext
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val main = Handler(Looper.getMainLooper())
     private var job: Job? = null
     private var lastRaw: Int? = null
     private var onReads = 0
@@ -49,14 +52,14 @@ class NextIgnitionMonitor(
                 onReads = 0
                 if (isOn) {
                     isOn = false
-                    onPowerOff()
+                    main.post { onPowerOff() }
                 }
             }
             2, 3, 4 -> {
                 onReads++
                 if (!isOn && onReads >= 2) {
                     isOn = true
-                    onPowerOn()
+                    main.post { onPowerOn() }
                 }
             }
             else -> onReads = 0
