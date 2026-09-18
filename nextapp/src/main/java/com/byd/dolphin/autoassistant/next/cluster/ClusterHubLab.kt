@@ -42,7 +42,7 @@ object ClusterHubLab {
         val displays = scanDisplays(context)
         val instrument = scanInstrumentMethods(context)
         val surface = scanSurfaceControl()
-        val shell = scanShell()
+        val shell = scanShell(context)
         val themes = scanThemeCandidates(context)
 
         NextLogger.i(
@@ -278,22 +278,12 @@ object ClusterHubLab {
             .take(100)
     }.getOrDefault(emptyList())
 
-    private fun scanShell(): String {
+    private fun scanShell(context: Context): String {
         if (!NextAdb.isPortOpen()) return "LOCAL ADB unavailable"
         return NextAdb.shell(
-            androidAppContext(),
+            context,
             "sh -c \"dumpsys display | head -n 240; echo ---SF---; dumpsys SurfaceFlinger --list | head -n 200\""
         ).output.take(20000)
-    }
-
-    private fun androidAppContext(): Context {
-        check(NextRuntime.isStarted()) { "NextRuntime not started" }
-        return NextRuntime.repository.javaClass
-            .getDeclaredField("app")
-            .let { field ->
-                field.isAccessible = true
-                field.get(NextRuntime.repository) as Context
-            }
     }
 
     private fun safeToProject(): Boolean {
