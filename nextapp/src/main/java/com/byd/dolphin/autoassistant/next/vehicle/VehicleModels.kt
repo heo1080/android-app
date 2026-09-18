@@ -10,6 +10,16 @@ data class SignalValue<T>(
     val stale: Boolean = true
 )
 
+data class ParkingSensorSample(
+    val area: Int,
+    val label: String,
+    val probeStateRaw: Int? = null,
+    val distanceCm: Int? = null,
+    val timestampMs: Long = 0L,
+    val confidence: Confidence = Confidence.BETA,
+    val stale: Boolean = true
+)
+
 data class VehicleState(
     val gear: SignalValue<String> = SignalValue(null),
     val driveMode: SignalValue<String> = SignalValue(null),
@@ -25,5 +35,8 @@ data class VehicleState(
     val driverHeat: SignalValue<Int> = SignalValue(null),
     val passengerHeat: SignalValue<Int> = SignalValue(null),
     val steeringHeat: SignalValue<Boolean> = SignalValue(null),
+    val panoramaWork: SignalValue<Int> = SignalValue(null),
+    val panoramaOutput: SignalValue<Int> = SignalValue(null),
+    val parkingSensors: List<ParkingSensorSample> = emptyList(),
     val lastUpdatedMs: Long = 0L
 )
