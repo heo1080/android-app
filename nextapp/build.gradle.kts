@@ -11,8 +11,8 @@ android {
         applicationId = "com.byd.dolphin.autoassistant"
         minSdk = 29
         targetSdk = 34
-        versionCode = 104
-        versionName = "5.2.0-v32.2.0-dolphin-diagnostics"
+        versionCode = 105
+        versionName = "5.2.1-v32.2.1-diagnostics-autoupload"
     }
 
     buildTypes {
