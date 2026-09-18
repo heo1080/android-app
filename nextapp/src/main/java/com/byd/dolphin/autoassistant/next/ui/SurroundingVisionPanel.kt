@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -219,7 +220,7 @@ fun SurroundingVisionSection(state: VehicleState) {
 
 @Composable
 private fun SurroundingCanvas(state: VehicleState) {
-    Canvas(modifier = Modifier.fillMaxWidth()) {
+    Canvas(modifier = Modifier.fillMaxSize()) {
         val w = size.width
         val h = size.height
         val cx = w / 2f
