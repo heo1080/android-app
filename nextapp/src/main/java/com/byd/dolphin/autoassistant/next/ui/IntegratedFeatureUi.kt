@@ -363,6 +363,7 @@ fun IntegratedDisplayPanel() {
 @Composable
 fun IntegratedAutomationPanel() {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val apps = remember { InstalledApps.launcherApps(context) }
     var picker by remember { mutableStateOf(false) }
     var rules by remember { mutableStateOf(IntegratedSettings.bootRules(context)) }
