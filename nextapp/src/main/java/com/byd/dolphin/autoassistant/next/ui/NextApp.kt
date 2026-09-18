@@ -655,6 +655,20 @@ private fun DiagnosticsPanel(
                 if (!diag.running) diagnostics.runFullDiagnostics()
             }
 
+            ActionButton("UPLOAD FULL TEST SESSION", Amber) {
+                if (!diag.running) {
+                    scope.launch {
+                        val result = diagnostics.uploadFullTestSession()
+                        Toast.makeText(
+                            activity,
+                            if (result.success) "통합 테스트 로그 GitHub 업로드 완료"
+                            else result.message,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+
             if (
                 !diag.running &&
                 (diag.failures > 0 || diag.recentDrive?.hasIssue == true) &&
@@ -682,6 +696,23 @@ private fun DiagnosticsPanel(
                         )
                     }
                 }
+            }
+        }
+
+        val fullUploadMessage = diag.fullUploadMessage
+        if (fullUploadMessage != null) {
+            Spacer(Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Badge(
+                    "FULL TEST GITHUB",
+                    if (diag.fullUploadSuccess == true) Green else Amber
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    fullUploadMessage,
+                    color = if (diag.fullUploadSuccess == true) Green else TextMuted,
+                    fontSize = 9.sp
+                )
             }
         }
 
