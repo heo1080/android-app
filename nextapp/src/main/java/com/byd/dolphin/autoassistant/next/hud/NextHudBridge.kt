@@ -148,9 +148,31 @@ object NextHudBridge {
                 NextLogger.i("HUD_AUDIO", "profile disconnected=" + profile)
             }
         }
-        val a2dp = adapter.getProfileProxy(context.applicationContext, listener, BluetoothProfile.A2DP)
-        val headset = adapter.getProfileProxy(context.applicationContext, listener, BluetoothProfile.HEADSET)
-        if (!a2dp && !headset) deliver(callback, false, "cannot query A2DP/HEADSET")
+        val profileRequest = runCatching {
+            val a2dp = adapter.getProfileProxy(
+                context.applicationContext,
+                listener,
+                BluetoothProfile.A2DP
+            )
+            val headset = adapter.getProfileProxy(
+                context.applicationContext,
+                listener,
+                BluetoothProfile.HEADSET
+            )
+            a2dp || headset
+        }
+        if (profileRequest.isFailure) {
+            val error = profileRequest.exceptionOrNull()
+            NextLogger.e("HUD_AUDIO", "getProfileProxy failed", error ?: IllegalStateException("unknown"))
+            deliver(
+                callback,
+                false,
+                "HUDAudio profile query error: " +
+                    (error?.javaClass?.simpleName ?: "unknown")
+            )
+        } else if (profileRequest.getOrDefault(false).not()) {
+            deliver(callback, false, "cannot query A2DP/HEADSET")
+        }
     }
 
     fun sendTestNavigation(context: Context): Boolean =
