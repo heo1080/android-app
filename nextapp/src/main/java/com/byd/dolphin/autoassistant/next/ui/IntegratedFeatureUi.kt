@@ -239,15 +239,21 @@ fun IntegratedAutomationPanel() {
     val apps = remember { InstalledApps.launcherApps(context) }
     var picker by remember { mutableStateOf(false) }
     var rules by remember { mutableStateOf(IntegratedSettings.bootRules(context)) }
-    var status by remember { mutableStateOf("시동 ON 감지 시 위에서부터 지연 순서대로 실행") }
+    var status by remember { mutableStateOf("일반 앱은 전면 실행 · 미디어 앱은 화면을 띄우지 않고 백그라운드 세션 준비 후 재생") }
 
-    FeatureTitle("시동 시 앱 자동 실행", "앱별 0.x초 지연 · 미디어 PLAY 별도 지연")
+    FeatureTitle("시동 시 앱 자동 실행", "일반 앱은 전면 실행 · 미디어 앱은 백그라운드 MediaSession/MediaBrowser 재생 · 앱별 0.x초 지연")
     FeatureCard {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             SmallButton("자동실행 앱 선택", IFCyan) { picker = true }
             SmallButton("지금 테스트", IFAmber) {
                 BootAutomationController(context).testNow()
-                status = "현재 규칙으로 즉시 테스트 시작 · 진단 로그 확인"
+                status = "현재 규칙으로 즉시 테스트 시작 · 미디어 앱은 전면 실행 없이 MEDIA_BG 경로 사용"
+            }
+            SmallButton("미디어 세션 접근", IFCyan) {
+                context.startActivity(
+                    Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                )
             }
         }
         Spacer(Modifier.height(10.dp))
@@ -264,11 +270,12 @@ fun IntegratedAutomationPanel() {
                     }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    SmallButton(if (rule.mediaPlay) "미디어 PLAY ON" else "미디어 PLAY OFF", if (rule.mediaPlay) IFGreen else IFMuted) {
+                    SmallButton(if (rule.mediaPlay) "미디어 백그라운드 ON" else "미디어 백그라운드 OFF", if (rule.mediaPlay) IFGreen else IFMuted) {
                         rules = rules.toMutableList().also { it[index] = rule.copy(mediaPlay = !rule.mediaPlay) }
                         IntegratedSettings.setBootRules(context, rules)
                     }
                     if (rule.mediaPlay) {
+                        Text("재생 지연", color = IFMuted, fontSize = 9.sp)
                         listOf(0.2,0.5,1.0,2.0).forEach { d ->
                             SmallButton("+" + d + "s", if (rule.mediaDelaySeconds == d) IFCyan else IFMuted) {
                                 rules = rules.toMutableList().also { it[index] = rule.copy(mediaDelaySeconds = d) }
