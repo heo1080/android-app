@@ -76,6 +76,18 @@ object DiagnosticUploadManager {
         )
     }
 
+    fun enableAutomaticallyWhenConfigured(context: Context): UploadConfig {
+        val current = getConfig(context)
+        if (!current.enabled && current.complete) {
+            prefs(context).edit().putBoolean(KEY_AUTO, true).apply()
+            NextLogger.i(
+                "DIAG_UPLOAD",
+                "auto upload re-enabled from preserved private-repo credentials"
+            )
+        }
+        return getConfig(context)
+    }
+
     fun uploadDiagnosticBundle(context: Context, zipFile: File): UploadResult {
         val config = getConfig(context)
         val token = readToken(context)
