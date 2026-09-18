@@ -116,6 +116,7 @@ object SettingsManager {
     private const val KEY_PHRASE_EPB_OFF = "key_phrase_epb_off"
     private const val KEY_PHRASE_ICC_ON = "key_phrase_icc_on"
     private const val KEY_PHRASE_ICC_OFF = "key_phrase_icc_off"
+    private const val KEY_BSD_ALERT_ENABLED = "key_bsd_alert_enabled"
     private const val KEY_PHRASE_LEADING_CAR = "key_phrase_leading_car"
 
     // 충전: 시작 vs 종료 분리
@@ -333,6 +334,11 @@ object SettingsManager {
     }
     fun getIccPhrase(context: Context): String = getIccPhrase(context, true)
     fun setIccPhrase(context: Context, phrase: String) = setIccPhrase(context, true, phrase)
+
+    fun isBsdAlertEnabled(context: Context): Boolean =
+        getPrefs(context).getBoolean(KEY_BSD_ALERT_ENABLED, true)
+    fun setBsdAlertEnabled(context: Context, enabled: Boolean) =
+        getPrefs(context).edit().putBoolean(KEY_BSD_ALERT_ENABLED, enabled).apply()
 
     fun getLeadingCarPhrase(context: Context): String = getPrefs(context).getString(KEY_PHRASE_LEADING_CAR, "전방 차량이 출발했습니다.") ?: "전방 차량이 출발했습니다."
     fun setLeadingCarPhrase(context: Context, phrase: String) = getPrefs(context).edit().putString(KEY_PHRASE_LEADING_CAR, phrase).apply()
