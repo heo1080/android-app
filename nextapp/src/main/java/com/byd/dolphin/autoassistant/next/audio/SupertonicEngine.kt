@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
@@ -83,7 +84,9 @@ object SupertonicEngine {
         text: String,
         sid: Int,
         speed: Float,
-        onPlaybackStart: ((Long, String) -> Unit)? = null
+        onPlaybackStart: ((Long, String) -> Unit)? = null,
+        onExpired: (() -> Unit)? = null,
+        maxStartDelayMs: Long = 1200L
     ): Boolean {
         val clean = text.trim().replace(Regex("\\s+"), " ").take(240)
         if (clean.isBlank()) return true
@@ -98,10 +101,17 @@ object SupertonicEngine {
             return true
         }
         if (!inFlight.add(file.name)) return true
+        val requestedAt = System.currentTimeMillis()
         scope.launch {
             try {
                 synthesize(app, clean, sid, speed, file)
-                playWav(file, onPlaybackStart)
+                val elapsed = System.currentTimeMillis() - requestedAt
+                if (elapsed > maxStartDelayMs) {
+                    NextLogger.w("TTS", "late TTS dropped elapsedMs=" + elapsed + " text=" + clean)
+                    onExpired?.invoke()
+                } else {
+                    playWav(file, onPlaybackStart)
+                }
             } catch (t: Throwable) {
                 NextLogger.e("TTS", "synthesis/play failed", t)
             } finally {
@@ -109,6 +119,40 @@ object SupertonicEngine {
             }
         }
         return true
+    }
+
+    fun warmupAsync(
+        context: Context,
+        sid: Int,
+        speed: Float,
+        phrases: List<String>
+    ) {
+        val app = context.applicationContext
+        ensureModelAsync(app)
+        scope.launch {
+            var tries = 0
+            while (!isReady(app) && tries < 240) {
+                delay(500L)
+                tries++
+            }
+            if (!isReady(app)) {
+                NextLogger.w("TTS", "warmup skipped: model not ready")
+                return@launch
+            }
+            runCatching { initialize(app) }
+                .onFailure { NextLogger.e("TTS", "warmup init failed", it) }
+                .getOrNull() ?: return@launch
+            phrases.distinct().forEach { phrase ->
+                val clean = phrase.trim().take(120)
+                if (clean.isBlank()) return@forEach
+                val file = cacheFile(app, clean, sid, speed)
+                if (!file.exists() || file.length() <= 44) {
+                    runCatching { synthesize(app, clean, sid, speed, file) }
+                        .onFailure { NextLogger.e("TTS", "precache failed " + clean, it) }
+                }
+            }
+            NextLogger.i("TTS", "warmup/precache complete count=" + phrases.distinct().size)
+        }
     }
 
     private fun initialize(context: Context): OfflineTts {
