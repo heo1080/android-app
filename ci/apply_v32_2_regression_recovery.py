@@ -40,10 +40,11 @@ for needle, label in [
 
 # Fix the stale wording/pref key that made STANDARD announce as ECO.
 p, settings = read("app/src/main/java/com/byd/dolphin/autoassistant/manager/SettingsManager.kt")
-settings = settings.replace(
-    'private const val KEY_PHRASE_REGEN_ECO = "key_phrase_regen_eco"',
-    'private const val KEY_PHRASE_REGEN_STANDARD = "key_phrase_regen_standard"',
-)
+if 'private const val KEY_PHRASE_REGEN_STANDARD = "key_phrase_regen_standard"' not in settings:
+    settings = settings.replace(
+        'private const val KEY_PHRASE_REGEN_ECO = "key_phrase_regen_eco"',
+        'private const val KEY_PHRASE_REGEN_STANDARD = "key_phrase_regen_standard"',
+    )
 settings = settings.replace(
 '''    fun getRegenModePhrase(context: Context, regen: String): String {
         val prefs = getPrefs(context)
@@ -73,7 +74,7 @@ settings = settings.replace(
 ''',
 )
 require(settings, 'KEY_PHRASE_REGEN_STANDARD', "regen STANDARD preference")
-if "KEY_PHRASE_REGEN_ECO" in settings:
+if 'KEY_PHRASE_REGEN_ECO_LEGACY' not in settings and 'KEY_PHRASE_REGEN_ECO' in settings:
     raise SystemExit("stale regen ECO preference survived recovery patch")
 write(p, settings)
 
@@ -81,7 +82,7 @@ write(p, settings)
 p, main = read("app/src/main/java/com/byd/dolphin/autoassistant/MainActivity.kt")
 main = main.replace(
     'setupVoiceEditButton(R.id.btnVoiceRegenMode, "회생 제동", "회생제동 에코", "회생제동 감속 제어가 적용되었습니다.") { SettingsManager.getRegenModePhrase(this, "ECO") }',
-    'setupVoiceEditButton(R.id.btnVoiceRegenMode, "회생 제동", "회생제동 스탠다드", "회생제동 감속 제어가 적용되었습니다.") { SettingsManager.getRegenModePhrase(this, "STANDARD") }',
+    'setupVoiceEditButton(R.id.btnVoiceRegenMode, "회생 제동 STANDARD", "회생제동 스탠다드", "회생제동 스탠다드 모드입니다.") { SettingsManager.getRegenModePhrase(this, "STANDARD") }',
 )
 main = main.replace(
     'R.id.btnVoiceRegenMode -> SettingsManager.setRegenModePhrase(this, "ECO", phrase)',
