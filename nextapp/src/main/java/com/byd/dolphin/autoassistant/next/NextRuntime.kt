@@ -6,6 +6,8 @@ import com.byd.dolphin.autoassistant.next.core.NextLogger
 import com.byd.dolphin.autoassistant.next.diagnostics.DolphinDiagnostics
 import com.byd.dolphin.autoassistant.next.diagnostics.RecentDriveRecorder
 import com.byd.dolphin.autoassistant.next.events.NextEventEngine
+import com.byd.dolphin.autoassistant.next.launcher.LauncherMediaRepository
+import com.byd.dolphin.autoassistant.next.launcher.LauncherVehicleInfoRepository
 import com.byd.dolphin.autoassistant.next.vehicle.VehicleRepository
 
 object NextRuntime {
@@ -21,6 +23,10 @@ object NextRuntime {
         private set
     lateinit var diagnostics: DolphinDiagnostics
         private set
+    lateinit var launcherMedia: LauncherMediaRepository
+        private set
+    lateinit var launcherVehicleInfo: LauncherVehicleInfoRepository
+        private set
 
     @Synchronized
     fun start(context: Context) {
@@ -32,11 +38,15 @@ object NextRuntime {
         events = NextEventEngine(repository, audio)
         recentDrive = RecentDriveRecorder(repository, audio)
         diagnostics = DolphinDiagnostics(app, repository, audio, recentDrive)
+        launcherMedia = LauncherMediaRepository(app)
+        launcherVehicleInfo = LauncherVehicleInfoRepository(app)
 
         repository.start()
         audio.warmup()
         events.start()
         recentDrive.start()
+        launcherMedia.start()
+        launcherVehicleInfo.start()
         started = true
         NextLogger.i("RUNTIME", "shared Next runtime started")
     }
