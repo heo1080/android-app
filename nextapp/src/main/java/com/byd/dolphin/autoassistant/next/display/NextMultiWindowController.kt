@@ -42,7 +42,12 @@ object NextMultiWindowController {
             return@withContext WindowLaunchResult(false, mode, "LOCAL ADB 127.0.0.1:5555 unavailable")
         }
         val result = when (mode) {
-            WindowLayoutMode.TWO -> launchTwo(context, clean[0], clean[1], primaryRatio)
+            WindowLayoutMode.TWO -> VerifiedTwoPaneController.launch(
+                context,
+                clean[0],
+                clean[1],
+                primaryRatio
+            )
             WindowLayoutMode.THREE -> launchFreeformGrid(context, clean.take(3), 3)
             WindowLayoutMode.FOUR -> launchFreeformGrid(context, clean.take(4), 4)
             WindowLayoutMode.POPUP -> launchPopup(context, clean[0])
