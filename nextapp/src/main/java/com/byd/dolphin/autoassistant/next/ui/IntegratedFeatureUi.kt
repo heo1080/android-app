@@ -21,6 +21,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import com.byd.dolphin.autoassistant.next.audio.AppAudioRouteLab
 import com.byd.dolphin.autoassistant.next.automation.BootAutomationController
 import com.byd.dolphin.autoassistant.next.display.NextMultiWindowController
+import com.byd.dolphin.autoassistant.next.display.VerifiedTwoPaneController
 import com.byd.dolphin.autoassistant.next.display.WindowLayoutMode
 import com.byd.dolphin.autoassistant.next.hud.NextHudBridge
 import com.byd.dolphin.autoassistant.next.integrated.BootAppRule
@@ -52,6 +54,7 @@ import com.byd.dolphin.autoassistant.next.overlay.QuickDockOverlay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.roundToInt
 
 private val IFBg = Color(0xFF0E1821)
 private val IFBorder = Color(0xFF253845)
@@ -79,6 +82,10 @@ fun IntegratedDisplayPanel() {
     var dockTimeout by remember { mutableIntStateOf(IntegratedSettings.quickDockTimeoutSeconds(context)) }
     var clusterEnabled by remember { mutableStateOf(IntegratedSettings.clusterTbtEnabled(context)) }
     var hudAuto by remember { mutableStateOf(IntegratedSettings.hudAutoForward(context)) }
+    var splitRatio by remember { mutableIntStateOf(IntegratedSettings.splitPrimaryRatio(context)) }
+    var floatingCollapse by remember { mutableIntStateOf(IntegratedSettings.floatingCollapseDelaySeconds(context)) }
+    var floatingScale by remember { mutableIntStateOf(IntegratedSettings.floatingScalePercent(context)) }
+    var floatingOpacity by remember { mutableIntStateOf(IntegratedSettings.floatingOpacityPercent(context)) }
 
     FeatureTitle("멀티 윈도우", "2분할 VERIFIED 경로 + 3/4분할·팝업 freeform LAB")
     FeatureCard {
@@ -97,7 +104,12 @@ fun IntegratedDisplayPanel() {
             SmallButton("2분할", IFGreen) {
                 scope.launch {
                     status = withContext(Dispatchers.IO) {
-                        NextMultiWindowController.launch(context, selected, WindowLayoutMode.TWO, 50).detail
+                        NextMultiWindowController.launch(
+                            context,
+                            selected,
+                            WindowLayoutMode.TWO,
+                            splitRatio
+                        ).detail
                     }
                 }
             }
@@ -123,10 +135,52 @@ fun IntegratedDisplayPanel() {
                 }
             }
         }
+
+        Spacer(Modifier.height(10.dp))
+        Text(
+            "2분할 비율 · " + splitRatio + "% / " + (100 - splitRatio) + "% · 1% 단위",
+            color = IFText,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
+            SmallButton("−1", IFCyan) {
+                splitRatio = (splitRatio - 1).coerceIn(20, 80)
+                IntegratedSettings.setSplitPrimaryRatio(context, splitRatio)
+            }
+            Slider(
+                value = splitRatio.toFloat(),
+                onValueChange = {
+                    splitRatio = it.roundToInt().coerceIn(20, 80)
+                },
+                onValueChangeFinished = {
+                    IntegratedSettings.setSplitPrimaryRatio(context, splitRatio)
+                },
+                valueRange = 20f..80f,
+                steps = 59,
+                modifier = Modifier.weight(1f)
+            )
+            SmallButton("+1", IFCyan) {
+                splitRatio = (splitRatio + 1).coerceIn(20, 80)
+                IntegratedSettings.setSplitPrimaryRatio(context, splitRatio)
+            }
+            SmallButton("비율 적용", IFGreen) {
+                scope.launch {
+                    status = withContext(Dispatchers.IO) {
+                        VerifiedTwoPaneController.applyRatio(context, splitRatio).detail
+                    }
+                }
+            }
+        }
+
         StatusText(status)
     }
 
-    FeatureTitle("플로팅바 · 하단 퀵독", "앱은 실제 앱 아이콘만 표시 · 차량 기능은 아이콘형 · 이름표 제거")
+    FeatureTitle("플로팅바 · 하단 퀵독", "v32.3 동작 복원 · 8개 표시 / 9개+ 가로스크롤 · 이동 · idle 최소화")
     FeatureCard {
         Row(horizontalArrangement = Arrangement.spacedBy(7.dp), verticalAlignment = Alignment.CenterVertically) {
             SmallButton("퀵독 지금 열기", IFCyan) { QuickDockOverlay.showQuickDock(context) }
@@ -139,7 +193,7 @@ fun IntegratedDisplayPanel() {
             SmallButton("플로팅 앱 선택", IFCyan) { floatingAppsDialog = true }
         }
         Spacer(Modifier.height(8.dp))
-        Text("자동 닫힘", color = IFMuted, fontSize = 9.sp)
+        Text("퀵독 자동 닫힘", color = IFMuted, fontSize = 9.sp)
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf(5, 10, 15, 20, 30, 60).forEach { sec ->
                 SmallButton(sec.toString() + "초", if (dockTimeout == sec) IFGreen else IFMuted) {
@@ -148,7 +202,71 @@ fun IntegratedDisplayPanel() {
                 }
             }
         }
-        StatusText("앱서랍의 'Dolphin Quick Dock' 아이콘을 순정 하단바에 끌어놓고 누르면 퀵독이 열립니다.")
+
+        Spacer(Modifier.height(8.dp))
+        Text("플로팅 최소화 시간", color = IFMuted, fontSize = 9.sp)
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            listOf(5, 10, 15, 30, 60).forEach { sec ->
+                SmallButton(sec.toString() + "초", if (floatingCollapse == sec) IFGreen else IFMuted) {
+                    floatingCollapse = sec
+                    IntegratedSettings.setFloatingCollapseDelaySeconds(context, sec)
+                    QuickDockOverlay.refreshFloating(context)
+                }
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+        Text("플로팅 크기 · " + floatingScale + "%", color = IFMuted, fontSize = 9.sp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
+            SmallButton("−10", IFCyan) {
+                floatingScale = (floatingScale - 10).coerceIn(50, 150)
+                IntegratedSettings.setFloatingScalePercent(context, floatingScale)
+                QuickDockOverlay.refreshFloating(context)
+            }
+            Slider(
+                value = floatingScale.toFloat(),
+                onValueChange = { floatingScale = it.roundToInt().coerceIn(50, 150) },
+                onValueChangeFinished = {
+                    IntegratedSettings.setFloatingScalePercent(context, floatingScale)
+                    QuickDockOverlay.refreshFloating(context)
+                },
+                valueRange = 50f..150f,
+                steps = 9,
+                modifier = Modifier.weight(1f)
+            )
+            SmallButton("+10", IFCyan) {
+                floatingScale = (floatingScale + 10).coerceIn(50, 150)
+                IntegratedSettings.setFloatingScalePercent(context, floatingScale)
+                QuickDockOverlay.refreshFloating(context)
+            }
+        }
+
+        Text("투명도 · " + floatingOpacity + "%", color = IFMuted, fontSize = 9.sp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
+            Slider(
+                value = floatingOpacity.toFloat(),
+                onValueChange = { floatingOpacity = it.roundToInt().coerceIn(30, 100) },
+                onValueChangeFinished = {
+                    IntegratedSettings.setFloatingOpacityPercent(context, floatingOpacity)
+                    QuickDockOverlay.refreshFloating(context)
+                },
+                valueRange = 30f..100f,
+                steps = 13,
+                modifier = Modifier.weight(1f)
+            )
+            SmallButton("위치 초기화", IFAmber) {
+                QuickDockOverlay.resetFloatingPosition(context)
+            }
+        }
+        StatusText("플로팅은 15초 기본 idle 후 작은 ◆ 아이콘으로 최소화 · ◆ 탭하면 복원 · 손잡이 드래그 이동 · 앱은 실제 앱 아이콘만 표시")
     }
 
     FeatureTitle("TMAP T90P HUD · 계기판 TBT", "TBT 파싱은 실사용 / T90P 데이터 프레임·밝기·HUDAudio는 LAB")
