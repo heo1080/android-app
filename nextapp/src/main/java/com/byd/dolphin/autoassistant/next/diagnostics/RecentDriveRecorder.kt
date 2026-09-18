@@ -178,14 +178,16 @@ class RecentDriveRecorder(
                 id = "RECENT_AUDIO",
                 title = "RECENT AUDIO",
                 status = when {
-                    slowAudioStarts > 0 || audioErrors > 0 -> DriveObservationStatus.ISSUE
+                    slowAudioStarts > 0 || audioErrors > 0 || liveAudioStarts < liveAudioRequests ->
+                        DriveObservationStatus.ISSUE
                     liveAudioRequests > 0 -> DriveObservationStatus.OBSERVED
                     else -> DriveObservationStatus.NOT_USED
                 },
                 detail = when {
-                    slowAudioStarts > 0 || audioErrors > 0 ->
+                    slowAudioStarts > 0 || audioErrors > 0 || liveAudioStarts < liveAudioRequests ->
                         "requests=" + liveAudioRequests +
                             " · starts=" + liveAudioStarts +
+                            " · missing=" + (liveAudioRequests - liveAudioStarts).coerceAtLeast(0) +
                             " · slow>2s=" + slowAudioStarts +
                             " · errors=" + audioErrors
                     liveAudioRequests > 0 ->
