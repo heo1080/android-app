@@ -1,6 +1,6 @@
 package com.byd.dolphin.autoassistant.next.ui
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -81,7 +81,7 @@ private enum class Page(val title: String, val eyebrow: String) {
 @Composable
 fun NextApp(repository: VehicleRepository, audio: NextAudioEngine) {
     val context = LocalContext.current
-    val activity = context as Activity
+    val activity = context as ComponentActivity
     val state by repository.state.collectAsState()
     var page by remember { mutableStateOf(Page.HOME) }
     var settingsEpoch by remember { mutableIntStateOf(0) }
