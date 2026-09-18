@@ -11,8 +11,8 @@ android {
         applicationId = "com.byd.dolphin.autoassistant"
         minSdk = 29
         targetSdk = 34
-        versionCode = 103
-        versionName = "5.1.0-v32.1.0-surrounding-vision"
+        versionCode = 104
+        versionName = "5.2.0-v32.2.0-dolphin-diagnostics"
     }
 
     buildTypes {
