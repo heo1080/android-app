@@ -56,8 +56,8 @@ jobs:
         BADGING="$("$AAPT" dump badging "$APK" | head -n 1)"
         echo "$BADGING"
         echo "$BADGING" | grep -q "name='com.byd.dolphin.autoassistant'"
-        echo "$BADGING" | grep -q "versionCode='112'"
-        echo "$BADGING" | grep -q "v34.1.1"
+        echo "$BADGING" | grep -q "versionCode='113'"
+        echo "$BADGING" | grep -q "v34.2.0"
 
     - name: Decode and validate stable signing keystore
       shell: bash
@@ -85,7 +85,7 @@ jobs:
         export PASS
         APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
         UNSIGNED="nextapp/build/outputs/apk/release/nextapp-release-unsigned.apk"
-        SIGNED="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.1.1.apk"
+        SIGNED="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.2.0.apk"
         "$APKSIGNER" sign \
           --ks "$RUNNER_TEMP/dolphin-release.jks" \
           --ks-key-alias dolphinassistant \
@@ -94,7 +94,7 @@ jobs:
           --out "$SIGNED" \
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
-        sha256sum "$SIGNED" | tee nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.1.1.sha256
+        sha256sum "$SIGNED" | tee nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.2.0.sha256
 
     - name: Publish updater-visible Next release
       shell: bash
@@ -102,25 +102,25 @@ jobs:
         GH_TOKEN: ${{ github.token }}
       run: |
         set -euo pipefail
-        TAG="v34.1.1"
-        APK="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.1.1.apk"
-        SHA="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.1.1.sha256"
-        NOTES="DolphinAssistant Next v34.1.1 is the DiLink installation compatibility recovery build. It removes the Android HOME/DEFAULT intent filter that caused BYD DiLink to classify the APK as a desktop/home app and reject manual installation with 'Fail in installation of desktop apps'. The approved full-screen DolphinAssistant Launcher UI, ignition auto-start, foreground runtime and 60-second watchdog remain unchanged, so DolphinAssistant still opens automatically at ignition without registering as the system default HOME application. The in-app updater signer verification is also hardened for Android 10/DiLink: it combines SigningInfo with GET_SIGNATURES fallback, includes certificate history, compares signer-digest intersection for compatible key history, and logs installed/archive certificate digests. Existing v34.1 Capability Router, TBT Correlation, Cluster Resource Inspector, Launcher media/FSD/vehicle dashboard, Quick Bar, background media startup, Cluster Hub, T90P HUD, multi-window and diagnostics remain included."
+        TAG="v34.2.0"
+        APK="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.2.0.apk"
+        SHA="nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.2.0.sha256"
+        NOTES="DolphinAssistant Next v34.2.0 is the stability recovery build after the v34 launcher regression. It preserves the launcher/FSD/vehicle dashboard but restores proven v32.3 behavior where possible. Audio: fixes a non-reentrant AudioPlaybackGate double-lock that deadlocked cached Supertonic TTS and then blocked all stream14 beeps; TTS now acquires the stream14 gate only once. Diagnostics: the launcher diagnostic tile now opens a live result dialog showing RUNNING/PASS/FAIL/NO_SIGNAL per test plus full-session upload instead of silently changing a card. Split screen: 2-pane now delegates to the proven v32.3 mode3/mode4 state machine with ghost primary activity, task move fallback, runtime verification, saved last configuration and resize-docked-stack ratio control; the UI restores 20-80 percent adjustment in exact 1 percent steps with +/-1 and apply. Floating: restores movable handle drag, saved position, default 15-second idle collapse to a single diamond handle, tap-to-expand, 8 visible items then horizontal scroll, scale 50-150 percent, opacity 30-100 percent, collapse timing and position reset. Quick Bar: adds a dedicated real MAIN+LAUNCHER activity and refreshes the launcher component after package replacement so the BYD app drawer can index it again. DiLink settings: removes unsupported notification/media-session settings intents and replaces them with a local-ADB notification-listener status/allow bridge. HUD: guards Bluetooth API errors and always returns connection/profile callbacks on the main thread to prevent UI/Toast crashes. The v34.1 DiLink install fix, Capability Router, TBT Correlation, Cluster Resource Inspector, background-media boot automation and full diagnostics remain included."
 
         if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
           gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
-          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant Next v34.1.1" --notes "$NOTES"
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant Next v34.2.0" --notes "$NOTES"
         else
           gh release create "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" \
-            --target "$GITHUB_SHA" --title "DolphinAssistant Next v34.1.1" --notes "$NOTES"
+            --target "$GITHUB_SHA" --title "DolphinAssistant Next v34.2.0" --notes "$NOTES"
         fi
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-Next-v34.1.1
+        name: DolphinAssistant-Next-v34.2.0
         path: |
-          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.1.1.apk
-          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.1.1.sha256
+          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.2.0.apk
+          nextapp/build/outputs/apk/release/DolphinAssistant-Next-v34.2.0.sha256
         if-no-files-found: error
         retention-days: 30
