@@ -199,7 +199,8 @@ object ClusterHubLab {
                 "dumpsys SurfaceFlinger --list",
                 "pm list packages | grep -Ei 'cluster|instrument|amap|autonavi|fission|autocontainer|cbox'"
             ).forEach { command ->
-                val r = NextAdb.shell(context, "sh -c \"" + command.replace(""", "\\"") + "\"")
+                val escaped = command.replace("\\", "\\\\").replace("\"", "\\\"")
+                val r = NextAdb.shell(context, "sh -c \"" + escaped + "\"")
                 lines += "### " + command
                 lines += r.output.lineSequence().take(140).toList()
             }
