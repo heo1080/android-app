@@ -9,8 +9,22 @@ import com.byd.dolphin.autoassistant.util.DolphinLogger
 class MultiNavNotificationListener : NotificationListenerService() {
     private val activeGuidanceNotifications = mutableSetOf<String>()
 
+    override fun onListenerConnected() {
+        super.onListenerConnected()
+        val active = runCatching { activeNotifications?.toList().orEmpty() }.getOrDefault(emptyList())
+        DolphinLogger.i("MULTI_NAV", "notification listener connected active=${active.size}")
+        active.forEach { posted ->
+            runCatching { handlePosted(posted) }
+                .onFailure { DolphinLogger.w("MULTI_NAV", "active notification replay failed: ${it.message}") }
+        }
+    }
+
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         val posted = sbn ?: return
+        handlePosted(posted)
+    }
+
+    private fun handlePosted(posted: StatusBarNotification) {
         MediaNotificationCache.onPosted(this, posted)
         val pkg = posted.packageName
         val notification = posted.notification ?: return
