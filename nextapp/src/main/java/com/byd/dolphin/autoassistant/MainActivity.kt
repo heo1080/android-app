@@ -8,6 +8,7 @@ import androidx.core.content.FileProvider
 import com.byd.dolphin.autoassistant.core.NextLog
 import com.byd.dolphin.autoassistant.core.audio.AlertEngine
 import com.byd.dolphin.autoassistant.core.diagnostics.DiagnosticExporter
+import com.byd.dolphin.autoassistant.core.display.SplitController
 import com.byd.dolphin.autoassistant.core.event.VehicleEventEngine
 import com.byd.dolphin.autoassistant.core.state.VehicleStateStore
 import com.byd.dolphin.autoassistant.core.update.UpdateClient
@@ -18,6 +19,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var alerts: AlertEngine
     private lateinit var events: VehicleEventEngine
     private lateinit var updater: UpdateClient
+    private lateinit var splitController: SplitController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +29,7 @@ class MainActivity : ComponentActivity() {
         alerts = AlertEngine(this)
         events = VehicleEventEngine(stateStore, alerts)
         updater = UpdateClient(this)
+        splitController = SplitController(this)
 
         stateStore.start()
         events.start()
@@ -37,6 +40,7 @@ class MainActivity : ComponentActivity() {
                 stateStore = stateStore,
                 alerts = alerts,
                 updater = updater,
+                splitController = splitController,
                 onShareDiagnostic = { shareDiagnostic() }
             )
         }
