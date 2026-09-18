@@ -6,6 +6,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import com.byd.dolphin.autoassistant.next.NextRuntime
 import com.byd.dolphin.autoassistant.next.core.NextLogger
 import com.byd.dolphin.autoassistant.next.integrated.IntegratedSettings
 import com.byd.dolphin.autoassistant.next.overlay.QuickDockOverlay
@@ -26,6 +27,7 @@ class NextRuntimeService : Service() {
                 .setOngoing(true)
                 .build()
         )
+        NextRuntime.start(this)
         bootAutomation = BootAutomationController(this)
         ignition = NextIgnitionMonitor(
             this,
