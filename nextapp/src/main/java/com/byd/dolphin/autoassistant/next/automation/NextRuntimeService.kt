@@ -9,6 +9,7 @@ import androidx.core.app.NotificationCompat
 import com.byd.dolphin.autoassistant.next.NextRuntime
 import com.byd.dolphin.autoassistant.next.core.NextLogger
 import com.byd.dolphin.autoassistant.next.integrated.IntegratedSettings
+import com.byd.dolphin.autoassistant.next.launcher.LauncherStartController
 import com.byd.dolphin.autoassistant.next.overlay.QuickDockOverlay
 
 class NextRuntimeService : Service() {
@@ -33,6 +34,7 @@ class NextRuntimeService : Service() {
             this,
             onPowerOn = {
                 NextLogger.i("RUNTIME", "ignition ON")
+                LauncherStartController.showHome(this, "ignition_on")
                 bootAutomation.onIgnitionOn()
                 if (IntegratedSettings.floatingEnabled(this)) {
                     QuickDockOverlay.showFloating(this)
