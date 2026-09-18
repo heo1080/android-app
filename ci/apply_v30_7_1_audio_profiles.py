@@ -18,8 +18,8 @@ def one(text, old, new, label):
     return text.replace(old, new, 1)
 
 p, text = read("app/build.gradle.kts")
-text = re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 48', text, count=1)
-text = re.sub(r'versionName\s*=\s*"[^"]+"', 'versionName = "3.1.5-v30.7.1-audio-studio"', text, count=1)
+text = re.sub(r'versionCode\s*=\s*\d+', 'versionCode = 49', text, count=1)
+text = re.sub(r'versionName\s*=\s*"[^"]+"', 'versionName = "3.1.6-v30.7.2-update-channel"', text, count=1)
 write(p, text)
 
 p, text = read("app/src/main/java/com/byd/dolphin/autoassistant/manager/InAppSupertonicTtsManager.kt")
@@ -357,7 +357,7 @@ text = text.replace('private const val LOCK_MAX_CM = 140',
 write(p, text)
 
 checks = {
-    "versionCode48": "versionCode = 48" in (ROOT / "app/build.gradle.kts").read_text(encoding="utf-8"),
+    "versionCode49": "versionCode = 49" in (ROOT / "app/build.gradle.kts").read_text(encoding="utf-8"),
     "audioProfileDispatch": "dispatchConfiguredAlert" in (ROOT / "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt").read_text(encoding="utf-8"),
     "selectableSupertonic": "sid: Int = 6, speed: Float = 1.05f" in (ROOT / "app/src/main/java/com/byd/dolphin/autoassistant/manager/InAppSupertonicTtsManager.kt").read_text(encoding="utf-8"),
     "autoholdHybrid": "AutoHold HOLD explicit" in (ROOT / "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt").read_text(encoding="utf-8"),
