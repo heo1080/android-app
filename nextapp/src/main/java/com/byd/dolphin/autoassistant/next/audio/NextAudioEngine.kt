@@ -190,13 +190,15 @@ class NextAudioEngine(context: Context) {
         gapMs: Long,
         probeKey: String? = null
     ) {
-        frequencies.forEachIndexed { index, hz ->
-            playTone(hz, durationMs) { route ->
-                if (index == 0 && probeKey != null) {
-                    trace(probeKey, AudioProbePhase.START, route)
+        AudioPlaybackGate.serial {
+            frequencies.forEachIndexed { index, hz ->
+                playTone(hz, durationMs) { route ->
+                    if (index == 0 && probeKey != null) {
+                        trace(probeKey, AudioProbePhase.START, route)
+                    }
                 }
+                if (index < frequencies.lastIndex && gapMs > 0) delay(gapMs)
             }
-            if (index < frequencies.lastIndex && gapMs > 0) delay(gapMs)
         }
     }
 
@@ -235,13 +237,19 @@ class NextAudioEngine(context: Context) {
             track.write(bytes, 0, bytes.size)
             track.setVolume(0.82f)
             track.play()
+            Thread.sleep(30L)
             val route = runCatching {
                 val device = track.routedDevice
                 if (device == null) "STREAM14 / ROUTE UNKNOWN"
                 else "STREAM14 / " + device.productName + " / type=" + device.type
             }.getOrDefault("STREAM14 / ROUTE UNKNOWN")
-            onStart?.invoke(route)
-            Thread.sleep(durationMs.toLong() + 35L)
+            val headFrames = runCatching { track.playbackHeadPosition.toLong() }.getOrDefault(0L)
+            if (headFrames > 0L) {
+                onStart?.invoke(route + " / frames=" + headFrames)
+            } else {
+                NextLogger.w("AUDIO", "beep AudioTrack PLAY but playbackHeadPosition=0 route=" + route)
+            }
+            Thread.sleep((durationMs.toLong() - 30L).coerceAtLeast(0L) + 35L)
             runCatching { track.stop() }
         } catch (t: Throwable) {
             NextLogger.e("AUDIO", "beep playback failed", t)
