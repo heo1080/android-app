@@ -552,7 +552,7 @@ object V31RootUi {
             if (enabled && AdbPermissionManager.isOverlayGranted(activity)) {
                 FloatingOverlayManager.show(activity)
             } else if (!enabled) {
-                FloatingOverlayManager.hide(activity)
+                FloatingOverlayManager.hide()
             }
         })
         body.addView(slider(activity, "크기",
@@ -571,8 +571,8 @@ object V31RootUi {
             statusCard(activity, "HUD / T900", "내비 파싱과 브리지 경로", "BETA", AMBER, LAB),
             toggleCard(activity, "계기판 TBT",
                 SettingsManager.isClusterTbtEnabled(activity), "LAB", RED) {
-                SettingsManager.setClusterTbtEnabled(activity, it)
                 if (!it) ClusterMirrorManager.clearClusterTbt(activity)
+                SettingsManager.setClusterTbtEnabled(activity, it)
             })
         body.addView(info(activity, "계기판 CAN/TBT",
             "0xAA00020F 경로와 순정 TBT correlation은 LAB에서만 연구", RED))
