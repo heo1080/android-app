@@ -18,10 +18,42 @@ object IntegratedSettings {
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences(PREF, Context.MODE_PRIVATE)
 
+    fun splitPrimaryRatio(context: Context): Int =
+        prefs(context).getInt("split_primary_ratio", 50).coerceIn(20, 80)
+    fun setSplitPrimaryRatio(context: Context, ratio: Int) {
+        prefs(context).edit().putInt("split_primary_ratio", ratio.coerceIn(20, 80)).apply()
+    }
+
     fun quickDockTimeoutSeconds(context: Context): Int =
         prefs(context).getInt("quick_dock_timeout", 15).coerceIn(5, 60)
     fun setQuickDockTimeoutSeconds(context: Context, seconds: Int) {
         prefs(context).edit().putInt("quick_dock_timeout", seconds.coerceIn(5, 60)).apply()
+    }
+
+    fun floatingCollapseDelaySeconds(context: Context): Int =
+        prefs(context).getInt("floating_collapse_delay", 15).coerceIn(5, 60)
+    fun setFloatingCollapseDelaySeconds(context: Context, seconds: Int) {
+        prefs(context).edit().putInt("floating_collapse_delay", seconds.coerceIn(5, 60)).apply()
+    }
+
+    fun floatingScalePercent(context: Context): Int =
+        prefs(context).getInt("floating_scale", 100).coerceIn(50, 150)
+    fun setFloatingScalePercent(context: Context, percent: Int) {
+        prefs(context).edit().putInt("floating_scale", percent.coerceIn(50, 150)).apply()
+    }
+
+    fun floatingOpacityPercent(context: Context): Int =
+        prefs(context).getInt("floating_opacity", 90).coerceIn(30, 100)
+    fun setFloatingOpacityPercent(context: Context, percent: Int) {
+        prefs(context).edit().putInt("floating_opacity", percent.coerceIn(30, 100)).apply()
+    }
+
+    fun floatingX(context: Context, defaultValue: Int): Int =
+        prefs(context).getInt("floating_x", defaultValue)
+    fun floatingY(context: Context, defaultValue: Int): Int =
+        prefs(context).getInt("floating_y", defaultValue)
+    fun setFloatingPosition(context: Context, x: Int, y: Int) {
+        prefs(context).edit().putInt("floating_x", x).putInt("floating_y", y).apply()
     }
 
     fun floatingEnabled(context: Context): Boolean =
