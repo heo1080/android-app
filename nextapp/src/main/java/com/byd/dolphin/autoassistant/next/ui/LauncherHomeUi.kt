@@ -285,7 +285,7 @@ private fun LauncherMediaCard(
                 (media.positionMs.toFloat() / media.durationMs.toFloat()).coerceIn(0f, 1f)
             } else 0f
             LinearProgressIndicator(
-                progress = { progress },
+                progress = progress,
                 modifier = Modifier.fillMaxWidth(),
                 color = LCyan,
                 trackColor = LBorder
