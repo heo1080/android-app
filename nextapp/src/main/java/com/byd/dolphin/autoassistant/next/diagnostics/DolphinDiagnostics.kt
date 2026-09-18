@@ -5,6 +5,8 @@ import com.byd.dolphin.autoassistant.BuildConfig
 import com.byd.dolphin.autoassistant.next.audio.AudioProbeEvent
 import com.byd.dolphin.autoassistant.next.audio.AudioProbePhase
 import com.byd.dolphin.autoassistant.next.audio.NextAudioEngine
+import com.byd.dolphin.autoassistant.next.capability.CapabilityRouter
+import com.byd.dolphin.autoassistant.next.cluster.TbtCorrelationProbe
 import com.byd.dolphin.autoassistant.next.core.NextLogger
 import com.byd.dolphin.autoassistant.next.vehicle.Confidence
 import com.byd.dolphin.autoassistant.next.vehicle.SignalValue
@@ -465,6 +467,8 @@ class DolphinDiagnostics(
             putText(zip, "recent_drive.json", recentDriveJson(recent).toString(2))
             putText(zip, "recent_drive_events.txt", recentDriveEventsText(recent))
             putText(zip, "audio_timeline_full.txt", fullAudioTimeline())
+            putText(zip, "capability_router.json", capabilityJson().toString(2))
+            putText(zip, "tbt_correlation.json", tbtCorrelationJson().toString(2))
             putText(zip, "full_integrated_log.txt", fullLogText())
             if (ui.results.isNotEmpty()) {
                 putText(zip, "last_health_summary.json", summaryJson(ui).toString(2))
@@ -537,6 +541,42 @@ class DolphinDiagnostics(
                     })
                 }
             })
+        }
+
+    private fun capabilityJson(): JSONObject =
+        JSONObject().apply {
+            val snapshot = CapabilityRouter.snapshot.value
+            put("completed_at_ms", snapshot.completedAtMs)
+            put("entries", JSONArray().apply {
+                snapshot.entries.values.sortedBy { it.key }.forEach { entry ->
+                    put(JSONObject().apply {
+                        put("key", entry.key)
+                        put("class_name", entry.className)
+                        put("access", entry.access.name)
+                        put("read_probe", entry.readProbe)
+                        put("setter_count", entry.setterCount)
+                        put("detail", entry.detail)
+                        put("timestamp_ms", entry.timestampMs)
+                    })
+                }
+            })
+        }
+
+    private fun tbtCorrelationJson(): JSONObject =
+        JSONObject().apply {
+            val state = TbtCorrelationProbe.state.value
+            put("registered", state.registered)
+            put("active", state.active)
+            put("started_at_ms", state.startedAtMs)
+            put("ends_at_ms", state.endsAtMs)
+            put("event_count", state.eventCount)
+            put("last_event_at_ms", state.lastEventAtMs)
+            put("last_event_summary", state.lastEventSummary)
+            put("result", state.result)
+            put("receiver_candidates", JSONArray(state.receiverCandidates))
+            put("package_candidates", JSONArray(state.packageCandidates))
+            put("service_evidence", state.serviceEvidence)
+            put("log_evidence", state.logEvidence)
         }
 
     private fun recentDriveJson(snapshot: RecentDriveSnapshot): JSONObject =
