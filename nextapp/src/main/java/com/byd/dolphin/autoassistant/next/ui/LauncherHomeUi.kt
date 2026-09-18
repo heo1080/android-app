@@ -1,8 +1,6 @@
 package com.byd.dolphin.autoassistant.next.ui
 
 import android.content.Context
-import android.content.Intent
-import android.provider.Settings
 import android.graphics.Bitmap
 import android.graphics.Canvas as AndroidCanvas
 import android.graphics.drawable.Drawable
@@ -175,15 +173,6 @@ fun DolphinLauncherHome(
                 LauncherMenuTile("◇", "차량 · LAB", "미러 · 실내등 · 시트", LRed, onLab)
                 LauncherMenuTile("↻", "업데이트", "최신 Release 확인", LMuted, onUpdate)
                 LauncherMenuTile("▦", "앱 서랍", "설치 앱", LCyan) { appDrawer = true }
-                LauncherMenuTile("⌂", "HOME 설정", "기본 런처 선택", LGreen) {
-                    val intent = Intent(Settings.ACTION_HOME_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    runCatching { context.startActivity(intent) }
-                        .onFailure {
-                            context.startActivity(
-                                Intent(Settings.ACTION_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            )
-                        }
-                }
             }
 
             LauncherQuickBar(
