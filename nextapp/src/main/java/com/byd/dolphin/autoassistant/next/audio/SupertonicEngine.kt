@@ -78,7 +78,13 @@ object SupertonicEngine {
         }
     }
 
-    fun speak(context: Context, text: String, sid: Int, speed: Float): Boolean {
+    fun speak(
+        context: Context,
+        text: String,
+        sid: Int,
+        speed: Float,
+        onPlaybackStart: ((Long, String) -> Unit)? = null
+    ): Boolean {
         val clean = text.trim().replace(Regex("\\s+"), " ").take(240)
         if (clean.isBlank()) return true
         val app = context.applicationContext
@@ -88,14 +94,14 @@ object SupertonicEngine {
         }
         val file = cacheFile(app, clean, sid, speed)
         if (file.exists() && file.length() > 44) {
-            scope.launch { playWav(file) }
+            scope.launch { playWav(file, onPlaybackStart) }
             return true
         }
         if (!inFlight.add(file.name)) return true
         scope.launch {
             try {
                 synthesize(app, clean, sid, speed, file)
-                playWav(file)
+                playWav(file, onPlaybackStart)
             } catch (t: Throwable) {
                 NextLogger.e("TTS", "synthesis/play failed", t)
             } finally {
@@ -159,7 +165,7 @@ object SupertonicEngine {
         return builder.build()
     }
 
-    private fun playWav(file: File) {
+    private fun playWav(file: File, onPlaybackStart: ((Long, String) -> Unit)? = null) {
         val bytes = file.readBytes()
         require(bytes.size > 44)
         val header = ByteBuffer.wrap(bytes, 0, 44).order(ByteOrder.LITTLE_ENDIAN)
@@ -182,6 +188,12 @@ object SupertonicEngine {
             track.write(pcm, 0, pcm.size)
             track.setVolume(0.84f)
             track.play()
+            val route = runCatching {
+                val device = track.routedDevice
+                if (device == null) "STREAM14 / ROUTE UNKNOWN"
+                else "STREAM14 / " + device.productName + " / type=" + device.type
+            }.getOrDefault("STREAM14 / ROUTE UNKNOWN")
+            onPlaybackStart?.invoke(System.currentTimeMillis(), route)
             Thread.sleep((pcm.size / 2.0 / rate * 1000.0).toLong() + 100L)
             runCatching { track.stop() }
         } finally {
