@@ -23,6 +23,9 @@ import com.byd.dolphin.autoassistant.drive.DriveVisionActivity
 import com.byd.dolphin.autoassistant.manager.AdbPermissionManager
 import com.byd.dolphin.autoassistant.manager.DiagnosticCaptureManager
 import com.byd.dolphin.autoassistant.manager.FloatingOverlayManager
+import com.byd.dolphin.autoassistant.manager.NowPlayingManager
+import com.byd.dolphin.autoassistant.manager.NowPlayingSnapshot
+import com.byd.dolphin.autoassistant.ui.NowPlayingCardView
 import com.byd.dolphin.autoassistant.service.DolphinService
 import com.byd.dolphin.autoassistant.util.DolphinLogger
 import kotlinx.coroutines.Dispatchers
@@ -60,6 +63,9 @@ class CommandCenterActivity : AppCompatActivity() {
     private var selected = Section.HOME
 
     private lateinit var driveReader: DriveSignalReader
+    private lateinit var nowPlayingManager: NowPlayingManager
+    private var nowPlaying = NowPlayingSnapshot()
+    private var nowPlayingCard: NowPlayingCardView? = null
     private var frame = DriveFrame()
     private var speedValue: TextView? = null
     private var gearValue: TextView? = null
@@ -83,9 +89,11 @@ class CommandCenterActivity : AppCompatActivity() {
         DolphinLogger.init(this)
         DiagnosticCaptureManager.recoverInterruptedSession(this)
         driveReader = DriveSignalReader(this)
+        nowPlayingManager = NowPlayingManager(this)
 
         setContentView(buildUi())
         ensureNotificationPermission()
+        startAutomaticPermissionRecovery()
         startAssistantService()
         render(Section.HOME)
         startTelemetry()
@@ -207,6 +215,7 @@ class CommandCenterActivity : AppCompatActivity() {
         speedValue = null
         gearValue = null
         turnValue = null
+        nowPlayingCard = null
 
         content.addView(text(section.sub, 9f, cyan, true))
         content.addView(text(section.label, 25f, Color.WHITE, true).apply {
@@ -232,6 +241,13 @@ class CommandCenterActivity : AppCompatActivity() {
 
     private fun renderHome() {
         addHero()
+        nowPlayingCard = NowPlayingCardView(this, nowPlayingManager).also { card ->
+            card.bind(nowPlaying)
+            content.addView(card, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { setMargins(0, 0, 0, dp(10)) })
+        }
 
         val live = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
         speedValue = statusTile(live, "SPEED", "--", 0)
@@ -605,11 +621,13 @@ class CommandCenterActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             while (isActive) {
                 frame = runCatching { driveReader.read() }.getOrDefault(DriveFrame())
+                nowPlaying = runCatching { nowPlayingManager.snapshot() }.getOrDefault(NowPlayingSnapshot())
                 withContext(Dispatchers.Main) {
                     headerStatus.text =
                         "LIVE  ·  ${frame.speedKmh?.toInt()?.toString()?.plus(" km/h") ?: "NO SPEED"}" +
                             "  ·  GEAR ${frame.gear ?: "--"}  ·  ${BuildConfig.VERSION_NAME}"
                     refreshTelemetryLabels()
+                    nowPlayingCard?.bind(nowPlaying)
                 }
                 delay(1_000L)
             }
@@ -620,6 +638,15 @@ class CommandCenterActivity : AppCompatActivity() {
         speedValue?.text = frame.speedKmh?.toInt()?.toString()?.plus(" km/h") ?: "--"
         gearValue?.text = frame.gear ?: "--"
         turnValue?.text = frame.turn
+    }
+
+    private fun startAutomaticPermissionRecovery() {
+        AdbPermissionManager.autoGrantPermissionsOnLaunch(this) { success, message ->
+            DolphinLogger.i("COMMAND_CENTER", "automatic permission recovery success=$success message=$message")
+            if (!success) {
+                headerStatus.text = "권한 자동 복구 일부 실패 · " + message
+            }
+        }
     }
 
     private fun ensureNotificationPermission() {
