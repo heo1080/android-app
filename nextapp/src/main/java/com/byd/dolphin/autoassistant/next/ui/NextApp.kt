@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -52,6 +53,7 @@ import com.byd.dolphin.autoassistant.next.audio.NextAudioEngine
 import com.byd.dolphin.autoassistant.next.diagnostics.DiagnosticStatus
 import com.byd.dolphin.autoassistant.next.diagnostics.DriveObservationStatus
 import com.byd.dolphin.autoassistant.next.diagnostics.DolphinDiagnostics
+import com.byd.dolphin.autoassistant.next.launcher.LauncherNavigationBus
 import com.byd.dolphin.autoassistant.next.settings.AlertMode
 import com.byd.dolphin.autoassistant.next.settings.AlertProfile
 import com.byd.dolphin.autoassistant.next.settings.AlertSpec
@@ -93,8 +95,13 @@ fun NextApp(repository: VehicleRepository, audio: NextAudioEngine, diagnostics: 
     val context = LocalContext.current
     val activity = context as ComponentActivity
     val state by repository.state.collectAsState()
+    val launcherHomeEpoch by LauncherNavigationBus.homeEpoch.collectAsState()
     var page by remember { mutableStateOf(Page.HOME) }
     var settingsEpoch by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(launcherHomeEpoch) {
+        if (launcherHomeEpoch > 0L) page = Page.HOME
+    }
 
     MaterialTheme(
         colorScheme = darkColorScheme(
@@ -108,35 +115,57 @@ fun NextApp(repository: VehicleRepository, audio: NextAudioEngine, diagnostics: 
         )
     ) {
         Surface(modifier = Modifier.fillMaxSize(), color = Bg) {
-            Row(modifier = Modifier.fillMaxSize().padding(top = 12.dp, bottom = 74.dp)) {
-                RailMenu(current = page, onSelect = { page = it })
-                Column(
+            if (page == Page.HOME) {
+                Box(
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 26.dp, vertical = 20.dp)
+                        .fillMaxSize()
+                        .padding(top = 12.dp, bottom = 74.dp)
                 ) {
-                    Header(
-                        page = page,
+                    DolphinLauncherHome(
+                        state = state,
+                        repository = repository,
+                        diagnostics = diagnostics,
+                        activity = activity,
+                        onDrive = { page = Page.DRIVE },
+                        onVehicle = { page = Page.VEHICLE },
+                        onAudio = { page = Page.AUDIO },
+                        onScreen = { page = Page.SCREEN },
+                        onAutomation = { page = Page.AUTOMATION },
+                        onLab = { page = Page.LAB },
                         onUpdate = { NextUpdater.check(activity, true) }
                     )
-                    Spacer(Modifier.height(14.dp))
-                    when (page) {
-                        Page.HOME -> HomePage(state = state, diagnostics = diagnostics, activity = activity, onGo = { page = it })
-                        Page.DRIVE -> DrivePage(state = state, repository = repository, onAudio = { page = Page.AUDIO })
-                        Page.VEHICLE -> VehiclePage(state = state, repository = repository)
-                        Page.AUDIO -> key(settingsEpoch) {
-                            AudioPage(
-                                audio = audio,
-                                onSettingsChanged = { settingsEpoch++ }
-                            )
+                }
+            } else {
+                Row(modifier = Modifier.fillMaxSize().padding(top = 12.dp, bottom = 74.dp)) {
+                    RailMenu(current = page, onSelect = { page = it })
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 26.dp, vertical = 20.dp)
+                    ) {
+                        Header(
+                            page = page,
+                            onUpdate = { NextUpdater.check(activity, true) }
+                        )
+                        Spacer(Modifier.height(14.dp))
+                        when (page) {
+                            Page.HOME -> Unit
+                            Page.DRIVE -> DrivePage(state = state, repository = repository, onAudio = { page = Page.AUDIO })
+                            Page.VEHICLE -> VehiclePage(state = state, repository = repository)
+                            Page.AUDIO -> key(settingsEpoch) {
+                                AudioPage(
+                                    audio = audio,
+                                    onSettingsChanged = { settingsEpoch++ }
+                                )
+                            }
+                            Page.SCREEN -> ScreenPage()
+                            Page.AUTOMATION -> AutomationPage()
+                            Page.LAB -> LabPage()
                         }
-                        Page.SCREEN -> ScreenPage()
-                        Page.AUTOMATION -> AutomationPage()
-                        Page.LAB -> LabPage()
+                        Spacer(Modifier.height(32.dp))
                     }
-                    Spacer(Modifier.height(32.dp))
                 }
             }
         }
