@@ -1,6 +1,5 @@
 package com.byd.dolphin.autoassistant.next.cluster
 
-import android.app.ActivityManager
 import android.content.ComponentName
 import android.content.Context
 import android.hardware.display.DisplayManager
