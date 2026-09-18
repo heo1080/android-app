@@ -50,6 +50,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.byd.dolphin.autoassistant.BuildConfig
 import com.byd.dolphin.autoassistant.next.audio.NextAudioEngine
+import com.byd.dolphin.autoassistant.next.capability.CapabilityRouter
+import com.byd.dolphin.autoassistant.next.capability.CapabilityAccess
 import com.byd.dolphin.autoassistant.next.diagnostics.DiagnosticStatus
 import com.byd.dolphin.autoassistant.next.diagnostics.DriveObservationStatus
 import com.byd.dolphin.autoassistant.next.diagnostics.DolphinDiagnostics
@@ -514,7 +516,69 @@ private fun AutomationPage() {
 
 @Composable
 private fun LabPage() {
+    val context = LocalContext.current
+    val capability by CapabilityRouter.snapshot.collectAsState()
+
     Banner("LAB은 연구 후보만 표시합니다. 진단·로그·내보내기는 홈의 DOLPHIN DIAGNOSTICS 하나로 통합했습니다.")
+
+    Section("CAPABILITY ROUTER")
+    AppCard {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    "BYD API / PERMISSION PROBE",
+                    color = TextMain,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    if (capability.completedAtMs == 0L)
+                        "초기 probe 대기"
+                    else
+                        "읽기/쓰기후보/차단/미존재를 read-only 기준으로 분류",
+                    color = TextMuted,
+                    fontSize = 9.sp
+                )
+            }
+            ActionButton("REFRESH", Cyan) {
+                CapabilityRouter.refresh(context)
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+        capability.entries.values.sortedBy { it.key }.forEach { entry ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    entry.key,
+                    color = TextMain,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.width(104.dp)
+                )
+                Badge(
+                    entry.access.name,
+                    when (entry.access) {
+                        CapabilityAccess.READ_WRITE_CANDIDATE -> Green
+                        CapabilityAccess.READ_ONLY -> Cyan
+                        CapabilityAccess.BLOCKED -> Red
+                        CapabilityAccess.MISSING -> TextMuted
+                    }
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    entry.readProbe + " · setters=" + entry.setterCount,
+                    color = TextMuted,
+                    fontSize = 8.sp,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
 
     Section("차량 연구")
     InfoCard("실내등: device 1023 / FID 1330643002 · ambient 1069547536 후보", Red)
