@@ -1,0 +1,129 @@
+package com.byd.dolphin.autoassistant.next.audio
+
+import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioFormat
+import android.media.AudioTrack
+import com.byd.dolphin.autoassistant.next.core.NextLogger
+import com.byd.dolphin.autoassistant.next.settings.AlertMode
+import com.byd.dolphin.autoassistant.next.settings.NextSettings
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.math.PI
+import kotlin.math.sin
+
+class NextAudioEngine(context: Context) {
+    private val app = context.applicationContext
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    fun emit(eventKey: String, state: String) {
+        val spec = NextSettings.alertSpecs.firstOrNull { it.key == eventKey } ?: return
+        val profile = NextSettings.getAlertProfile(app, eventKey)
+        when (profile.mode) {
+            AlertMode.OFF -> NextLogger.d("AUDIO", eventKey + " OFF")
+            AlertMode.BEEP -> {
+                val preset = NextSettings.getBeep(profile.beepId)
+                scope.launch { playPreset(preset.frequencies, preset.durationMs, preset.gapMs) }
+            }
+            AlertMode.TTS -> {
+                val text = NextSettings.resolveText(spec, profile, state)
+                val voice = NextSettings.getVoice(app, profile)
+                val accepted = SupertonicEngine.speak(app, text, voice.sid, voice.speed)
+                NextLogger.i("AUDIO", eventKey + " TTS accepted=" + accepted + " voice=" + voice.id + " text=" + text)
+                if (!accepted) {
+                    val preset = NextSettings.getBeep(profile.beepId)
+                    scope.launch { playPreset(preset.frequencies, preset.durationMs, preset.gapMs) }
+                }
+            }
+        }
+    }
+
+    fun preview(eventKey: String) {
+        val sample = when (eventKey) {
+            NextSettings.EVENT_GEAR -> "D"
+            NextSettings.EVENT_REGEN -> "HIGH"
+            NextSettings.EVENT_DRIVE -> "NORMAL"
+            NextSettings.EVENT_SNOW -> "스노우모드"
+            NextSettings.EVENT_AUTOHOLD_SWITCH -> "ON"
+            NextSettings.EVENT_AUTOHOLD_HOLD -> "체결"
+            NextSettings.EVENT_EPB -> "체결"
+            NextSettings.EVENT_ICC -> "ON"
+            NextSettings.EVENT_BSD -> "왼쪽"
+            NextSettings.EVENT_LEADING -> "출발"
+            else -> "안내"
+        }
+        emit(eventKey, sample)
+    }
+
+    fun previewVoice(voiceId: String) {
+        val voice = NextSettings.voicePresets.firstOrNull { it.id == voiceId } ?: return
+        val accepted = SupertonicEngine.speak(app, "DolphinAssistant 음성 미리듣기입니다.", voice.sid, voice.speed)
+        if (!accepted) scope.launch { playPreset(listOf(900.0, 1200.0), 100, 60) }
+    }
+
+    private suspend fun playPreset(frequencies: List<Double>, durationMs: Int, gapMs: Long) {
+        frequencies.forEachIndexed { index, hz ->
+            playTone(hz, durationMs)
+            if (index < frequencies.lastIndex && gapMs > 0) delay(gapMs)
+        }
+    }
+
+    private fun playTone(hz: Double, durationMs: Int) {
+        val rate = 24_000
+        val count = (rate * durationMs / 1000.0).toInt().coerceAtLeast(1)
+        val samples = ShortArray(count)
+        for (i in 0 until count) {
+            val envelope = when {
+                i < rate * 0.01 -> i / (rate * 0.01)
+                i > count - rate * 0.02 -> (count - i) / (rate * 0.02)
+                else -> 1.0
+            }.coerceIn(0.0, 1.0)
+            samples[i] = (sin(2.0 * PI * hz * i / rate) * 11_500.0 * envelope).toInt().toShort()
+        }
+        val bytes = ByteArray(samples.size * 2)
+        samples.forEachIndexed { i, s ->
+            bytes[i * 2] = (s.toInt() and 0xff).toByte()
+            bytes[i * 2 + 1] = ((s.toInt() shr 8) and 0xff).toByte()
+        }
+
+        var track: AudioTrack? = null
+        try {
+            track = AudioTrack.Builder()
+                .setAudioAttributes(driverAttributes())
+                .setAudioFormat(
+                    AudioFormat.Builder()
+                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                        .setSampleRate(rate)
+                        .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                        .build()
+                )
+                .setTransferMode(AudioTrack.MODE_STATIC)
+                .setBufferSizeInBytes(bytes.size)
+                .build()
+            track.write(bytes, 0, bytes.size)
+            track.setVolume(0.82f)
+            track.play()
+            Thread.sleep(durationMs.toLong() + 35L)
+            runCatching { track.stop() }
+        } catch (t: Throwable) {
+            NextLogger.e("AUDIO", "beep playback failed", t)
+        } finally {
+            runCatching { track?.release() }
+        }
+    }
+
+    private fun driverAttributes(): AudioAttributes {
+        val builder = AudioAttributes.Builder()
+        val method = builder.javaClass.methods.firstOrNull {
+            it.name == "setLegacyStreamType" && it.parameterTypes.size == 1
+        } ?: builder.javaClass.declaredMethods.first {
+            it.name == "setLegacyStreamType" && it.parameterTypes.size == 1
+        }
+        runCatching { method.isAccessible = true }
+        method.invoke(builder, 14)
+        return builder.build()
+    }
+}
