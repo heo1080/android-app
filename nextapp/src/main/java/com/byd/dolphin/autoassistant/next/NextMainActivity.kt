@@ -1,12 +1,15 @@
 package com.byd.dolphin.autoassistant.next
 
 import android.os.Bundle
+import android.content.Intent
+import androidx.core.content.ContextCompat
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.byd.dolphin.autoassistant.next.audio.NextAudioEngine
+import com.byd.dolphin.autoassistant.next.automation.NextRuntimeService
 import com.byd.dolphin.autoassistant.next.core.NextLogger
 import com.byd.dolphin.autoassistant.next.diagnostics.DolphinDiagnostics
 import com.byd.dolphin.autoassistant.next.diagnostics.RecentDriveRecorder
@@ -33,6 +36,11 @@ class NextMainActivity : ComponentActivity() {
 
         repository = VehicleRepository(this)
         audio = NextAudioEngine(this)
+        audio.warmup()
+        ContextCompat.startForegroundService(
+            this,
+            Intent(this, NextRuntimeService::class.java)
+        )
         events = NextEventEngine(repository, audio)
         recentDrive = RecentDriveRecorder(repository, audio)
         diagnostics = DolphinDiagnostics(this, repository, audio, recentDrive)
