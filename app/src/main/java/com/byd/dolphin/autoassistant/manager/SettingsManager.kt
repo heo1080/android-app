@@ -259,14 +259,14 @@ object SettingsManager {
     fun getRegenModePhrase(context: Context, regen: String): String {
         val prefs = getPrefs(context)
         return if (regen.contains("HIGH", ignoreCase = true)) {
-            prefs.getString(KEY_PHRASE_REGEN_HIGH, "회생제동 하이") ?: "회생제동 하이"
+            prefs.getString(KEY_PHRASE_REGEN_HIGH, "하이") ?: "하이"
         } else {
             when {
                 prefs.contains(KEY_PHRASE_REGEN_STANDARD) ->
-                    prefs.getString(KEY_PHRASE_REGEN_STANDARD, "회생제동 스탠다드") ?: "회생제동 스탠다드"
+                    prefs.getString(KEY_PHRASE_REGEN_STANDARD, "스탠다드") ?: "스탠다드"
                 prefs.contains(KEY_PHRASE_REGEN_ECO_LEGACY) ->
-                    prefs.getString(KEY_PHRASE_REGEN_ECO_LEGACY, "회생제동 스탠다드") ?: "회생제동 스탠다드"
-                else -> "회생제동 스탠다드"
+                    prefs.getString(KEY_PHRASE_REGEN_ECO_LEGACY, "스탠다드") ?: "스탠다드"
+                else -> "스탠다드"
             }
         }
     }
@@ -275,16 +275,16 @@ object SettingsManager {
         getPrefs(context).edit().putString(key, phrase).apply()
     }
 
-    fun getSnowModePhrase(context: Context): String = getPrefs(context).getString(KEY_PHRASE_SNOW_MODE, "스노우 모드가 켜졌습니다.") ?: "스노우 모드가 켜졌습니다."
+    fun getSnowModePhrase(context: Context): String = getPrefs(context).getString(KEY_PHRASE_SNOW_MODE, "스노우모드") ?: "스노우모드"
     fun setSnowModePhrase(context: Context, phrase: String) = getPrefs(context).edit().putString(KEY_PHRASE_SNOW_MODE, phrase).apply()
 
     // 1) 오토홀드 물리 스위치 ON/OFF
     fun getAutoHoldSwitchPhrase(context: Context, isSwitchOn: Boolean): String {
         val prefs = getPrefs(context)
         return if (isSwitchOn) {
-            prefs.getString(KEY_PHRASE_AUTOHOLD_SWITCH_ON, "오토홀드가 켜졌습니다.") ?: "오토홀드가 켜졌습니다."
+            prefs.getString(KEY_PHRASE_AUTOHOLD_SWITCH_ON, "오토홀드 ON") ?: "오토홀드 ON"
         } else {
-            prefs.getString(KEY_PHRASE_AUTOHOLD_SWITCH_OFF, "오토홀드가 꺼졌습니다.") ?: "오토홀드가 꺼졌습니다."
+            prefs.getString(KEY_PHRASE_AUTOHOLD_SWITCH_OFF, "오토홀드 OFF") ?: "오토홀드 OFF"
         }
     }
     fun setAutoHoldSwitchPhrase(context: Context, isSwitchOn: Boolean, phrase: String) {
@@ -296,9 +296,9 @@ object SettingsManager {
     fun getAutoHoldBrakePhrase(context: Context, isEngaged: Boolean): String {
         val prefs = getPrefs(context)
         return if (isEngaged) {
-            prefs.getString(KEY_PHRASE_AUTOHOLD_BRAKE_ENGAGED, "오토홀드가 체결되었습니다.") ?: "오토홀드가 체결되었습니다."
+            prefs.getString(KEY_PHRASE_AUTOHOLD_BRAKE_ENGAGED, "오토홀드 체결 유") ?: "오토홀드 체결 유"
         } else {
-            prefs.getString(KEY_PHRASE_AUTOHOLD_BRAKE_RELEASED, "오토홀드가 해제되었습니다.") ?: "오토홀드가 해제되었습니다."
+            prefs.getString(KEY_PHRASE_AUTOHOLD_BRAKE_RELEASED, "오토홀드 체결 무") ?: "오토홀드 체결 무"
         }
     }
     fun setAutoHoldBrakePhrase(context: Context, isEngaged: Boolean, phrase: String) {
@@ -313,9 +313,9 @@ object SettingsManager {
     fun getEpbPhrase(context: Context, isEngaged: Boolean): String {
         val prefs = getPrefs(context)
         return if (isEngaged) {
-            prefs.getString(KEY_PHRASE_EPB_ON, "사이드브레이크가 체결되었습니다.") ?: "사이드브레이크가 체결되었습니다."
+            prefs.getString(KEY_PHRASE_EPB_ON, "사이드브레이크 체결 유") ?: "사이드브레이크 체결 유"
         } else {
-            prefs.getString(KEY_PHRASE_EPB_OFF, "사이드브레이크 해제되었습니다.") ?: "사이드브레이크 해제되었습니다."
+            prefs.getString(KEY_PHRASE_EPB_OFF, "사이드브레이크 체결 무") ?: "사이드브레이크 체결 무"
         }
     }
     fun setEpbPhrase(context: Context, isEngaged: Boolean, phrase: String) {
