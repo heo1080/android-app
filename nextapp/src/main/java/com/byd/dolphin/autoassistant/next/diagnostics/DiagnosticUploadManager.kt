@@ -99,8 +99,14 @@ object DiagnosticUploadManager {
             return UploadResult(false, "DIAGNOSTIC ZIP MISSING")
         }
 
+        val diagnosticsMode = if (zipFile.name.startsWith("FULL_TEST_")) {
+            "FULL_TEST_SESSION"
+        } else {
+            "FAILURES_ONLY"
+        }
         val sessionId = zipFile.name
             .removePrefix("FAIL_ONLY_")
+            .removePrefix("FULL_TEST_")
             .removeSuffix(".zip")
             .ifBlank { System.currentTimeMillis().toString() }
         val remoteFolder = "diagnostics/sessions/" + sessionId
@@ -173,7 +179,7 @@ object DiagnosticUploadManager {
                 put("folder", remoteFolder)
                 put("files", JSONArray(uploadedPaths))
                 put("privacy", "PRIVATE_REPOSITORY_REQUIRED")
-                put("diagnosticsMode", "FAILURES_ONLY")
+                put("diagnosticsMode", diagnosticsMode)
             }.toString(2).toByteArray(Charsets.UTF_8)
 
             val manifestPath = remoteFolder + "/upload_manifest.json"
