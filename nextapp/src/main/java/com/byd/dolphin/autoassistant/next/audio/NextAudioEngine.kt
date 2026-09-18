@@ -33,6 +33,23 @@ class NextAudioEngine(context: Context) {
     private val _probeEvents = MutableSharedFlow<AudioProbeEvent>(extraBufferCapacity = 64)
     val probeEvents: SharedFlow<AudioProbeEvent> = _probeEvents.asSharedFlow()
 
+    fun warmup() {
+        val profile = NextSettings.getAlertProfile(app, NextSettings.EVENT_GEAR)
+        val voice = NextSettings.getVoice(app, profile)
+        val phrases = listOf(
+            "파킹", "후진", "중립", "전진",
+            "회생제동 스탠다드", "회생제동 하이",
+            "에코모드", "노멀모드", "스포츠모드",
+            "스노우모드ON", "스노우모드OFF",
+            "오토홀드 ON", "오토홀드 OFF",
+            "오토홀드 체결", "오토홀드 해제",
+            "사이드 브레이크 ON", "사이드 브레이크 OFF",
+            "자율주행모드", "자율주행해제",
+            "왼쪽 조심", "오른쪽 조심", "앞차 출발"
+        )
+        SupertonicEngine.warmupAsync(app, voice.sid, voice.speed, phrases)
+    }
+
     fun testTts(): Pair<Long, Boolean> {
         val requestAt = System.currentTimeMillis()
         trace("TEST_TTS", AudioProbePhase.REQUEST, "stream14")
@@ -42,10 +59,15 @@ class NextAudioEngine(context: Context) {
             app,
             "DolphinAssistant 테스트 음성입니다.",
             voice.sid,
-            voice.speed
-        ) { startedAt, route ->
-            trace("TEST_TTS", AudioProbePhase.START, route, startedAt)
-        }
+            voice.speed,
+            onPlaybackStart = { startedAt, route ->
+                trace("TEST_TTS", AudioProbePhase.START, route, startedAt)
+            },
+            onExpired = {
+                trace("TEST_TTS", AudioProbePhase.ERROR, "TTS EXPIRED BEFORE PLAYBACK")
+            },
+            maxStartDelayMs = 2000L
+        )
         if (!accepted) {
             trace("TEST_TTS", AudioProbePhase.ERROR, "TTS MODEL NOT READY")
         }
@@ -104,10 +126,24 @@ class NextAudioEngine(context: Context) {
                     app,
                     text,
                     voice.sid,
-                    voice.speed
-                ) { startedAt, route ->
-                    trace(probeKey, AudioProbePhase.START, "TTS / " + route, startedAt)
-                }
+                    voice.speed,
+                    onPlaybackStart = { startedAt, route ->
+                        trace(probeKey, AudioProbePhase.START, "TTS / " + route, startedAt)
+                    },
+                    onExpired = {
+                        trace(probeKey, AudioProbePhase.ERROR, "TTS LATE > 1200ms · DROPPED")
+                        val fallback = NextSettings.getBeep(profile.beepId)
+                        scope.launch {
+                            playPreset(
+                                fallback.frequencies,
+                                fallback.durationMs,
+                                fallback.gapMs,
+                                probeKey = probePrefix + "_LATE_FALLBACK_" + eventKey
+                            )
+                        }
+                    },
+                    maxStartDelayMs = 1200L
+                )
                 NextLogger.i("AUDIO", eventKey + " TTS accepted=" + accepted + " voice=" + voice.id + " text=" + text)
                 if (!accepted) {
                     trace(probeKey, AudioProbePhase.ERROR, "TTS MODEL NOT READY")
