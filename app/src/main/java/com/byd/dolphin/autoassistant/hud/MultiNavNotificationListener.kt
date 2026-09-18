@@ -37,7 +37,7 @@ class MultiNavNotificationListener : NotificationListenerService() {
         val pkg = removedNotification.packageName
         if (NavGuidanceParser.isNavApp(pkg)) {
             val shouldClear = synchronized(activeGuidanceNotifications) {
-                val removed = activeGuidanceNotifications.remove(notificationKey(posted))
+                val removed = activeGuidanceNotifications.remove(notificationKey(removedNotification))
                 removed && activeGuidanceNotifications.isEmpty()
             }
             if (shouldClear) {
