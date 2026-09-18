@@ -28,6 +28,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -52,6 +53,9 @@ import com.byd.dolphin.autoassistant.core.audio.AlertProfile
 import com.byd.dolphin.autoassistant.core.audio.AlertSpec
 import com.byd.dolphin.autoassistant.core.audio.OutputMode
 import com.byd.dolphin.autoassistant.core.audio.PhraseMode
+import com.byd.dolphin.autoassistant.core.display.LaunchableApp
+import com.byd.dolphin.autoassistant.core.display.SplitConfig
+import com.byd.dolphin.autoassistant.core.display.SplitController
 import com.byd.dolphin.autoassistant.core.model.VehicleState
 import com.byd.dolphin.autoassistant.core.state.VehicleStateStore
 import com.byd.dolphin.autoassistant.core.update.UpdateClient
@@ -95,6 +99,7 @@ fun DolphinNextApp(
     stateStore: VehicleStateStore,
     alerts: AlertEngine,
     updater: UpdateClient,
+    splitController: SplitController,
     onShareDiagnostic: () -> Unit
 ) {
     MaterialTheme(colorScheme = NextColors) {
@@ -143,7 +148,7 @@ fun DolphinNextApp(
                             revision = audioRevision,
                             onChanged = { audioRevision++ }
                         )
-                        Page.DISPLAY -> DisplayPage()
+                        Page.DISPLAY -> DisplayPage(splitController)
                         Page.AUTOMATION -> AutomationPage()
                         Page.LAB -> LabPage(
                             vehicle = vehicle,
@@ -672,15 +677,140 @@ private fun AlertCard(
 }
 
 @Composable
-private fun DisplayPage() {
-    Banner("이번 Next 1차 기반에서는 예전 분할/플로팅 코드를 가져오지 않았습니다. 검증된 기능을 새 인터페이스로 하나씩 이식합니다.")
-    Section("이식 순서")
-    ResearchRow("2분할", "DiLink 3 검증 경로를 새 DisplayController로 이식 예정", Green)
+private fun DisplayPage(splitController: SplitController) {
+    val scope = rememberCoroutineScope()
+    val apps = remember { splitController.installedApps() }
+    var config by remember { mutableStateOf(splitController.getConfig()) }
+    var pickerTarget by remember { mutableStateOf<Int?>(null) }
+    var status by remember { mutableStateOf<String?>(null) }
+    val primaryName = apps.firstOrNull { it.packageName == config.primaryPackage }?.label
+        ?: config.primaryPackage.ifBlank { "첫 번째 앱 선택" }
+    val secondaryName = apps.firstOrNull { it.packageName == config.secondaryPackage }?.label
+        ?: config.secondaryPackage.ifBlank { "두 번째 앱 선택" }
+
+    Banner("DiLink 3에서 실차 검증된 2앱 분할만 일반 기능으로 이식했습니다. 3·4분할은 LAB에 유지합니다.")
+
+    Section("2분할")
+    Panel {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(Modifier.weight(1f)) {
+                Text("첫 번째 앱", color = TextMuted, fontSize = 8.sp)
+                Text(primaryName, color = TextMain, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                Spacer(Modifier.height(7.dp))
+                ActionButton("앱 변경", Cyan, onClick = { pickerTarget = 1 })
+            }
+            Column(Modifier.weight(1f)) {
+                Text("두 번째 앱", color = TextMuted, fontSize = 8.sp)
+                Text(secondaryName, color = TextMain, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                Spacer(Modifier.height(7.dp))
+                ActionButton("앱 변경", Cyan, onClick = { pickerTarget = 2 })
+            }
+        }
+
+        Spacer(Modifier.height(14.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("분할 비율", color = TextMain, fontWeight = FontWeight.Bold, fontSize = 11.sp, modifier = Modifier.weight(1f))
+            Text(
+                config.ratioPrimary.toString() + " : " + (100 - config.ratioPrimary),
+                color = Cyan,
+                fontWeight = FontWeight.Bold,
+                fontSize = 11.sp
+            )
+        }
+        Slider(
+            value = config.ratioPrimary.toFloat(),
+            onValueChange = { config = config.copy(ratioPrimary = it.toInt().coerceIn(20, 80)) },
+            valueRange = 20f..80f,
+            steps = 59
+        )
+
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            ActionButton("2분할 실행", Green, onClick = {
+                scope.launch {
+                    status = "2분할 구성 중…"
+                    status = splitController.launch(config)
+                }
+            })
+            ActionButton("최근 구성 복원", Cyan, onClick = {
+                scope.launch {
+                    status = "최근 2분할 복원 중…"
+                    status = splitController.restore()
+                    config = splitController.getConfig()
+                }
+            })
+        }
+        status?.let {
+            Text(it, color = if (it.contains("완료")) Green else Amber, fontSize = 9.sp, modifier = Modifier.padding(top = 10.dp))
+        }
+        Text(
+            "로컬 ADB: " + if (splitController.isAdbReady()) "127.0.0.1:5555 READY" else "대기/권한 확인 필요",
+            color = if (splitController.isAdbReady()) Green else Amber,
+            fontSize = 8.sp,
+            modifier = Modifier.padding(top = 7.dp)
+        )
+    }
+
+    Section("다음 이식")
     ResearchRow("플로팅 독", "Compose와 분리된 WindowManager 전용 모듈로 새로 구현", Amber)
     ResearchRow("HUD / T900", "내비 파서와 실제 payload 전송을 분리해 재구축", Amber)
     ResearchRow("계기판 TBT", "순정 CAN/TBT correlation 확인 전 LAB", Red)
     ResearchRow("3·4분할", "VirtualDisplay 후보 실차 미확인 · LAB 유지", Red)
     ResearchRow("DPI / 화면 프로파일", "logical size · density · fontScale을 독립 관리하도록 재설계", Amber)
+
+    pickerTarget?.let { target ->
+        AppPickerDialog(
+            title = if (target == 1) "첫 번째 앱 선택" else "두 번째 앱 선택",
+            apps = apps,
+            onDismiss = { pickerTarget = null },
+            onSelect = { selected ->
+                config = if (target == 1) {
+                    config.copy(primaryPackage = selected.packageName)
+                } else {
+                    config.copy(secondaryPackage = selected.packageName)
+                }
+                pickerTarget = null
+            }
+        )
+    }
+}
+
+@Composable
+private fun AppPickerDialog(
+    title: String,
+    apps: List<LaunchableApp>,
+    onDismiss: () -> Unit,
+    onSelect: (LaunchableApp) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .height(420.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                apps.forEach { app ->
+                    Surface(
+                        onClick = { onSelect(app) },
+                        color = Surface2,
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, Stroke),
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 7.dp)
+                    ) {
+                        Column(Modifier.padding(horizontal = 13.dp, vertical = 10.dp)) {
+                            Text(app.label, color = TextMain, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                            Text(app.packageName, color = TextMuted, fontSize = 7.sp)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("닫기") }
+        }
+    )
 }
 
 @Composable
