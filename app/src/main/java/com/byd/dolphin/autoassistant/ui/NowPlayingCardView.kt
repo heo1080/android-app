@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
+import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -43,7 +44,7 @@ class NowPlayingCardView(
     private val next = control("▶▶") { manager.next() }
     private val permission = control("권한 자동 복구") {
         AdbPermissionManager.autoGrantPermissionsOnLaunch(context) { _, _ -> }
-    }.apply { visibility = GONE }
+    }.apply { visibility = View.GONE }
 
     init {
         orientation = HORIZONTAL
@@ -64,9 +65,9 @@ class NowPlayingCardView(
         meta.addView(title.apply { setPadding(0, dp(3), 0, 0) })
         meta.addView(artist.apply { setPadding(0, dp(2), 0, 0) })
         meta.addView(album.apply { setPadding(0, dp(1), 0, dp(4)) })
-        meta.addView(progress, LayoutParams(MATCH_PARENT, dp(5)))
+        meta.addView(progress, LayoutParams(LayoutParams.MATCH_PARENT, dp(5)))
         meta.addView(time.apply { setPadding(0, dp(3), 0, 0) })
-        addView(meta, LayoutParams(0, WRAP_CONTENT, 1f))
+        addView(meta, LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
 
         val controls = LinearLayout(context).apply {
             orientation = VERTICAL
@@ -83,11 +84,11 @@ class NowPlayingCardView(
         controls.addView(permission, LayoutParams(dp(154), dp(34)).apply {
             setMargins(0, dp(6), 0, 0)
         })
-        addView(controls, LayoutParams(dp(164), WRAP_CONTENT))
+        addView(controls, LayoutParams(dp(164), LayoutParams.WRAP_CONTENT))
     }
 
     fun bind(snapshot: NowPlayingSnapshot) {
-        permission.visibility = if (!snapshot.notificationAccess) VISIBLE else GONE
+        permission.visibility = if (!snapshot.notificationAccess) View.VISIBLE else View.GONE
 
         if (!snapshot.available) {
             art.setImageDrawable(null)
