@@ -48,7 +48,9 @@ data class DiagnosticsUiState(
     val results: List<DiagnosticResult> = emptyList(),
     val startedAtMs: Long = 0L,
     val finishedAtMs: Long = 0L,
-    val lastExportName: String? = null
+    val lastExportName: String? = null,
+    val autoUploadMessage: String? = null,
+    val autoUploadSuccess: Boolean? = null
 ) {
     val passed: Int get() = results.count { it.status == DiagnosticStatus.PASS }
     val total: Int get() = results.size
@@ -150,6 +152,47 @@ class DolphinDiagnostics(
                     " health=" + results.count { it.status == DiagnosticStatus.PASS } +
                     "/" + results.size
             )
+
+            val hasFailures = results.any {
+                it.status == DiagnosticStatus.FAIL ||
+                    it.status == DiagnosticStatus.NO_SIGNAL
+            }
+            if (hasFailures) {
+                val config = DiagnosticUploadManager
+                    .enableAutomaticallyWhenConfigured(app)
+                val failureZip = createFailuresZip()
+                if (failureZip != null && config.complete) {
+                    val upload = withContext(Dispatchers.IO) {
+                        DiagnosticUploadManager.uploadDiagnosticBundle(
+                            app,
+                            failureZip
+                        )
+                    }
+                    _state.value = _state.value.copy(
+                        autoUploadMessage = upload.message,
+                        autoUploadSuccess = upload.success
+                    )
+                    NextLogger.i(
+                        "DIAGNOSTICS",
+                        "autoUpload success=" + upload.success +
+                            " message=" + upload.message
+                    )
+                } else {
+                    _state.value = _state.value.copy(
+                        autoUploadMessage = if (!config.complete) {
+                            "GITHUB AUTO UPLOAD NOT CONFIGURED"
+                        } else {
+                            "FAILURE ZIP NOT CREATED"
+                        },
+                        autoUploadSuccess = false
+                    )
+                }
+            } else {
+                _state.value = _state.value.copy(
+                    autoUploadMessage = "NO FAILURE ZIP NEEDED",
+                    autoUploadSuccess = true
+                )
+            }
         }
     }
 
