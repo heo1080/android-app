@@ -48,14 +48,22 @@ write(p, text)
 # Settings: exact requested phrases, ICC ON/OFF, and a BSD-specific toggle.
 # ---------------------------------------------------------------------------
 p, text = read("app/src/main/java/com/byd/dolphin/autoassistant/manager/SettingsManager.kt")
-text = replace_once(
-    text,
-    '    private const val KEY_PHRASE_ICC_ON = "key_phrase_icc_on"\n',
-    '    private const val KEY_PHRASE_ICC_ON = "key_phrase_icc_on"\n'
-    '    private const val KEY_PHRASE_ICC_OFF = "key_phrase_icc_off"\n'
-    '    private const val KEY_BSD_ALERT_ENABLED = "key_bsd_alert_enabled"\n',
-    'add icc off/bsd keys',
-)
+if 'private const val KEY_PHRASE_ICC_OFF = "key_phrase_icc_off"' not in text:
+    text = replace_once(
+        text,
+        '    private const val KEY_PHRASE_ICC_ON = "key_phrase_icc_on"\n',
+        '    private const val KEY_PHRASE_ICC_ON = "key_phrase_icc_on"\n'
+        '    private const val KEY_PHRASE_ICC_OFF = "key_phrase_icc_off"\n'
+        '    private const val KEY_BSD_ALERT_ENABLED = "key_bsd_alert_enabled"\n',
+        'add icc off/bsd keys',
+    )
+elif 'private const val KEY_BSD_ALERT_ENABLED = "key_bsd_alert_enabled"' not in text:
+    text = text.replace(
+        '    private const val KEY_PHRASE_ICC_OFF = "key_phrase_icc_off"\n',
+        '    private const val KEY_PHRASE_ICC_OFF = "key_phrase_icc_off"\n'
+        '    private const val KEY_BSD_ALERT_ENABLED = "key_bsd_alert_enabled"\n',
+        1,
+    )
 # Exact default wording requested by the driver.
 text = text.replace('"회생제동 하이"', '"하이"')
 text = text.replace('"회생제동 에코"', '"스탠다드"')
@@ -88,7 +96,23 @@ new_icc = '''    fun getIccPhrase(context: Context, isActive: Boolean): String {
     fun setBsdAlertEnabled(context: Context, enabled: Boolean) =
         getPrefs(context).edit().putBoolean(KEY_BSD_ALERT_ENABLED, enabled).apply()
 '''
-text = replace_once(text, old_icc, new_icc, 'replace ICC settings')
+if old_icc in text:
+    text = text.replace(old_icc, new_icc, 1)
+elif 'fun getIccPhrase(context: Context, isActive: Boolean): String' in text:
+    if 'fun isBsdAlertEnabled(context: Context): Boolean' not in text:
+        compat_anchor = '    fun setIccPhrase(context: Context, phrase: String) = setIccPhrase(context, true, phrase)\n'
+        text = text.replace(
+            compat_anchor,
+            compat_anchor + '''
+    fun isBsdAlertEnabled(context: Context): Boolean =
+        getPrefs(context).getBoolean(KEY_BSD_ALERT_ENABLED, true)
+    fun setBsdAlertEnabled(context: Context, enabled: Boolean) =
+        getPrefs(context).edit().putBoolean(KEY_BSD_ALERT_ENABLED, enabled).apply()
+''',
+            1,
+        )
+else:
+    raise SystemExit('replace ICC settings: neither legacy nor updated ICC block found')
 write(p, text)
 
 # ---------------------------------------------------------------------------
