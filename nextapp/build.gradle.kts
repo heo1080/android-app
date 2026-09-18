@@ -11,8 +11,8 @@ android {
         applicationId = "com.byd.dolphin.autoassistant"
         minSdk = 29
         targetSdk = 34
-        versionCode = 107
-        versionName = "6.0.0-v33.0.0-integrated-test"
+        versionCode = 108
+        versionName = "6.0.1-v33.0.1-background-media"
     }
 
     buildTypes {
