@@ -3,9 +3,12 @@ package com.byd.dolphin.autoassistant.next.hud
 import android.os.Bundle
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import com.byd.dolphin.autoassistant.next.NextRuntime
 import com.byd.dolphin.autoassistant.next.core.NextLogger
+import com.byd.dolphin.autoassistant.next.settings.NextSettings
 
 class NextNavNotificationListener : NotificationListenerService() {
+    private var lastLeadingAt = 0L
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         val pkg = sbn?.packageName ?: return
         val n = sbn.notification ?: return
@@ -15,6 +18,20 @@ class NextNavNotificationListener : NotificationListenerService() {
         val text = collectText(extras, n.tickerText?.toString())
         val sub = extras.getCharSequence("android.subText")?.toString().orEmpty()
         val combined = listOf(title, text, sub).filter { it.isNotBlank() }.joinToString(" | ")
+
+        if (
+            (combined.contains("앞차") || combined.contains("전방")) &&
+            combined.contains("출발")
+        ) {
+            val now = System.currentTimeMillis()
+            if (now - lastLeadingAt >= 3500L) {
+                lastLeadingAt = now
+                NextRuntime.start(this)
+                NextLogger.i("LEADING_DETECTED", "navigation notification pkg=" + pkg + " text=" + combined.take(500))
+                NextRuntime.audio.emit(NextSettings.EVENT_LEADING, "출발")
+            }
+        }
+
         val cue = parse(pkg, combined)
         NextLogger.i("NAV_NOTIFICATION", "pkg=" + pkg + " cue=" + cue)
         if (cue != null) NextHudBridge.forwardCue(this, cue)
