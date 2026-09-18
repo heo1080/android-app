@@ -164,23 +164,28 @@ write(p, text)
 
 # ---------------------------------------------------------------------------
 # Mirror: the live getter returned -1/44 but setter accepts discrete 0..8.
-# Reject invalid captured values and expose explicit calibrated presets.
+# Source may already contain the calibrated implementation on newer branches.
+# Keep this historical build patch idempotent so it never duplicates constants
+# or helper methods that are already present in source.
 # ---------------------------------------------------------------------------
 p, text = read("app/src/main/java/com/byd/dolphin/autoassistant/manager/MirrorMemoryManager.kt")
-text = replace_once(
-    text,
-    '    private const val COMMAND_SETTLE_MS = 900L\n',
-    '    private const val COMMAND_SETTLE_MS = 900L\n    private const val MIN_SETTER_INDEX = 0\n    private const val MAX_SETTER_INDEX = 8\n',
-    'mirror index bounds',
-)
-insert_after = '''    fun readCurrent(context: Context): Position? = runCatching {
+if "private const val MIN_SETTER_INDEX = 0" not in text:
+    text = replace_once(
+        text,
+        '    private const val COMMAND_SETTLE_MS = 900L\n',
+        '    private const val COMMAND_SETTLE_MS = 900L\n    private const val MIN_SETTER_INDEX = 0\n    private const val MAX_SETTER_INDEX = 8\n',
+        'mirror index bounds',
+    )
+
+if "fun saveCalibratedNormal(" not in text:
+    insert_after = '''    fun readCurrent(context: Context): Position? = runCatching {
         val target = setting(context)
         val left = invokeInt(target, "getLeftViewMirrorFlipAngle")
         val right = invokeInt(target, "getRightViewMirrorFlipAngle")
         if (left == null || right == null) null else Position(left, right)
     }.onFailure { DolphinLogger.e(TAG, "mirror getter failed", it.cause ?: it) }.getOrNull()
 '''
-addition = insert_after + '''
+    addition = insert_after + '''
     private fun isSetterPositionValid(position: Position): Boolean =
         position.left in MIN_SETTER_INDEX..MAX_SETTER_INDEX &&
             position.right in MIN_SETTER_INDEX..MAX_SETTER_INDEX
@@ -214,27 +219,29 @@ addition = insert_after + '''
         return applyPosition(context.applicationContext, position, "CALIBRATION_PREVIEW", takeOwnership = false)
     }
 '''
-text = replace_once(text, insert_after, addition, 'mirror calibration API')
-# Never save getter values that cannot be written back.
-text = text.replace(
-    '        if (pos == null) {\n            state = State.ERROR\n            return null\n        }\n        prefs(context).edit()',
-    '        if (pos == null || !isSetterPositionValid(pos)) {\n            state = State.ERROR\n            DolphinLogger.w(TAG, "getter value is not a valid setter index: $pos; use 0..8 calibrated preset")\n            return null\n        }\n        prefs(context).edit()',
-)
-# Invalidate old -1/44 style presets at read time.
-text = text.replace(
-    '        return Position(p.getInt(KEY_NORMAL_LEFT, 0), p.getInt(KEY_NORMAL_RIGHT, 0))',
-    '        val pos = Position(p.getInt(KEY_NORMAL_LEFT, 0), p.getInt(KEY_NORMAL_RIGHT, 0))\n        return pos.takeIf(::isSetterPositionValid)'
-)
-text = text.replace(
-    '        return Position(p.getInt(KEY_REVERSE_LEFT, 0), p.getInt(KEY_REVERSE_RIGHT, 0))',
-    '        val pos = Position(p.getInt(KEY_REVERSE_LEFT, 0), p.getInt(KEY_REVERSE_RIGHT, 0))\n        return pos.takeIf(::isSetterPositionValid)'
-)
-# Getter semantics differ from setter semantics on the target car, so don't let an
-# out-of-range getter falsely look like a manual override.
-text = text.replace(
-    '        val actual = readCurrent(context) ?: return\n        if (actual != expected) {',
-    '        val actual = readCurrent(context) ?: return\n        if (!isSetterPositionValid(actual)) return\n        if (actual != expected) {'
-)
+    text = replace_once(text, insert_after, addition, 'mirror calibration API')
+
+if "getter value is not a valid setter index" not in text and "raw mirror getter cannot be saved as setter index" not in text:
+    text = text.replace(
+        '        if (pos == null) {\n            state = State.ERROR\n            return null\n        }\n        prefs(context).edit()',
+        '        if (pos == null || !isSetterPositionValid(pos)) {\n            state = State.ERROR\n            DolphinLogger.w(TAG, "getter value is not a valid setter index: $pos; use 0..8 calibrated preset")\n            return null\n        }\n        prefs(context).edit()',
+    )
+
+if "return pos.takeIf(::isSetterPositionValid)" not in text:
+    text = text.replace(
+        '        return Position(p.getInt(KEY_NORMAL_LEFT, 0), p.getInt(KEY_NORMAL_RIGHT, 0))',
+        '        val pos = Position(p.getInt(KEY_NORMAL_LEFT, 0), p.getInt(KEY_NORMAL_RIGHT, 0))\n        return pos.takeIf(::isSetterPositionValid)'
+    )
+    text = text.replace(
+        '        return Position(p.getInt(KEY_REVERSE_LEFT, 0), p.getInt(KEY_REVERSE_RIGHT, 0))',
+        '        val pos = Position(p.getInt(KEY_REVERSE_LEFT, 0), p.getInt(KEY_REVERSE_RIGHT, 0))\n        return pos.takeIf(::isSetterPositionValid)'
+    )
+
+if "if (!isSetterPositionValid(actual)) return" not in text:
+    text = text.replace(
+        '        val actual = readCurrent(context) ?: return\n        if (actual != expected) {',
+        '        val actual = readCurrent(context) ?: return\n        if (!isSetterPositionValid(actual)) return\n        if (actual != expected) {'
+    )
 write(p, text)
 
 # ---------------------------------------------------------------------------
