@@ -13,7 +13,7 @@ object NextLogger {
     )
 
     private const val ROOT = "DA_NEXT"
-    private const val RING_MAX = 2400
+    private const val RING_MAX = 12000
     private val ring = ArrayDeque<Entry>()
     private val ringLock = Any()
 
@@ -32,6 +32,10 @@ object NextLogger {
 
     fun snapshot(fromMs: Long, toMs: Long): List<Entry> = synchronized(ringLock) {
         ring.filter { it.timestampMs in fromMs..toMs }
+    }
+
+    fun snapshotAll(): List<Entry> = synchronized(ringLock) {
+        ring.toList()
     }
 
     private fun write(level: String, tag: String, msg: String, t: Throwable?) {
