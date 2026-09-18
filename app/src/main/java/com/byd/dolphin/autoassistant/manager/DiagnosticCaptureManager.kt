@@ -842,6 +842,7 @@ object DiagnosticCaptureManager {
     private const val AC = "android.hardware.bydauto.ac.BYDAutoAcDevice"
     private const val LIGHT = "android.hardware.bydauto.light.BYDAutoLightDevice"
     private const val RADAR = "android.hardware.bydauto.radar.BYDAutoRadarDevice"
+    private const val TYRE = "android.hardware.bydauto.tyre.BYDAutoTyreDevice"
     private const val SPEED = "android.hardware.bydauto.speed.BYDAutoSpeedDevice"
     private const val GEARBOX = "android.hardware.bydauto.gearbox.BYDAutoGearboxDevice"
     private const val CHARGING = "android.hardware.bydauto.charging.BYDAutoChargingDevice"
@@ -849,7 +850,7 @@ object DiagnosticCaptureManager {
     private const val INSTRUMENT = "android.hardware.bydauto.instrument.BYDAutoInstrumentDevice"
 
     private val FRAMEWORK_CLASSES = listOf(
-        BODYWORK, SETTING, AC, LIGHT, RADAR, SPEED, GEARBOX, CHARGING, ADAS, INSTRUMENT
+        BODYWORK, SETTING, AC, LIGHT, RADAR, TYRE, SPEED, GEARBOX, CHARGING, ADAS, INSTRUMENT
     )
 
     private val VEHICLE_PROBES = listOf(
