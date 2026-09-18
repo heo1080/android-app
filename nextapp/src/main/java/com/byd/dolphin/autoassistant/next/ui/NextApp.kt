@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -243,22 +244,22 @@ private fun HomePage(state: VehicleState, onGo: (Page) -> Unit) {
     )
     Section("현재 연결 상태")
     Grid2(
-        SignalCard("기어", state.gear),
-        SignalCard("주행모드", state.driveMode)
+        { SignalCard("기어", state.gear) },
+        { SignalCard("주행모드", state.driveMode) }
     )
     Grid2(
-        SignalCard("회생제동", state.regenMode),
-        SignalCard("속도", state.speedKph, suffix = " km/h")
+        { SignalCard("회생제동", state.regenMode) },
+        { SignalCard("속도", state.speedKph, suffix = " km/h") }
     )
 
     Section("빠른 이동")
     Grid2(
-        LinkCard("차량 편의", "앞좌석 열선 · 핸들 열선", "VERIFIED", Green) { onGo(Page.VEHICLE) },
-        LinkCard("오디오 · 경고", "공통 출력 엔진", "ACTIVE", Cyan) { onGo(Page.AUDIO) }
+        { LinkCard("차량 편의", "앞좌석 열선 · 핸들 열선", "VERIFIED", Green) { onGo(Page.VEHICLE) } },
+        { LinkCard("오디오 · 경고", "공통 출력 엔진", "ACTIVE", Cyan) { onGo(Page.AUDIO) } }
     )
     Grid2(
-        LinkCard("BSD", "raw 변화 + 해당 방향 깜박이", "BETA", Amber) { onGo(Page.DRIVE) },
-        LinkCard("연구 기능", "실내등 · 다운미러 · 계기판 · radar", "LAB", Red) { onGo(Page.LAB) }
+        { LinkCard("BSD", "raw 변화 + 해당 방향 깜박이", "BETA", Amber) { onGo(Page.DRIVE) } },
+        { LinkCard("연구 기능", "실내등 · 다운미러 · 계기판 · radar", "LAB", Red) { onGo(Page.LAB) } }
     )
 
     Section("Next 설계 원칙")
@@ -271,11 +272,11 @@ private fun HomePage(state: VehicleState, onGo: (Page) -> Unit) {
 private fun DrivePage(state: VehicleState, onAudio: () -> Unit) {
     Banner("이 화면은 감지 상태만 보여줍니다. 비프/TTS 종류와 문구는 오디오 · 경고에서만 설정합니다.")
     Section("핵심 주행 상태")
-    Grid2(SignalCard("기어", state.gear), SignalCard("주행모드", state.driveMode))
-    Grid2(SignalCard("회생제동", state.regenMode), SignalCard("스노우", state.snowMode))
-    Grid2(SignalCard("오토홀드 raw", state.autoHoldRaw), SignalCard("ICC", state.iccActive))
-    Grid2(SignalCard("BSD raw", state.bsdRaw), SignalCard("방향지시등", state.turn))
-    Grid2(SignalCard("브레이크", state.brakeDepth), SignalCard("가속", state.acceleratorDepth))
+    Grid2({ SignalCard("기어", state.gear) }, { SignalCard("주행모드", state.driveMode) })
+    Grid2({ SignalCard("회생제동", state.regenMode) }, { SignalCard("스노우", state.snowMode) })
+    Grid2({ SignalCard("오토홀드 raw", state.autoHoldRaw) }, { SignalCard("ICC", state.iccActive) })
+    Grid2({ SignalCard("BSD raw", state.bsdRaw) }, { SignalCard("방향지시등", state.turn) })
+    Grid2({ SignalCard("브레이크", state.brakeDepth) }, { SignalCard("가속", state.acceleratorDepth) })
 
     Spacer(Modifier.height(12.dp))
     ActionButton("오디오 · 경고 설정 열기", Cyan, onAudio)
@@ -491,7 +492,7 @@ private fun LabPage(state: VehicleState) {
     InfoCard("운전석 오디오: 앱 자체 stream14는 사용, 타 앱 UID routing은 LAB", Red)
 
     Section("현재 raw")
-    Grid2(SignalCard("AVH raw", state.autoHoldRaw), SignalCard("BSD raw", state.bsdRaw))
+    Grid2({ SignalCard("AVH raw", state.autoHoldRaw) }, { SignalCard("BSD raw", state.bsdRaw) })
     Grid2(SignalCard("브레이크", state.brakeDepth), SignalCard("가속", state.acceleratorDepth))
 }
 
