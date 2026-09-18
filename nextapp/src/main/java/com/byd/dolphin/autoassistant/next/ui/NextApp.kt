@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import com.byd.dolphin.autoassistant.BuildConfig
 import com.byd.dolphin.autoassistant.next.audio.NextAudioEngine
 import com.byd.dolphin.autoassistant.next.diagnostics.DiagnosticStatus
+import com.byd.dolphin.autoassistant.next.diagnostics.DriveObservationStatus
 import com.byd.dolphin.autoassistant.next.diagnostics.DolphinDiagnostics
 import com.byd.dolphin.autoassistant.next.settings.AlertMode
 import com.byd.dolphin.autoassistant.next.settings.AlertProfile
@@ -536,7 +537,7 @@ private fun DiagnosticsPanel(
                 )
                 Text(
                     if (diag.running) "원터치 진단 실행 중"
-                    else if (diag.total == 0) "TTS → BEEP → GEAR → AUTO HOLD → REGEN → DRIVE MODE → DRIVER AUDIO"
+                    else if (diag.total == 0) "최근 주행 자동 기록 중 · TEST DRIVE = 최근 주행 분석 + 즉시 7개 검사"
                     else "마지막 진단 · 실패/NO SIGNAL " + diag.failures + "건",
                     color = TextMuted,
                     fontSize = 10.sp
@@ -599,6 +600,72 @@ private fun DiagnosticsPanel(
             }
         }
 
+        val recent = diag.recentDrive
+        if (recent != null) {
+            Spacer(Modifier.height(14.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "RECENT DRIVE",
+                    color = TextMain,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f)
+                )
+                val minutes = (recent.durationMs / 60_000L).coerceAtLeast(0L)
+                Text(
+                    minutes.toString() + "분 기록 · MAX " +
+                        (recent.maxSpeedKph?.let { String.format("%.1f km/h", it) } ?: "—"),
+                    color = TextMuted,
+                    fontSize = 9.sp
+                )
+            }
+            Spacer(Modifier.height(6.dp))
+
+            recent.observations.forEach { observation ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        observation.title,
+                        color = TextMain,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.width(132.dp)
+                    )
+                    Badge(
+                        when (observation.status) {
+                            DriveObservationStatus.OBSERVED -> "OBSERVED"
+                            DriveObservationStatus.NOT_USED -> "NOT USED"
+                            DriveObservationStatus.NO_SIGNAL -> "NO SIGNAL"
+                            DriveObservationStatus.ISSUE -> "ISSUE"
+                        },
+                        when (observation.status) {
+                            DriveObservationStatus.OBSERVED -> Green
+                            DriveObservationStatus.NOT_USED -> TextMuted
+                            DriveObservationStatus.NO_SIGNAL -> Amber
+                            DriveObservationStatus.ISSUE -> Red
+                        }
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        observation.detail,
+                        color = TextMuted,
+                        fontSize = 9.sp,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text(
+                        observation.confidence.name,
+                        color = confidenceColor(observation.confidence),
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+
         Spacer(Modifier.height(12.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -611,7 +678,11 @@ private fun DiagnosticsPanel(
                 if (!diag.running) diagnostics.runFullDiagnostics()
             }
 
-            if (!diag.running && diag.failures > 0 && diag.autoUploadSuccess != true) {
+            if (
+                !diag.running &&
+                (diag.failures > 0 || diag.recentDrive?.hasIssue == true) &&
+                diag.autoUploadSuccess != true
+            ) {
                 ActionButton("EXPORT ONLY FAILURES", Green) {
                     scope.launch {
                         val file = diagnostics.createFailuresZip()
