@@ -97,7 +97,13 @@ object SupertonicEngine {
         }
         val file = cacheFile(app, clean, sid, speed)
         if (file.exists() && file.length() > 44) {
-            scope.launch { playWav(file, onPlaybackStart) }
+            scope.launch {
+                AudioPlaybackGate.serial {
+                    AudioPlaybackGate.serial {
+                        playWav(file, onPlaybackStart)
+                    }
+                }
+            }
             return true
         }
         if (!inFlight.add(file.name)) return true
@@ -232,13 +238,23 @@ object SupertonicEngine {
             track.write(pcm, 0, pcm.size)
             track.setVolume(0.84f)
             track.play()
+            Thread.sleep(45L)
             val route = runCatching {
                 val device = track.routedDevice
                 if (device == null) "STREAM14 / ROUTE UNKNOWN"
                 else "STREAM14 / " + device.productName + " / type=" + device.type
             }.getOrDefault("STREAM14 / ROUTE UNKNOWN")
-            onPlaybackStart?.invoke(System.currentTimeMillis(), route)
-            Thread.sleep((pcm.size / 2.0 / rate * 1000.0).toLong() + 100L)
+            val headFrames = runCatching { track.playbackHeadPosition.toLong() }.getOrDefault(0L)
+            if (headFrames > 0L) {
+                onPlaybackStart?.invoke(
+                    System.currentTimeMillis(),
+                    route + " / frames=" + headFrames
+                )
+            } else {
+                NextLogger.w("TTS", "AudioTrack PLAY but playbackHeadPosition=0 route=" + route)
+            }
+            val durationMs = (pcm.size / 2.0 / rate * 1000.0).toLong()
+            Thread.sleep((durationMs - 45L).coerceAtLeast(0L) + 100L)
             runCatching { track.stop() }
         } finally {
             runCatching { track?.release() }
