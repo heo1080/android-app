@@ -34,6 +34,8 @@ object MirrorMemoryManager {
     private const val RESTORE_DELAY_MS = 850L
     private const val MANUAL_CHECK_INTERVAL_MS = 700L
     private const val COMMAND_SETTLE_MS = 900L
+    private const val MIN_SETTER_INDEX = 0
+    private const val MAX_SETTER_INDEX = 8
 
     enum class State {
         NORMAL, SAVING, DOWN, REVERSE, RESTORE_PENDING, RESTORING, MANUAL_OVERRIDE, ERROR
@@ -75,11 +77,68 @@ object MirrorMemoryManager {
         if (left == null || right == null) null else Position(left, right)
     }.onFailure { DolphinLogger.e(TAG, "mirror getter failed", it.cause ?: it) }.getOrNull()
 
+    /**
+     * DiLink 3 live capture showed getter values and setter command indices use
+     * different domains. The setter accepts calibrated command indices 0..8.
+     * Never feed raw getter values back into the setter.
+     */
+    private fun isSetterPositionValid(position: Position): Boolean =
+        position.left in MIN_SETTER_INDEX..MAX_SETTER_INDEX &&
+            position.right in MIN_SETTER_INDEX..MAX_SETTER_INDEX
+
+    fun previewCalibrated(context: Context, left: Int, right: Int): Boolean {
+        val position = Position(left, right)
+        if (!isSetterPositionValid(position)) {
+            DolphinLogger.w(TAG, "calibration preview rejected out-of-range position=$position")
+            return false
+        }
+        return applyPosition(
+            context.applicationContext,
+            position,
+            "CALIBRATION_PREVIEW",
+            takeOwnership = false
+        )
+    }
+
+    fun saveCalibratedNormal(context: Context, left: Int, right: Int): Boolean =
+        saveCalibratedPreset(context, Position(left, right), reverse = false)
+
+    fun saveCalibratedReverse(context: Context, left: Int, right: Int): Boolean =
+        saveCalibratedPreset(context, Position(left, right), reverse = true)
+
+    private fun saveCalibratedPreset(
+        context: Context,
+        position: Position,
+        reverse: Boolean
+    ): Boolean {
+        if (!isSetterPositionValid(position)) return false
+        val editor = prefs(context).edit()
+        if (reverse) {
+            editor.putInt(KEY_REVERSE_LEFT, position.left)
+                .putInt(KEY_REVERSE_RIGHT, position.right)
+                .putBoolean(KEY_HAS_REVERSE, true)
+        } else {
+            editor.putInt(KEY_NORMAL_LEFT, position.left)
+                .putInt(KEY_NORMAL_RIGHT, position.right)
+                .putBoolean(KEY_HAS_NORMAL, true)
+        }
+        editor.apply()
+        DolphinLogger.i(
+            TAG,
+            "${if (reverse) "REVERSE" else "NORMAL"} calibrated setter preset=$position"
+        )
+        return true
+    }
+
     fun captureNormal(context: Context): Position? {
         state = State.SAVING
         val pos = readCurrent(context)
-        if (pos == null) {
+        if (pos == null || !isSetterPositionValid(pos)) {
             state = State.ERROR
+            DolphinLogger.w(
+                TAG,
+                "raw mirror getter cannot be saved as setter index: $pos; use calibrated 0..8 preset"
+            )
             return null
         }
         prefs(context).edit()
@@ -95,8 +154,12 @@ object MirrorMemoryManager {
     fun captureReverse(context: Context): Position? {
         state = State.SAVING
         val pos = readCurrent(context)
-        if (pos == null) {
+        if (pos == null || !isSetterPositionValid(pos)) {
             state = State.ERROR
+            DolphinLogger.w(
+                TAG,
+                "raw mirror getter cannot be saved as setter index: $pos; use calibrated 0..8 preset"
+            )
             return null
         }
         prefs(context).edit()
@@ -112,13 +175,15 @@ object MirrorMemoryManager {
     fun normalPreset(context: Context): Position? {
         val p = prefs(context)
         if (!p.getBoolean(KEY_HAS_NORMAL, false)) return null
-        return Position(p.getInt(KEY_NORMAL_LEFT, 0), p.getInt(KEY_NORMAL_RIGHT, 0))
+        val pos = Position(p.getInt(KEY_NORMAL_LEFT, 0), p.getInt(KEY_NORMAL_RIGHT, 0))
+        return pos.takeIf(::isSetterPositionValid)
     }
 
     fun reversePreset(context: Context): Position? {
         val p = prefs(context)
         if (!p.getBoolean(KEY_HAS_REVERSE, false)) return null
-        return Position(p.getInt(KEY_REVERSE_LEFT, 0), p.getInt(KEY_REVERSE_RIGHT, 0))
+        val pos = Position(p.getInt(KEY_REVERSE_LEFT, 0), p.getInt(KEY_REVERSE_RIGHT, 0))
+        return pos.takeIf(::isSetterPositionValid)
     }
 
     fun statusSummary(context: Context): String {
@@ -176,6 +241,7 @@ object MirrorMemoryManager {
         lastManualCheckElapsed = now
         val expected = commandedPosition ?: return
         val actual = readCurrent(context) ?: return
+        if (!isSetterPositionValid(actual)) return
         if (actual != expected) {
             state = State.MANUAL_OVERRIDE
             autoOwnsMirrors = false
