@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "DolphinAutoAssistant"
-include(":app")
+rootProject.name = "DolphinAssistantNext"
+include(":nextapp")
