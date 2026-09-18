@@ -12,8 +12,8 @@ android {
         applicationId = "com.byd.dolphin.autoassistant"
         minSdk = 29
         targetSdk = 29
-        versionCode = 100
-        versionName = "32.0.0-next.1"
+        versionCode = 101
+        versionName = "32.0.1-next.1"
     }
 
     buildFeatures {

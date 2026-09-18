@@ -55,10 +55,10 @@ jobs:
           export PASS
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
           UNSIGNED="next/app/build/outputs/apk/release/app-release-unsigned.apk"
-          SIGNED="next/app/build/outputs/apk/release/DolphinAssistant-v32.0.0-next.apk"
+          SIGNED="next/app/build/outputs/apk/release/DolphinAssistant-v32.0.1-next.apk"
           "$APKSIGNER" sign             --ks "$RUNNER_TEMP/dolphin-release.jks"             --ks-key-alias dolphinassistant             --ks-pass env:PASS             --key-pass env:PASS             --out "$SIGNED"             "$UNSIGNED"
           "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
-          sha256sum "$SIGNED" | tee next/app/build/outputs/apk/release/DolphinAssistant-v32.0.0-next.sha256
+          sha256sum "$SIGNED" | tee next/app/build/outputs/apk/release/DolphinAssistant-v32.0.1-next.sha256
 
       - name: Publish updater-visible Next release
         shell: bash
@@ -66,23 +66,23 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          TAG="v32.0.0"
-          APK="next/app/build/outputs/apk/release/DolphinAssistant-v32.0.0-next.apk"
-          SHA="next/app/build/outputs/apk/release/DolphinAssistant-v32.0.0-next.sha256"
+          TAG="v32.0.1"
+          APK="next/app/build/outputs/apk/release/DolphinAssistant-v32.0.1-next.apk"
+          SHA="next/app/build/outputs/apk/release/DolphinAssistant-v32.0.1-next.sha256"
           NOTES="DolphinAssistant Next Foundation. Completely new codebase under next/: Compose UI, VehicleGateway isolation, timestamp/confidence VehicleState, VERIFIED/BETA/LAB separation, verified front-seat and steering-wheel heating controls, clean in-app updater. Legacy v30/v31 UI and patch chain are not used by this APK."
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
-            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant Next v32.0.0" --notes "$NOTES"
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant Next v32.0.1" --notes "$NOTES"
           else
-            gh release create "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY"               --target "$GITHUB_SHA" --title "DolphinAssistant Next v32.0.0" --notes "$NOTES"
+            gh release create "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY"               --target "$GITHUB_SHA" --title "DolphinAssistant Next v32.0.1" --notes "$NOTES"
           fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: DolphinAssistant-Next-v32.0.0
+          name: DolphinAssistant-Next-v32.0.1
           path: |
-            next/app/build/outputs/apk/release/DolphinAssistant-v32.0.0-next.apk
-            next/app/build/outputs/apk/release/DolphinAssistant-v32.0.0-next.sha256
+            next/app/build/outputs/apk/release/DolphinAssistant-v32.0.1-next.apk
+            next/app/build/outputs/apk/release/DolphinAssistant-v32.0.1-next.sha256
           if-no-files-found: error
           retention-days: 30
