@@ -83,7 +83,7 @@ private enum class Page(val title: String, val eyebrow: String) {
     DRIVE("주행", "DRIVE"),
     VEHICLE("차량", "VEHICLE"),
     AUDIO("오디오 · 경고", "AUDIO"),
-    SCREEN("내비 · 화면", "DISPLAY"),
+    SCREEN("화면 · HUD", "DISPLAY"),
     AUTOMATION("자동화", "AUTO"),
     LAB("LAB", "LAB")
 }
@@ -108,7 +108,7 @@ fun NextApp(repository: VehicleRepository, audio: NextAudioEngine, diagnostics: 
         )
     ) {
         Surface(modifier = Modifier.fillMaxSize(), color = Bg) {
-            Row(modifier = Modifier.fillMaxSize()) {
+            Row(modifier = Modifier.fillMaxSize().padding(top = 12.dp, bottom = 74.dp)) {
                 RailMenu(current = page, onSelect = { page = it })
                 Column(
                     modifier = Modifier
@@ -147,7 +147,7 @@ fun NextApp(repository: VehicleRepository, audio: NextAudioEngine, diagnostics: 
 private fun RailMenu(current: Page, onSelect: (Page) -> Unit) {
     Column(
         modifier = Modifier
-            .width(188.dp)
+            .width(196.dp)
             .fillMaxHeight()
             .padding(14.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -171,7 +171,7 @@ private fun RailMenu(current: Page, onSelect: (Page) -> Unit) {
             }
         }
         Spacer(Modifier.height(8.dp))
-        Text("DolphinAssistant", color = TextMain, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        Text("DolphinAssistant", color = TextMain, fontSize = 14.sp, fontWeight = FontWeight.Bold)
         Text("NEXT · v32", color = Cyan, fontSize = 9.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(18.dp))
 
@@ -198,7 +198,7 @@ private fun RailMenu(current: Page, onSelect: (Page) -> Unit) {
                     Text(
                         item.title,
                         color = if (selected) TextMain else TextMuted,
-                        fontSize = 13.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -334,6 +334,8 @@ private fun VehiclePage(state: VehicleState, repository: VehicleRepository) {
     InfoCard("실내등: 기존 actuator 경로 실차 미동작 → LAB", Red)
     InfoCard("다운미러: 기존 angle setter 실차 미동작 → LAB", Red)
     InfoCard("메모리 시트: 절대 좌표/위치 setter 미확정 → LAB", Red)
+
+    IntegratedVehicleLabPanel()
 }
 
 @Composable
@@ -363,6 +365,8 @@ private fun AudioPage(
         AlertCard(spec, audio, onSettingsChanged)
         Spacer(Modifier.height(10.dp))
     }
+
+    IntegratedAudioRoutePanel()
 }
 
 @Composable
@@ -450,21 +454,6 @@ private fun AlertCard(
                 }
             }
 
-            Label("TTS 음성")
-            val voiceOptions = listOf("GLOBAL|기본 음성") + NextSettings.voicePresets.map { it.id + "|" + it.label }
-            val selectedVoice = if (profile.voiceId == "GLOBAL") "GLOBAL|기본 음성"
-            else NextSettings.voicePresets.firstOrNull { it.id == profile.voiceId }?.let { it.id + "|" + it.label } ?: "GLOBAL|기본 음성"
-            ChoiceStrip(
-                options = voiceOptions,
-                selected = selectedVoice,
-                onSelect = { packed ->
-                    val id = packed.substringBefore("|")
-                    saveProfile(context, spec.key, profile.copy(voiceId = id))
-                    onSettingsChanged()
-                    audio.preview(spec.key)
-                },
-                display = { it.substringAfter("|") }
-            )
         }
 
         if (profile.mode != AlertMode.OFF) {
@@ -484,26 +473,14 @@ private fun saveProfile(
 
 @Composable
 private fun ScreenPage() {
-    Banner("기존 SplitScreenManager/FloatingOverlayManager를 그대로 복사하지 않고 새 Display Engine으로 단계 이관합니다.")
-    Section("VERIFIED 이관 대상")
-    InfoCard("2분할 · 비율 제어: 실차에서 확인된 기능부터 새 모듈로 옮길 예정", Green)
-    InfoCard("플로팅 독: 8개 표시 / 9개 이상 가로 스크롤 / 크기·투명도 / 축소 핸들 구조를 새 코드로 재작성", Cyan)
-
-    Section("BETA / LAB")
-    InfoCard("HUD / T900 · 내비 파싱: BETA", Amber)
-    InfoCard("계기판 TBT · AUTONAVI_STANDARD_BROADCAST_SEND 상관관계: LAB", Red)
-    InfoCard("3·4분할 / VirtualDisplay: LAB", Red)
-    InfoCard("logical size · density · fontScale 독립 제어: BETA", Amber)
+    Banner("2분할은 검증 경로를 유지하고 3/4분할·팝업·HUD/TBT·플로팅/퀵독을 같은 화면에서 실차 테스트합니다.")
+    IntegratedDisplayPanel()
 }
 
 @Composable
 private fun AutomationPage() {
-    Banner("기존 자동화 코드를 복사하지 않고 새 Rule Engine으로 다시 만듭니다.")
-    Section("새 구조")
-    InfoCard("Trigger: READY / Gear / VehicleState / Time", Cyan)
-    InfoCard("Action: 앱 실행 / 미디어 재생 / 검증된 차량 제어", Green)
-    InfoCard("각 앱 실행 지연 0.x초 · 미디어 자동재생 지연 0.x초를 독립 저장", Cyan)
-    InfoCard("미확인 차량 액션은 Rule Engine에서 실행 불가", Red)
+    Banner("시동 전원 상태를 백그라운드에서 감지하고 앱별 실행 지연/미디어 재생 지연을 적용합니다.")
+    IntegratedAutomationPanel()
 }
 
 @Composable
