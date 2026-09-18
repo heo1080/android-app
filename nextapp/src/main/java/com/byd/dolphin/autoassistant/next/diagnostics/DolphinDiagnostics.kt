@@ -83,7 +83,7 @@ class DolphinDiagnostics(
             audio.probeEvents.collect { event ->
                 synchronized(probeLock) {
                     probes.addLast(event)
-                    while (probes.size > 200) probes.removeFirst()
+                    while (probes.size > 2000) probes.removeFirst()
                 }
             }
         }
