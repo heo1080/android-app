@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.byd.dolphin.autoassistant.drive.DriveFrame
 import com.byd.dolphin.autoassistant.drive.DriveSignalReader
+import com.byd.dolphin.autoassistant.drive.DriveSafetyBus
 import com.byd.dolphin.autoassistant.drive.DriveVisionActivity
 import com.byd.dolphin.autoassistant.manager.AdbPermissionManager
 import com.byd.dolphin.autoassistant.manager.DiagnosticCaptureManager
@@ -28,8 +29,13 @@ import com.byd.dolphin.autoassistant.manager.FloatingOverlayManager
 import com.byd.dolphin.autoassistant.manager.NowPlayingManager
 import com.byd.dolphin.autoassistant.manager.NowPlayingSnapshot
 import com.byd.dolphin.autoassistant.manager.SeatMemoryCapabilityManager
+import com.byd.dolphin.autoassistant.manager.TpmsReader
+import com.byd.dolphin.autoassistant.manager.TpmsSnapshot
+import com.byd.dolphin.autoassistant.manager.VehicleInfoReader
+import com.byd.dolphin.autoassistant.manager.VehicleInfoSnapshot
 import com.byd.dolphin.autoassistant.manager.VoiceAndSoundManager
 import com.byd.dolphin.autoassistant.ui.NowPlayingCardView
+import com.byd.dolphin.autoassistant.ui.HomeHmiView
 import com.byd.dolphin.autoassistant.ui.VoicePhraseCatalog
 import com.byd.dolphin.autoassistant.ui.VoicePhraseSpec
 import com.byd.dolphin.autoassistant.service.DolphinService
@@ -71,9 +77,14 @@ class CommandCenterActivity : AppCompatActivity() {
 
     private lateinit var driveReader: DriveSignalReader
     private lateinit var nowPlayingManager: NowPlayingManager
+    private lateinit var vehicleInfoReader: VehicleInfoReader
+    private lateinit var tpmsReader: TpmsReader
     private lateinit var voicePreviewManager: VoiceAndSoundManager
     private var nowPlaying = NowPlayingSnapshot()
+    private var vehicleInfo = VehicleInfoSnapshot()
+    private var tpms = TpmsSnapshot()
     private var nowPlayingCard: NowPlayingCardView? = null
+    private var homeHmiView: HomeHmiView? = null
     private var frame = DriveFrame()
     private var speedValue: TextView? = null
     private var gearValue: TextView? = null
@@ -98,6 +109,8 @@ class CommandCenterActivity : AppCompatActivity() {
         DiagnosticCaptureManager.recoverInterruptedSession(this)
         driveReader = DriveSignalReader(this)
         nowPlayingManager = NowPlayingManager(this)
+        vehicleInfoReader = VehicleInfoReader(this)
+        tpmsReader = TpmsReader(this)
         voicePreviewManager = VoiceAndSoundManager(this)
 
         setContentView(buildUi())
@@ -110,6 +123,7 @@ class CommandCenterActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         driveReader.close()
+        if (::tpmsReader.isInitialized) tpmsReader.close()
         if (::voicePreviewManager.isInitialized) voicePreviewManager.release()
         super.onDestroy()
     }
@@ -226,11 +240,14 @@ class CommandCenterActivity : AppCompatActivity() {
         gearValue = null
         turnValue = null
         nowPlayingCard = null
+        homeHmiView = null
 
-        content.addView(text(section.sub, 9f, cyan, true))
-        content.addView(text(section.label, 25f, Color.WHITE, true).apply {
-            setPadding(0, dp(1), 0, dp(10))
-        })
+        if (section != Section.HOME) {
+            content.addView(text(section.sub, 9f, cyan, true))
+            content.addView(text(section.label, 25f, Color.WHITE, true).apply {
+                setPadding(0, dp(1), 0, dp(10))
+            })
+        }
 
         when (section) {
             Section.HOME -> renderHome()
@@ -251,103 +268,23 @@ class CommandCenterActivity : AppCompatActivity() {
     }
 
     private fun renderHome() {
-        addHero()
-        nowPlayingCard = NowPlayingCardView(this, nowPlayingManager).also { card ->
-            card.bind(nowPlaying)
-            content.addView(card, LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { setMargins(0, 0, 0, dp(10)) })
+        val hmiHeight = (resources.displayMetrics.heightPixels - dp(112)).coerceAtLeast(dp(620))
+        homeHmiView = HomeHmiView(this).also { view ->
+            view.onDriveView = { openDriveView() }
+            view.onSeatMemory = { render(Section.SEAT) }
+            view.onQuickControl = { render(Section.QUICK) }
+            view.onMediaPrevious = { nowPlayingManager.previous() }
+            view.onMediaPlayPause = { nowPlayingManager.playPause() }
+            view.onMediaNext = { nowPlayingManager.next() }
+            view.bind(frame, vehicleInfo, tpms, nowPlaying, DriveSafetyBus.current())
+            content.addView(
+                view,
+                LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    hmiHeight
+                )
+            )
         }
-
-        val live = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-        speedValue = statusTile(live, "SPEED", "--", 0)
-        gearValue = statusTile(live, "GEAR", "--", 1)
-        turnValue = statusTile(live, "TURN", "--", 2)
-        content.addView(live, LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT, dp(78)
-        ).apply { setMargins(0, 0, 0, dp(10)) })
-
-        addCardRow(
-            featureCard(
-                "FLOATING BAR", "플로팅 바",
-                "최대 8개 표시 · 초과 시 가로 스크롤 · 크기/투명도/자동 접기",
-                listOf(
-                    Action("설정") { openLegacy("button") },
-                    Action("바로 표시") { showFloatingNow() }
-                )
-            ),
-            featureCard(
-                "QUICK CONTROLS", "빠른 제어",
-                "차량 편의 제어와 퀵패널/하단바 기능을 한 곳에서 연결",
-                listOf(
-                    Action("차량 제어") { openLegacy("comfort") },
-                    Action("버튼 만들기") { openLegacy("button") }
-                )
-            ),
-            featureCard(
-                "AUDIO ROUTING", "오디오 라우팅",
-                "지정 앱 선택 · 운전석 전용 경로 연구 · 순정 안전 경고 우선 유지",
-                listOf(
-                    Action("앱 추가") { openLegacy("audio_lab") },
-                    Action("경로 테스트") { openLegacy("safety") }
-                )
-            )
-        )
-
-        addCardRow(
-            featureCard(
-                "MULTI WINDOW", "멀티 윈도우",
-                "앱 2개 선택 · 20~80% 비율 제어 · DiLink 분할 경로 복구",
-                listOf(Action("2분할 설정") { openLegacy("split") })
-            ),
-            featureCard(
-                "STARTUP AUTOMATION", "시동 자동화",
-                "여러 앱 등록 · 앱별 0.x초 실행 지연 · 미디어 자동재생 예약",
-                listOf(
-                    Action("+ 앱 추가") { openLegacy("boot") },
-                    Action("자동화") { openLegacy("automation") }
-                )
-            ),
-            featureCard(
-                "NAV / HUD / CLUSTER", "내비 · HUD · 클러스터",
-                "지원 내비 TBT와 T900 HUD, 계기판 표시 연구를 통합 관리",
-                listOf(
-                    Action("HUD") { openLegacy("hud") },
-                    Action("클러스터") { openLegacy("cluster") }
-                )
-            )
-        )
-
-        addCardRow(
-            featureCard(
-                "DRIVE ALERTS", "주행 알림",
-                "기어 · 주행모드 · 회생제동 · 오토홀드 · ICC · BSD · 전방차 출발",
-                listOf(
-                    Action("음성 안내") { openLegacy("voice") },
-                    Action("경고음") { openLegacy("safety") }
-                )
-            ),
-            featureCard(
-                "DIAGNOSTICS / RESEARCH", "진단 · 연구",
-                "차량 RAW 신호 · 권한 · 오디오 출력 · DPI · 진단 세션",
-                listOf(
-                    Action("진단") { openLegacy("dpi") },
-                    Action("주행 시각화") { openDriveView() }
-                )
-            ),
-            featureCard(
-                "APP & SHORTCUT", "앱 / 앱서랍 바로가기",
-                "설치 앱과 차량 동작을 앱서랍 16개 슬롯 또는 플로팅 독에 추가",
-                listOf(Action("바로가기 만들기") { openLegacy("button") })
-            )
-        )
-
-        addWideCard(
-            "SEAT MEMORY", "메모리 시트",
-            "M1/M2/M3 프로필 · 실차 시트 API 상태 · 다운미러 연구를 전용 화면에서 관리합니다.",
-            listOf(Action("메모리 시트") { render(Section.SEAT) })
-        )
     }
 
     private fun renderQuick() {
@@ -810,6 +747,8 @@ class CommandCenterActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             while (isActive) {
                 frame = runCatching { driveReader.read() }.getOrDefault(DriveFrame())
+                vehicleInfo = runCatching { vehicleInfoReader.read() }.getOrDefault(VehicleInfoSnapshot())
+                tpms = runCatching { tpmsReader.read() }.getOrDefault(TpmsSnapshot())
                 nowPlaying = runCatching { nowPlayingManager.snapshot() }.getOrDefault(NowPlayingSnapshot())
                 withContext(Dispatchers.Main) {
                     headerStatus.text =
@@ -817,6 +756,7 @@ class CommandCenterActivity : AppCompatActivity() {
                             "  ·  GEAR ${frame.gear ?: "--"}  ·  ${BuildConfig.VERSION_NAME}"
                     refreshTelemetryLabels()
                     nowPlayingCard?.bind(nowPlaying)
+                    homeHmiView?.bind(frame, vehicleInfo, tpms, nowPlaying, DriveSafetyBus.current())
                 }
                 delay(1_000L)
             }
