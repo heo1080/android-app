@@ -50,16 +50,16 @@ object NextSettings {
     const val EVENT_LEADING = "leading"
 
     val alertSpecs = listOf(
-        AlertSpec(EVENT_GEAR, "기어 P / R / N / D", AlertMode.TTS, "{state}", "기어 {state}", "예: 기어 {state}"),
-        AlertSpec(EVENT_REGEN, "회생제동", AlertMode.TTS, "{state}", "회생제동 {state}", "예: 회생제동 {state}"),
-        AlertSpec(EVENT_DRIVE, "주행모드", AlertMode.TTS, "{state}", "{state} 모드입니다", "예: 주행모드는 {state}입니다"),
-        AlertSpec(EVENT_SNOW, "스노우모드", AlertMode.TTS, "스노우모드", "스노우모드를 시작합니다", "예: 스노우모드를 시작합니다"),
-        AlertSpec(EVENT_AUTOHOLD_SWITCH, "오토홀드 ON / OFF", AlertMode.TTS, "오토홀드 {state}", "오토홀드 {state}", "예: 오토홀드 {state}"),
-        AlertSpec(EVENT_AUTOHOLD_HOLD, "오토홀드 체결 / 해제", AlertMode.TTS, "오토홀드 {state}", "오토홀드가 {state}되었습니다", "예: 오토홀드 {state}"),
-        AlertSpec(EVENT_EPB, "사이드브레이크", AlertMode.TTS, "사이드브레이크 {state}", "주차 브레이크가 {state}되었습니다", "예: 사이드브레이크 {state}"),
-        AlertSpec(EVENT_ICC, "ICC", AlertMode.TTS, "자율주행 {state}", "ICC {state}", "예: 자율주행 {state}"),
-        AlertSpec(EVENT_BSD, "BSD 경고", AlertMode.BEEP, "{state} 사각지대 경고", "{state} 사각지대에 차량이 있습니다", "예: {state} 사각지대에 차량이 있습니다"),
-        AlertSpec(EVENT_LEADING, "전방차량출발", AlertMode.OFF, "전방 차량 출발", "전방 차량이 출발했습니다. 안전을 확인하세요", "예: 전방 차량이 출발했습니다")
+        AlertSpec(EVENT_GEAR, "기어 P / R / N / D", AlertMode.TTS, "{state}", "{state}", "예: 후진합니다"),
+        AlertSpec(EVENT_REGEN, "회생제동", AlertMode.TTS, "{state}", "{state}", "예: 회생제동 하이로 변경되었습니다"),
+        AlertSpec(EVENT_DRIVE, "주행모드", AlertMode.TTS, "{state}", "{state}", "예: 스포츠 모드로 변경되었습니다"),
+        AlertSpec(EVENT_SNOW, "스노우모드", AlertMode.TTS, "{state}", "{state}", "예: 스노우 모드가 켜졌습니다"),
+        AlertSpec(EVENT_AUTOHOLD_SWITCH, "오토홀드 ON / OFF", AlertMode.TTS, "{state}", "{state}", "예: 오토홀드가 켜졌습니다"),
+        AlertSpec(EVENT_AUTOHOLD_HOLD, "오토홀드 체결 / 해제", AlertMode.TTS, "{state}", "{state}", "예: 오토홀드가 체결되었습니다"),
+        AlertSpec(EVENT_EPB, "사이드브레이크", AlertMode.TTS, "{state}", "{state}", "예: 사이드 브레이크가 켜졌습니다"),
+        AlertSpec(EVENT_ICC, "ICC", AlertMode.TTS, "{state}", "{state}", "예: 자율주행 모드가 켜졌습니다"),
+        AlertSpec(EVENT_BSD, "BSD 경고", AlertMode.BEEP, "{state}", "{state}", "예: 왼쪽 차량을 주의하세요"),
+        AlertSpec(EVENT_LEADING, "전방차량출발", AlertMode.TTS, "{state}", "{state}", "예: 앞차가 출발했습니다")
     )
 
     val beepPresets = listOf(
@@ -127,18 +127,81 @@ object NextSettings {
         beepPresets.firstOrNull { it.id == id } ?: beepPresets[1]
 
     fun getVoice(context: Context, profile: AlertProfile): VoicePreset {
-        val id = if (profile.voiceId == "GLOBAL") getGlobalVoice(context) else profile.voiceId
+        val id = getGlobalVoice(context)
         return voicePresets.firstOrNull { it.id == id } ?: voicePresets[6]
     }
 
     fun resolveText(spec: AlertSpec, profile: AlertProfile, state: String): String {
-        val template = when (profile.phraseMode) {
-            PhraseMode.RECOMMENDED -> spec.recommendedText
-            PhraseMode.CUSTOM -> profile.customText.ifBlank { spec.defaultText }
-            PhraseMode.DEFAULT -> spec.defaultText
+        if (profile.phraseMode == PhraseMode.CUSTOM && profile.customText.isNotBlank()) {
+            return profile.customText.replace("{state}", state)
         }
-        return template.replace("{state}", state)
+        return when (profile.phraseMode) {
+            PhraseMode.DEFAULT -> defaultPhrase(spec.key, state)
+            PhraseMode.RECOMMENDED -> recommendedPhrase(spec.key, state)
+            PhraseMode.CUSTOM -> defaultPhrase(spec.key, state)
+        }
     }
+
+    private fun defaultPhrase(key: String, state: String): String = when (key) {
+        EVENT_GEAR -> when (state.uppercase()) {
+            "P" -> "파킹"
+            "R" -> "후진"
+            "N" -> "중립"
+            "D" -> "전진"
+            else -> state
+        }
+        EVENT_REGEN -> when {
+            state.contains("스탠", true) || state.equals("STANDARD", true) -> "회생제동 스탠다드"
+            state.contains("하이", true) || state.equals("HIGH", true) -> "회생제동 하이"
+            else -> "회생제동 " + state
+        }
+        EVENT_DRIVE -> when {
+            state.contains("ECO", true) || state.contains("에코") -> "에코모드"
+            state.contains("NORMAL", true) || state.contains("노멀") -> "노멀모드"
+            state.contains("SPORT", true) || state.contains("스포츠") -> "스포츠모드"
+            else -> state
+        }
+        EVENT_SNOW -> "스노우모드" + normalizeOnOff(state)
+        EVENT_AUTOHOLD_SWITCH -> "오토홀드 " + normalizeOnOff(state)
+        EVENT_AUTOHOLD_HOLD -> if (state.contains("해제")) "오토홀드 해제" else "오토홀드 체결"
+        EVENT_EPB -> "사이드 브레이크 " + normalizeOnOff(state)
+        EVENT_ICC -> if (isOn(state)) "자율주행모드" else "자율주행해제"
+        EVENT_BSD -> if (state.contains("오른")) "오른쪽 조심" else "왼쪽 조심"
+        EVENT_LEADING -> "앞차 출발"
+        else -> state
+    }
+
+    private fun recommendedPhrase(key: String, state: String): String = when (key) {
+        EVENT_GEAR -> when (state.uppercase()) {
+            "P" -> "파킹으로 전환했습니다"
+            "R" -> "후진 기어입니다"
+            "N" -> "중립 기어입니다"
+            "D" -> "전진 기어입니다"
+            else -> defaultPhrase(key, state)
+        }
+        EVENT_REGEN -> if (state.contains("하이", true) || state.equals("HIGH", true))
+            "회생제동이 하이로 변경되었습니다"
+        else "회생제동이 스탠다드로 변경되었습니다"
+        EVENT_DRIVE -> when {
+            state.contains("ECO", true) || state.contains("에코") -> "에코 모드로 변경되었습니다"
+            state.contains("NORMAL", true) || state.contains("노멀") -> "노멀 모드로 변경되었습니다"
+            state.contains("SPORT", true) || state.contains("스포츠") -> "스포츠 모드로 변경되었습니다"
+            else -> defaultPhrase(key, state)
+        }
+        EVENT_SNOW -> if (isOn(state)) "스노우 모드가 켜졌습니다" else "스노우 모드가 꺼졌습니다"
+        EVENT_AUTOHOLD_SWITCH -> if (isOn(state)) "오토홀드가 켜졌습니다" else "오토홀드가 꺼졌습니다"
+        EVENT_AUTOHOLD_HOLD -> if (state.contains("해제")) "오토홀드가 해제되었습니다" else "오토홀드가 체결되었습니다"
+        EVENT_EPB -> if (isOn(state)) "사이드 브레이크가 켜졌습니다" else "사이드 브레이크가 꺼졌습니다"
+        EVENT_ICC -> if (isOn(state)) "자율주행 모드가 켜졌습니다" else "자율주행 모드가 해제되었습니다"
+        EVENT_BSD -> if (state.contains("오른")) "오른쪽 차량을 주의하세요" else "왼쪽 차량을 주의하세요"
+        EVENT_LEADING -> "앞차가 출발했습니다"
+        else -> defaultPhrase(key, state)
+    }
+
+    private fun isOn(state: String): Boolean =
+        state.equals("ON", true) || state.contains("켜") || state == "1" || state == "2"
+
+    private fun normalizeOnOff(state: String): String = if (isOn(state)) "ON" else "OFF"
 
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences(PREF, Context.MODE_PRIVATE)
