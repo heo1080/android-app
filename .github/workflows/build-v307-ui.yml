@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -96,6 +96,28 @@ jobs:
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
         sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.7.1-audio-studio.sha256
+
+
+    - name: Publish updater-visible prerelease
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+        VERSION_NAME="$(grep -m1 'versionName' app/build.gradle.kts | sed -E 's/.*versionName = "([^"]+)".*/\1/')"
+        TAG="$(printf '%s' "$VERSION_NAME" | grep -oE 'v[0-9]+(\.[0-9]+)+' | head -n 1)"
+        test -n "$TAG"
+
+        APK="app/build/outputs/apk/release/DolphinAssistant-v30.7.1-audio-studio.apk"
+        SHA="app/build/outputs/apk/release/DolphinAssistant-v30.7.1-audio-studio.sha256"
+        NOTES="Preview/test release generated from the validated DolphinAssistant build. It is intentionally published as a GitHub prerelease so the in-app updater can discover it. APK integrity is protected by the paired SHA-256 asset and the app verifies the package name and signing certificate before opening Android's installer."
+
+        if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+          gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant $TAG Preview" --notes "$NOTES" --prerelease
+        else
+          gh release create "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "DolphinAssistant $TAG Preview" --notes "$NOTES" --prerelease
+        fi
 
     - name: Upload signed UI preview
       uses: actions/upload-artifact@v4
