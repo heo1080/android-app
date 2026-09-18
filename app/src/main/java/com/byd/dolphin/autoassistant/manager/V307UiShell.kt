@@ -228,7 +228,7 @@ object V307UiShell {
         addTopStatus(activity, body, page)
         when (page) {
             "vehicle" -> renderVehicle(activity, body, audioManager)
-            "drive" -> renderDrive(activity, body)
+            "drive" -> renderDrive(activity, body, audioManager)
             "screen" -> renderScreen(activity, body, audioManager)
             "automation" -> renderAutomation(activity, body)
             "lab" -> renderLab(activity, body, audioManager)
@@ -336,12 +336,13 @@ object V307UiShell {
         )
     }
 
-    private fun renderDrive(activity: AppCompatActivity, body: LinearLayout) {
+    private fun renderDrive(activity: AppCompatActivity, body: LinearLayout, audioManager: VoiceAndSoundManager) {
         body.addView(infoBanner(activity, "차선이탈 추가 경고는 제거하고 순정 경고를 유지합니다. 맞춤 안내는 사용자가 필요한 항목만 켤 수 있게 유지합니다."))
         section(activity, body, "음성 안내")
+        body.addView(actionCard(activity, "음성 · 경고 출력 스튜디오", "모든 항목 공통: OFF / 비프 / TTS · 비프 종류 · 기본/추천/커스텀 문구 · 남/녀 음성 프리셋", "NEW", GREEN) { AlertOutputConfigUi.show(activity, audioManager) })
         addTwoCards(activity, body,
-            actionCard(activity, "주행 음성", "P/R/N/D · 회생 · ECO/NORMAL/SPORT · Snow · AutoHold · EPB · ICC", "ACTIVE", ACCENT) { openLegacy(activity, links?.voice) },
-            actionCard(activity, "안전 경고", "BSD 방향 경고 · 전방차량출발", "ACTIVE", ACCENT) { openLegacy(activity, links?.safetyAudio) }
+            actionCard(activity, "주행 음성", "P/R/N/D · 회생 · ECO/NORMAL/SPORT · Snow · AutoHold · EPB · ICC", "ACTIVE", ACCENT) { AlertOutputConfigUi.show(activity, audioManager) },
+            actionCard(activity, "안전 경고", "BSD 방향 경고 · 전방차량출발", "BETA", AMBER) { AlertOutputConfigUi.show(activity, audioManager) }
         )
         section(activity, body, "오디오 출력")
         body.addView(actionCard(activity, "운전석 전용 경로", "DolphinAssistant 자체 안내는 stream14 기반. 다른 앱의 UID 오디오 라우팅은 MODIFY_AUDIO_ROUTING 및 실제 BYD output-device 확인이 필요합니다.", "LAB", AMBER) {
