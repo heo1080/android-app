@@ -21,6 +21,7 @@ class VehicleRepository(context: Context) {
 
     private var sampler: Job? = null
     private var comfortTick = 0
+    @Volatile private var surroundingVisionActive = false
 
     fun start() {
         if (sampler != null) return
@@ -54,13 +55,24 @@ class VehicleRepository(context: Context) {
         val speed = gateway.readNumber(BydGateway.SPEED, "getCurrentSpeed")?.toDouble()
         val brake = gateway.readNumber(BydGateway.SPEED, "getBrakeDeepness")?.toInt()
         val accel = gateway.readNumber(BydGateway.SPEED, "getAccelerateDeepness")?.toInt()
-        val panoramaWorkRaw = gateway.readNumber(BydGateway.PANORAMA, "getPanoWorkState")?.toInt()
-        val panoramaOutputRaw = gateway.readNumber(BydGateway.PANORAMA, "getPanoOutputState")?.toInt()
-        val radarProbeStates = gateway.readIntArray(BydGateway.RADAR, "getAllRadarProbeStates")
-        val radarDistances = (1..8).map { area ->
-            gateway.readNumber(BydGateway.RADAR, "getRadarObstacleDistance", area)
-                ?.toInt()
-                ?.takeIf { it in 0..155 }
+        val visionActive = surroundingVisionActive
+        val panoramaWorkRaw = if (visionActive) {
+            gateway.readNumber(BydGateway.PANORAMA, "getPanoWorkState")?.toInt()
+        } else null
+        val panoramaOutputRaw = if (visionActive) {
+            gateway.readNumber(BydGateway.PANORAMA, "getPanoOutputState")?.toInt()
+        } else null
+        val radarProbeStates = if (visionActive) {
+            gateway.readIntArray(BydGateway.RADAR, "getAllRadarProbeStates")
+        } else null
+        val radarDistances = if (visionActive) {
+            (1..8).map { area ->
+                gateway.readNumber(BydGateway.RADAR, "getRadarObstacleDistance", area)
+                    ?.toInt()
+                    ?.takeIf { it in 0..155 }
+            }
+        } else {
+            List(8) { null }
         }
 
         val gear = SignalResolver.gear(gearRaw)
@@ -153,6 +165,12 @@ class VehicleRepository(context: Context) {
                 )
             }
         }
+    }
+
+    fun setSurroundingVisionActive(active: Boolean) {
+        if (surroundingVisionActive == active) return
+        surroundingVisionActive = active
+        NextLogger.i("VISION", "surroundingVisionActive=" + active)
     }
 
     fun setSeatHeat(seat: Int, level: Int): Boolean {
