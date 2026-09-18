@@ -12,12 +12,70 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlin.math.PI
 import kotlin.math.sin
+
+enum class AudioProbePhase { REQUEST, START, ERROR }
+
+data class AudioProbeEvent(
+    val probeKey: String,
+    val phase: AudioProbePhase,
+    val timestampMs: Long,
+    val detail: String = ""
+)
 
 class NextAudioEngine(context: Context) {
     private val app = context.applicationContext
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val _probeEvents = MutableSharedFlow<AudioProbeEvent>(extraBufferCapacity = 64)
+    val probeEvents: SharedFlow<AudioProbeEvent> = _probeEvents.asSharedFlow()
+
+    fun testTts(): Pair<Long, Boolean> {
+        val requestAt = System.currentTimeMillis()
+        trace("TEST_TTS", AudioProbePhase.REQUEST, "stream14")
+        val profile = NextSettings.getAlertProfile(app, NextSettings.EVENT_GEAR)
+        val voice = NextSettings.getVoice(app, profile)
+        val accepted = SupertonicEngine.speak(
+            app,
+            "DolphinAssistant 테스트 음성입니다.",
+            voice.sid,
+            voice.speed
+        ) { startedAt, route ->
+            trace("TEST_TTS", AudioProbePhase.START, route, startedAt)
+        }
+        if (!accepted) {
+            trace("TEST_TTS", AudioProbePhase.ERROR, "TTS MODEL NOT READY")
+        }
+        return requestAt to accepted
+    }
+
+    fun testBeep(): Long {
+        val requestAt = System.currentTimeMillis()
+        trace("TEST_BEEP", AudioProbePhase.REQUEST, "stream14")
+        scope.launch {
+            playPreset(
+                frequencies = listOf(1080.0, 1080.0),
+                durationMs = 100,
+                gapMs = 70,
+                probeKey = "TEST_BEEP"
+            )
+        }
+        return requestAt
+    }
+
+    private fun trace(
+        key: String,
+        phase: AudioProbePhase,
+        detail: String = "",
+        timestampMs: Long = System.currentTimeMillis()
+    ) {
+        val event = AudioProbeEvent(key, phase, timestampMs, detail)
+        _probeEvents.tryEmit(event)
+        NextLogger.i("AUDIO_PROBE", key + " " + phase.name + " " + detail)
+    }
 
     fun emit(eventKey: String, state: String) {
         val spec = NextSettings.alertSpecs.firstOrNull { it.key == eventKey } ?: return
@@ -64,14 +122,23 @@ class NextAudioEngine(context: Context) {
         if (!accepted) scope.launch { playPreset(listOf(900.0, 1200.0), 100, 60) }
     }
 
-    private suspend fun playPreset(frequencies: List<Double>, durationMs: Int, gapMs: Long) {
+    private suspend fun playPreset(
+        frequencies: List<Double>,
+        durationMs: Int,
+        gapMs: Long,
+        probeKey: String? = null
+    ) {
         frequencies.forEachIndexed { index, hz ->
-            playTone(hz, durationMs)
+            playTone(hz, durationMs) { route ->
+                if (index == 0 && probeKey != null) {
+                    trace(probeKey, AudioProbePhase.START, route)
+                }
+            }
             if (index < frequencies.lastIndex && gapMs > 0) delay(gapMs)
         }
     }
 
-    private fun playTone(hz: Double, durationMs: Int) {
+    private fun playTone(hz: Double, durationMs: Int, onStart: ((String) -> Unit)? = null) {
         val rate = 24_000
         val count = (rate * durationMs / 1000.0).toInt().coerceAtLeast(1)
         val samples = ShortArray(count)
@@ -106,6 +173,12 @@ class NextAudioEngine(context: Context) {
             track.write(bytes, 0, bytes.size)
             track.setVolume(0.82f)
             track.play()
+            val route = runCatching {
+                val device = track.routedDevice
+                if (device == null) "STREAM14 / ROUTE UNKNOWN"
+                else "STREAM14 / " + device.productName + " / type=" + device.type
+            }.getOrDefault("STREAM14 / ROUTE UNKNOWN")
+            onStart?.invoke(route)
             Thread.sleep(durationMs.toLong() + 35L)
             runCatching { track.stop() }
         } catch (t: Throwable) {
