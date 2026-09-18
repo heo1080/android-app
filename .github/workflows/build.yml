@@ -32,7 +32,7 @@ jobs:
     - name: Grant Execute Permission for Gradlew
       run: chmod +x gradlew
 
-    - name: Apply v34.3.0 command center + regression recovery
+    - name: Apply v34.3.1 command center + regression recovery
       run: |
         python3 ci/apply_v30_5.py
         python3 ci/fix_v30_5_1.py
@@ -63,10 +63,23 @@ jobs:
     - name: Build unsigned Release APK
       run: ./gradlew :app:assembleRelease --stacktrace
 
+    - name: Validate APK install identity
+      shell: bash
+      run: |
+        set -euo pipefail
+        APK="app/build/outputs/apk/release/app-release-unsigned.apk"
+        AAPT="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
+        test -x "$AAPT"
+        BADGING="$("$AAPT" dump badging "$APK" | head -n 1)"
+        echo "$BADGING"
+        echo "$BADGING" | grep -q "package: name='com.byd.dolphin.autoassistant'"
+        echo "$BADGING" | grep -q "versionCode='114'"
+        echo "$BADGING" | grep -q "versionName='7.3.0-v34.3.1-premium-hmi-install-fix'"
+
     - name: Upload unsigned Release APK for recovery signing
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-v34.3.0-Unsigned
+        name: DolphinAssistant-v34.3.1-Unsigned
         path: app/build/outputs/apk/release/app-release-unsigned.apk
         if-no-files-found: error
         retention-days: 7
@@ -97,7 +110,7 @@ jobs:
           -alias dolphinassistant >/dev/null
         echo "Stable keystore password/alias preflight OK"
 
-    - name: Sign v34.3.0 stable APK
+    - name: Sign v34.3.1 stable APK
       if: github.event_name != 'pull_request'
       shell: bash
       env:
@@ -109,7 +122,7 @@ jobs:
         APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
         test -x "$APKSIGNER"
         UNSIGNED="app/build/outputs/apk/release/app-release-unsigned.apk"
-        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v34.3.0-stable.apk"
+        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v34.3.1-stable.apk"
         test -s "$UNSIGNED"
         "$APKSIGNER" sign \
           --ks "$RUNNER_TEMP/dolphin-release.jks" \
@@ -119,37 +132,37 @@ jobs:
           --out "$SIGNED" \
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
-        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v34.3.0-stable.sha256
+        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v34.3.1-stable.sha256
 
     - name: Upload stable APK artifact
       if: github.event_name != 'pull_request'
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-v34.3.0-Stable
+        name: DolphinAssistant-v34.3.1-Stable
         path: |
-          app/build/outputs/apk/release/DolphinAssistant-v34.3.0-stable.apk
-          app/build/outputs/apk/release/DolphinAssistant-v34.3.0-stable.sha256
+          app/build/outputs/apk/release/DolphinAssistant-v34.3.1-stable.apk
+          app/build/outputs/apk/release/DolphinAssistant-v34.3.1-stable.sha256
         if-no-files-found: error
         retention-days: 30
 
-    - name: Publish v34.3.0 GitHub Release
+    - name: Publish v34.3.1 GitHub Release
       if: github.event_name != 'pull_request'
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
         set -euo pipefail
-        TAG="v34.3.0"
-        APK="app/build/outputs/apk/release/DolphinAssistant-v34.3.0-stable.apk"
-        SHA="app/build/outputs/apk/release/DolphinAssistant-v34.3.0-stable.sha256"
-        NOTES="v34.3.0 premium HMI. Adds the concept-matched navy/cyan home HMI, live vehicle-info wiring, read-only DiLink TPMS with verified-unit handling, now-playing media controls, restored TTS phrase editing, dedicated seat-memory capability UI, and safer reverse-mirror calibration. Unverified vehicle signals remain explicitly marked instead of fabricated."
+        TAG="v34.3.1"
+        APK="app/build/outputs/apk/release/DolphinAssistant-v34.3.1-stable.apk"
+        SHA="app/build/outputs/apk/release/DolphinAssistant-v34.3.1-stable.sha256"
+        NOTES="v34.3.1 premium HMI install-fix. Same HMI/TPMS/media/vehicle-info feature set as v34.3.0, but fixes Android update installation by raising versionCode from 100 to 114 above v34.2.0 (113). The workflow now validates package identity and version code before signing."
         if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
           gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
-          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant v34.3.0" --notes "$NOTES" --latest
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant v34.3.1" --notes "$NOTES" --latest
         else
           gh release create "$TAG" "$APK" "$SHA" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "DolphinAssistant v34.3.0" \
+            --title "DolphinAssistant v34.3.1" \
             --notes "$NOTES" \
             --latest
         fi
