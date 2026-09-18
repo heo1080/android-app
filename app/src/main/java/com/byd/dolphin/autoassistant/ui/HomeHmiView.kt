@@ -98,7 +98,9 @@ class HomeHmiView @JvmOverloads constructor(
     private fun drawDrivePanel(c: Canvas, r: RectF) {
         roundedGradient(c, r, Color.rgb(4, 19, 33), Color.rgb(2, 10, 20), 20f, cyanSoft)
         c.save()
-        c.clipRoundRect(r, 20f, 20f)
+        path.reset()
+        path.addRoundRect(r, 20f, 20f, Path.Direction.CW)
+        c.clipPath(path)
 
         // night horizon / skyline
         p.shader = LinearGradient(r.left, r.top, r.left, r.bottom, Color.rgb(4, 22, 40), Color.rgb(2, 9, 17), Shader.TileMode.CLAMP)
