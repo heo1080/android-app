@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 
 /**
@@ -29,7 +30,7 @@ import org.json.JSONObject
  *   https://github.com/heo1080/android-app/releases/latest
  *
  * Safety gates before Android's package installer is opened:
- *  1) only the public heo1080/android-app latest Release API is accepted
+ *  1) only the public heo1080/android-app Release API is accepted
  *  2) APK and .sha256 assets must both exist
  *  3) downloaded APK SHA-256 must match the release hash asset
  *  4) packageName must equal the currently installed package
@@ -41,7 +42,7 @@ import org.json.JSONObject
 object AppUpdateManager {
 
     private const val TAG = "APP_UPDATE"
-    private const val RELEASE_API = "https://api.github.com/repos/heo1080/android-app/releases/latest"
+    private const val RELEASES_API = "https://api.github.com/repos/heo1080/android-app/releases?per_page=30"
     private const val REQUEST_INSTALL_PERMISSION_ACTION = Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES
     private val versionRegex = Regex("v(\\d+(?:\\.\\d+)+)", RegexOption.IGNORE_CASE)
 
@@ -91,7 +92,7 @@ object AppUpdateManager {
                 if (manual && !activity.isFinishing) {
                     AlertDialog.Builder(activity)
                         .setTitle("최신 버전입니다")
-                        .setMessage("현재 버전: ${BuildConfig.VERSION_NAME}\n최신 Release: ${release.tagName}")
+                        .setMessage("현재 버전: ${BuildConfig.VERSION_NAME}\n최신 빌드: ${release.tagName}")
                         .setPositiveButton("확인", null)
                         .show()
                 }
@@ -176,38 +177,58 @@ object AppUpdateManager {
     }
 
     private fun fetchLatestRelease(): ReleaseInfo {
-        val json = httpGetText(RELEASE_API)
-        val root = JSONObject(json)
-        val tag = root.getString("tag_name")
-        val assets = root.getJSONArray("assets")
+        val json = httpGetText(RELEASES_API)
+        val releases = JSONArray(json)
+        var best: Pair<List<Int>, ReleaseInfo>? = null
+
+        for (i in 0 until releases.length()) {
+            val root = releases.getJSONObject(i)
+            if (root.optBoolean("draft", false)) continue
+
+            val tag = root.optString("tag_name")
+            val version = parseProductVersion(tag) ?: continue
+            val candidate = releaseInfoFromJson(root) ?: continue
+
+            if (best == null || compareVersions(version, best!!.first) > 0) {
+                best = version to candidate
+            }
+        }
+
+        return best?.second
+            ?: error("설치 가능한 DolphinAssistant Release/APK를 찾지 못했습니다.")
+    }
+
+    private fun releaseInfoFromJson(root: JSONObject): ReleaseInfo? {
+        val tag = root.optString("tag_name")
+        val assets = root.optJSONArray("assets") ?: return null
 
         var apkName: String? = null
         var apkUrl: String? = null
-        var shaUrl: String? = null
+        val shaByName = linkedMapOf<String, String>()
+
         for (i in 0 until assets.length()) {
             val asset = assets.getJSONObject(i)
             val name = asset.optString("name")
             val url = asset.optString("browser_download_url")
-            if (name.endsWith("-stable.apk", ignoreCase = true)) {
+            if (name.endsWith(".apk", ignoreCase = true) && apkName == null) {
                 apkName = name
                 apkUrl = url
-            } else if (name.endsWith("-stable.sha256", ignoreCase = true)) {
-                shaUrl = url
+            }
+            if (name.endsWith(".sha256", ignoreCase = true)) {
+                shaByName[name.lowercase()] = url
             }
         }
 
-        require(!apkName.isNullOrBlank() && !apkUrl.isNullOrBlank()) {
-            "latest Release에 stable APK가 없습니다."
-        }
-        require(!shaUrl.isNullOrBlank()) {
-            "latest Release에 SHA-256 파일이 없습니다."
-        }
+        val finalApkName = apkName ?: return null
+        val finalApkUrl = apkUrl ?: return null
+        val preferredShaName = finalApkName.removeSuffix(".apk").lowercase() + ".sha256"
+        val shaUrl = shaByName[preferredShaName] ?: shaByName.values.firstOrNull() ?: return null
 
         return ReleaseInfo(
             tagName = tag,
-            apkName = apkName!!,
-            apkUrl = apkUrl!!,
-            shaUrl = shaUrl!!
+            apkName = finalApkName,
+            apkUrl = finalApkUrl,
+            shaUrl = shaUrl
         )
     }
 
