@@ -1541,7 +1541,14 @@
       "requirement": "모든 사용자 요구사항과 실제 코드/실차 검증을 이 레지스트리에서 추적한다.",
       "source_paths": [
         "verification/master_registry.json",
-        "verification/MASTER_VERIFICATION_REGISTRY.md"
+        "verification/MASTER_VERIFICATION_REGISTRY.md",
+        "verification/validate_registry.py",
+        "verification/test_log_contracts.json",
+        "verification/feature_dependencies.json",
+        "verification/runtime_surfaces.json",
+        "verification/evaluate_diagnostic.py",
+        "verification/build_registry_asset.py",
+        "app/src/main/java/com/byd/dolphin/autoassistant/VerificationCenterActivity.kt"
       ],
       "test_ids": [
         "GOV-REG-001"
@@ -1550,7 +1557,11 @@
       "acceptance": [
         "모든 active requirement에 REQ/Feature/Test ID 존재",
         "각 build 전 registry diff",
-        "누락/Dead UI/Known-Bad가 release gate에 반영"
+        "누락/Dead UI/Known-Bad가 release gate에 반영",
+        "Registry/asset drift CI가 통과",
+        "Known-Bad required Test ID가 log contract와 연결",
+        "핵심 Runtime Surface token 누락 시 CI 실패",
+        "차량 Verification Center에서 Test ID별 operator result를 VERIFY_RESULT 로그로 기록"
       ],
       "required_logs": [
         "registry schema/version",
@@ -1729,7 +1740,8 @@
     "app_asset": "app/src/main/assets/verification_registry.json",
     "log_contracts": "verification/test_log_contracts.json",
     "feature_dependencies": "verification/feature_dependencies.json",
-    "evaluator": "verification/evaluate_diagnostic.py"
+    "evaluator": "verification/evaluate_diagnostic.py",
+    "runtime_surfaces": "verification/runtime_surfaces.json"
   },
   "release_exit_criteria": [
     "Safety Invariant 필수 항목 통과",
