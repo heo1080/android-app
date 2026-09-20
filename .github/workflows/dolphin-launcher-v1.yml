@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-launcher:
@@ -52,8 +52,8 @@ jobs:
           BADGING="$("$AAPT" dump badging "$APK" | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -q "package: name='com.dolphin.launcher.v1'"
-          echo "$BADGING" | grep -q "versionCode='2'"
-          echo "$BADGING" | grep -q "versionName='1.1.0-v1-registry'"
+          echo "$BADGING" | grep -q "versionCode='3'"
+          echo "$BADGING" | grep -q "versionName='1.2.0-v1-ota'"
 
       - name: Validate Registry v3 payload
         shell: bash
@@ -76,6 +76,11 @@ jobs:
           PY
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationCenterActivity"
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationEvidenceRuntime"
+          unzip -p "$APK" classes.dex | strings | grep -q "AppUpdateManager"
+          unzip -p "$APK" classes.dex | strings | grep -q "UpdateInstallReceiver"
+          AAPT="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
+          "$AAPT" dump permissions "$APK" | grep -q "android.permission.INTERNET"
+          "$AAPT" dump permissions "$APK" | grep -q "android.permission.REQUEST_INSTALL_PACKAGES"
 
       - name: Restore stable signing key
         shell: bash
@@ -120,3 +125,27 @@ jobs:
             dolphin-launcher-v1/app/build/outputs/apk/release/DolphinLauncherV1-Evolution.sha256
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish V1 OTA prerelease
+        if: github.event_name == 'push'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VERSION="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' dolphin-launcher-v1/app/build.gradle.kts | head -n 1)"
+          SEMVER="$(printf '%s' "$VERSION" | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
+          TAG="dolphin-launcher-v1-v${SEMVER}"
+          APK="dolphin-launcher-v1/app/build/outputs/apk/release/DolphinLauncherV1-Evolution.apk"
+          SHA="dolphin-launcher-v1/app/build/outputs/apk/release/DolphinLauncherV1-Evolution.sha256"
+
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "OTA release $TAG already exists; leaving published assets unchanged."
+          else
+            gh release create "$TAG" "$APK" "$SHA" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "Dolphin Launcher V1 ${SEMVER}" \
+              --notes "Dolphin Launcher V1 OTA BETA. Package com.dolphin.launcher.v1. Android installer confirmation remains required." \
+              --prerelease
+          fi
