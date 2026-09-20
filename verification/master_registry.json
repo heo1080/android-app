@@ -1,11 +1,11 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "registry_id": "DOLPHIN-MASTER-VERIFICATION-REGISTRY",
   "generated_at": "2026-09-20",
   "source": {
     "repository": "heo1080/android-app",
     "branch_base": "main",
-    "base_commit": "1c60bec51a3983ab505b3d068bd3fbdacc7aa9ca",
+    "base_commit": "2546ed71b415826cf0f7f371de412ba33df1f21a",
     "diagnostics_repository": "heo1080/dolphin-diagnostics",
     "latest_diagnostics_commit": "d75939f6ed2daacbdf0b6fbabd5d27c0ca18ee31",
     "source_build_gradle_version": "3.0.7-v30.4-driver-dsp-probe",
@@ -35,7 +35,8 @@
       "source_paths": [
         "app/build.gradle.kts",
         ".github/workflows/build.yml",
-        "ci/"
+        "ci/",
+        "verification/release_gate.py"
       ],
       "test_ids": [
         "BLD-ID-001",
@@ -87,7 +88,8 @@
       "source_paths": [
         "app/src/main/java/com/byd/dolphin/autoassistant/manager/DiagnosticCaptureManager.kt",
         "app/src/main/java/com/byd/dolphin/autoassistant/manager/DiagnosticUploadManager.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/util/DolphinLogger.kt"
+        "app/src/main/java/com/byd/dolphin/autoassistant/util/DolphinLogger.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VerificationEvidenceLogger.kt"
       ],
       "test_ids": [
         "DIA-CAP-001",
@@ -1548,7 +1550,11 @@
         "verification/runtime_surfaces.json",
         "verification/evaluate_diagnostic.py",
         "verification/build_registry_asset.py",
-        "app/src/main/java/com/byd/dolphin/autoassistant/VerificationCenterActivity.kt"
+        "app/src/main/java/com/byd/dolphin/autoassistant/VerificationCenterActivity.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VerificationEvidenceLogger.kt",
+        "verification/check_registry_change_sync.py",
+        "verification/release_gate.py",
+        "verification/known_bad_lifecycle.py"
       ],
       "test_ids": [
         "GOV-REG-001"
@@ -1561,7 +1567,14 @@
         "Registry/asset drift CI가 통과",
         "Known-Bad required Test ID가 log contract와 연결",
         "핵심 Runtime Surface token 누락 시 CI 실패",
-        "차량 Verification Center에서 Test ID별 operator result를 VERIFY_RESULT 로그로 기록"
+        "차량 Verification Center에서 Test ID별 operator result를 VERIFY_RESULT 로그로 기록",
+        "49개 모든 Test ID가 test_log_contracts에 1:1로 존재",
+        "Test ID별 결과가 append-only evidence ledger에 correlation/build/precondition/session과 함께 기록",
+        "BLOCKED/UNSUPPORTED Test ID는 PASS/FAIL 기록 불가",
+        "repeatability와 Known-Bad lifecycle을 자동 평가",
+        "runtime/build 변경 시 Registry 근거를 함께 갱신하지 않으면 CI 실패",
+        "P0 Known-Bad 또는 REVERIFY_REQUIRED가 남으면 stable 서명 전 Release Gate 실패",
+        "Known-Bad lifecycle은 새로운 evidence hash마다 최대 한 단계만 전환"
       ],
       "required_logs": [
         "registry schema/version",
@@ -1734,6 +1747,11 @@
       "version": 2,
       "date": "2026-09-20",
       "note": "Adds explicit Known-Bad test gates, log-contract/dependency files, app asset synchronization and release exit criteria."
+    },
+    {
+      "version": 3,
+      "date": "2026-09-20",
+      "note": "Full 49-Test-ID evidence contracts, per-Test-ID operator evidence, build/vehicle/session fingerprints, repeatability and Known-Bad lifecycle support."
     }
   ],
   "registry_runtime": {
@@ -1741,7 +1759,11 @@
     "log_contracts": "verification/test_log_contracts.json",
     "feature_dependencies": "verification/feature_dependencies.json",
     "evaluator": "verification/evaluate_diagnostic.py",
-    "runtime_surfaces": "verification/runtime_surfaces.json"
+    "runtime_surfaces": "verification/runtime_surfaces.json",
+    "test_log_contracts": "verification/test_log_contracts.json",
+    "evidence_ledger": "verification_evidence.jsonl",
+    "evidence_logger": "app/src/main/java/com/byd/dolphin/autoassistant/manager/VerificationEvidenceLogger.kt",
+    "diagnostic_evaluator": "verification/evaluate_diagnostic.py"
   },
   "release_exit_criteria": [
     "Safety Invariant 필수 항목 통과",
@@ -1750,5 +1772,33 @@
     "open Known-Bad가 연결된 기능은 VERIFIED 금지",
     "required 실차 Test ID 결과 확보",
     "signing/provenance/build identity 검증 완료"
-  ]
+  ],
+  "known_bad_lifecycle": {
+    "states": [
+      "OPEN",
+      "FIX_CANDIDATE",
+      "REAL_CAR_RETEST",
+      "CLOSED"
+    ],
+    "close_rule": "All required_test_ids must reach repeatability promotion_ready with no FAIL/INCONCLUSIVE and matching fresh build/vehicle evidence. CLOSED remains in regression library."
+  },
+  "evidence_policy": {
+    "structured_events": [
+      "TEST_START",
+      "OPERATOR_RESULT",
+      "TEST_END",
+      "FIELD_PROBLEM_MARKER"
+    ],
+    "correlation_required": true,
+    "append_only": true,
+    "required_context": [
+      "build.version_name",
+      "build.version_code",
+      "build.source_commit",
+      "build.apk_sha256",
+      "diagnostic_session_id",
+      "preconditions"
+    ],
+    "promotion_requires_distinct_sessions": true
+  }
 }

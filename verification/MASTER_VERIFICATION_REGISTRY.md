@@ -1,6 +1,6 @@
 # Dolphin Launcher Master Verification Registry v1
 
-기준 소스: `main@1c60bec51a3983ab505b3d068bd3fbdacc7aa9ca`  
+기준 소스: `main@2546ed71b415826cf0f7f371de412ba33df1f21a`  
 진단 기준: `heo1080/dolphin-diagnostics@d75939f6ed2daacbdf0b6fbabd5d27c0ca18ee31` (2026-09-19 세션)  
 기계 판독 원본: [master_registry.json](./master_registry.json)
 
@@ -92,3 +92,13 @@ RC/VERIFIED 승격 전에 최소한 다음을 검사한다.
 4. 요구사항이 새로 추가되면 코드부터 만들지 말고 REQ/Feature/Test ID부터 등록한다.
 5. Known-Bad가 수정되면 같은 Test ID의 Negative Test까지 통과해야 닫는다.
 6. 실패한 BETA는 무기한 방치하지 않고 계속 연구/BLOCKED/DEPRECATED/제거 후보로 분류한다.
+
+
+## Registry v3 자동화
+
+- 전체 Test ID: **49개**, 구조화 evidence contract: **49개(1:1 필수)**
+- 차량 Test Center는 Test ID별 결과를 기록한다.
+- 각 evidence에는 APK SHA-256, source commit, workflow run, Android/하드웨어 fingerprint, gear/speed/ignition/audio/display preconditions, diagnostic session ID가 포함된다.
+- 서로 다른 진단 session의 반복 PASS가 contract 요구 횟수를 채워야 promotion-ready가 된다.
+- BLOCKED/UNSUPPORTED는 NEED_MORE_DATA만 기록할 수 있다.
+- 새 Diagnostic ZIP은 `verification/evaluate_diagnostic.py`로 자동 판정 가능한 형식이다.

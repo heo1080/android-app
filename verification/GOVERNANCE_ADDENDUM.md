@@ -35,7 +35,17 @@
 - `app/src/main/assets/verification_registry.json`은 차량 Verification Center용 동기화 사본이며 CI가 drift를 차단한다.
 - `verification/test_log_contracts.json`은 Test ID별 runtime evidence와 자동 판정 계약이다.
 - `verification/runtime_surfaces.json`은 앱서랍, 자동실행 Add 버튼, 분할화면, TTS 등 핵심 runtime/UI surface가 사라지는 회귀를 차단한다.
-- `VerificationCenterActivity`에서 기록한 PASS/FAIL/INTERMITTENT/DELAYED는 `VERIFY_RESULT` 로그로 진단 ZIP에 포함된다.
-- `verification/evaluate_diagnostic.py`는 진단 ZIP을 PASS/FAIL/INCONCLUSIVE/NEED_MORE_DATA로 보수적으로 판정한다.
+- `VerificationCenterActivity`는 기능 단위가 아니라 Test ID 단위로 PASS/FAIL/INTERMITTENT/DELAYED/NEED_MORE_DATA를 기록한다. BLOCKED/UNSUPPORTED에는 PASS/FAIL UI가 없다.
+- `VerificationEvidenceLogger`는 `TEST_START → OPERATOR_RESULT → TEST_END`를 동일 correlation ID로 append-only `verification_evidence.jsonl`에 기록하며 APK SHA/source commit/진단 session/차량 preconditions를 함께 묶는다.\n- `verification/evaluate_diagnostic.py`는 진단 ZIP의 구조화 evidence를 PASS/FAIL/INCONCLUSIVE/NEED_MORE_DATA로 보수적으로 판정하고 별도 session 반복 PASS 수를 계산한다.
 - `verification/feature_dependencies.json`의 하위 기능이 BLOCKED/REVERIFY_REQUIRED인 경우 상위 VERIFIED 승격을 dependency gate에서 차단한다.
 - Registry schema가 바뀌면 `schema_history`와 app asset을 함께 갱신한다.
+
+
+## Evidence lifecycle v3
+
+- Master Registry의 모든 Test ID는 `test_log_contracts.json`과 반드시 1:1이어야 한다.
+- Test 결과는 최근값 덮어쓰기가 아니라 append-only ledger로 보존한다. UI의 최근결과 초기화는 ledger를 삭제하지 않는다.
+- PASS 승격 후보는 build fingerprint, vehicle/test preconditions, correlation, 필요한 진단 session과 repeatability 조건을 모두 만족해야 한다.
+- Known-Bad 상태는 `OPEN → FIX_CANDIDATE → REAL_CAR_RETEST → CLOSED`이며 동일 evidence hash로 두 단계 이상 진행할 수 없다.
+- P0 Known-Bad가 CLOSED가 아니거나 REVERIFY_REQUIRED 기능이 남아 있으면 stable signing/release gate를 통과할 수 없다.
+- runtime/build 변경은 같은 changeset에서 Registry/evidence contract를 함께 갱신해야 한다.

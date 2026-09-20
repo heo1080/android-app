@@ -53,8 +53,8 @@
       "feature_id": "DRIVE_MODE_VOICE",
       "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
       "tokens": [
-        "driveInterface baseline raw=",
-        "decodeDriveMode"
+        "decodeDriveMode",
+        "onDriveModeChanged"
       ]
     },
     {
@@ -99,8 +99,9 @@
       "feature_id": "MASTER_VERIFICATION_REGISTRY",
       "path": "app/src/main/java/com/byd/dolphin/autoassistant/VerificationCenterActivity.kt",
       "tokens": [
-        "VERIFY_RESULT",
-        "verification_registry.json"
+        "VerificationEvidenceLogger.recordObservation",
+        "NEED_MORE_DATA",
+        "result_$testId"
       ]
     },
     {
@@ -109,6 +110,17 @@
       "tokens": [
         "실차 검증 센터",
         "VerificationCenterActivity"
+      ]
+    },
+    {
+      "feature_id": "MASTER_VERIFICATION_REGISTRY",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/VerificationEvidenceLogger.kt",
+      "tokens": [
+        "VERIFY_EVENT",
+        "verification_evidence.jsonl",
+        "diagnostic_session_id",
+        "apk_sha256",
+        "preconditions"
       ]
     }
   ]

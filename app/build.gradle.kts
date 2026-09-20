@@ -13,6 +13,10 @@ android {
         targetSdk = 34
         versionCode = 37
         versionName = "3.0.7-v30.4-driver-dsp-probe"
+        val sourceCommit = System.getenv("GITHUB_SHA") ?: "local-unknown"
+        val buildRunId = System.getenv("GITHUB_RUN_ID") ?: "local"
+        buildConfigField("String", "SOURCE_COMMIT", "\"$sourceCommit\"")
+        buildConfigField("String", "BUILD_RUN_ID", "\"$buildRunId\"")
     }
 
     buildTypes {

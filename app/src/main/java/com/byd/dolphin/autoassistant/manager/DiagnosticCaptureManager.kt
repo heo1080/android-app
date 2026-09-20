@@ -307,6 +307,16 @@ object DiagnosticCaptureManager {
                 report.copyTo(File(session.directory, "diagnostic_report.txt"), overwrite = true)
             }
 
+            VerificationEvidenceLogger.copyLedgerTo(appContext, session.directory)?.let { ledger ->
+                appendEvent(
+                    session,
+                    category = "verification",
+                    event = "evidence_ledger_attached",
+                    data = mapOf("file" to ledger.name, "bytes" to ledger.length()),
+                    force = true
+                )
+            }
+
             val output = File(
                 session.directory.parentFile,
                 "DolphinAssistant_v30_DiagnosticSession_${session.id}.zip"
