@@ -28,7 +28,7 @@ launcher = """        <activity
 """
 
 command_pattern = re.compile(
-    r'<activity\\b(?=[^>]*android:name="\\.CommandCenterActivity")[^>]*(?:/>|>.*?</activity>)',
+    r'<activity\b(?=[^>]*android:name="\.CommandCenterActivity")[^>]*(?:/>|>.*?</activity>)',
     re.DOTALL,
 )
 command_disabled = """        <activity
@@ -39,7 +39,7 @@ manifest, count = command_pattern.subn(launcher + "\n" + command_disabled, manif
 
 if count != 1:
     main_pattern = re.compile(
-        r'<activity\\b(?=[^>]*android:name="\\.MainActivity")[^>]*(?:/>|>.*?</activity>)',
+        r'<activity\b(?=[^>]*android:name="\.MainActivity")[^>]*(?:/>|>.*?</activity>)',
         re.DOTALL,
     )
     main_disabled = """        <activity
