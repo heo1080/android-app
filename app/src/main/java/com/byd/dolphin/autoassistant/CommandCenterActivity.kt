@@ -578,6 +578,14 @@ class CommandCenterActivity : AppCompatActivity() {
             "15분 진단 캡처, 권한, DPI, RAW 차량 신호와 ZIP 추출을 관리합니다.",
             listOf(Action("진단 화면 열기") { openLegacy("dpi") })
         )
+
+        addWideCard(
+            "VERIFICATION", "실차 검증 센터",
+            "Master Registry의 Test ID별 PASS/FAIL/간헐/지연을 기록하고 진단 ZIP과 연결합니다.",
+            listOf(Action("검증 센터 열기") {
+                startActivity(Intent(this, VerificationCenterActivity::class.java))
+            })
+        )
     }
 
     private fun renderSettings() {

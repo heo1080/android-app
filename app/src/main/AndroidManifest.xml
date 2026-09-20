@@ -73,6 +73,11 @@
         android:theme="@style/Theme.DolphinAutoAssistant">
 
         <activity
+            android:name=".VerificationCenterActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

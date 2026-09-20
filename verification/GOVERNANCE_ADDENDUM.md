@@ -27,3 +27,15 @@
 ## 빌드 판단
 
 근거가 부족하면 코드를 더 바꾸는 것이 성공이 아니다. 필요한 Test ID, 로그 필드, 재현 절차, 기대 관찰값을 생성하고 `REAL_VEHICLE_DATA_REQUIRED`로 넘기는 것도 정상적인 완료 결과다.
+
+
+## Runtime registry integration
+
+- `verification/master_registry.json`이 canonical source다.
+- `app/src/main/assets/verification_registry.json`은 차량 Verification Center용 동기화 사본이며 CI가 drift를 차단한다.
+- `verification/test_log_contracts.json`은 Test ID별 runtime evidence와 자동 판정 계약이다.
+- `verification/runtime_surfaces.json`은 앱서랍, 자동실행 Add 버튼, 분할화면, TTS 등 핵심 runtime/UI surface가 사라지는 회귀를 차단한다.
+- `VerificationCenterActivity`에서 기록한 PASS/FAIL/INTERMITTENT/DELAYED는 `VERIFY_RESULT` 로그로 진단 ZIP에 포함된다.
+- `verification/evaluate_diagnostic.py`는 진단 ZIP을 PASS/FAIL/INCONCLUSIVE/NEED_MORE_DATA로 보수적으로 판정한다.
+- `verification/feature_dependencies.json`의 하위 기능이 BLOCKED/REVERIFY_REQUIRED인 경우 상위 VERIFIED 승격을 dependency gate에서 차단한다.
+- Registry schema가 바뀌면 `schema_history`와 app asset을 함께 갱신한다.

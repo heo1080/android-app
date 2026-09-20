@@ -5,13 +5,17 @@ on:
     branches: [ "main", "master" ]
     paths:
       - "verification/**"
-      - "verification/validate_registry.py"
+      - "app/**"
+      - "ci/**"
+      - ".github/workflows/build.yml"
       - ".github/workflows/verify-registry.yml"
   push:
     branches: [ "main", "master" ]
     paths:
       - "verification/**"
-      - "ci/validate_verification_registry.py"
+      - "app/**"
+      - "ci/**"
+      - ".github/workflows/build.yml"
       - ".github/workflows/verify-registry.yml"
   workflow_dispatch:
 
@@ -26,3 +30,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Validate Master Verification Registry
         run: python3 verification/validate_registry.py
+      - name: Check Registry App Asset Drift
+        run: python3 verification/build_registry_asset.py --check
+      - name: Diagnostic Evaluator Self-Test
+        run: python3 verification/evaluate_diagnostic.py --self-test
+      - name: Dependency Reverification Gate
+        run: python3 verification/impact_report.py --gate
+      - name: Release Verification Dashboard
+        run: python3 verification/release_dashboard.py >> "$GITHUB_STEP_SUMMARY"

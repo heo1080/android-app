@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "note": "Feature-level dependency graph used for automatic revalidation impact. Free-text dependencies in the master registry remain descriptive.",
+  "edges": [
+    {
+      "feature_id": "GEAR_VOICE",
+      "depends_on": "IN_APP_TTS_CORE"
+    },
+    {
+      "feature_id": "DRIVE_MODE_VOICE",
+      "depends_on": "IN_APP_TTS_CORE"
+    },
+    {
+      "feature_id": "REGEN_MODE_VOICE",
+      "depends_on": "IN_APP_TTS_CORE"
+    },
+    {
+      "feature_id": "SNOW_MODE_VOICE",
+      "depends_on": "IN_APP_TTS_CORE"
+    },
+    {
+      "feature_id": "AUTOHOLD_VOICE",
+      "depends_on": "IN_APP_TTS_CORE"
+    },
+    {
+      "feature_id": "EPB_VOICE",
+      "depends_on": "IN_APP_TTS_CORE"
+    },
+    {
+      "feature_id": "ICC_VOICE",
+      "depends_on": "IN_APP_TTS_CORE"
+    },
+    {
+      "feature_id": "LEADING_CAR_DEPARTURE",
+      "depends_on": "IN_APP_TTS_CORE"
+    },
+    {
+      "feature_id": "PER_APP_DRIVER_SPEAKER_ROUTING",
+      "depends_on": "DRIVER_ONLY_APP_OWNED_AUDIO"
+    },
+    {
+      "feature_id": "CLUSTER_TBT",
+      "depends_on": "NAV_SAFETY_FEED"
+    },
+    {
+      "feature_id": "SURROUNDING_VISION_READ_ONLY",
+      "depends_on": "NAV_SAFETY_FEED"
+    },
+    {
+      "feature_id": "PREMIUM_HMI_HOME",
+      "depends_on": "LIVE_VEHICLE_INFO"
+    },
+    {
+      "feature_id": "PREMIUM_HMI_HOME",
+      "depends_on": "TPMS_READ_ONLY"
+    },
+    {
+      "feature_id": "APP_UPDATE",
+      "depends_on": "BUILD_IDENTITY"
+    },
+    {
+      "feature_id": "MASTER_VERIFICATION_REGISTRY",
+      "depends_on": "DIAGNOSTIC_CAPTURE_UPLOAD"
+    }
+  ]
+}
