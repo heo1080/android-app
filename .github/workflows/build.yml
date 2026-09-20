@@ -28,6 +28,12 @@ on:
       - "settings.gradle.kts"
       - "gradle.properties"
   workflow_dispatch:
+    inputs:
+      publish_stable:
+        description: "Sign and publish the stable APK after RC/real-car verification"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -107,7 +113,7 @@ jobs:
         retention-days: 7
 
     - name: Decode and validate stable signing keystore
-      if: github.event_name != 'pull_request'
+      if: github.event_name == 'workflow_dispatch' && inputs.publish_stable == true
       shell: bash
       env:
         DOLPHIN_KEYSTORE_BASE64: ${{ secrets.DOLPHIN_KEYSTORE_BASE64 }}
@@ -133,7 +139,7 @@ jobs:
         echo "Stable keystore password/alias preflight OK"
 
     - name: Sign v34.3.1 stable APK
-      if: github.event_name != 'pull_request'
+      if: github.event_name == 'workflow_dispatch' && inputs.publish_stable == true
       shell: bash
       env:
         DOLPHIN_KEYSTORE_PASSWORD: ${{ secrets.DOLPHIN_KEYSTORE_PASSWORD }}
@@ -157,7 +163,7 @@ jobs:
         sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v34.3.1-stable.sha256
 
     - name: Upload stable APK artifact
-      if: github.event_name != 'pull_request'
+      if: github.event_name == 'workflow_dispatch' && inputs.publish_stable == true
       uses: actions/upload-artifact@v4
       with:
         name: DolphinAssistant-v34.3.1-Stable
@@ -168,7 +174,7 @@ jobs:
         retention-days: 30
 
     - name: Publish v34.3.1 GitHub Release
-      if: github.event_name != 'pull_request'
+      if: github.event_name == 'workflow_dispatch' && inputs.publish_stable == true
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
