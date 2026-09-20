@@ -5,7 +5,7 @@
   "source": {
     "repository": "heo1080/android-app",
     "branch_base": "main",
-    "base_commit": "2546ed71b415826cf0f7f371de412ba33df1f21a",
+    "base_commit": "5716596ca5e7f14245655736de762158fb8e0c8c",
     "diagnostics_repository": "heo1080/dolphin-diagnostics",
     "latest_diagnostics_commit": "d75939f6ed2daacbdf0b6fbabd5d27c0ca18ee31",
     "source_build_gradle_version": "3.0.7-v30.4-driver-dsp-probe",
@@ -1455,12 +1455,22 @@
         "version 비교",
         "동일 package/signature",
         "installer confirmation",
-        "실패 시 현 버전 유지"
+        "실패 시 현 버전 유지",
+        "V1 OTA는 dolphin-launcher-v1-v* GitHub prerelease만 선택",
+        "APK와 SHA-256 asset 동시 존재",
+        "다운로드 APK package=com.dolphin.launcher.v1 일치",
+        "다운로드 APK versionCode가 설치본보다 높음",
+        "서명 인증서 digest가 설치본과 동일",
+        "Android PackageInstaller 사용자 확인 유지"
       ],
       "required_logs": [
         "release metadata",
         "download hash",
-        "installed version/signature"
+        "installed version/signature",
+        "selected V1 release tag",
+        "downloaded APK versionCode",
+        "signer digest",
+        "PackageInstaller status"
       ],
       "known_bad": [
         "versionCode downgrade 설치 실패가 과거 발생하여 v34.3.1에서 114로 수정한 기록"
@@ -1476,9 +1486,12 @@
       ],
       "evidence": [
         "AppUpdateManager no-silent-install policy",
-        "commit Fix install downgrade with versionCode 114"
+        "commit Fix install downgrade with versionCode 114",
+        "V1 1.2 AppUpdateManager filters dedicated Dolphin Launcher V1 release channel",
+        "V1 CI publishes signed prerelease assets with SHA-256",
+        "Dolphin Launcher V1 OTA implementation is maintained on dolphin-launcher-v1 branch and validated by its dedicated CI"
       ],
-      "next_action": "generated APK identity와 base source mismatch 해결/기록",
+      "next_action": "V1 1.2 실차에서 UPD-001/UPD-002 수행 후 REVERIFY_REQUIRED 해제 여부 판단",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
