@@ -1443,10 +1443,7 @@
       "requirement": "새 릴리스 확인/다운로드 후 Android installer 확인을 거치며 잘못된 downgrade/서명 불일치를 차단한다.",
       "source_paths": [
         "app/src/main/java/com/byd/dolphin/autoassistant/manager/AppUpdateManager.kt",
-        ".github/workflows/build.yml",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AppUpdateManager.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UpdateInstallReceiver.java",
-        ".github/workflows/dolphin-launcher-v1.yml"
+        ".github/workflows/build.yml"
       ],
       "test_ids": [
         "UPD-001",
@@ -1491,7 +1488,8 @@
         "AppUpdateManager no-silent-install policy",
         "commit Fix install downgrade with versionCode 114",
         "V1 1.2 AppUpdateManager filters dedicated Dolphin Launcher V1 release channel",
-        "V1 CI publishes signed prerelease assets with SHA-256"
+        "V1 CI publishes signed prerelease assets with SHA-256",
+        "Dolphin Launcher V1 OTA implementation is maintained on dolphin-launcher-v1 branch and validated by its dedicated CI"
       ],
       "next_action": "V1 1.2 실차에서 UPD-001/UPD-002 수행 후 REVERIFY_REQUIRED 해제 여부 판단",
       "confidence": {
