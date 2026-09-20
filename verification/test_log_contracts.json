@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "outcome_states": [
+    "PASS",
+    "FAIL",
+    "INCONCLUSIVE",
+    "NEED_MORE_DATA"
+  ],
+  "note": "Operator results are accepted only when required runtime evidence is present. INTERMITTENT/DELAYED remain INCONCLUSIVE.",
+  "contracts": [
+    {
+      "test_id": "AUD-DRV-001",
+      "feature_id": "DRIVE_MODE_VOICE",
+      "required_any": [
+        "driveInterface baseline raw=",
+        "driveInterface "
+      ],
+      "success_any": [
+        "decoded=NORMAL"
+      ],
+      "failure_any": [],
+      "known_bad_ids": [
+        "KB-001"
+      ]
+    },
+    {
+      "test_id": "AUD-REG-001",
+      "feature_id": "REGEN_MODE_VOICE",
+      "required_any": [
+        "energyFeedback",
+        "regen"
+      ],
+      "success_any": [
+        "STANDARD",
+        "HIGH"
+      ],
+      "failure_any": [
+        "STANDARD -> ECO",
+        "STANDARD를 ECO"
+      ],
+      "known_bad_ids": [
+        "KB-002"
+      ]
+    },
+    {
+      "test_id": "AUD-SNOW-002",
+      "feature_id": "SNOW_MODE_VOICE",
+      "required_any": [
+        "roadSurface ",
+        "snow=false"
+      ],
+      "success_any": [
+        "snow=false"
+      ],
+      "failure_any": [],
+      "known_bad_ids": [
+        "KB-003"
+      ],
+      "manual_observation_required": true
+    },
+    {
+      "test_id": "WIN-SPLIT-001",
+      "feature_id": "SPLIT_SCREEN_TWO_APP",
+      "required_any": [
+        "SPLIT",
+        "windowingMode",
+        "mWindowingMode"
+      ],
+      "success_any": [
+        "2분할",
+        "mode=3",
+        "mode=4"
+      ],
+      "failure_any": [
+        "split launch failed",
+        "2분할 실행에 실패"
+      ],
+      "known_bad_ids": [
+        "KB-004"
+      ]
+    },
+    {
+      "test_id": "LCH-DRW-001",
+      "feature_id": "APP_DRAWER_SHORTCUTS",
+      "required_any": [
+        "APP_DRAWER",
+        "앱서랍 슬롯 생성"
+      ],
+      "success_any": [
+        "앱서랍 실행 slot=",
+        "앱서랍 슬롯 생성 slot="
+      ],
+      "failure_any": [
+        "비어 있는 앱서랍 슬롯 실행"
+      ],
+      "known_bad_ids": [
+        "KB-005"
+      ]
+    },
+    {
+      "test_id": "LCH-BOOT-001",
+      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
+      "required_any": [
+        "BOOT_AUTOMATION",
+        "시동 자동 실행"
+      ],
+      "success_any": [
+        "시동 자동 실행 시작:",
+        "ADB 앱 실행 성공:",
+        "Android API 앱 실행 요청:"
+      ],
+      "failure_any": [
+        "실행 인텐트 없음:",
+        "앱 실행 실패:"
+      ],
+      "known_bad_ids": [
+        "KB-006"
+      ]
+    },
+    {
+      "test_id": "AUD-TTS-001",
+      "feature_id": "IN_APP_TTS_CORE",
+      "required_any": [
+        "stream14 voice played",
+        "TTS"
+      ],
+      "success_any": [
+        "stream14 voice played"
+      ],
+      "failure_any": [
+        "TTS generation failed",
+        "status=-1"
+      ],
+      "known_bad_ids": [
+        "KB-007"
+      ]
+    },
+    {
+      "test_id": "COMF-LIGHT-001",
+      "feature_id": "INTERIOR_LIGHT",
+      "required_any": [
+        "InsideLightManager",
+        "실내등"
+      ],
+      "success_any": [
+        "실내등 ON 요청=true",
+        "실내등 OFF 요청=true"
+      ],
+      "failure_any": [],
+      "known_bad_ids": [
+        "KB-008"
+      ],
+      "manual_observation_required": true
+    },
+    {
+      "test_id": "AUD-DRVSPK-001",
+      "feature_id": "DRIVER_ONLY_APP_OWNED_AUDIO",
+      "required_any": [
+        "stream14",
+        "AUDIO_PROBE"
+      ],
+      "success_any": [
+        "stream14 voice played",
+        "ROUTE_"
+      ],
+      "failure_any": [],
+      "known_bad_ids": [
+        "KB-009"
+      ],
+      "manual_observation_required": true
+    },
+    {
+      "test_id": "AUD-APPROUTE-001",
+      "feature_id": "PER_APP_DRIVER_SPEAKER_ROUTING",
+      "required_any": [
+        "MODIFY_AUDIO_ROUTING",
+        "APP_AUDIO_LAB"
+      ],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [
+        "KB-009"
+      ],
+      "manual_observation_required": true
+    },
+    {
+      "test_id": "BLD-ID-001",
+      "feature_id": "BUILD_IDENTITY",
+      "required_any": [
+        "versionCode",
+        "versionName",
+        "SHA-256"
+      ],
+      "success_any": [
+        "package identity",
+        "signing",
+        "versionCode"
+      ],
+      "failure_any": [
+        "INSTALL_FAILED_VERSION_DOWNGRADE"
+      ],
+      "known_bad_ids": [
+        "KB-010"
+      ]
+    },
+    {
+      "test_id": "UPD-001",
+      "feature_id": "APP_UPDATE",
+      "required_any": [
+        "APP_UPDATE",
+        "update"
+      ],
+      "success_any": [
+        "설치",
+        "newer build",
+        "latest"
+      ],
+      "failure_any": [
+        "INSTALL_FAILED_VERSION_DOWNGRADE",
+        "signature mismatch"
+      ],
+      "known_bad_ids": [
+        "KB-010"
+      ]
+    }
+  ]
+}
