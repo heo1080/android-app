@@ -1,0 +1,74 @@
+name: Codex PR Contract Gate
+
+on:
+  pull_request:
+    branches: [ "main", "master" ]
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  codex-contract:
+    if: startsWith(github.head_ref, 'codex/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate Codex PR traceability
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_HEAD: ${{ github.head_ref }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+
+          body = os.environ.get("PR_BODY") or ""
+          head = os.environ.get("PR_HEAD") or ""
+
+          required_labels = [
+              "REQ ID",
+              "Feature ID",
+              "Test ID(s)",
+              "Registry state before change",
+              "Evidence used",
+              "Known-Bad",
+              "Vehicle-write path changed",
+              "Real-car validation still required",
+              "Validation",
+              "Agent statement",
+          ]
+          missing = [label for label in required_labels if label.lower() not in body.lower()]
+          if missing:
+              raise SystemExit("CODEX_PR_GATE_ERROR: missing PR fields: " + ", ".join(missing))
+
+          patterns = {
+              "REQ ID": r"REQ-[A-Z0-9_-]+",
+              "Test ID": r"[A-Z]+-[A-Z0-9]+-[0-9]{3}",
+          }
+          for name, pattern in patterns.items():
+              if not re.search(pattern, body, re.I):
+                  raise SystemExit(f"CODEX_PR_GATE_ERROR: no concrete {name} value found")
+
+          vehicle = re.search(
+              r"Vehicle-write path changed:\*\*\s*(NONE|READ_ONLY|WRITE_PATH_CHANGED)",
+              body,
+              re.I,
+          )
+          if not vehicle:
+              raise SystemExit("CODEX_PR_GATE_ERROR: vehicle-write impact must be explicit")
+
+          prohibited_claims = [
+              "promoted to VERIFIED",
+              "stable release published",
+              "guessed feature id",
+              "guessed fid",
+          ]
+          lower = body.lower()
+          for phrase in prohibited_claims:
+              if phrase in lower:
+                  raise SystemExit("CODEX_PR_GATE_ERROR: prohibited claim in PR body: " + phrase)
+
+          print(f"CODEX_PR_CONTRACT_OK branch={head}")
+          PY

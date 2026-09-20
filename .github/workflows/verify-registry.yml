@@ -5,6 +5,8 @@ on:
     branches: [ "main", "master" ]
     paths:
       - "verification/**"
+      - "docs/codex/**"
+      - "AGENTS.md"
       - "app/**"
       - "ci/**"
       - ".github/workflows/build.yml"
@@ -13,6 +15,8 @@ on:
     branches: [ "main", "master" ]
     paths:
       - "verification/**"
+      - "docs/codex/**"
+      - "AGENTS.md"
       - "app/**"
       - "ci/**"
       - ".github/workflows/build.yml"
@@ -28,10 +32,14 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Check Registry Change/Freshness Sync
         run: python3 verification/check_registry_change_sync.py
       - name: Validate Master Verification Registry
         run: python3 verification/validate_registry.py
+      - name: Validate Codex Guardrails
+        run: python3 verification/validate_codex_guardrails.py
       - name: Check Registry App Asset Drift
         run: python3 verification/build_registry_asset.py --check
       - name: Diagnostic Evaluator Self-Test

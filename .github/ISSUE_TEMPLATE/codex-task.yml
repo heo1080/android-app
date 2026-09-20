@@ -1,0 +1,85 @@
+name: Codex implementation task
+description: Registry-first coding task for Codex
+title: "[CODEX] "
+labels: ["codex-task"]
+body:
+  - type: input
+    id: req
+    attributes:
+      label: REQ ID
+      placeholder: REQ-TTS-005
+    validations:
+      required: true
+
+  - type: input
+    id: feature
+    attributes:
+      label: Feature ID
+      placeholder: SNOW_MODE_VOICE
+    validations:
+      required: true
+
+  - type: input
+    id: tests
+    attributes:
+      label: Test ID(s)
+      placeholder: AUD-SNOW-002
+    validations:
+      required: true
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: Narrow coding outcome. Do not ask Codex to decide vehicle truth.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: vehicle_write
+    attributes:
+      label: Vehicle-write impact
+      options:
+        - NONE
+        - READ_ONLY
+        - WRITE_PATH_CHANGED
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence available
+      description: Real-car logs, source evidence, CI output, public evidence.
+    validations:
+      required: true
+
+  - type: textarea
+    id: missing
+    attributes:
+      label: Real-car evidence still missing
+      description: Exact logs, readback, session, or reproduction needed after coding.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Copy the relevant criteria from the Master Verification Registry.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Agent boundaries
+      options:
+        - label: Do not invent BYD private APIs / Feature IDs / CAN signals.
+          required: true
+        - label: Do not promote the feature to VERIFIED from code/CI alone.
+          required: true
+        - label: Do not bypass Registry, safety, Known-Bad, or release gates.
+          required: true
+        - label: Work on a dedicated branch and open a PR rather than pushing directly to main.
+          required: true
