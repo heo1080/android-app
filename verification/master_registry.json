@@ -35,7 +35,8 @@
       "source_paths": [
         "app/build.gradle.kts",
         ".github/workflows/build.yml",
-        "ci/"
+        "ci/",
+        "verification/release_gate.py"
       ],
       "test_ids": [
         "BLD-ID-001",
@@ -1550,7 +1551,10 @@
         "verification/evaluate_diagnostic.py",
         "verification/build_registry_asset.py",
         "app/src/main/java/com/byd/dolphin/autoassistant/VerificationCenterActivity.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VerificationEvidenceLogger.kt"
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VerificationEvidenceLogger.kt",
+        "verification/check_registry_change_sync.py",
+        "verification/release_gate.py",
+        "verification/known_bad_lifecycle.py"
       ],
       "test_ids": [
         "GOV-REG-001"
@@ -1567,7 +1571,10 @@
         "49개 모든 Test ID가 test_log_contracts에 1:1로 존재",
         "Test ID별 결과가 append-only evidence ledger에 correlation/build/precondition/session과 함께 기록",
         "BLOCKED/UNSUPPORTED Test ID는 PASS/FAIL 기록 불가",
-        "repeatability와 Known-Bad lifecycle을 자동 평가"
+        "repeatability와 Known-Bad lifecycle을 자동 평가",
+        "runtime/build 변경 시 Registry 근거를 함께 갱신하지 않으면 CI 실패",
+        "P0 Known-Bad 또는 REVERIFY_REQUIRED가 남으면 stable 서명 전 Release Gate 실패",
+        "Known-Bad lifecycle은 새로운 evidence hash마다 최대 한 단계만 전환"
       ],
       "required_logs": [
         "registry schema/version",
