@@ -99,6 +99,7 @@ public class LauncherActivity extends Activity {
         seedFavorites();
         buildShell();
         runPendingAutostart();
+        handler.postDelayed(() -> AppUpdateManager.checkForUpdates(this, false), 1800L);
     }
 
     @Override
@@ -109,6 +110,7 @@ public class LauncherActivity extends Activity {
         handler.removeCallbacks(clockTick);
         handler.post(clockTick);
         runPendingAutostart();
+        AppUpdateManager.resumePendingInstallPermission(this);
     }
 
     @Override
@@ -150,7 +152,7 @@ public class LauncherActivity extends Activity {
         TextView brand = text("DOLPHIN  /  LAUNCHER", 18f, Color.WHITE, true);
         bar.addView(brand, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        TextView version = chip("V1 REGISTRY");
+        TextView version = chip("V1 OTA");
         version.setTextColor(Color.parseColor("#7FFFE0"));
         LinearLayout.LayoutParams versionLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, dp(34));
@@ -535,6 +537,7 @@ public class LauncherActivity extends Activity {
     private void showSettings() {
         String[] actions = new String[] {
                 "기본 HOME 런처 선택",
+                "앱 업데이트 확인",
                 "실차 검증 센터",
                 "즐겨찾기 초기화",
                 "2분할 지정 초기화",
@@ -552,24 +555,27 @@ public class LauncherActivity extends Activity {
                         }
                     }
                     if (which == 1) {
-                        openVerificationCenter();
+                        AppUpdateManager.checkForUpdates(this, true);
                     }
                     if (which == 2) {
+                        openVerificationCenter();
+                    }
+                    if (which == 3) {
                         prefs.edit().remove(KEY_FAVORITES).apply();
                         seedFavorites();
                         showHome();
                     }
-                    if (which == 3) {
+                    if (which == 4) {
                         prefs.edit().remove(KEY_SPLIT_LEFT).remove(KEY_SPLIT_RIGHT).apply();
                         refreshSplitChip();
                         showHome();
                     }
-                    if (which == 4) {
+                    if (which == 5) {
                         new AlertDialog.Builder(this)
-                                .setTitle("Dolphin Launcher V1 Registry")
+                                .setTitle("Dolphin Launcher V1 OTA")
                                 .setMessage("독립 패키지: com.dolphin.launcher.v1\n" +
-                                        "버전: 1.1.0-v1-registry\n\n" +
-                                        "Registry v3 + Test-ID evidence runtime 통합 빌드입니다.")
+                                        "버전: 1.2.0-v1-ota\n\n" +
+                                        "Registry v3 + 앱내 서명검증 OTA 업데이트 통합 빌드입니다.")
                                 .setPositiveButton("확인", null)
                                 .show();
                     }
