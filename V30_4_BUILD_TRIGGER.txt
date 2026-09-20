@@ -1,2 +1,4 @@
-v30.4 driver DSP audio probe build trigger
-source commit: 5dd55da8755046b77cc53a1bfac4167dc4815e5a
+BYD Dolphin Launcher hourly evolution build trigger
+run: 2026-09-20 09:44 KST
+base source: a4249016186823bf6d5ca14e2a6c6518aab7f19e
+focus: launcher-shell architecture audit; seat/mirror/cluster remain read-only until verified
