@@ -112,6 +112,10 @@ jobs:
         if-no-files-found: error
         retention-days: 7
 
+    - name: Stable Release Registry Gate
+      if: github.event_name == 'workflow_dispatch' && inputs.publish_stable == true
+      run: python3 verification/release_gate.py --source-commit "$GITHUB_SHA"
+
     - name: Decode and validate stable signing keystore
       if: github.event_name == 'workflow_dispatch' && inputs.publish_stable == true
       shell: bash
