@@ -1,66 +1,416 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "outcome_states": [
     "PASS",
     "FAIL",
     "INCONCLUSIVE",
     "NEED_MORE_DATA"
   ],
-  "note": "Operator results are accepted only when required runtime evidence is present. INTERMITTENT/DELAYED remain INCONCLUSIVE.",
+  "operator_outcomes": [
+    "PASS",
+    "FAIL",
+    "INTERMITTENT",
+    "DELAYED",
+    "NEED_MORE_DATA"
+  ],
+  "note": "Every Master Registry Test ID has an explicit structured evidence contract. PASS is only promotable when required structured evidence, build identity, preconditions, session policy and repeatability are satisfied.",
   "contracts": [
     {
-      "test_id": "AUD-DRV-001",
-      "feature_id": "DRIVE_MODE_VOICE",
+      "test_id": "BLD-ID-001",
+      "feature_id": "BUILD_IDENTITY",
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
       "required_any": [
-        "driveInterface baseline raw=",
-        "driveInterface "
+        "versionCode",
+        "versionName",
+        "SHA-256"
       ],
       "success_any": [
-        "decoded=NORMAL"
-      ],
-      "failure_any": [],
-      "known_bad_ids": [
-        "KB-001"
-      ]
-    },
-    {
-      "test_id": "AUD-REG-001",
-      "feature_id": "REGEN_MODE_VOICE",
-      "required_any": [
-        "energyFeedback",
-        "regen"
-      ],
-      "success_any": [
-        "STANDARD",
-        "HIGH"
+        "package identity",
+        "signing",
+        "versionCode"
       ],
       "failure_any": [
-        "STANDARD -> ECO",
-        "STANDARD를 ECO"
+        "INSTALL_FAILED_VERSION_DOWNGRADE"
       ],
       "known_bad_ids": [
-        "KB-002"
+        "KB-010"
+      ],
+      "acceptance": [
+        "APK manifest의 package/versionCode/versionName이 release metadata와 일치",
+        "APK가 어떤 source commit+patch chain에서 생성됐는지 추적 가능",
+        "동일 signing certificate 유지"
+      ],
+      "required_logs": [
+        "source commit",
+        "workflow run id",
+        "versionCode/versionName",
+        "APK SHA-256",
+        "signing fingerprint"
       ]
     },
     {
-      "test_id": "AUD-SNOW-002",
-      "feature_id": "SNOW_MODE_VOICE",
+      "test_id": "BLD-ID-002",
+      "feature_id": "BUILD_IDENTITY",
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "APK manifest의 package/versionCode/versionName이 release metadata와 일치",
+        "APK가 어떤 source commit+patch chain에서 생성됐는지 추적 가능",
+        "동일 signing certificate 유지"
+      ],
+      "required_logs": [
+        "source commit",
+        "workflow run id",
+        "versionCode/versionName",
+        "APK SHA-256",
+        "signing fingerprint"
+      ]
+    },
+    {
+      "test_id": "DIA-CAP-001",
+      "feature_id": "DIAGNOSTIC_CAPTURE_UPLOAD",
+      "feature_state": "VERIFIED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "세션 ZIP 생성",
+        "차량 raw/state/audio/display 정보 포함",
+        "업로드 결과 확인",
+        "토큰은 Android Keystore 보호"
+      ],
+      "required_logs": [
+        "session manifest",
+        "events.jsonl/full log",
+        "upload result",
+        "build identity"
+      ]
+    },
+    {
+      "test_id": "DIA-UP-001",
+      "feature_id": "DIAGNOSTIC_CAPTURE_UPLOAD",
+      "feature_state": "VERIFIED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "세션 ZIP 생성",
+        "차량 raw/state/audio/display 정보 포함",
+        "업로드 결과 확인",
+        "토큰은 Android Keystore 보호"
+      ],
+      "required_logs": [
+        "session manifest",
+        "events.jsonl/full log",
+        "upload result",
+        "build identity"
+      ]
+    },
+    {
+      "test_id": "LCH-ID-001",
+      "feature_id": "LAUNCHER_ENTRY_IDENTITY",
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "앱서랍에서 정상 아이콘/이름 표시",
+        "실행 시 desktop/freeform 오인 없음",
+        "HOME 역할을 의도하지 않았다면 HOME category 없음"
+      ],
+      "required_logs": [
+        "resolved activity",
+        "intent categories",
+        "windowing mode",
+        "dumpsys activity"
+      ]
+    },
+    {
+      "test_id": "LCH-DRW-001",
+      "feature_id": "APP_DRAWER_SHORTCUTS",
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
       "required_any": [
-        "roadSurface ",
-        "snow=false"
+        "APP_DRAWER",
+        "앱서랍 슬롯 생성"
       ],
       "success_any": [
-        "snow=false"
+        "앱서랍 실행 slot=",
+        "앱서랍 슬롯 생성 slot="
       ],
-      "failure_any": [],
+      "failure_any": [
+        "비어 있는 앱서랍 슬롯 실행"
+      ],
       "known_bad_ids": [
-        "KB-003"
+        "KB-005"
       ],
-      "manual_observation_required": true
+      "acceptance": [
+        "최대 16 슬롯 생성",
+        "활성화된 슬롯이 순정 앱서랍에 표시",
+        "선택 액션 실행",
+        "삭제/전체 초기화"
+      ],
+      "required_logs": [
+        "slot assign",
+        "setComponentEnabledSetting result",
+        "launcher refresh evidence"
+      ]
+    },
+    {
+      "test_id": "LCH-DRW-002",
+      "feature_id": "APP_DRAWER_SHORTCUTS",
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "최대 16 슬롯 생성",
+        "활성화된 슬롯이 순정 앱서랍에 표시",
+        "선택 액션 실행",
+        "삭제/전체 초기화"
+      ],
+      "required_logs": [
+        "slot assign",
+        "setComponentEnabledSetting result",
+        "launcher refresh evidence"
+      ]
+    },
+    {
+      "test_id": "LCH-BOOT-001",
+      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [
+        "BOOT_AUTOMATION",
+        "시동 자동 실행"
+      ],
+      "success_any": [
+        "시동 자동 실행 시작:",
+        "ADB 앱 실행 성공:",
+        "Android API 앱 실행 요청:"
+      ],
+      "failure_any": [
+        "실행 인텐트 없음:",
+        "앱 실행 실패:"
+      ],
+      "known_bad_ids": [
+        "KB-006"
+      ],
+      "acceptance": [
+        "추가 버튼 존재",
+        "2개 이상 앱 등록",
+        "지연 순서 실행",
+        "시동 OFF 시 예약 취소",
+        "동일 ignition cycle 중 중복 실행 없음"
+      ],
+      "required_logs": [
+        "ignition cycle id",
+        "registered list",
+        "launch result",
+        "media result"
+      ]
+    },
+    {
+      "test_id": "LCH-BOOT-002",
+      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "추가 버튼 존재",
+        "2개 이상 앱 등록",
+        "지연 순서 실행",
+        "시동 OFF 시 예약 취소",
+        "동일 ignition cycle 중 중복 실행 없음"
+      ],
+      "required_logs": [
+        "ignition cycle id",
+        "registered list",
+        "launch result",
+        "media result"
+      ]
     },
     {
       "test_id": "WIN-SPLIT-001",
       "feature_id": "SPLIT_SCREEN_TWO_APP",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
       "required_any": [
         "SPLIT",
         "windowingMode",
@@ -77,49 +427,186 @@
       ],
       "known_bad_ids": [
         "KB-004"
+      ],
+      "acceptance": [
+        "두 앱이 mode 3/4로 실제 배치",
+        "dumpsys readback 일치",
+        "비율 적용 또는 명확한 실패",
+        "카메라 종료 후 안전한 복원"
+      ],
+      "required_logs": [
+        "ADB command",
+        "task/stack/windowing mode",
+        "ratio result"
       ]
     },
     {
-      "test_id": "LCH-DRW-001",
-      "feature_id": "APP_DRAWER_SHORTCUTS",
-      "required_any": [
-        "APP_DRAWER",
-        "앱서랍 슬롯 생성"
+      "test_id": "WIN-SPLIT-002",
+      "feature_id": "SPLIT_SCREEN_TWO_APP",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
       ],
-      "success_any": [
-        "앱서랍 실행 slot=",
-        "앱서랍 슬롯 생성 slot="
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
       ],
-      "failure_any": [
-        "비어 있는 앱서랍 슬롯 실행"
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "두 앱이 mode 3/4로 실제 배치",
+        "dumpsys readback 일치",
+        "비율 적용 또는 명확한 실패",
+        "카메라 종료 후 안전한 복원"
       ],
-      "known_bad_ids": [
-        "KB-005"
+      "required_logs": [
+        "ADB command",
+        "task/stack/windowing mode",
+        "ratio result"
       ]
     },
     {
-      "test_id": "LCH-BOOT-001",
-      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
-      "required_any": [
-        "BOOT_AUTOMATION",
-        "시동 자동 실행"
+      "test_id": "DSP-DPI-001",
+      "feature_id": "DPI_DISPLAY_DIAGNOSTICS",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
       ],
-      "success_any": [
-        "시동 자동 실행 시작:",
-        "ADB 앱 실행 성공:",
-        "Android API 앱 실행 요청:"
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
       ],
-      "failure_any": [
-        "실행 인텐트 없음:",
-        "앱 실행 실패:"
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "DisplayMetrics/WindowMetrics/fontScale/orientation 수집",
+        "DPI 변경 성공 여부와 readback 기록",
+        "복원 경로 존재"
       ],
-      "known_bad_ids": [
-        "KB-006"
+      "required_logs": [
+        "densityDpi",
+        "width/height px/dp",
+        "smallestWidth",
+        "fontScale",
+        "forced settings"
+      ]
+    },
+    {
+      "test_id": "DSP-DPI-002",
+      "feature_id": "DPI_DISPLAY_DIAGNOSTICS",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "DisplayMetrics/WindowMetrics/fontScale/orientation 수집",
+        "DPI 변경 성공 여부와 readback 기록",
+        "복원 경로 존재"
+      ],
+      "required_logs": [
+        "densityDpi",
+        "width/height px/dp",
+        "smallestWidth",
+        "fontScale",
+        "forced settings"
+      ]
+    },
+    {
+      "test_id": "DSP-ORI-001",
+      "feature_id": "FORCED_APP_ORIENTATION",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 0,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "대상 앱별 orientation override",
+        "원복",
+        "시스템 UI/순정 앱에 영향 없음"
+      ],
+      "required_logs": [
+        "requested orientation",
+        "actual rotation",
+        "target package",
+        "window state"
       ]
     },
     {
       "test_id": "AUD-TTS-001",
       "feature_id": "IN_APP_TTS_CORE",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
       "required_any": [
         "stream14 voice played",
         "TTS"
@@ -133,28 +620,582 @@
       ],
       "known_bad_ids": [
         "KB-007"
+      ],
+      "acceptance": [
+        "미리듣기 즉시 재생",
+        "이전 utterance가 비프 뒤 늦게 재생되지 않음",
+        "vehicle event→audio start latency 기록"
+      ],
+      "required_logs": [
+        "event timestamp",
+        "TTS generation/cache",
+        "AudioTrack start",
+        "stream/device"
       ]
     },
     {
-      "test_id": "COMF-LIGHT-001",
-      "feature_id": "INTERIOR_LIGHT",
+      "test_id": "AUD-TTS-002",
+      "feature_id": "IN_APP_TTS_CORE",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "미리듣기 즉시 재생",
+        "이전 utterance가 비프 뒤 늦게 재생되지 않음",
+        "vehicle event→audio start latency 기록"
+      ],
+      "required_logs": [
+        "event timestamp",
+        "TTS generation/cache",
+        "AudioTrack start",
+        "stream/device"
+      ]
+    },
+    {
+      "test_id": "AUD-GEAR-001",
+      "feature_id": "GEAR_VOICE",
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "P/R/N/D 각각 올바른 문구",
+        "동일 상태 반복 음성 없음",
+        "미확인 raw 값 무시"
+      ],
+      "required_logs": [
+        "gear raw",
+        "normalized state",
+        "TTS phrase",
+        "correlation id"
+      ]
+    },
+    {
+      "test_id": "AUD-DRV-001",
+      "feature_id": "DRIVE_MODE_VOICE",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
       "required_any": [
-        "InsideLightManager",
-        "실내등"
+        "driveInterface baseline raw=",
+        "driveInterface "
       ],
       "success_any": [
-        "실내등 ON 요청=true",
-        "실내등 OFF 요청=true"
+        "decoded=NORMAL"
       ],
       "failure_any": [],
       "known_bad_ids": [
-        "KB-008"
+        "KB-001"
       ],
-      "manual_observation_required": true
+      "acceptance": [
+        "ECO/NORMAL/SPORT 매핑이 raw/readback과 일치",
+        "NORMAL 포함 모든 edge에서 음성 1회",
+        "미확인 값은 말하지 않음"
+      ],
+      "required_logs": [
+        "raw candidate signals",
+        "normalized mode",
+        "phrase",
+        "timestamp"
+      ]
+    },
+    {
+      "test_id": "AUD-DRV-002",
+      "feature_id": "DRIVE_MODE_VOICE",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "ECO/NORMAL/SPORT 매핑이 raw/readback과 일치",
+        "NORMAL 포함 모든 edge에서 음성 1회",
+        "미확인 값은 말하지 않음"
+      ],
+      "required_logs": [
+        "raw candidate signals",
+        "normalized mode",
+        "phrase",
+        "timestamp"
+      ]
+    },
+    {
+      "test_id": "AUD-REG-001",
+      "feature_id": "REGEN_MODE_VOICE",
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [
+        "energyFeedback",
+        "regen"
+      ],
+      "success_any": [
+        "STANDARD",
+        "HIGH"
+      ],
+      "failure_any": [
+        "STANDARD -> ECO",
+        "STANDARD를 ECO"
+      ],
+      "known_bad_ids": [
+        "KB-002"
+      ],
+      "acceptance": [
+        "STANDARD/HIGH 정확한 mapping",
+        "STANDARD를 ECO라고 말하지 않음",
+        "상태 edge당 1회"
+      ],
+      "required_logs": [
+        "energyFeedback raw sources",
+        "normalized regen",
+        "phrase"
+      ]
+    },
+    {
+      "test_id": "AUD-REG-002",
+      "feature_id": "REGEN_MODE_VOICE",
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "STANDARD/HIGH 정확한 mapping",
+        "STANDARD를 ECO라고 말하지 않음",
+        "상태 edge당 1회"
+      ],
+      "required_logs": [
+        "energyFeedback raw sources",
+        "normalized regen",
+        "phrase"
+      ]
+    },
+    {
+      "test_id": "AUD-SNOW-001",
+      "feature_id": "SNOW_MODE_VOICE",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "Snow ON 음성",
+        "Snow OFF 음성",
+        "ON/OFF raw edge 각각 1회",
+        "다른 drive mode와 혼동 없음"
+      ],
+      "required_logs": [
+        "roadSurface raw",
+        "drive mode raw",
+        "normalized snow state",
+        "phrase"
+      ]
+    },
+    {
+      "test_id": "AUD-SNOW-002",
+      "feature_id": "SNOW_MODE_VOICE",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [
+        "roadSurface ",
+        "snow=false"
+      ],
+      "success_any": [
+        "snow=false"
+      ],
+      "failure_any": [],
+      "known_bad_ids": [
+        "KB-003"
+      ],
+      "acceptance": [
+        "Snow ON 음성",
+        "Snow OFF 음성",
+        "ON/OFF raw edge 각각 1회",
+        "다른 drive mode와 혼동 없음"
+      ],
+      "required_logs": [
+        "roadSurface raw",
+        "drive mode raw",
+        "normalized snow state",
+        "phrase"
+      ]
+    },
+    {
+      "test_id": "AUD-AVH-001",
+      "feature_id": "AUTOHOLD_VOICE",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "switch ON/OFF 정확",
+        "physical hold/release 정확",
+        "동일 raw 반복 억제"
+      ],
+      "required_logs": [
+        "getAVHState raw",
+        "gear",
+        "speed",
+        "pedal candidates",
+        "normalized event"
+      ]
+    },
+    {
+      "test_id": "AUD-AVH-002",
+      "feature_id": "AUTOHOLD_VOICE",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "switch ON/OFF 정확",
+        "physical hold/release 정확",
+        "동일 raw 반복 억제"
+      ],
+      "required_logs": [
+        "getAVHState raw",
+        "gear",
+        "speed",
+        "pedal candidates",
+        "normalized event"
+      ]
+    },
+    {
+      "test_id": "AUD-EPB-001",
+      "feature_id": "EPB_VOICE",
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "getEPBState edge와 음성 일치",
+        "초기 baseline을 상태 변화로 말하지 않음"
+      ],
+      "required_logs": [
+        "EPB raw",
+        "normalized",
+        "phrase"
+      ]
+    },
+    {
+      "test_id": "AUD-ICC-001",
+      "feature_id": "ICC_VOICE",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "ON/OFF raw mapping 검증",
+        "각 edge 한 번만 음성",
+        "미확인 상태 무시"
+      ],
+      "required_logs": [
+        "ICC/TJA candidate raw",
+        "normalized",
+        "phrase"
+      ]
+    },
+    {
+      "test_id": "AUD-BSD-001",
+      "feature_id": "BSD_TURN_WARNING",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "BSD raw와 turn signal 방향 일치 시만 경고",
+        "반대 방향/미감지 시 무음",
+        "순정 경고와 과도한 중복 없음"
+      ],
+      "required_logs": [
+        "BSD raw",
+        "turn raw",
+        "direction",
+        "warning timestamp"
+      ]
+    },
+    {
+      "test_id": "AUD-LVDA-001",
+      "feature_id": "LEADING_CAR_DEPARTURE",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "지원 내비 notification/확인된 차량 신호에서만 트리거",
+        "오탐 최소화",
+        "동일 이벤트 중복 음성 없음"
+      ],
+      "required_logs": [
+        "source package",
+        "notification parser result",
+        "vehicle candidate raw",
+        "phrase"
+      ]
     },
     {
       "test_id": "AUD-DRVSPK-001",
       "feature_id": "DRIVER_ONLY_APP_OWNED_AUDIO",
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
       "required_any": [
         "stream14",
         "AUDIO_PROBE"
@@ -167,11 +1208,36 @@
       "known_bad_ids": [
         "KB-009"
       ],
-      "manual_observation_required": true
+      "acceptance": [
+        "운전석에서만 명확히 청취",
+        "다른 좌석/일반 media route와 분리",
+        "순정 안전경고 방해 없음"
+      ],
+      "required_logs": [
+        "legacy stream",
+        "AudioAttributes",
+        "output devices",
+        "focus",
+        "actual audible result"
+      ]
     },
     {
       "test_id": "AUD-APPROUTE-001",
       "feature_id": "PER_APP_DRIVER_SPEAKER_ROUTING",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 0,
       "required_any": [
         "MODIFY_AUDIO_ROUTING",
         "APP_AUDIO_LAB"
@@ -181,31 +1247,524 @@
       "known_bad_ids": [
         "KB-009"
       ],
-      "manual_observation_required": true
+      "acceptance": [
+        "target UID/package만 driver output",
+        "non-target media unchanged",
+        "OEM safety audio preempts correctly",
+        "remove target restores stock"
+      ],
+      "required_logs": [
+        "MODIFY_AUDIO_ROUTING grant/effective",
+        "output device id",
+        "UID affinity/policy mix",
+        "OEM warning concurrency"
+      ]
     },
     {
-      "test_id": "BLD-ID-001",
-      "feature_id": "BUILD_IDENTITY",
+      "test_id": "HUD-TBT-001",
+      "feature_id": "CLUSTER_TBT",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "지원 내비 turn/distance 표시",
+        "종료 시 clear",
+        "순정 경고/TBT 충돌 없음",
+        "readback/복원 가능"
+      ],
+      "required_logs": [
+        "nav package",
+        "parsed maneuver",
+        "instrument API request/result",
+        "clear result"
+      ]
+    },
+    {
+      "test_id": "HUD-MIRROR-001",
+      "feature_id": "CLUSTER_FULL_MIRROR_THEME",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 0,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "target display 확인",
+        "순정 ADAS 경고 보존",
+        "원클릭 원복",
+        "crash/sleep 후 복구"
+      ],
+      "required_logs": [
+        "display inventory",
+        "instrument theme getter",
+        "target id",
+        "restore proof"
+      ]
+    },
+    {
+      "test_id": "FSD-VIS-001",
+      "feature_id": "SURROUNDING_VISION_READ_ONLY",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "LIVE label은 실제 source가 있는 값만",
+        "stale data expiry",
+        "없는 객체 생성 금지",
+        "render latency 기록"
+      ],
+      "required_logs": [
+        "DriveFrame source/provenance",
+        "safety snapshot",
+        "render timestamp"
+      ]
+    },
+    {
+      "test_id": "FSD-VIS-002",
+      "feature_id": "SURROUNDING_VISION_READ_ONLY",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "LIVE label은 실제 source가 있는 값만",
+        "stale data expiry",
+        "없는 객체 생성 금지",
+        "render latency 기록"
+      ],
+      "required_logs": [
+        "DriveFrame source/provenance",
+        "safety snapshot",
+        "render timestamp"
+      ]
+    },
+    {
+      "test_id": "FSD-OBJ-001",
+      "feature_id": "FSD_OBJECT_LANE_MODEL",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 0,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "sensor/camera source provenance",
+        "calibration",
+        "confidence/expiry",
+        "latency budget",
+        "no fabricated objects"
+      ],
+      "required_logs": [
+        "camera source",
+        "model hash",
+        "inference latency",
+        "object confidence"
+      ]
+    },
+    {
+      "test_id": "NAV-SAFE-001",
+      "feature_id": "NAV_SAFETY_FEED",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "지원 package만 처리",
+        "원문 parser 실패 시 추측하지 않음",
+        "앱 버전별 contract test",
+        "stale expiry"
+      ],
+      "required_logs": [
+        "source package/version",
+        "notification text hash/redacted",
+        "parsed type/distance/speed",
+        "timestamp"
+      ]
+    },
+    {
+      "test_id": "VEH-INFO-001",
+      "feature_id": "LIVE_VEHICLE_INFO",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "값 provenance 존재",
+        "unavailable은 unknown 표시",
+        "mock value 사용 금지"
+      ],
+      "required_logs": [
+        "getter result",
+        "UI bound value",
+        "timestamp"
+      ]
+    },
+    {
+      "test_id": "VEH-TPMS-001",
+      "feature_id": "TPMS_READ_ONLY",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "4 wheel 값/상태 read",
+        "단위 확인 전 임의 conversion 금지",
+        "unavailable 처리"
+      ],
+      "required_logs": [
+        "raw tyre values",
+        "system state",
+        "permission/capability"
+      ]
+    },
+    {
+      "test_id": "COMF-MIR-001",
+      "feature_id": "REVERSE_DOWN_MIRROR",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "0~8 verified setter range만 사용",
+        "5km/h 이하 gate",
+        "R 진입/이탈 복원",
+        "실패 시 write 중단"
+      ],
+      "required_logs": [
+        "getter/setter",
+        "side/index",
+        "gear/speed",
+        "readback"
+      ]
+    },
+    {
+      "test_id": "COMF-MIR-002",
+      "feature_id": "REVERSE_DOWN_MIRROR",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "0~8 verified setter range만 사용",
+        "5km/h 이하 gate",
+        "R 진입/이탈 복원",
+        "실패 시 write 중단"
+      ],
+      "required_logs": [
+        "getter/setter",
+        "side/index",
+        "gear/speed",
+        "readback"
+      ]
+    },
+    {
+      "test_id": "COMF-SEAT-001",
+      "feature_id": "SEAT_MEMORY_M1_M3",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 0,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "position getter/setter pair 존재",
+        "readback",
+        "안전 gate",
+        "복원"
+      ],
+      "required_logs": [
+        "filtered methods",
+        "getter current",
+        "setter result/readback"
+      ]
+    },
+    {
+      "test_id": "COMF-LIGHT-001",
+      "feature_id": "INTERIOR_LIGHT",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
       "required_any": [
-        "versionCode",
-        "versionName",
-        "SHA-256"
+        "InsideLightManager",
+        "실내등"
       ],
       "success_any": [
-        "package identity",
-        "signing",
-        "versionCode"
+        "실내등 ON 요청=true",
+        "실내등 OFF 요청=true"
       ],
-      "failure_any": [
-        "INSTALL_FAILED_VERSION_DOWNGRADE"
-      ],
+      "failure_any": [],
       "known_bad_ids": [
-        "KB-010"
+        "KB-008"
+      ],
+      "acceptance": [
+        "command success가 물리 반응과 일치",
+        "ON/OFF readback 또는 독립 관찰",
+        "raw fallback은 calibration 모드에서만"
+      ],
+      "required_logs": [
+        "method overload",
+        "raw param",
+        "return",
+        "getter/readback",
+        "operator observed result"
+      ]
+    },
+    {
+      "test_id": "COMF-LIGHT-002",
+      "feature_id": "INTERIOR_LIGHT",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "command success가 물리 반응과 일치",
+        "ON/OFF readback 또는 독립 관찰",
+        "raw fallback은 calibration 모드에서만"
+      ],
+      "required_logs": [
+        "method overload",
+        "raw param",
+        "return",
+        "getter/readback",
+        "operator observed result"
       ]
     },
     {
       "test_id": "UPD-001",
       "feature_id": "APP_UPDATE",
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
       "required_any": [
         "APP_UPDATE",
         "update"
@@ -221,6 +1780,176 @@
       ],
       "known_bad_ids": [
         "KB-010"
+      ],
+      "acceptance": [
+        "latest release 조회",
+        "version 비교",
+        "동일 package/signature",
+        "installer confirmation",
+        "실패 시 현 버전 유지"
+      ],
+      "required_logs": [
+        "release metadata",
+        "download hash",
+        "installed version/signature"
+      ]
+    },
+    {
+      "test_id": "UPD-002",
+      "feature_id": "APP_UPDATE",
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "latest release 조회",
+        "version 비교",
+        "동일 package/signature",
+        "installer confirmation",
+        "실패 시 현 버전 유지"
+      ],
+      "required_logs": [
+        "release metadata",
+        "download hash",
+        "installed version/signature"
+      ]
+    },
+    {
+      "test_id": "UI-HOME-001",
+      "feature_id": "PREMIUM_HMI_HOME",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "10인치 기준 clipping 없음",
+        "터치 target 정상",
+        "야간 가독성",
+        "LIVE 값 provenance",
+        "HOME→각 메뉴 navigation 정상"
+      ],
+      "required_logs": [
+        "display profile",
+        "render/frame timing",
+        "navigation action"
+      ]
+    },
+    {
+      "test_id": "UI-HOME-002",
+      "feature_id": "PREMIUM_HMI_HOME",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "10인치 기준 clipping 없음",
+        "터치 target 정상",
+        "야간 가독성",
+        "LIVE 값 provenance",
+        "HOME→각 메뉴 navigation 정상"
+      ],
+      "required_logs": [
+        "display profile",
+        "render/frame timing",
+        "navigation action"
+      ]
+    },
+    {
+      "test_id": "GOV-REG-001",
+      "feature_id": "MASTER_VERIFICATION_REGISTRY",
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "모든 active requirement에 REQ/Feature/Test ID 존재",
+        "각 build 전 registry diff",
+        "누락/Dead UI/Known-Bad가 release gate에 반영",
+        "Registry/asset drift CI가 통과",
+        "Known-Bad required Test ID가 log contract와 연결",
+        "핵심 Runtime Surface token 누락 시 CI 실패",
+        "차량 Verification Center에서 Test ID별 operator result를 VERIFY_RESULT 로그로 기록",
+        "49개 모든 Test ID가 test_log_contracts에 1:1로 존재",
+        "Test ID별 결과가 append-only evidence ledger에 correlation/build/precondition/session과 함께 기록",
+        "BLOCKED/UNSUPPORTED Test ID는 PASS/FAIL 기록 불가",
+        "repeatability와 Known-Bad lifecycle을 자동 평가"
+      ],
+      "required_logs": [
+        "registry schema/version",
+        "source commit",
+        "diagnostic session id"
       ]
     }
   ]
