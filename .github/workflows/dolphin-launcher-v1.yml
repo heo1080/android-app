@@ -52,8 +52,30 @@ jobs:
           BADGING="$("$AAPT" dump badging "$APK" | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -q "package: name='com.dolphin.launcher.v1'"
-          echo "$BADGING" | grep -q "versionCode='1'"
-          echo "$BADGING" | grep -q "versionName='1.0.0-v1-evolution'"
+          echo "$BADGING" | grep -q "versionCode='2'"
+          echo "$BADGING" | grep -q "versionName='1.1.0-v1-registry'"
+
+      - name: Validate Registry v3 payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="dolphin-launcher-v1/app/build/outputs/apk/release/app-release-unsigned.apk"
+          for F in verification_registry.json test_log_contracts.json feature_dependencies.json runtime_surfaces.json; do
+            unzip -l "$APK" | grep -q "assets/$F"
+          done
+          unzip -p "$APK" assets/verification_registry.json > "$RUNNER_TEMP/verification_registry.json"
+          python3 - "$RUNNER_TEMP/verification_registry.json" <<'PY'
+          import json, sys
+          d=json.load(open(sys.argv[1], encoding="utf-8"))
+          assert d.get("schema_version")==3, d.get("schema_version")
+          features=d.get("features", [])
+          ids={tid for f in features for tid in f.get("test_ids", [])}
+          assert len(features)==33, len(features)
+          assert len(ids)==49, len(ids)
+          print("REGISTRY_OK schema=3 features=33 test_ids=49")
+          PY
+          unzip -l "$APK" | grep -q "VerificationCenterActivity"
+          unzip -l "$APK" | grep -q "VerificationEvidenceRuntime"
 
       - name: Restore stable signing key
         shell: bash
