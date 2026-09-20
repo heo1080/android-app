@@ -24,6 +24,20 @@ required = {
         "**Vehicle-write path changed:**",
         "I did not promote a real-car feature to VERIFIED",
     ],
+    ".github/workflows/codex-pr-gate.yml": [
+        "startsWith(github.head_ref, 'codex/')",
+        "REQ ID",
+        "Feature ID",
+        "Test ID(s)",
+        "Vehicle-write path changed",
+    ],
+    ".github/ISSUE_TEMPLATE/codex-task.yml": [
+        "Codex implementation task",
+        "REQ ID",
+        "Feature ID",
+        "Test ID(s)",
+        "Vehicle-write impact",
+    ],
 }
 
 for raw, tokens in required.items():
