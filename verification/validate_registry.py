@@ -6,6 +6,8 @@ ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = ROOT / "verification/master_registry.json"
 CONTRACTS = ROOT / "verification/test_log_contracts.json"
 DEPENDENCIES = ROOT / "verification/feature_dependencies.json"
+SURFACES = ROOT / "verification/runtime_surfaces.json"
+
 ALLOWED_STATES = {"VERIFIED", "BETA", "REVERIFY_REQUIRED", "BLOCKED", "UNSUPPORTED"}
 REQUIRED_FEATURE_KEYS = {
     "req_id", "feature_id", "area", "requirement", "source_paths", "test_ids", "state",
@@ -24,6 +26,8 @@ if not data.get("schema_history"):
     fail("schema_history is required")
 if not data.get("release_exit_criteria"):
     fail("release_exit_criteria is required")
+if not data.get("registry_runtime"):
+    fail("registry_runtime is required")
 
 features = data.get("features")
 if not isinstance(features, list) or not features:
@@ -93,7 +97,7 @@ for c in contract_data.get("contracts", []):
 known_bad = data.get("known_bad_library", [])
 known_bad_ids = set()
 for item in known_bad:
-    for key in ("id","symptom","linked","severity","status","required_test_ids"):
+    for key in ("id", "symptom", "linked", "severity", "status", "required_test_ids"):
         if key not in item:
             fail(f"Known-Bad missing {key}: {item}")
     kid = item["id"]
@@ -114,16 +118,33 @@ for item in known_bad:
         if tid not in contract_by_test:
             fail(f"{kid}: required_test_id lacks log contract: {tid}")
 
+surface_data = json.loads(SURFACES.read_text(encoding="utf-8"))
+for surface in surface_data.get("surfaces", []):
+    fid = surface.get("feature_id")
+    raw_path = surface.get("path")
+    tokens = surface.get("tokens", [])
+    if fid not in feature_ids:
+        fail(f"runtime surface references unknown feature: {fid}")
+    if not raw_path or not tokens:
+        fail(f"{fid}: runtime surface needs path and tokens")
+    p = ROOT / raw_path
+    if not p.is_file():
+        fail(f"{fid}: runtime surface path missing: {raw_path}")
+    body = p.read_text(encoding="utf-8", errors="ignore")
+    for token in tokens:
+        if token not in body:
+            fail(f"{fid}: runtime surface token missing in {raw_path}: {token}")
+
 dep_data = json.loads(DEPENDENCIES.read_text(encoding="utf-8"))
-edges=set()
+edges = set()
 for e in dep_data.get("edges", []):
-    child=e.get("feature_id")
-    parent=e.get("depends_on")
+    child = e.get("feature_id")
+    parent = e.get("depends_on")
     if child not in feature_ids or parent not in feature_ids:
         fail(f"dependency edge references unknown feature: {e}")
     if child == parent:
         fail(f"self dependency: {child}")
-    key=(child,parent)
+    key = (child, parent)
     if key in edges:
         fail(f"duplicate dependency edge: {child}->{parent}")
     edges.add(key)
@@ -135,5 +156,6 @@ print(
     f"tests={len(test_ids)} "
     f"contracts={len(contract_by_test)} "
     f"known_bad={len(known_bad)} "
+    f"runtime_surfaces={len(surface_data.get('surfaces', []))} "
     f"dependency_edges={len(edges)}"
 )
