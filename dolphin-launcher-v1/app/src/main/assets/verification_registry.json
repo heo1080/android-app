@@ -1,0 +1,18 @@
+{
+  "schema_version": 3,
+  "registry_id": "DOLPHIN-LAUNCHER-V1-VERIFICATION-REGISTRY",
+  "source": {
+    "canonical_registry": "verification/master_registry.json",
+    "canonical_branch": "main",
+    "canonical_commit": "5716596ca5e7f14245655736de762158fb8e0c8c",
+    "v1_base_commit": "19fd778b05b921c0404cc987a9e55f0466cdd867"
+  },
+  "runtime_policy": {
+    "package": "com.dolphin.launcher.v1",
+    "legacy_v34_allowed": false,
+    "unknown_vehicle_write": "BLOCKED",
+    "evidence_required_for_verified": true
+  },
+  "recovery_status": "REGISTRY_V3_BOOTSTRAP",
+  "note": "Bootstrap asset for V1 recovery. Canonical feature/test inventory remains verification/master_registry.json on main until the full generated V1 registry is imported by CI. This bootstrap must not be treated as VERIFIED feature evidence."
+}
