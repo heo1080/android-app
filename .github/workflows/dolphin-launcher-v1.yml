@@ -74,8 +74,8 @@ jobs:
           assert len(ids)==49, len(ids)
           print("REGISTRY_OK schema=3 features=33 test_ids=49")
           PY
-          unzip -l "$APK" | grep -q "VerificationCenterActivity"
-          unzip -l "$APK" | grep -q "VerificationEvidenceRuntime"
+          unzip -p "$APK" classes.dex | strings | grep -q "VerificationCenterActivity"
+          unzip -p "$APK" classes.dex | strings | grep -q "VerificationEvidenceRuntime"
 
       - name: Restore stable signing key
         shell: bash
