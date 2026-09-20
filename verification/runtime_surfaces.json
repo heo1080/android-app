@@ -91,7 +91,8 @@
       "feature_id": "PER_APP_DRIVER_SPEAKER_ROUTING",
       "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/DriverAudioPolicyLab.kt",
       "tokens": [
-        "MODIFY_AUDIO_ROUTING"
+        "APP_AUDIO_LAB",
+        "activePerAppInterception=false"
       ]
     },
     {
