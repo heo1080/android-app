@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "note": "Critical runtime/UI sentinels. Missing tokens are regression failures; all surfaces must point to an existing Master Registry feature.",
+  "surfaces": [
+    {
+      "feature_id": "APP_DRAWER_SHORTCUTS",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/AppDrawerShortcutManager.kt",
+      "tokens": [
+        "const val SLOT_COUNT = 16",
+        "setComponentEnabledSetting"
+      ]
+    },
+    {
+      "feature_id": "APP_DRAWER_SHORTCUTS",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/MainActivity.kt",
+      "tokens": [
+        "createAppDrawerShortcut",
+        "showDualCreationOptionDialog"
+      ]
+    },
+    {
+      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/MainActivity.kt",
+      "tokens": [
+        "btnAddBootApp"
+      ]
+    },
+    {
+      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/BootAutomationController.kt",
+      "tokens": [
+        "SettingsManager.getBootAppList",
+        "items.forEach"
+      ]
+    },
+    {
+      "feature_id": "SPLIT_SCREEN_TWO_APP",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/split/SplitScreenManager.kt",
+      "tokens": [
+        "launchSplitScreen",
+        "MODE_PRIMARY",
+        "MODE_SECONDARY"
+      ]
+    },
+    {
+      "feature_id": "IN_APP_TTS_CORE",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/InAppSupertonicTtsManager.kt",
+      "tokens": [
+        "stream14 voice played"
+      ]
+    },
+    {
+      "feature_id": "DRIVE_MODE_VOICE",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
+      "tokens": [
+        "driveInterface baseline raw=",
+        "decodeDriveMode"
+      ]
+    },
+    {
+      "feature_id": "REGEN_MODE_VOICE",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
+      "tokens": [
+        "sampleRegen"
+      ]
+    },
+    {
+      "feature_id": "SNOW_MODE_VOICE",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
+      "tokens": [
+        "sampleSnow",
+        "roadSurface"
+      ]
+    },
+    {
+      "feature_id": "INTERIOR_LIGHT",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/InsideLightManager.kt",
+      "tokens": [
+        "turnOn",
+        "turnOff"
+      ]
+    },
+    {
+      "feature_id": "DRIVER_ONLY_APP_OWNED_AUDIO",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt",
+      "tokens": [
+        "AUDIO_PROBE"
+      ]
+    },
+    {
+      "feature_id": "PER_APP_DRIVER_SPEAKER_ROUTING",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/DriverAudioPolicyLab.kt",
+      "tokens": [
+        "MODIFY_AUDIO_ROUTING"
+      ]
+    },
+    {
+      "feature_id": "MASTER_VERIFICATION_REGISTRY",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/VerificationCenterActivity.kt",
+      "tokens": [
+        "VERIFY_RESULT",
+        "verification_registry.json"
+      ]
+    },
+    {
+      "feature_id": "MASTER_VERIFICATION_REGISTRY",
+      "path": "app/src/main/java/com/byd/dolphin/autoassistant/CommandCenterActivity.kt",
+      "tokens": [
+        "실차 검증 센터",
+        "VerificationCenterActivity"
+      ]
+    }
+  ]
+}
