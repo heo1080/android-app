@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId = "com.dolphin.launcher.v1"
         minSdk = 29
-        targetSdk = 29
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0.0-v1-evolution"
     }
