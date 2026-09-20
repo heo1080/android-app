@@ -5,7 +5,7 @@
   "source": {
     "repository": "heo1080/android-app",
     "branch_base": "main",
-    "base_commit": "2546ed71b415826cf0f7f371de412ba33df1f21a",
+    "base_commit": "5716596ca5e7f14245655736de762158fb8e0c8c",
     "diagnostics_repository": "heo1080/dolphin-diagnostics",
     "latest_diagnostics_commit": "d75939f6ed2daacbdf0b6fbabd5d27c0ca18ee31",
     "source_build_gradle_version": "3.0.7-v30.4-driver-dsp-probe",
