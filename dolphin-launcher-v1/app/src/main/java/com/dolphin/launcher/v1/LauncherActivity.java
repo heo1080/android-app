@@ -150,7 +150,7 @@ public class LauncherActivity extends Activity {
         TextView brand = text("DOLPHIN  /  LAUNCHER", 18f, Color.WHITE, true);
         bar.addView(brand, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        TextView version = chip("V1 EVOLUTION");
+        TextView version = chip("V1 REGISTRY");
         version.setTextColor(Color.parseColor("#7FFFE0"));
         LinearLayout.LayoutParams versionLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, dp(34));
@@ -230,7 +230,7 @@ public class LauncherActivity extends Activity {
         quick.addView(actionCard("앱 서랍", apps.size() + "개 앱", "▦", this::showAppDrawer), weighted());
         quick.addView(actionCard("2분할", splitDescription(), "◫", this::launchSplitPair), weighted());
         quick.addView(actionCard("시동 앱", autoStartCount() + "개 등록", "▶", this::showAutoStartManager), weighted());
-        quick.addView(actionCard("런처 설정", "HOME · 초기화", "⚙", this::showSettings), weighted());
+        quick.addView(actionCard("검증 센터", "Registry v3 · Test ID", "✓", this::openVerificationCenter), weighted());
 
         LinearLayout titleRow = new LinearLayout(this);
         titleRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -528,9 +528,14 @@ public class LauncherActivity extends Activity {
                 .show();
     }
 
+    private void openVerificationCenter() {
+        startActivity(new Intent(this, VerificationCenterActivity.class));
+    }
+
     private void showSettings() {
         String[] actions = new String[] {
                 "기본 HOME 런처 선택",
+                "실차 검증 센터",
                 "즐겨찾기 초기화",
                 "2분할 지정 초기화",
                 "Dolphin Launcher V1 정보"
@@ -547,21 +552,24 @@ public class LauncherActivity extends Activity {
                         }
                     }
                     if (which == 1) {
+                        openVerificationCenter();
+                    }
+                    if (which == 2) {
                         prefs.edit().remove(KEY_FAVORITES).apply();
                         seedFavorites();
                         showHome();
                     }
-                    if (which == 2) {
+                    if (which == 3) {
                         prefs.edit().remove(KEY_SPLIT_LEFT).remove(KEY_SPLIT_RIGHT).apply();
                         refreshSplitChip();
                         showHome();
                     }
-                    if (which == 3) {
+                    if (which == 4) {
                         new AlertDialog.Builder(this)
-                                .setTitle("Dolphin Launcher V1 Evolution")
+                                .setTitle("Dolphin Launcher V1 Registry")
                                 .setMessage("독립 패키지: com.dolphin.launcher.v1\n" +
-                                        "버전: 1.0.0-v1-evolution\n\n" +
-                                        "기존 DolphinAssistant UI와 분리된 새 HOME 런처입니다.")
+                                        "버전: 1.1.0-v1-registry\n\n" +
+                                        "Registry v3 + Test-ID evidence runtime 통합 빌드입니다.")
                                 .setPositiveButton("확인", null)
                                 .show();
                     }

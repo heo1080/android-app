@@ -10,8 +10,13 @@ android {
         applicationId = "com.dolphin.launcher.v1"
         minSdk = 29
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0-v1-evolution"
+        versionCode = 2
+        versionName = "1.1.0-v1-registry"
+        buildConfigField("String", "SOURCE_COMMIT", "\"" + (System.getenv("GITHUB_SHA") ?: "LOCAL") + "\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
