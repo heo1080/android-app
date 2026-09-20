@@ -32,7 +32,7 @@ jobs:
     - name: Grant Execute Permission for Gradlew
       run: chmod +x gradlew
 
-    - name: Apply v34.3.1 command center + regression recovery
+    - name: Apply legacy engines then Launcher Evolution v35 alpha1
       run: |
         python3 ci/apply_v30_5.py
         python3 ci/fix_v30_5_1.py
@@ -48,6 +48,7 @@ jobs:
         python3 ci/fix_v30_6_3_font_current_user.py
         python3 ci/apply_v32_command_center.py
         python3 ci/apply_v32_2_regression_recovery.py
+        python3 ci/apply_launcher_evolution_v35.py
 
     - name: Download in-app sherpa-onnx Android runtime
       shell: bash
@@ -73,13 +74,13 @@ jobs:
         BADGING="$("$AAPT" dump badging "$APK" | head -n 1)"
         echo "$BADGING"
         echo "$BADGING" | grep -q "package: name='com.byd.dolphin.autoassistant'"
-        echo "$BADGING" | grep -q "versionCode='114'"
-        echo "$BADGING" | grep -q "versionName='7.3.0-v34.3.1-premium-hmi-install-fix'"
+        echo "$BADGING" | grep -q "versionCode='115'"
+        echo "$BADGING" | grep -q "versionName='8.0.0-v35.0.0-launcher-evolution-alpha1'"
 
     - name: Upload unsigned Release APK for recovery signing
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-v34.3.1-Unsigned
+        name: BYD-Launcher-Evolution-v35.0.0-alpha1-Unsigned
         path: app/build/outputs/apk/release/app-release-unsigned.apk
         if-no-files-found: error
         retention-days: 7
@@ -110,7 +111,7 @@ jobs:
           -alias dolphinassistant >/dev/null
         echo "Stable keystore password/alias preflight OK"
 
-    - name: Sign v34.3.1 stable APK
+    - name: Sign Launcher Evolution v35 alpha1 APK
       if: github.event_name != 'pull_request'
       shell: bash
       env:
@@ -122,7 +123,7 @@ jobs:
         APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
         test -x "$APKSIGNER"
         UNSIGNED="app/build/outputs/apk/release/app-release-unsigned.apk"
-        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v34.3.1-stable.apk"
+        SIGNED="app/build/outputs/apk/release/BYD-Launcher-Evolution-v35.0.0-alpha1.apk"
         test -s "$UNSIGNED"
         "$APKSIGNER" sign \
           --ks "$RUNNER_TEMP/dolphin-release.jks" \
@@ -132,37 +133,37 @@ jobs:
           --out "$SIGNED" \
           "$UNSIGNED"
         "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
-        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v34.3.1-stable.sha256
+        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/BYD-Launcher-Evolution-v35.0.0-alpha1.sha256
 
     - name: Upload stable APK artifact
       if: github.event_name != 'pull_request'
       uses: actions/upload-artifact@v4
       with:
-        name: DolphinAssistant-v34.3.1-Stable
+        name: BYD-Launcher-Evolution-v35.0.0-alpha1-Stable
         path: |
-          app/build/outputs/apk/release/DolphinAssistant-v34.3.1-stable.apk
-          app/build/outputs/apk/release/DolphinAssistant-v34.3.1-stable.sha256
+          app/build/outputs/apk/release/BYD-Launcher-Evolution-v35.0.0-alpha1.apk
+          app/build/outputs/apk/release/BYD-Launcher-Evolution-v35.0.0-alpha1.sha256
         if-no-files-found: error
         retention-days: 30
 
-    - name: Publish v34.3.1 GitHub Release
+    - name: Publish Launcher Evolution v35 alpha1 Release
       if: github.event_name != 'pull_request'
       shell: bash
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
         set -euo pipefail
-        TAG="v34.3.1"
-        APK="app/build/outputs/apk/release/DolphinAssistant-v34.3.1-stable.apk"
-        SHA="app/build/outputs/apk/release/DolphinAssistant-v34.3.1-stable.sha256"
-        NOTES="v34.3.1 premium HMI install-fix. Same HMI/TPMS/media/vehicle-info feature set as v34.3.0, but fixes Android update installation by raising versionCode from 100 to 114 above v34.2.0 (113). The workflow now validates package identity and version code before signing."
+        TAG="v35.0.0-alpha1"
+        APK="app/build/outputs/apk/release/BYD-Launcher-Evolution-v35.0.0-alpha1.apk"
+        SHA="app/build/outputs/apk/release/BYD-Launcher-Evolution-v35.0.0-alpha1.sha256"
+        NOTES="First clean-slate BYD Launcher Evolution shell. Replaces the legacy assistant dashboard as HOME with app drawer, favorites, split shortcut, popup launch, boot-app management, while preserving the existing core service, updater and diagnostics engines."
         if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
           gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
-          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant v34.3.1" --notes "$NOTES" --latest
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "BYD Launcher Evolution v35.0.0 alpha1" --notes "$NOTES" --latest
         else
           gh release create "$TAG" "$APK" "$SHA" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "DolphinAssistant v34.3.1" \
+            --title "BYD Launcher Evolution v35.0.0 alpha1" \
             --notes "$NOTES" \
             --latest
         fi
