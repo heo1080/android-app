@@ -204,7 +204,7 @@ class LauncherActivity : AppCompatActivity() {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(4), dp(18), dp(4), dp(18))
         }
-        scroll.addView(content, ScrollView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        scroll.addView(content, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
 
         val hero = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -325,7 +325,7 @@ class LauncherActivity : AppCompatActivity() {
             hint = "앱 검색"
             setHintTextColor(Color.parseColor("#718894"))
             setTextColor(Color.WHITE)
-            singleLine = true
+            setSingleLine(true)
             setPadding(dp(18), 0, dp(18), 0)
             background = rounded("#091218", 18, "#203945")
         }
