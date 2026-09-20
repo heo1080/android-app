@@ -10,8 +10,8 @@ android {
         applicationId = "com.dolphin.launcher.v1"
         minSdk = 29
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.2.0-v1-ota"
+        versionCode = 4
+        versionName = "1.2.1-v1-byd-install-hotfix"
         buildConfigField("String", "SOURCE_COMMIT", "\"" + (System.getenv("GITHUB_SHA") ?: "LOCAL") + "\"")
     }
 
