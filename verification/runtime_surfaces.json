@@ -53,8 +53,8 @@
       "feature_id": "DRIVE_MODE_VOICE",
       "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
       "tokens": [
-        "driveInterface baseline raw=",
-        "decodeDriveMode"
+        "decodeDriveMode",
+        "onDriveModeChanged"
       ]
     },
     {
