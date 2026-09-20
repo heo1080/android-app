@@ -1,0 +1,1664 @@
+{
+  "schema_version": 1,
+  "registry_id": "DOLPHIN-MASTER-VERIFICATION-REGISTRY",
+  "generated_at": "2026-09-20",
+  "source": {
+    "repository": "heo1080/android-app",
+    "branch_base": "main",
+    "base_commit": "1c60bec51a3983ab505b3d068bd3fbdacc7aa9ca",
+    "diagnostics_repository": "heo1080/dolphin-diagnostics",
+    "latest_diagnostics_commit": "d75939f6ed2daacbdf0b6fbabd5d27c0ca18ee31",
+    "source_build_gradle_version": "3.0.7-v30.4-driver-dsp-probe",
+    "source_build_gradle_version_code": 37,
+    "latest_release_line_observed": "v34.3.1",
+    "build_identity_note": "main의 build.gradle.kts 버전과 CI 패치/릴리스 버전이 다르므로 source identity와 generated release identity를 반드시 별도 추적한다."
+  },
+  "state_definitions": {
+    "VERIFIED": "실차 반복 재현 및 요구 Acceptance Criteria 충족",
+    "BETA": "실차 시험 가능한 구현이 있으나 검증 미완료 또는 알려진 결함 존재",
+    "REVERIFY_REQUIRED": "과거 동작/코드 근거는 있으나 최신 빌드·펌웨어·의존성에서 재검증 필요",
+    "BLOCKED": "필수 신호/API/권한/안전 근거가 부족해 생산 경로 활성화 금지",
+    "UNSUPPORTED": "현재 차량/펌웨어에서 지원 근거가 없음"
+  },
+  "confidence_dimensions": [
+    "behavior",
+    "root_cause",
+    "safety",
+    "compatibility"
+  ],
+  "features": [
+    {
+      "req_id": "REQ-BUILD-001",
+      "feature_id": "BUILD_IDENTITY",
+      "area": "release",
+      "requirement": "소스 commit, 실제 생성 APK, package/version/signature/build workflow를 1:1로 추적한다.",
+      "source_paths": [
+        "app/build.gradle.kts",
+        ".github/workflows/build.yml",
+        "ci/"
+      ],
+      "test_ids": [
+        "BLD-ID-001",
+        "BLD-ID-002"
+      ],
+      "state": "REVERIFY_REQUIRED",
+      "acceptance": [
+        "APK manifest의 package/versionCode/versionName이 release metadata와 일치",
+        "APK가 어떤 source commit+patch chain에서 생성됐는지 추적 가능",
+        "동일 signing certificate 유지"
+      ],
+      "required_logs": [
+        "source commit",
+        "workflow run id",
+        "versionCode/versionName",
+        "APK SHA-256",
+        "signing fingerprint"
+      ],
+      "known_bad": [
+        "main build.gradle.kts는 3.0.7/versionCode37인데 최근 release line은 v34.3.1로 관찰됨"
+      ],
+      "dependencies": [
+        "GitHub Actions",
+        "release signing",
+        "CI patch scripts"
+      ],
+      "real_vehicle_test": [
+        "설치 전 APK metadata 기록",
+        "기존 설치본 위 업데이트 설치",
+        "앱 Health/진단에서 build identity 확인"
+      ],
+      "evidence": [
+        "commit 1c60bec: validation trigger",
+        "workflow search: v34.3.1 artifact metadata"
+      ],
+      "next_action": "CI patch 결과가 실제 source tree와 어떻게 합성되는지 release provenance에 고정",
+      "confidence": {
+        "behavior": "HIGH",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-DIAG-001",
+      "feature_id": "DIAGNOSTIC_CAPTURE_UPLOAD",
+      "area": "diagnostics",
+      "requirement": "앱 내부에서 진단 세션을 생성하고 민감정보를 최소화해 private diagnostic repository로 업로드/공유 가능해야 한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/DiagnosticCaptureManager.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/DiagnosticUploadManager.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/util/DolphinLogger.kt"
+      ],
+      "test_ids": [
+        "DIA-CAP-001",
+        "DIA-UP-001"
+      ],
+      "state": "VERIFIED",
+      "acceptance": [
+        "세션 ZIP 생성",
+        "차량 raw/state/audio/display 정보 포함",
+        "업로드 결과 확인",
+        "토큰은 Android Keystore 보호"
+      ],
+      "required_logs": [
+        "session manifest",
+        "events.jsonl/full log",
+        "upload result",
+        "build identity"
+      ],
+      "known_bad": [],
+      "dependencies": [
+        "Android Keystore",
+        "storage",
+        "network"
+      ],
+      "real_vehicle_test": [
+        "15분 캡처 시작",
+        "문제 순간 표시",
+        "종료+ZIP",
+        "private repo 업로드 확인"
+      ],
+      "evidence": [
+        "dolphin-diagnostics 2026-09-19 session commits",
+        "DiagnosticUploadManager source"
+      ],
+      "next_action": "schema version/redaction test/Test Evidence Bundle로 확장",
+      "confidence": {
+        "behavior": "HIGH",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "HIGH"
+      }
+    },
+    {
+      "req_id": "REQ-LAUNCH-001",
+      "feature_id": "LAUNCHER_ENTRY_IDENTITY",
+      "area": "launcher",
+      "requirement": "차량에서 일반 Android 앱/정상 Launcher 진입으로 인식되고 desktop/freeform 앱으로 오인되지 않아야 한다.",
+      "source_paths": [
+        "app/src/main/AndroidManifest.xml",
+        "app/src/main/java/com/byd/dolphin/autoassistant/MainActivity.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/CommandCenterActivity.kt",
+        "ci/apply_v32_command_center.py"
+      ],
+      "test_ids": [
+        "LCH-ID-001"
+      ],
+      "state": "REVERIFY_REQUIRED",
+      "acceptance": [
+        "앱서랍에서 정상 아이콘/이름 표시",
+        "실행 시 desktop/freeform 오인 없음",
+        "HOME 역할을 의도하지 않았다면 HOME category 없음"
+      ],
+      "required_logs": [
+        "resolved activity",
+        "intent categories",
+        "windowing mode",
+        "dumpsys activity"
+      ],
+      "known_bad": [
+        "과거 빌드에서 데스크탑 앱으로 인식되는 오류 우려/경험"
+      ],
+      "dependencies": [
+        "AndroidManifest",
+        "CI manifest patch"
+      ],
+      "real_vehicle_test": [
+        "설치 후 앱서랍 확인",
+        "일반 실행",
+        "최근앱/회전/재실행 확인"
+      ],
+      "evidence": [
+        "base manifest MAIN+LAUNCHER",
+        "CI launcher swap patch exists"
+      ],
+      "next_action": "실제 release APK manifest와 base manifest diff를 registry에 연결",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "TENTATIVE",
+        "safety": "HIGH",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-LAUNCH-002",
+      "feature_id": "APP_DRAWER_SHORTCUTS",
+      "area": "launcher",
+      "requirement": "사용자가 선택한 앱/액션의 앱서랍 바로가기를 생성·삭제할 수 있어야 한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/AppDrawerShortcutManager.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/activity/DrawerSlotActivities.kt",
+        "app/src/main/AndroidManifest.xml"
+      ],
+      "test_ids": [
+        "LCH-DRW-001",
+        "LCH-DRW-002"
+      ],
+      "state": "REVERIFY_REQUIRED",
+      "acceptance": [
+        "최대 16 슬롯 생성",
+        "활성화된 슬롯이 순정 앱서랍에 표시",
+        "선택 액션 실행",
+        "삭제/전체 초기화"
+      ],
+      "required_logs": [
+        "slot assign",
+        "setComponentEnabledSetting result",
+        "launcher refresh evidence"
+      ],
+      "known_bad": [
+        "과거 설치본에서 앱서랍 바로가기 생성 기능 누락 보고"
+      ],
+      "dependencies": [
+        "PackageManager",
+        "16 launcher activities"
+      ],
+      "real_vehicle_test": [
+        "바로가기 1개 생성",
+        "앱서랍 새로고침/재부팅",
+        "실행",
+        "삭제"
+      ],
+      "evidence": [
+        "AppDrawerShortcutManager SLOT_COUNT=16",
+        "v32.2 regression guard"
+      ],
+      "next_action": "최신 APK에서 실제 BYD launcher refresh 동작 재검증",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-LAUNCH-003",
+      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
+      "area": "launcher",
+      "requirement": "시동 시 여러 앱을 등록하고 각 지연시간/미디어 재생 옵션에 따라 한 시동 주기당 한 번 실행한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/BootAutomationController.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/MainActivity.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/SettingsManager.kt"
+      ],
+      "test_ids": [
+        "LCH-BOOT-001",
+        "LCH-BOOT-002"
+      ],
+      "state": "REVERIFY_REQUIRED",
+      "acceptance": [
+        "추가 버튼 존재",
+        "2개 이상 앱 등록",
+        "지연 순서 실행",
+        "시동 OFF 시 예약 취소",
+        "동일 ignition cycle 중 중복 실행 없음"
+      ],
+      "required_logs": [
+        "ignition cycle id",
+        "registered list",
+        "launch result",
+        "media result"
+      ],
+      "known_bad": [
+        "과거 최신 설치본에서 여러 앱 추가 버튼이 사라졌다고 보고"
+      ],
+      "dependencies": [
+        "IgnitionMonitor",
+        "NativeAdbClient/PackageManager",
+        "MediaSessionManager"
+      ],
+      "real_vehicle_test": [
+        "앱 2개 등록",
+        "시동 OFF/ON",
+        "각 지연 확인",
+        "두 번째 cycle 반복"
+      ],
+      "evidence": [
+        "BootAutomationController multi-app loop",
+        "v32.2 regression guard btnAddBootApp"
+      ],
+      "next_action": "최신 release UI에서 Add 버튼과 실제 ignition edge 재검증",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-WIN-001",
+      "feature_id": "SPLIT_SCREEN_TWO_APP",
+      "area": "display",
+      "requirement": "DiLink 3에서 선택한 두 앱을 primary/secondary split으로 실행하고 상태를 readback한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/split/SplitScreenManager.kt"
+      ],
+      "test_ids": [
+        "WIN-SPLIT-001",
+        "WIN-SPLIT-002"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "두 앱이 mode 3/4로 실제 배치",
+        "dumpsys readback 일치",
+        "비율 적용 또는 명확한 실패",
+        "카메라 종료 후 안전한 복원"
+      ],
+      "required_logs": [
+        "ADB command",
+        "task/stack/windowing mode",
+        "ratio result"
+      ],
+      "known_bad": [
+        "사용자 실차에서 분할화면 미작동 보고"
+      ],
+      "dependencies": [
+        "NativeAdbClient",
+        "DiLink window manager"
+      ],
+      "real_vehicle_test": [
+        "지원 앱 2개 선택",
+        "50:50",
+        "70:30",
+        "카메라 진입/복귀",
+        "재부팅 후 재시험"
+      ],
+      "evidence": [
+        "SplitScreenManager readback implementation",
+        "v32.2 regression guard"
+      ],
+      "next_action": "실패 세션의 dumpsys activity/am stack list 확보",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "TENTATIVE",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-DSP-001",
+      "feature_id": "DPI_DISPLAY_DIAGNOSTICS",
+      "area": "display",
+      "requirement": "10인치 차량의 실제 display profile을 수집하고 DPI/fontScale 변경 영향과 OEM UI clipping을 추적한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/DpiManager.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/DisplayDiagnosticsManager.kt"
+      ],
+      "test_ids": [
+        "DSP-DPI-001",
+        "DSP-DPI-002"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "DisplayMetrics/WindowMetrics/fontScale/orientation 수집",
+        "DPI 변경 성공 여부와 readback 기록",
+        "복원 경로 존재"
+      ],
+      "required_logs": [
+        "densityDpi",
+        "width/height px/dp",
+        "smallestWidth",
+        "fontScale",
+        "forced settings"
+      ],
+      "known_bad": [
+        "DPI 변경 시 순정 UI 일부 잘림",
+        "DPI 감소 시 글자 과소"
+      ],
+      "dependencies": [
+        "WRITE_SECURE_SETTINGS",
+        "NativeAdbClient"
+      ],
+      "real_vehicle_test": [
+        "순정 baseline 캡처",
+        "140/160 등 제한된 값 시험",
+        "OEM UI clipping 체크",
+        "원복"
+      ],
+      "evidence": [
+        "DpiManager/DisplayDiagnosticsManager source"
+      ],
+      "next_action": "12/15인치 profile spoof 가능성은 실제 property/display mode 근거 확보 전 BLOCKED",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "MEDIUM",
+        "safety": "HIGH",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-DSP-002",
+      "feature_id": "FORCED_APP_ORIENTATION",
+      "area": "display",
+      "requirement": "지정 앱을 현재 차량 화면 방향을 유지한 채 실행할 수 있어야 한다.",
+      "source_paths": [],
+      "test_ids": [
+        "DSP-ORI-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "대상 앱별 orientation override",
+        "원복",
+        "시스템 UI/순정 앱에 영향 없음"
+      ],
+      "required_logs": [
+        "requested orientation",
+        "actual rotation",
+        "target package",
+        "window state"
+      ],
+      "known_bad": [
+        "현재 source에서 전용 controller 구현 근거 미확인"
+      ],
+      "dependencies": [
+        "window manager capability"
+      ],
+      "real_vehicle_test": [
+        "read-only capability probe 후 parked 상태 시험"
+      ],
+      "evidence": [
+        "DisplayDiagnostics only; no dedicated orientation controller found"
+      ],
+      "next_action": "공개/실차 capability evidence 확보",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "MEDIUM",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-TTS-001",
+      "feature_id": "IN_APP_TTS_CORE",
+      "area": "audio",
+      "requirement": "시스템 TTS queue 문제를 피하고 인앱 TTS를 낮은 지연으로 재생한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/InAppSupertonicTtsManager.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt"
+      ],
+      "test_ids": [
+        "AUD-TTS-001",
+        "AUD-TTS-002"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "미리듣기 즉시 재생",
+        "이전 utterance가 비프 뒤 늦게 재생되지 않음",
+        "vehicle event→audio start latency 기록"
+      ],
+      "required_logs": [
+        "event timestamp",
+        "TTS generation/cache",
+        "AudioTrack start",
+        "stream/device"
+      ],
+      "known_bad": [
+        "과거 시스템 TTS 미리듣기가 비프 후 뒤늦게 재생"
+      ],
+      "dependencies": [
+        "Supertonic/sherpa runtime",
+        "Audio Core"
+      ],
+      "real_vehicle_test": [
+        "연속 미리듣기 10회",
+        "비프→TTS 교차",
+        "시동 직후 cold test"
+      ],
+      "evidence": [
+        "InAppSupertonicTtsManager source"
+      ],
+      "next_action": "최신 release 실차 latency/queue 검증",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-TTS-002",
+      "feature_id": "GEAR_VOICE",
+      "area": "audio",
+      "requirement": "P/R/N/D 전환을 정확히 한 번 안내한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleTelemetryMonitor.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt"
+      ],
+      "test_ids": [
+        "AUD-GEAR-001"
+      ],
+      "state": "REVERIFY_REQUIRED",
+      "acceptance": [
+        "P/R/N/D 각각 올바른 문구",
+        "동일 상태 반복 음성 없음",
+        "미확인 raw 값 무시"
+      ],
+      "required_logs": [
+        "gear raw",
+        "normalized state",
+        "TTS phrase",
+        "correlation id"
+      ],
+      "known_bad": [],
+      "dependencies": [
+        "Gearbox getter",
+        "TTS Core"
+      ],
+      "real_vehicle_test": [
+        "P→R→N→D→P 각 2회, 별도 ignition session 반복"
+      ],
+      "evidence": [
+        "getCurrentGear path exists"
+      ],
+      "next_action": "latest APK repeatability test",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-TTS-003",
+      "feature_id": "DRIVE_MODE_VOICE",
+      "area": "audio",
+      "requirement": "ECO/NORMAL/SPORT를 실제 차량 상태에 맞게 안내한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt"
+      ],
+      "test_ids": [
+        "AUD-DRV-001",
+        "AUD-DRV-002"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "ECO/NORMAL/SPORT 매핑이 raw/readback과 일치",
+        "NORMAL 포함 모든 edge에서 음성 1회",
+        "미확인 값은 말하지 않음"
+      ],
+      "required_logs": [
+        "raw candidate signals",
+        "normalized mode",
+        "phrase",
+        "timestamp"
+      ],
+      "known_bad": [
+        "실차에서 NORMAL 음성 누락"
+      ],
+      "dependencies": [
+        "instrument/energy/setting candidate signals",
+        "TTS Core"
+      ],
+      "real_vehicle_test": [
+        "각 모드 왕복 3회",
+        "Byd audio feedback/SubAI 동시 raw 비교"
+      ],
+      "evidence": [
+        "VehicleVoiceStateMonitor + live-fix candidate mapping"
+      ],
+      "next_action": "NORMAL edge raw correlation 확보 후 mapping 확정",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "TENTATIVE",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-TTS-004",
+      "feature_id": "REGEN_MODE_VOICE",
+      "area": "audio",
+      "requirement": "회생제동 STANDARD/HIGH를 정확히 안내한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/SettingsManager.kt",
+        "ci/apply_v32_2_regression_recovery.py"
+      ],
+      "test_ids": [
+        "AUD-REG-001",
+        "AUD-REG-002"
+      ],
+      "state": "REVERIFY_REQUIRED",
+      "acceptance": [
+        "STANDARD/HIGH 정확한 mapping",
+        "STANDARD를 ECO라고 말하지 않음",
+        "상태 edge당 1회"
+      ],
+      "required_logs": [
+        "energyFeedback raw sources",
+        "normalized regen",
+        "phrase"
+      ],
+      "known_bad": [
+        "STANDARD 전환 시 ECO라고 잘못 안내된 과거 회귀"
+      ],
+      "dependencies": [
+        "energy feedback getter",
+        "TTS Core"
+      ],
+      "real_vehicle_test": [
+        "STANDARD↔HIGH 5회",
+        "시동 재시작 후 반복"
+      ],
+      "evidence": [
+        "v32.2 stale key/wording fix present"
+      ],
+      "next_action": "실차 최신 build로 Known-Bad 재검증",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-TTS-005",
+      "feature_id": "SNOW_MODE_VOICE",
+      "area": "audio",
+      "requirement": "Snow ON과 Snow OFF 모두 정확히 안내한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/SettingsManager.kt"
+      ],
+      "test_ids": [
+        "AUD-SNOW-001",
+        "AUD-SNOW-002"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "Snow ON 음성",
+        "Snow OFF 음성",
+        "ON/OFF raw edge 각각 1회",
+        "다른 drive mode와 혼동 없음"
+      ],
+      "required_logs": [
+        "roadSurface raw",
+        "drive mode raw",
+        "normalized snow state",
+        "phrase"
+      ],
+      "known_bad": [
+        "현재 VehicleVoiceStateMonitor는 Snow 진입만 callback하고 이탈은 로그만 남김",
+        "사용자 실차에서 Snow OFF 음성 없음"
+      ],
+      "dependencies": [
+        "road surface/drive mode signal",
+        "TTS Core"
+      ],
+      "real_vehicle_test": [
+        "Snow ON→OFF 3회",
+        "NORMAL 복귀와 raw 비교"
+      ],
+      "evidence": [
+        "source comment explicitly suppresses leaving-snow sentence"
+      ],
+      "next_action": "요구사항과 코드가 직접 불일치하므로 다음 수정 후보 최우선",
+      "confidence": {
+        "behavior": "HIGH",
+        "root_cause": "CONFIRMED",
+        "safety": "HIGH",
+        "compatibility": "HIGH"
+      }
+    },
+    {
+      "req_id": "REQ-TTS-006",
+      "feature_id": "AUTOHOLD_VOICE",
+      "area": "audio",
+      "requirement": "오토홀드 버튼 ON/OFF와 실제 정차 체결/출발 해제를 구분해 안내한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt"
+      ],
+      "test_ids": [
+        "AUD-AVH-001",
+        "AUD-AVH-002"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "switch ON/OFF 정확",
+        "physical hold/release 정확",
+        "동일 raw 반복 억제"
+      ],
+      "required_logs": [
+        "getAVHState raw",
+        "gear",
+        "speed",
+        "pedal candidates",
+        "normalized event"
+      ],
+      "known_bad": [
+        "physical hold/release는 추론 로직이므로 실차 검증 필요"
+      ],
+      "dependencies": [
+        "AVH getter",
+        "gear/speed/pedal",
+        "TTS Core"
+      ],
+      "real_vehicle_test": [
+        "버튼 ON/OFF",
+        "D 정차→체결→출발 해제 각 5회"
+      ],
+      "evidence": [
+        "source distinguishes switch state and inferred physical hold"
+      ],
+      "next_action": "inference acceptance threshold 실차 확정",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "MEDIUM",
+        "safety": "MEDIUM",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-TTS-007",
+      "feature_id": "EPB_VOICE",
+      "area": "audio",
+      "requirement": "전자식 주차브레이크 체결/해제를 정확히 안내한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleTelemetryMonitor.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt"
+      ],
+      "test_ids": [
+        "AUD-EPB-001"
+      ],
+      "state": "REVERIFY_REQUIRED",
+      "acceptance": [
+        "getEPBState edge와 음성 일치",
+        "초기 baseline을 상태 변화로 말하지 않음"
+      ],
+      "required_logs": [
+        "EPB raw",
+        "normalized",
+        "phrase"
+      ],
+      "known_bad": [],
+      "dependencies": [
+        "gearbox getter",
+        "TTS Core"
+      ],
+      "real_vehicle_test": [
+        "EPB 체결/해제 5회, ignition 재시작 반복"
+      ],
+      "evidence": [
+        "exact getEPBState path in source"
+      ],
+      "next_action": "latest build repeatability",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-TTS-008",
+      "feature_id": "ICC_VOICE",
+      "area": "audio",
+      "requirement": "ICC ON/OFF를 정확히 안내한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/SettingsManager.kt"
+      ],
+      "test_ids": [
+        "AUD-ICC-001"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "ON/OFF raw mapping 검증",
+        "각 edge 한 번만 음성",
+        "미확인 상태 무시"
+      ],
+      "required_logs": [
+        "ICC/TJA candidate raw",
+        "normalized",
+        "phrase"
+      ],
+      "known_bad": [
+        "실차 raw mapping 미확정"
+      ],
+      "dependencies": [
+        "ADAS getter",
+        "TTS Core"
+      ],
+      "real_vehicle_test": [
+        "정차/허용조건에서 ICC on/off 조작 후 raw correlation"
+      ],
+      "evidence": [
+        "ICC ON/OFF phrase support exists"
+      ],
+      "next_action": "실차 read-only mapping 확정 전 VERIFIED 금지",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "TENTATIVE",
+        "safety": "MEDIUM",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-TTS-009",
+      "feature_id": "BSD_TURN_WARNING",
+      "area": "audio",
+      "requirement": "BSD 감지 상태에서 해당 방향 깜박이 사용 시 추가 경고음을 출력한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt"
+      ],
+      "test_ids": [
+        "AUD-BSD-001"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "BSD raw와 turn signal 방향 일치 시만 경고",
+        "반대 방향/미감지 시 무음",
+        "순정 경고와 과도한 중복 없음"
+      ],
+      "required_logs": [
+        "BSD raw",
+        "turn raw",
+        "direction",
+        "warning timestamp"
+      ],
+      "known_bad": [
+        "실차 mapping/순정 경고 arbitration 미확정"
+      ],
+      "dependencies": [
+        "ADAS/light getter",
+        "Audio Arbitration"
+      ],
+      "real_vehicle_test": [
+        "안전한 정차/보조 환경에서 raw capture 중심; 위험한 도로 재현 금지"
+      ],
+      "evidence": [
+        "sampleBsdAndTurnSignal source"
+      ],
+      "next_action": "passive correlation 우선",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "TENTATIVE",
+        "safety": "LOW",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-TTS-010",
+      "feature_id": "LEADING_CAR_DEPARTURE",
+      "area": "audio",
+      "requirement": "전방 차량 출발 이벤트가 확인됐을 때 안내한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/hud/NavGuidanceParser.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/service/DolphinService.kt"
+      ],
+      "test_ids": [
+        "AUD-LVDA-001"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "지원 내비 notification/확인된 차량 신호에서만 트리거",
+        "오탐 최소화",
+        "동일 이벤트 중복 음성 없음"
+      ],
+      "required_logs": [
+        "source package",
+        "notification parser result",
+        "vehicle candidate raw",
+        "phrase"
+      ],
+      "known_bad": [
+        "내비 parsing과 차량 signal 후보가 섞일 수 있어 provenance 필수"
+      ],
+      "dependencies": [
+        "NotificationListener/Accessibility",
+        "TTS Core"
+      ],
+      "real_vehicle_test": [
+        "지원 내비별 실제 전방차 출발 알림 capture",
+        "오탐 negative test"
+      ],
+      "evidence": [
+        "NavGuidanceParser internal leading-car action"
+      ],
+      "next_action": "provenance별 accuracy 분리",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "MEDIUM",
+        "safety": "MEDIUM",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-AUD-001",
+      "feature_id": "DRIVER_ONLY_APP_OWNED_AUDIO",
+      "area": "audio",
+      "requirement": "DolphinAssistant 자체 안내음을 운전석 전용 경로로 재생한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/InAppSupertonicTtsManager.kt"
+      ],
+      "test_ids": [
+        "AUD-DRVSPK-001"
+      ],
+      "state": "REVERIFY_REQUIRED",
+      "acceptance": [
+        "운전석에서만 명확히 청취",
+        "다른 좌석/일반 media route와 분리",
+        "순정 안전경고 방해 없음"
+      ],
+      "required_logs": [
+        "legacy stream",
+        "AudioAttributes",
+        "output devices",
+        "focus",
+        "actual audible result"
+      ],
+      "known_bad": [
+        "과거 route probe에서 AudioTrack 성공인데 실제 소리 안 들린 사례",
+        "stream14는 앱 소유 오디오만 제어"
+      ],
+      "dependencies": [
+        "BYD audio policy",
+        "stream14"
+      ],
+      "real_vehicle_test": [
+        "비프/TTS 각각 좌석별 청취 비교",
+        "순정 경고 동시성 negative test"
+      ],
+      "evidence": [
+        "DriverAudioPolicyLab comment says stream14 physical driver-only path previously verified"
+      ],
+      "next_action": "latest build 독립 반복 검증",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "MEDIUM",
+        "safety": "MEDIUM",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-AUD-002",
+      "feature_id": "PER_APP_DRIVER_SPEAKER_ROUTING",
+      "area": "audio",
+      "requirement": "지정한 외부 앱만 운전석 전용 스피커로 라우팅하고 순정 안전경고를 방해하지 않는다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/DriverAudioPolicyLab.kt",
+        "app/src/main/AndroidManifest.xml"
+      ],
+      "test_ids": [
+        "AUD-APPROUTE-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "target UID/package만 driver output",
+        "non-target media unchanged",
+        "OEM safety audio preempts correctly",
+        "remove target restores stock"
+      ],
+      "required_logs": [
+        "MODIFY_AUDIO_ROUTING grant/effective",
+        "output device id",
+        "UID affinity/policy mix",
+        "OEM warning concurrency"
+      ],
+      "known_bad": [
+        "source explicitly says arbitrary third-party interception not yet enabled",
+        "driver-only physical output device identification incomplete"
+      ],
+      "dependencies": [
+        "MODIFY_AUDIO_ROUTING",
+        "AudioPolicy/UID affinity",
+        "BYD DSP"
+      ],
+      "real_vehicle_test": [
+        "권한/장치 passive probe 후 test app only; Naver Map은 근거 확보 후"
+      ],
+      "evidence": [
+        "DriverAudioPolicyLab safety block"
+      ],
+      "next_action": "실차 capability/permission/output-device evidence 먼저",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "LOW",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-HUD-001",
+      "feature_id": "CLUSTER_TBT",
+      "area": "cluster",
+      "requirement": "지원 내비 안내를 검증된 compact TBT 경로로 계기판에 보내고 정상 복원한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/hud/ClusterMirrorManager.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/hud/NavGuidanceParser.kt"
+      ],
+      "test_ids": [
+        "HUD-TBT-001"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "지원 내비 turn/distance 표시",
+        "종료 시 clear",
+        "순정 경고/TBT 충돌 없음",
+        "readback/복원 가능"
+      ],
+      "required_logs": [
+        "nav package",
+        "parsed maneuver",
+        "instrument API request/result",
+        "clear result"
+      ],
+      "known_bad": [
+        "full-screen mirroring은 의도적으로 미구현",
+        "실차 TBT arbitration 검증 필요"
+      ],
+      "dependencies": [
+        "BYDAutoInstrumentDevice",
+        "NavGuidanceParser"
+      ],
+      "real_vehicle_test": [
+        "정차 상태 synthetic preview",
+        "실주행은 순정 안전 우선, passive observation"
+      ],
+      "evidence": [
+        "ClusterMirrorManager compact TBT bridge"
+      ],
+      "next_action": "실차 instrument output과 restore 증거 확보",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "MEDIUM",
+        "safety": "MEDIUM",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-HUD-002",
+      "feature_id": "CLUSTER_FULL_MIRROR_THEME",
+      "area": "cluster",
+      "requirement": "특정 앱 미러링/커스텀 테마는 실제 display target·복원 경로 확인 후에만 허용한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleFeatureLabManager.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/IntegratedBetaUi.kt"
+      ],
+      "test_ids": [
+        "HUD-MIRROR-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "target display 확인",
+        "순정 ADAS 경고 보존",
+        "원클릭 원복",
+        "crash/sleep 후 복구"
+      ],
+      "required_logs": [
+        "display inventory",
+        "instrument theme getter",
+        "target id",
+        "restore proof"
+      ],
+      "known_bad": [
+        "source explicitly blocks full cluster mirroring/theme writes until mapping/recovery verified"
+      ],
+      "dependencies": [
+        "instrument/display target evidence"
+      ],
+      "real_vehicle_test": [
+        "read-only inventory only"
+      ],
+      "evidence": [
+        "VehicleFeatureLabManager blocked flags"
+      ],
+      "next_action": "실차 display/IPC evidence 필요",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "LOW",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-FSD-001",
+      "feature_id": "SURROUNDING_VISION_READ_ONLY",
+      "area": "fsd",
+      "requirement": "실제 확인된 속도/기어/방향지시등/내비 안전정보만 시각화하고 미확인 ADAS/radar는 RAW/LAB로 분리한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/drive/DriveRuntime.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/drive/DriveVisionActivity.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/ui/HomeHmiView.kt"
+      ],
+      "test_ids": [
+        "FSD-VIS-001",
+        "FSD-VIS-002"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "LIVE label은 실제 source가 있는 값만",
+        "stale data expiry",
+        "없는 객체 생성 금지",
+        "render latency 기록"
+      ],
+      "required_logs": [
+        "DriveFrame source/provenance",
+        "safety snapshot",
+        "render timestamp"
+      ],
+      "known_bad": [
+        "ADAS/radar 의미는 아직 RAW/LAB"
+      ],
+      "dependencies": [
+        "DriveSignalReader",
+        "DriveSafetyBus"
+      ],
+      "real_vehicle_test": [
+        "정차/저속에서 speed/gear/turn sync",
+        "signal loss 시 UI degrade"
+      ],
+      "evidence": [
+        "source comments: no mock numbers, ADAS/radar RAW/LAB"
+      ],
+      "next_action": "Sensor Source Matrix와 TTL 적용",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "HIGH",
+        "safety": "MEDIUM",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-FSD-002",
+      "feature_id": "FSD_OBJECT_LANE_MODEL",
+      "area": "fsd",
+      "requirement": "실제 사람/차량/차선/도로 객체는 접근 가능한 센서 또는 검증된 비전 모델에서만 생성한다.",
+      "source_paths": [],
+      "test_ids": [
+        "FSD-OBJ-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "sensor/camera source provenance",
+        "calibration",
+        "confidence/expiry",
+        "latency budget",
+        "no fabricated objects"
+      ],
+      "required_logs": [
+        "camera source",
+        "model hash",
+        "inference latency",
+        "object confidence"
+      ],
+      "known_bad": [
+        "현재 공개 source에서 실제 camera/object inference pipeline 미확인"
+      ],
+      "dependencies": [
+        "camera/AVM/ADAS access",
+        "AI model registry"
+      ],
+      "real_vehicle_test": [
+        "sensor access proof 전 visual-only mock 금지"
+      ],
+      "evidence": [
+        "current Surrounding Vision intentionally read-only/raw"
+      ],
+      "next_action": "sensor capability research 우선",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "LOW",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-NAV-001",
+      "feature_id": "NAV_SAFETY_FEED",
+      "area": "navigation",
+      "requirement": "TMAP/Naver/Kakao/iNavi 등 지원 내비 notification/accessibility에서 과속/카메라 등 안전정보를 provenance와 함께 수집한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/hud/NavGuidanceParser.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/hud/MultiNavNotificationListener.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/drive/DriveRuntime.kt"
+      ],
+      "test_ids": [
+        "NAV-SAFE-001"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "지원 package만 처리",
+        "원문 parser 실패 시 추측하지 않음",
+        "앱 버전별 contract test",
+        "stale expiry"
+      ],
+      "required_logs": [
+        "source package/version",
+        "notification text hash/redacted",
+        "parsed type/distance/speed",
+        "timestamp"
+      ],
+      "known_bad": [
+        "외부 앱 업데이트로 parser 파손 가능"
+      ],
+      "dependencies": [
+        "Notification access/Accessibility"
+      ],
+      "real_vehicle_test": [
+        "지원 내비 각 1개 route, camera/section/parking 알림 capture"
+      ],
+      "evidence": [
+        "NavGuidanceParser SUPPORTED_NAV_PACKAGES"
+      ],
+      "next_action": "app version compatibility registry 연결",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "HIGH",
+        "safety": "MEDIUM",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-VEH-001",
+      "feature_id": "LIVE_VEHICLE_INFO",
+      "area": "vehicle_read",
+      "requirement": "배터리 등 HOME의 LIVE 값은 실제 vehicle getter에서만 표시한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleInfoReader.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/ui/HomeHmiView.kt"
+      ],
+      "test_ids": [
+        "VEH-INFO-001"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "값 provenance 존재",
+        "unavailable은 unknown 표시",
+        "mock value 사용 금지"
+      ],
+      "required_logs": [
+        "getter result",
+        "UI bound value",
+        "timestamp"
+      ],
+      "known_bad": [],
+      "dependencies": [
+        "BYD read permissions"
+      ],
+      "real_vehicle_test": [
+        "계기판/순정 화면 값과 비교"
+      ],
+      "evidence": [
+        "HomeHmiView source says no mock numbers"
+      ],
+      "next_action": "각 field별 getter mapping 등록",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-VEH-002",
+      "feature_id": "TPMS_READ_ONLY",
+      "area": "vehicle_read",
+      "requirement": "TPMS 값을 단위 추정 없이 읽고 실제 차량 값과 비교한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/TpmsReader.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/ui/HomeHmiView.kt"
+      ],
+      "test_ids": [
+        "VEH-TPMS-001"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "4 wheel 값/상태 read",
+        "단위 확인 전 임의 conversion 금지",
+        "unavailable 처리"
+      ],
+      "required_logs": [
+        "raw tyre values",
+        "system state",
+        "permission/capability"
+      ],
+      "known_bad": [
+        "pressure unit은 차량 보고 전 추정 금지"
+      ],
+      "dependencies": [
+        "BYDAUTO_TYRE_GET"
+      ],
+      "real_vehicle_test": [
+        "순정 TPMS 화면과 raw 값 비교"
+      ],
+      "evidence": [
+        "TpmsReader explicit no-unit-guess policy"
+      ],
+      "next_action": "실차 unit/mapping 확정",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-COMF-001",
+      "feature_id": "REVERSE_DOWN_MIRROR",
+      "area": "comfort",
+      "requirement": "R단 저속에서 저장된 좌/우 미러 단계로 이동하고 D/P 복귀 시 원상복구한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/MirrorMemoryManager.kt"
+      ],
+      "test_ids": [
+        "COMF-MIR-001",
+        "COMF-MIR-002"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "0~8 verified setter range만 사용",
+        "5km/h 이하 gate",
+        "R 진입/이탈 복원",
+        "실패 시 write 중단"
+      ],
+      "required_logs": [
+        "getter/setter",
+        "side/index",
+        "gear/speed",
+        "readback"
+      ],
+      "known_bad": [
+        "getter는 -1/44 등 setter range와 다른 값을 보인 과거 로그"
+      ],
+      "dependencies": [
+        "mirror getters/setters",
+        "gear/speed"
+      ],
+      "real_vehicle_test": [
+        "정차/저속에서 좌우 단계 calibration",
+        "R→D/P 복귀"
+      ],
+      "evidence": [
+        "MirrorMemoryManager calibrated reverse-down implementation"
+      ],
+      "next_action": "실차 calibration provenance와 복원 반복성 확보",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "HIGH",
+        "safety": "MEDIUM",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-COMF-002",
+      "feature_id": "SEAT_MEMORY_M1_M3",
+      "area": "comfort",
+      "requirement": "시트 위치 getter/setter pair가 실차에서 검증된 경우에만 M1/M2/M3 모터 구동을 허용한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/SeatMemoryCapabilityManager.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleFeatureLabManager.kt"
+      ],
+      "test_ids": [
+        "COMF-SEAT-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "position getter/setter pair 존재",
+        "readback",
+        "안전 gate",
+        "복원"
+      ],
+      "required_logs": [
+        "filtered methods",
+        "getter current",
+        "setter result/readback"
+      ],
+      "known_bad": [
+        "source explicitly blocks seatMemoryWrites"
+      ],
+      "dependencies": [
+        "verified BYD seat API"
+      ],
+      "real_vehicle_test": [
+        "read-only capability inventory only"
+      ],
+      "evidence": [
+        "SeatMemoryCapabilityManager never moves seat"
+      ],
+      "next_action": "API pair evidence 확보 전 write 금지",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "LOW",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-COMF-003",
+      "feature_id": "INTERIOR_LIGHT",
+      "area": "comfort",
+      "requirement": "실내등 ON/OFF/도어연동이 실제 램프 상태와 일치해야 한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/InsideLightManager.kt"
+      ],
+      "test_ids": [
+        "COMF-LIGHT-001",
+        "COMF-LIGHT-002"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "command success가 물리 반응과 일치",
+        "ON/OFF readback 또는 독립 관찰",
+        "raw fallback은 calibration 모드에서만"
+      ],
+      "required_logs": [
+        "method overload",
+        "raw param",
+        "return",
+        "getter/readback",
+        "operator observed result"
+      ],
+      "known_bad": [
+        "실차에서 return success인데 물리 실내등이 작동하지 않은 사례"
+      ],
+      "dependencies": [
+        "BYDAutoSettingDevice/light API"
+      ],
+      "real_vehicle_test": [
+        "정차 상태 ON/OFF/raw0..4 제한 calibration",
+        "물리 반응 기록"
+      ],
+      "evidence": [
+        "InsideLightManager + raw calibration patch"
+      ],
+      "next_action": "return code와 physical state 분리 기록",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "MEDIUM",
+        "safety": "MEDIUM",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-UPD-001",
+      "feature_id": "APP_UPDATE",
+      "area": "update",
+      "requirement": "새 릴리스 확인/다운로드 후 Android installer 확인을 거치며 잘못된 downgrade/서명 불일치를 차단한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/manager/AppUpdateManager.kt",
+        ".github/workflows/build.yml"
+      ],
+      "test_ids": [
+        "UPD-001",
+        "UPD-002"
+      ],
+      "state": "REVERIFY_REQUIRED",
+      "acceptance": [
+        "latest release 조회",
+        "version 비교",
+        "동일 package/signature",
+        "installer confirmation",
+        "실패 시 현 버전 유지"
+      ],
+      "required_logs": [
+        "release metadata",
+        "download hash",
+        "installed version/signature"
+      ],
+      "known_bad": [
+        "versionCode downgrade 설치 실패가 과거 발생하여 v34.3.1에서 114로 수정한 기록"
+      ],
+      "dependencies": [
+        "GitHub Releases",
+        "PackageInstaller"
+      ],
+      "real_vehicle_test": [
+        "현재→신규 update",
+        "네트워크 실패",
+        "잘못된 version metadata negative test"
+      ],
+      "evidence": [
+        "AppUpdateManager no-silent-install policy",
+        "commit Fix install downgrade with versionCode 114"
+      ],
+      "next_action": "generated APK identity와 base source mismatch 해결/기록",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-UI-001",
+      "feature_id": "PREMIUM_HMI_HOME",
+      "area": "ui",
+      "requirement": "10인치에서 고해상도 HOME이 live vehicle/media/TPMS를 명확히 보여주고 clipping/desktop 오인 없이 동작한다.",
+      "source_paths": [
+        "app/src/main/java/com/byd/dolphin/autoassistant/ui/HomeHmiView.kt",
+        "app/src/main/java/com/byd/dolphin/autoassistant/CommandCenterActivity.kt"
+      ],
+      "test_ids": [
+        "UI-HOME-001",
+        "UI-HOME-002"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "10인치 기준 clipping 없음",
+        "터치 target 정상",
+        "야간 가독성",
+        "LIVE 값 provenance",
+        "HOME→각 메뉴 navigation 정상"
+      ],
+      "required_logs": [
+        "display profile",
+        "render/frame timing",
+        "navigation action"
+      ],
+      "known_bad": [
+        "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
+      ],
+      "dependencies": [
+        "Display Core",
+        "VehicleInfo/TPMS/NowPlaying"
+      ],
+      "real_vehicle_test": [
+        "Golden Screenshot 세트",
+        "주/야간",
+        "DPI baseline",
+        "주요 navigation"
+      ],
+      "evidence": [
+        "premium HMI commits and HomeHmiView"
+      ],
+      "next_action": "실차 Golden Screenshot baseline 생성",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "MEDIUM",
+        "safety": "HIGH",
+        "compatibility": "MEDIUM"
+      }
+    },
+    {
+      "req_id": "REQ-PLAT-001",
+      "feature_id": "MASTER_VERIFICATION_REGISTRY",
+      "area": "governance",
+      "requirement": "모든 사용자 요구사항과 실제 코드/실차 검증을 이 레지스트리에서 추적한다.",
+      "source_paths": [
+        "verification/master_registry.json",
+        "verification/MASTER_VERIFICATION_REGISTRY.md"
+      ],
+      "test_ids": [
+        "GOV-REG-001"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "모든 active requirement에 REQ/Feature/Test ID 존재",
+        "각 build 전 registry diff",
+        "누락/Dead UI/Known-Bad가 release gate에 반영"
+      ],
+      "required_logs": [
+        "registry schema/version",
+        "source commit",
+        "diagnostic session id"
+      ],
+      "known_bad": [
+        "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
+      ],
+      "dependencies": [
+        "latest source",
+        "latest diagnostic evidence"
+      ],
+      "real_vehicle_test": [
+        "각 현장 Test Checklist 결과를 registry에 반영"
+      ],
+      "evidence": [
+        "created from source commit 1c60bec and diagnostics 2026-09-19"
+      ],
+      "next_action": "자동화가 build/report 시 registry를 authoritative source로 읽도록 연결",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "HIGH"
+      }
+    }
+  ],
+  "known_bad_library": [
+    {
+      "id": "KB-001",
+      "symptom": "Drive NORMAL 음성 누락",
+      "linked": [
+        "DRIVE_MODE_VOICE"
+      ]
+    },
+    {
+      "id": "KB-002",
+      "symptom": "Regen STANDARD를 ECO로 오안내",
+      "linked": [
+        "REGEN_MODE_VOICE"
+      ]
+    },
+    {
+      "id": "KB-003",
+      "symptom": "Snow OFF 음성 누락",
+      "linked": [
+        "SNOW_MODE_VOICE"
+      ]
+    },
+    {
+      "id": "KB-004",
+      "symptom": "분할화면 미작동",
+      "linked": [
+        "SPLIT_SCREEN_TWO_APP"
+      ]
+    },
+    {
+      "id": "KB-005",
+      "symptom": "앱서랍 바로가기 생성 기능 누락",
+      "linked": [
+        "APP_DRAWER_SHORTCUTS"
+      ]
+    },
+    {
+      "id": "KB-006",
+      "symptom": "시동 자동실행 여러 앱 추가 버튼 누락",
+      "linked": [
+        "BOOT_MULTI_APP_AUTOLAUNCH"
+      ]
+    },
+    {
+      "id": "KB-007",
+      "symptom": "TTS 미리듣기가 즉시 나오지 않고 비프 뒤 지연 재생",
+      "linked": [
+        "IN_APP_TTS_CORE"
+      ]
+    },
+    {
+      "id": "KB-008",
+      "symptom": "실내등 API 성공 반환과 실제 램프 반응 불일치",
+      "linked": [
+        "INTERIOR_LIGHT"
+      ]
+    },
+    {
+      "id": "KB-009",
+      "symptom": "운전석 오디오 route API 성공/AudioTrack write와 실제 청취 결과 불일치 가능",
+      "linked": [
+        "DRIVER_ONLY_APP_OWNED_AUDIO",
+        "PER_APP_DRIVER_SPEAKER_ROUTING"
+      ]
+    },
+    {
+      "id": "KB-010",
+      "symptom": "빌드/설치 identity 및 versionCode 불일치로 update 실패",
+      "linked": [
+        "BUILD_IDENTITY",
+        "APP_UPDATE"
+      ]
+    }
+  ],
+  "next_priority": [
+    "Snow OFF requirement/code mismatch 수정 후보 확정",
+    "Drive NORMAL raw correlation 실차 로그",
+    "Regen STANDARD/HIGH 최신 build Known-Bad 재검증",
+    "SplitScreen dumpsys 기반 실패 원인 capture",
+    "AppDrawer/Boot Add UI 실제 최신 APK 회귀검증",
+    "release APK identity와 main source/CI patch chain provenance 고정"
+  ]
+}
