@@ -32,14 +32,12 @@
             android:launchMode="singleTask"
             android:screenOrientation="landscape"
             android:resizeableActivity="true">
+            <!-- BYD Korean Dolphin installer rejects APKs advertising HOME as "desktop apps".
+                 Install V1 as a normal launcher-visible app first; HOME role stays disabled
+                 until a vehicle-compatible activation path is verified on the real car. -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
