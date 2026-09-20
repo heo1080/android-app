@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "registry_id": "DOLPHIN-MASTER-VERIFICATION-REGISTRY",
   "generated_at": "2026-09-20",
   "source": {
@@ -1585,6 +1585,11 @@
       "symptom": "Drive NORMAL 음성 누락",
       "linked": [
         "DRIVE_MODE_VOICE"
+      ],
+      "severity": "P0",
+      "status": "OPEN",
+      "required_test_ids": [
+        "AUD-DRV-001"
       ]
     },
     {
@@ -1592,6 +1597,11 @@
       "symptom": "Regen STANDARD를 ECO로 오안내",
       "linked": [
         "REGEN_MODE_VOICE"
+      ],
+      "severity": "P0",
+      "status": "OPEN",
+      "required_test_ids": [
+        "AUD-REG-001"
       ]
     },
     {
@@ -1599,6 +1609,11 @@
       "symptom": "Snow OFF 음성 누락",
       "linked": [
         "SNOW_MODE_VOICE"
+      ],
+      "severity": "P0",
+      "status": "OPEN",
+      "required_test_ids": [
+        "AUD-SNOW-002"
       ]
     },
     {
@@ -1606,6 +1621,11 @@
       "symptom": "분할화면 미작동",
       "linked": [
         "SPLIT_SCREEN_TWO_APP"
+      ],
+      "severity": "P0",
+      "status": "OPEN",
+      "required_test_ids": [
+        "WIN-SPLIT-001"
       ]
     },
     {
@@ -1613,6 +1633,11 @@
       "symptom": "앱서랍 바로가기 생성 기능 누락",
       "linked": [
         "APP_DRAWER_SHORTCUTS"
+      ],
+      "severity": "P1",
+      "status": "OPEN",
+      "required_test_ids": [
+        "LCH-DRW-001"
       ]
     },
     {
@@ -1620,6 +1645,11 @@
       "symptom": "시동 자동실행 여러 앱 추가 버튼 누락",
       "linked": [
         "BOOT_MULTI_APP_AUTOLAUNCH"
+      ],
+      "severity": "P1",
+      "status": "OPEN",
+      "required_test_ids": [
+        "LCH-BOOT-001"
       ]
     },
     {
@@ -1627,6 +1657,11 @@
       "symptom": "TTS 미리듣기가 즉시 나오지 않고 비프 뒤 지연 재생",
       "linked": [
         "IN_APP_TTS_CORE"
+      ],
+      "severity": "P1",
+      "status": "OPEN",
+      "required_test_ids": [
+        "AUD-TTS-001"
       ]
     },
     {
@@ -1634,6 +1669,11 @@
       "symptom": "실내등 API 성공 반환과 실제 램프 반응 불일치",
       "linked": [
         "INTERIOR_LIGHT"
+      ],
+      "severity": "P0",
+      "status": "OPEN",
+      "required_test_ids": [
+        "COMF-LIGHT-001"
       ]
     },
     {
@@ -1642,6 +1682,12 @@
       "linked": [
         "DRIVER_ONLY_APP_OWNED_AUDIO",
         "PER_APP_DRIVER_SPEAKER_ROUTING"
+      ],
+      "severity": "P0",
+      "status": "OPEN",
+      "required_test_ids": [
+        "AUD-DRVSPK-001",
+        "AUD-APPROUTE-001"
       ]
     },
     {
@@ -1650,6 +1696,12 @@
       "linked": [
         "BUILD_IDENTITY",
         "APP_UPDATE"
+      ],
+      "severity": "P0",
+      "status": "OPEN",
+      "required_test_ids": [
+        "BLD-ID-001",
+        "UPD-001"
       ]
     }
   ],
@@ -1660,5 +1712,31 @@
     "SplitScreen dumpsys 기반 실패 원인 capture",
     "AppDrawer/Boot Add UI 실제 최신 APK 회귀검증",
     "release APK identity와 main source/CI patch chain provenance 고정"
+  ],
+  "schema_history": [
+    {
+      "version": 1,
+      "date": "2026-09-20",
+      "note": "Initial requirement/feature/test/evidence registry."
+    },
+    {
+      "version": 2,
+      "date": "2026-09-20",
+      "note": "Adds explicit Known-Bad test gates, log-contract/dependency files, app asset synchronization and release exit criteria."
+    }
+  ],
+  "registry_runtime": {
+    "app_asset": "app/src/main/assets/verification_registry.json",
+    "log_contracts": "verification/test_log_contracts.json",
+    "feature_dependencies": "verification/feature_dependencies.json",
+    "evaluator": "verification/evaluate_diagnostic.py"
+  },
+  "release_exit_criteria": [
+    "Safety Invariant 필수 항목 통과",
+    "critical regression 0",
+    "unresolved contradiction 0",
+    "open Known-Bad가 연결된 기능은 VERIFIED 금지",
+    "required 실차 Test ID 결과 확보",
+    "signing/provenance/build identity 검증 완료"
   ]
 }
