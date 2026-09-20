@@ -52,8 +52,8 @@ jobs:
           BADGING="$("$AAPT" dump badging "$APK" | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -q "package: name='com.dolphin.launcher.v1'"
-          echo "$BADGING" | grep -q "versionCode='3'"
-          echo "$BADGING" | grep -q "versionName='1.2.0-v1-ota'"
+          echo "$BADGING" | grep -q "versionCode='4'"
+          echo "$BADGING" | grep -q "versionName='1.2.1-v1-byd-install-hotfix'"
 
       - name: Validate Registry v3 payload
         shell: bash
