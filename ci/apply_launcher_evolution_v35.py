@@ -9,8 +9,7 @@ strings_path = ROOT / "app/src/main/res/values/strings.xml"
 
 manifest = manifest_path.read_text(encoding="utf-8")
 
-launcher_block = """
-        <activity
+launcher = """        <activity
             android:name=".LauncherActivity"
             android:exported="true"
             android:launchMode="singleTask"
@@ -26,19 +25,34 @@ launcher_block = """
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+"""
 
-        <activity
+command_pattern = re.compile(
+    r'<activity\s+android:name="\.CommandCenterActivity"\b.*?</activity>',
+    re.DOTALL,
+)
+command_disabled = """        <activity
+            android:name=".CommandCenterActivity"
+            android:exported="false" />
+"""
+manifest, count = command_pattern.subn(launcher + "\n" + command_disabled, manifest, count=1)
+
+if count != 1:
+    main_pattern = re.compile(
+        r'<activity\s+android:name="\.MainActivity"\b.*?</activity>',
+        re.DOTALL,
+    )
+    main_disabled = """        <activity
             android:name=".MainActivity"
             android:exported="false" />
 """
+    manifest, count = main_pattern.subn(launcher + "\n" + main_disabled, manifest, count=1)
 
-pattern = re.compile(
-    r'<activity\s+android:name="\.MainActivity"\b.*?</activity>',
-    re.DOTALL,
-)
-manifest, count = pattern.subn(launcher_block.strip(), manifest, count=1)
 if count != 1:
-    raise SystemExit("Could not replace legacy MainActivity launcher block")
+    raise SystemExit("Could not replace legacy launcher activity block")
+
+if 'android.intent.category.HOME' not in manifest:
+    raise SystemExit("HOME intent filter missing after manifest swap")
 
 manifest_path.write_text(manifest, encoding="utf-8")
 
@@ -68,21 +82,16 @@ strings_path.write_text(strings, encoding="utf-8")
 launcher_src = ROOT / "app/src/main/java/com/byd/dolphin/autoassistant/LauncherActivity.kt"
 if not launcher_src.exists():
     raise SystemExit("LauncherActivity.kt is missing")
-
 source = launcher_src.read_text(encoding="utf-8")
-for needle in [
+for needle in (
     "class LauncherActivity",
-    "CATEGORY_HOME",
     "showAppDrawer",
     "launchConfiguredSplit",
     "launchPopup",
     "SettingsManager.addBootApp",
     "AppUpdateManager.checkForUpdates",
-]:
-    if needle not in source and needle != "CATEGORY_HOME":
+):
+    if needle not in source:
         raise SystemExit("Launcher source missing: " + needle)
-
-if 'android.intent.category.HOME' not in manifest:
-    raise SystemExit("HOME intent filter missing after patch")
 
 print("BYD Launcher Evolution v35 alpha1 patch applied")
