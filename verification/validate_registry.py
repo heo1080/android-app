@@ -9,10 +9,18 @@ DEPENDENCIES = ROOT / "verification/feature_dependencies.json"
 SURFACES = ROOT / "verification/runtime_surfaces.json"
 
 ALLOWED_STATES = {"VERIFIED", "BETA", "REVERIFY_REQUIRED", "BLOCKED", "UNSUPPORTED"}
+ALLOWED_KNOWN_BAD = {"OPEN", "FIX_CANDIDATE", "REAL_CAR_RETEST", "CLOSED"}
 REQUIRED_FEATURE_KEYS = {
     "req_id", "feature_id", "area", "requirement", "source_paths", "test_ids", "state",
     "acceptance", "required_logs", "known_bad", "dependencies",
     "real_vehicle_test", "evidence", "next_action", "confidence"
+}
+REQUIRED_CONTRACT_KEYS = {
+    "test_id", "feature_id", "feature_state", "required_events", "allowed_outcomes",
+    "requires_build_fingerprint", "requires_preconditions", "requires_diagnostic_session",
+    "manual_observation_required", "repeatability_required_sessions",
+    "required_any", "success_any", "failure_any", "known_bad_ids",
+    "acceptance", "required_logs"
 }
 CONFIDENCE_KEYS = {"behavior", "root_cause", "safety", "compatibility"}
 
@@ -20,14 +28,18 @@ def fail(msg: str) -> None:
     raise SystemExit("VERIFICATION_REGISTRY_ERROR: " + msg)
 
 data = json.loads(REGISTRY.read_text(encoding="utf-8"))
-if data.get("schema_version") != 2:
-    fail(f"unsupported schema_version={data.get('schema_version')!r}; expected 2")
+if data.get("schema_version") != 3:
+    fail(f"unsupported schema_version={data.get('schema_version')!r}; expected 3")
 if not data.get("schema_history"):
     fail("schema_history is required")
 if not data.get("release_exit_criteria"):
     fail("release_exit_criteria is required")
 if not data.get("registry_runtime"):
     fail("registry_runtime is required")
+if not data.get("evidence_policy"):
+    fail("evidence_policy is required")
+if not data.get("known_bad_lifecycle"):
+    fail("known_bad_lifecycle is required")
 
 features = data.get("features")
 if not isinstance(features, list) or not features:
@@ -78,21 +90,46 @@ for index, feature in enumerate(features, start=1):
             fail(f"{feature_id}: source path does not exist: {raw}")
 
 contract_data = json.loads(CONTRACTS.read_text(encoding="utf-8"))
+if contract_data.get("schema_version") != 2:
+    fail("test_log_contracts schema_version must be 2")
 contract_by_test = {}
 for c in contract_data.get("contracts", []):
-    tid = c.get("test_id")
-    fid = c.get("feature_id")
-    if not tid or not fid:
-        fail("log contract missing test_id/feature_id")
+    missing = REQUIRED_CONTRACT_KEYS - set(c)
+    if missing:
+        fail(f"contract missing keys {sorted(missing)}: {c.get('test_id')}")
+    tid = c["test_id"]
+    fid = c["feature_id"]
     if tid in contract_by_test:
         fail(f"duplicate log contract: {tid}")
     if tid not in test_ids:
         fail(f"log contract references unknown test_id: {tid}")
     if fid not in feature_ids:
         fail(f"log contract references unknown feature_id: {fid}")
-    if tid not in feature_by_id[fid]["test_ids"]:
+    feature = feature_by_id[fid]
+    if tid not in feature["test_ids"]:
         fail(f"{tid}: contract feature mismatch: {fid}")
+    if c["feature_state"] != feature["state"]:
+        fail(f"{tid}: contract state drift: {c['feature_state']} != {feature['state']}")
+    if c["required_events"] != ["TEST_START", "OPERATOR_RESULT", "TEST_END"]:
+        fail(f"{tid}: structured event contract must require START/RESULT/END")
+    if c["requires_build_fingerprint"] is not True or c["requires_preconditions"] is not True:
+        fail(f"{tid}: build fingerprint and preconditions are mandatory")
+    if feature["state"] in {"BLOCKED", "UNSUPPORTED"}:
+        if set(c["allowed_outcomes"]) != {"NEED_MORE_DATA"}:
+            fail(f"{tid}: blocked/unsupported test may only record NEED_MORE_DATA")
+        if c["repeatability_required_sessions"] != 0:
+            fail(f"{tid}: blocked/unsupported repeatability must be 0")
+    else:
+        if "PASS" not in c["allowed_outcomes"] or "FAIL" not in c["allowed_outcomes"]:
+            fail(f"{tid}: active test must allow PASS and FAIL")
+        if c["repeatability_required_sessions"] < 1:
+            fail(f"{tid}: active test needs repeatability >= 1")
     contract_by_test[tid] = c
+
+missing_contracts = sorted(test_ids - set(contract_by_test))
+extra_contracts = sorted(set(contract_by_test) - test_ids)
+if missing_contracts or extra_contracts:
+    fail(f"1:1 Test ID contract coverage failed missing={missing_contracts} extra={extra_contracts}")
 
 known_bad = data.get("known_bad_library", [])
 known_bad_ids = set()
@@ -103,6 +140,8 @@ for item in known_bad:
     kid = item["id"]
     if kid in known_bad_ids:
         fail(f"duplicate Known-Bad id: {kid}")
+    if item["status"] not in ALLOWED_KNOWN_BAD:
+        fail(f"{kid}: invalid lifecycle status {item['status']}")
     known_bad_ids.add(kid)
     linked = item["linked"]
     if not linked:
@@ -110,13 +149,21 @@ for item in known_bad:
     for fid in linked:
         if fid not in feature_ids:
             fail(f"{kid}: linked feature does not exist: {fid}")
-        if feature_by_id[fid]["state"] == "VERIFIED" and item["status"] == "OPEN":
-            fail(f"{kid}: open Known-Bad cannot link VERIFIED feature {fid}")
+        if feature_by_id[fid]["state"] == "VERIFIED" and item["status"] != "CLOSED":
+            fail(f"{kid}: non-closed Known-Bad cannot link VERIFIED feature {fid}")
     for tid in item["required_test_ids"]:
         if tid not in test_ids:
             fail(f"{kid}: unknown required_test_id {tid}")
-        if tid not in contract_by_test:
+        contract = contract_by_test.get(tid)
+        if not contract:
             fail(f"{kid}: required_test_id lacks log contract: {tid}")
+        if kid not in contract["known_bad_ids"]:
+            fail(f"{kid}: contract {tid} does not link back to Known-Bad")
+
+for tid, contract in contract_by_test.items():
+    for kid in contract["known_bad_ids"]:
+        if kid not in known_bad_ids:
+            fail(f"{tid}: contract references unknown Known-Bad {kid}")
 
 surface_data = json.loads(SURFACES.read_text(encoding="utf-8"))
 for surface in surface_data.get("surfaces", []):
@@ -155,6 +202,7 @@ print(
     f"features={len(features)} "
     f"tests={len(test_ids)} "
     f"contracts={len(contract_by_test)} "
+    f"coverage={len(contract_by_test)}/{len(test_ids)} "
     f"known_bad={len(known_bad)} "
     f"runtime_surfaces={len(surface_data.get('surfaces', []))} "
     f"dependency_edges={len(edges)}"
