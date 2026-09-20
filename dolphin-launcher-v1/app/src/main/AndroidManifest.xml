@@ -18,6 +18,12 @@
         android:usesCleartextTraffic="false">
 
         <activity
+            android:name=".VerificationCenterActivity"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:resizeableActivity="true" />
+
+        <activity
             android:name=".LauncherActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|uiMode"
             android:exported="true"
