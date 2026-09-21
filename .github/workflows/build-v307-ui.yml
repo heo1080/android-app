@@ -1,0 +1,130 @@
+name: Build v30.7 UI Preview
+
+on:
+  push:
+    branches: [ "ui/v30.7-architecture-reset" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Source
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: "17"
+        distribution: "temurin"
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: 8.7
+
+    - name: Grant Execute Permission for Gradlew
+      run: chmod +x gradlew
+
+    - name: Apply v30.6.3 live baseline and v30.7 UI reset
+      run: |
+        python3 ci/apply_v30_5.py
+        python3 ci/fix_v30_5_1.py
+        python3 ci/apply_v30_5_2_update.py
+        python3 ci/apply_v30_5_3_tts_engine.py
+        python3 ci/apply_v30_5_4_updater_fix.py
+        python3 ci/apply_v30_6_integrated_beta.py
+        python3 ci/fix_v30_6_compile.py
+        python3 ci/prep_v30_6_2_compat.py
+        python3 ci/apply_v30_6_2_runtime_fixes.py
+        python3 ci/fix_v30_6_2_followup.py
+        python3 ci/apply_v30_6_3_live_fixes.py
+        python3 ci/fix_v30_6_3_font_current_user.py
+        python3 ci/apply_v30_7_ui_reset.py
+        python3 ci/apply_v30_7_1_audio_profiles.py
+
+    - name: Download in-app sherpa-onnx Android runtime
+      shell: bash
+      run: |
+        set -euo pipefail
+        mkdir -p app/libs
+        curl -fL --retry 4 --retry-delay 2 \
+          -o app/libs/sherpa-onnx-1.13.4.aar \
+          https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.4/sherpa-onnx-1.13.4.aar
+        test -s app/libs/sherpa-onnx-1.13.4.aar
+
+    - name: Build unsigned Release APK
+      run: ./gradlew :app:assembleRelease --stacktrace
+
+    - name: Decode and validate stable signing keystore
+      shell: bash
+      env:
+        DOLPHIN_KEYSTORE_BASE64: ${{ secrets.DOLPHIN_KEYSTORE_BASE64 }}
+        DOLPHIN_KEYSTORE_PASSWORD: ${{ secrets.DOLPHIN_KEYSTORE_PASSWORD }}
+      run: |
+        set -euo pipefail
+        KEYSTORE="$RUNNER_TEMP/dolphin-release.jks"
+        printf '%s' "$DOLPHIN_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE"
+        test -s "$KEYSTORE"
+        EXPECTED_KEYSTORE_SHA256="6f343e0060b185d82a6002cf4be8650099a4ef02849083b210fba3bbe3889953"
+        ACTUAL_KEYSTORE_SHA256="$(sha256sum "$KEYSTORE" | awk '{print $1}')"
+        test "$ACTUAL_KEYSTORE_SHA256" = "$EXPECTED_KEYSTORE_SHA256"
+        DOLPHIN_KS_PASS="$(printf '%s' "$DOLPHIN_KEYSTORE_PASSWORD" | tr -d '\r\n')"
+        keytool -list -keystore "$KEYSTORE" -storepass "$DOLPHIN_KS_PASS" -alias dolphinassistant >/dev/null
+
+    - name: Sign v30.7.2 updater bootstrap APK
+      shell: bash
+      env:
+        DOLPHIN_KEYSTORE_PASSWORD: ${{ secrets.DOLPHIN_KEYSTORE_PASSWORD }}
+      run: |
+        set -euo pipefail
+        DOLPHIN_KS_PASS="$(printf '%s' "$DOLPHIN_KEYSTORE_PASSWORD" | tr -d '\r\n')"
+        export DOLPHIN_KS_PASS
+        APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort -V | tail -n 1)"
+        UNSIGNED="app/build/outputs/apk/release/app-release-unsigned.apk"
+        SIGNED="app/build/outputs/apk/release/DolphinAssistant-v30.7.2-stable.apk"
+        "$APKSIGNER" sign \
+          --ks "$RUNNER_TEMP/dolphin-release.jks" \
+          --ks-key-alias dolphinassistant \
+          --ks-pass env:DOLPHIN_KS_PASS \
+          --key-pass env:DOLPHIN_KS_PASS \
+          --out "$SIGNED" \
+          "$UNSIGNED"
+        "$APKSIGNER" verify --verbose --print-certs "$SIGNED"
+        sha256sum "$SIGNED" | tee app/build/outputs/apk/release/DolphinAssistant-v30.7.2-stable.sha256
+
+
+    - name: Publish updater-visible release
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+        VERSION_NAME="$(grep -m1 'versionName' app/build.gradle.kts | sed -E 's/.*versionName = "([^"]+)".*/\1/')"
+        TAG="$(printf '%s' "$VERSION_NAME" | grep -oE 'v[0-9]+(\.[0-9]+)+' | head -n 1)"
+        test -n "$TAG"
+
+        APK="app/build/outputs/apk/release/DolphinAssistant-v30.7.2-stable.apk"
+        SHA="app/build/outputs/apk/release/DolphinAssistant-v30.7.2-stable.sha256"
+        NOTES="Updater-visible DolphinAssistant release generated from the validated signed build. Future preview/test builds are also published as updater-visible Releases. APK integrity is protected by the paired SHA-256 asset and the app verifies the package name and signing certificate before opening Android's installer."
+
+        if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+          gh release upload "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --clobber
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --title "DolphinAssistant $TAG" --notes "$NOTES"
+        else
+          gh release create "$TAG" "$APK" "$SHA" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "DolphinAssistant $TAG" --notes "$NOTES"
+        fi
+
+    - name: Upload signed UI preview
+      uses: actions/upload-artifact@v4
+      with:
+        name: DolphinAssistant-v30.7.2-Update-Channel
+        path: |
+          app/build/outputs/apk/release/DolphinAssistant-v30.7.2-stable.apk
+          app/build/outputs/apk/release/DolphinAssistant-v30.7.2-stable.sha256
+        if-no-files-found: error
+        retention-days: 30
