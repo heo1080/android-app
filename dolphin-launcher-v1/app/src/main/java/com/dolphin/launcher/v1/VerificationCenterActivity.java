@@ -334,16 +334,36 @@ public class VerificationCenterActivity extends Activity {
         markerRow.setOrientation(LinearLayout.HORIZONTAL);
         addMarkerButton(markerRow, "시점 기록", "OPERATOR_MARK");
 
-        if ("AUD-DRV-002".equals(activeTestId)) {
+        if ("AUD-GEAR-001".equals(activeTestId)) {
+            addMarkerButton(markerRow, "P", "GEAR_P_VISIBLE");
+            addMarkerButton(markerRow, "R", "GEAR_R_VISIBLE");
+            addMarkerButton(markerRow, "N", "GEAR_N_VISIBLE");
+            addMarkerButton(markerRow, "D", "GEAR_D_VISIBLE");
+        } else if ("AUD-DRV-002".equals(activeTestId)) {
             addMarkerButton(markerRow, "OEM NORMAL", "OEM_NORMAL_VISIBLE");
         } else if ("AUD-REG-002".equals(activeTestId)) {
             addMarkerButton(markerRow, "OEM STANDARD", "OEM_STANDARD_VISIBLE");
+        } else if ("AUD-SNOW-001".equals(activeTestId)) {
+            addMarkerButton(markerRow, "Snow ON", "SNOW_ON_VISIBLE");
+        } else if ("AUD-SNOW-002".equals(activeTestId)) {
+            addMarkerButton(markerRow, "Snow OFF", "SNOW_OFF_VISIBLE");
         } else if ("AUD-AVH-001".equals(activeTestId)) {
             addMarkerButton(markerRow, "버튼 ON", "AUTOHOLD_SWITCH_ON_VISIBLE");
             addMarkerButton(markerRow, "버튼 OFF", "AUTOHOLD_SWITCH_OFF_VISIBLE");
         } else if ("AUD-AVH-002".equals(activeTestId)) {
             addMarkerButton(markerRow, "체결 표시", "AUTOHOLD_HELD_VISIBLE");
             addMarkerButton(markerRow, "해제/출발", "AUTOHOLD_RELEASE_VISIBLE");
+        } else if ("AUD-EPB-001".equals(activeTestId)) {
+            addMarkerButton(markerRow, "EPB 체결", "EPB_HELD_VISIBLE");
+            addMarkerButton(markerRow, "EPB 해제", "EPB_RELEASED_VISIBLE");
+        } else if ("AUD-ICC-001".equals(activeTestId)) {
+            addMarkerButton(markerRow, "ICC ON", "ICC_ON_VISIBLE");
+            addMarkerButton(markerRow, "ICC OFF", "ICC_OFF_VISIBLE");
+        } else if ("AUD-BSD-001".equals(activeTestId)) {
+            addMarkerButton(markerRow, "좌 BSD+좌깜빡이", "BSD_LEFT_CONTEXT_VISIBLE");
+            addMarkerButton(markerRow, "우 BSD+우깜빡이", "BSD_RIGHT_CONTEXT_VISIBLE");
+        } else if ("AUD-LVDA-001".equals(activeTestId)) {
+            addMarkerButton(markerRow, "전방차 출발", "LEADING_CAR_DEPARTURE_VISIBLE");
         }
         activeCaptureActions.addView(markerRow,
                 new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
