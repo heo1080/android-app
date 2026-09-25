@@ -48,7 +48,7 @@ public final class SplitCapabilityProbe {
                 AdbKeyPair.generate(privateKey, publicKey);
             }
             AdbKeyPair pair=AdbKeyPair.read(privateKey, publicKey);
-            try (Dadb adb=Dadb.create("localhost",5555,pair,1500,2500,false)) {
+            try (Dadb adb=Dadb.create("localhost",5555,pair,1500,2500)) {
                 dadb.AdbShellResponse response=adb.shell("echo DOLPHIN_SPLIT_PROBE");
                 authorized=response.getExitCode()==0 &&
                         response.getOutput().contains("DOLPHIN_SPLIT_PROBE");
