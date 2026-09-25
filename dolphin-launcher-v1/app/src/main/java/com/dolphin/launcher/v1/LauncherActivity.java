@@ -136,6 +136,7 @@ public class LauncherActivity extends Activity {
         InstrumentCapabilityProbe.capture(this);
         SurroundingVisionCapabilityProbe.capture(this);
         AudioCapabilityProbe.capture(this);
+        DriverAudioCapabilityProbe.capture(this);
         BlockedCapabilityRuntime.capture(this);
         DisplayDiagnostics.captureLaunchableAppOrientations(this);
         VerificationEvidenceRuntime.retryPendingUploadsAsync(this);
