@@ -1088,7 +1088,10 @@
         "다른 좌석/일반 media route와 분리",
         "순정 안전경고 방해 없음",
         "운전석 청취/타 좌석 무음/OEM 안전경고 우선권을 서로 다른 operator marker로 기록",
-        "실차 operator marker는 active correlation에서 각 3회 이상 기록되어야 PASS 선택 가능"
+        "실차 operator marker는 active correlation에서 각 3회 이상 기록되어야 PASS 선택 가능",
+        "AudioDeviceInfo 후보는 candidate_only이며 physical driver-only route로 자동 확정하지 않음",
+        "MODIFY_AUDIO_ROUTING 실제 grant와 output device inventory를 passive evidence로 기록",
+        "capability probe는 routing/UID affinity/AudioPolicy/BYD DSP write를 수행하지 않음"
       ],
       "required_logs": [
         "legacy stream",
@@ -1098,7 +1101,13 @@
         "actual audible result",
         "DRIVER_SEAT_AUDIBLE",
         "OTHER_SEATS_SILENT",
-        "OEM_WARNING_PREEMPT_OK"
+        "OEM_WARNING_PREEMPT_OK",
+        "DRIVER_AUDIO_PERMISSION",
+        "DRIVER_AUDIO_DEFAULTS",
+        "DRIVER_AUDIO_DEVICE_CANDIDATE",
+        "candidate_only=true",
+        "physical_driver_only=unproven",
+        "routing_write=false"
       ],
       "known_bad": [
         "과거 route probe에서 AudioTrack 성공인데 실제 소리 안 들린 사례",
@@ -1115,7 +1124,7 @@
       "evidence": [
         "DriverAudioPolicyLab comment says stream14 physical driver-only path previously verified"
       ],
-      "next_action": "latest build 독립 반복 검증",
+      "next_action": "최신 실차에서 passive output inventory의 BUS/BUILTIN/AUX 후보와 좌석별 실제 청취 결과를 AUD-DRVSPK-001로 상관; 후보 ID만으로 driver-only route 확정 금지",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "MEDIUM",
@@ -1140,13 +1149,22 @@
         "target UID/package만 driver output",
         "non-target media unchanged",
         "OEM safety audio preempts correctly",
-        "remove target restores stock"
+        "remove target restores stock",
+        "AudioDeviceInfo 후보는 candidate_only이며 physical driver-only route로 자동 확정하지 않음",
+        "MODIFY_AUDIO_ROUTING 실제 grant와 output device inventory를 passive evidence로 기록",
+        "capability probe는 routing/UID affinity/AudioPolicy/BYD DSP write를 수행하지 않음"
       ],
       "required_logs": [
         "MODIFY_AUDIO_ROUTING grant/effective",
         "output device id",
         "UID affinity/policy mix",
-        "OEM warning concurrency"
+        "OEM warning concurrency",
+        "DRIVER_AUDIO_PERMISSION",
+        "DRIVER_AUDIO_DEFAULTS",
+        "DRIVER_AUDIO_DEVICE_CANDIDATE",
+        "candidate_only=true",
+        "physical_driver_only=unproven",
+        "routing_write=false"
       ],
       "known_bad": [
         "source explicitly says arbitrary third-party interception not yet enabled",
@@ -1163,7 +1181,7 @@
       "evidence": [
         "DriverAudioPolicyLab safety block"
       ],
-      "next_action": "실차 capability/permission/output-device evidence 먼저",
+      "next_action": "MODIFY_AUDIO_ROUTING grant/effective와 물리 output 후보를 passive evidence로 먼저 확보; target UID routing write는 driver-only output이 독립 검증될 때까지 BLOCKED",
       "confidence": {
         "behavior": "LOW",
         "root_cause": "HIGH",
