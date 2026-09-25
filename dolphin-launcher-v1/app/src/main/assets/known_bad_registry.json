@@ -45,9 +45,9 @@
         "WIN-SPLIT-001",
         "WIN-SPLIT-002"
       ],
-      "summary": "split commands now require dumpsys/stack readback; real-car BYD visual split and camera-return behavior pending",
+      "summary": "split launch now requires primary/secondary readback; V1 also passively records BYD camera-exit candidates and post-camera split readback, while automatic restore remains disabled pending real-car proof",
       "state": "FIX_CANDIDATE",
-      "close_gate": "two repeatable real-car sessions with left_primary=true, right_secondary=true, readback_verified=true, visible two-app split, and safe camera enter/return"
+      "close_gate": "two repeatable real-car sessions with left_primary=true, right_secondary=true, readback_verified=true, visible two-app split, proven camera-exit lifecycle, safe camera return, and zero premature restore actuation"
     },
     {
       "id": "KB-005",
