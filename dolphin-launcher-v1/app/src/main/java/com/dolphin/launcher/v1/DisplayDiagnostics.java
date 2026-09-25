@@ -24,6 +24,11 @@ public final class DisplayDiagnostics {
             String accelerometerRotation=readSystem(activity,"accelerometer_rotation");
             String userRotation=readSystem(activity,"user_rotation");
             String fontScaleSetting=readSystem(activity,"font_scale");
+            int requestedOrientation=activity.getRequestedOrientation();
+            int displayRotation=activity.getDisplay()==null?-1:activity.getDisplay().getRotation();
+            int windowingMode=-1;
+            try { windowingMode=activity.getResources().getConfiguration().windowConfiguration.getWindowingMode(); }
+            catch(Throwable ignored) { }
             String forcedSize=readGlobal(activity,"display_size_forced");
             String detail="densityDpi="+dm.densityDpi
                     +";density="+dm.density
@@ -39,6 +44,9 @@ public final class DisplayDiagnostics {
                     +";accelerometerRotation="+safe(accelerometerRotation)
                     +";userRotation="+safe(userRotation)
                     +";fontScaleSetting="+safe(fontScaleSetting)
+                    +";requestedOrientation="+requestedOrientation
+                    +";displayRotation="+displayRotation
+                    +";windowingMode="+windowingMode
                     +";mode=read-only";
             VerificationEvidenceRuntime.recordPassiveEvent(activity,"DISPLAY_PROFILE",detail);
         }catch(Throwable t){
