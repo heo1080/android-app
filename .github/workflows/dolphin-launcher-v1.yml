@@ -108,6 +108,8 @@ jobs:
           unzip -p "$APK" classes.dex | strings | grep -q "VehiclePromptPlayer"
           unzip -p "$APK" classes.dex | strings | grep -q "VOICE_ASSET_MISSING"
           unzip -p "$APK" classes.dex | strings | grep -q "VOICE_PLAY_REQUESTED"
+          unzip -p "$APK" classes.dex | strings | grep -q "VOICE_TTS_READY"
+          unzip -p "$APK" classes.dex | strings | grep -q "VOICE_TTS_FALLBACK_REQUESTED"
           AAPT="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
           "$AAPT" dump permissions "$APK" | grep -q "android.permission.INTERNET"
           "$AAPT" dump permissions "$APK" | grep -q "android.permission.ACCESS_NETWORK_STATE"
