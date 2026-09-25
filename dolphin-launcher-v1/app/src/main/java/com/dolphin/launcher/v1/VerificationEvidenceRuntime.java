@@ -43,6 +43,8 @@ public final class VerificationEvidenceRuntime {
     private static final long MAX_UPLOAD_BYTES = 20L * 1024L * 1024L;
     private static final ExecutorService IO = Executors.newSingleThreadExecutor();
     private static boolean PROCESS_SESSION_STARTED = false;
+    private static boolean NETWORK_CALLBACK_REGISTERED = false;
+    private static ConnectivityManager.NetworkCallback NETWORK_CALLBACK;
 
     private VerificationEvidenceRuntime() {}
 
@@ -225,6 +227,29 @@ public final class VerificationEvidenceRuntime {
                 Log.e(TAG, "auto bundle failed", e);
             }
         });
+    }
+
+    /** Retry queued evidence as soon as Android reports network availability. */
+    public static synchronized void startAutomaticUploadRuntime(Context context) {
+        if (NETWORK_CALLBACK_REGISTERED) return;
+        Context app = context.getApplicationContext();
+        ConnectivityManager cm = (ConnectivityManager) app.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return;
+        NETWORK_CALLBACK = new ConnectivityManager.NetworkCallback() {
+            @Override public void onAvailable(Network network) {
+                Log.i(TAG, "network available; retrying queued evidence");
+                retryPendingUploadsAsync(app);
+            }
+        };
+        try {
+            cm.registerDefaultNetworkCallback(NETWORK_CALLBACK);
+            NETWORK_CALLBACK_REGISTERED = true;
+            retryPendingUploadsAsync(app);
+        } catch (Exception e) {
+            NETWORK_CALLBACK = null;
+            Log.w(TAG, "network callback registration failed; startup retry retained", e);
+            retryPendingUploadsAsync(app);
+        }
     }
 
     public static void retryPendingUploadsAsync(Context context) {
