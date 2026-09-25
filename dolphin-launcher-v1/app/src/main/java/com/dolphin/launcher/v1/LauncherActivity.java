@@ -664,6 +664,8 @@ public class LauncherActivity extends Activity {
         boolean auto = autoStartPackages().contains(app.packageName);
         String[] actions = new String[] {
                 favorite ? "홈 고정 해제" : "홈에 고정",
+                "순정 앱서랍에 바로가기 만들기",
+                "순정 앱서랍 바로가기 제거",
                 "2분할 왼쪽 앱으로 지정",
                 "2분할 오른쪽 앱으로 지정",
                 auto ? "시동 자동실행에서 제거" : "시동 자동실행에 추가",
@@ -674,10 +676,18 @@ public class LauncherActivity extends Activity {
                 .setTitle(app.label)
                 .setItems(actions, (dialog, which) -> {
                     if (which == 0) toggleFavorite(app.packageName);
-                    if (which == 1) setSplit(KEY_SPLIT_LEFT, app.packageName, "왼쪽");
-                    if (which == 2) setSplit(KEY_SPLIT_RIGHT, app.packageName, "오른쪽");
-                    if (which == 3) toggleAutoStart(app.packageName);
-                    if (which == 4) openAppInfo(app.packageName);
+                    if (which == 1) {
+                        boolean ok = AppDrawerShortcutManager.pin(this, app.packageName, app.label);
+                        Toast.makeText(this, ok ? "바로가기 생성 요청을 보냈습니다." : "이 런처에서는 바로가기 생성 요청을 사용할 수 없습니다.", Toast.LENGTH_LONG).show();
+                    }
+                    if (which == 2) {
+                        boolean ok = AppDrawerShortcutManager.disable(this, app.packageName);
+                        Toast.makeText(this, ok ? "바로가기를 비활성화했습니다." : "바로가기를 제거할 수 없습니다.", Toast.LENGTH_LONG).show();
+                    }
+                    if (which == 3) setSplit(KEY_SPLIT_LEFT, app.packageName, "왼쪽");
+                    if (which == 4) setSplit(KEY_SPLIT_RIGHT, app.packageName, "오른쪽");
+                    if (which == 5) toggleAutoStart(app.packageName);
+                    if (which == 6) openAppInfo(app.packageName);
                 })
                 .show();
     }
