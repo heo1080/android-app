@@ -994,7 +994,9 @@
       "requirement": "지원 내비 안내를 검증된 compact TBT 경로로 계기판에 보내고 정상 복원한다.",
       "source_paths": [
         "app/src/main/java/com/byd/dolphin/autoassistant/hud/ClusterMirrorManager.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/hud/NavGuidanceParser.kt"
+        "app/src/main/java/com/byd/dolphin/autoassistant/hud/NavGuidanceParser.kt",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/InstrumentCapabilityProbe.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DisplayDiagnostics.java"
       ],
       "test_ids": [
         "HUD-TBT-001"
@@ -1025,9 +1027,11 @@
         "실주행은 순정 안전 우선, passive observation"
       ],
       "evidence": [
-        "ClusterMirrorManager compact TBT bridge"
+        "ClusterMirrorManager compact TBT bridge",
+        "V1 read-only instrument API surface probe; no instrument method invocation",
+        "V1 logical display inventory evidence"
       ],
-      "next_action": "실차 instrument output과 restore 증거 확보",
+      "next_action": "실차 capability/display evidence 확보 후 write path는 별도 검증",
       "confidence": {
         "behavior": "LOW",
         "root_cause": "MEDIUM",
@@ -1088,7 +1092,8 @@
       "source_paths": [
         "app/src/main/java/com/byd/dolphin/autoassistant/drive/DriveRuntime.kt",
         "app/src/main/java/com/byd/dolphin/autoassistant/drive/DriveVisionActivity.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/ui/HomeHmiView.kt"
+        "app/src/main/java/com/byd/dolphin/autoassistant/ui/HomeHmiView.kt",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SurroundingVisionCapabilityProbe.java"
       ],
       "test_ids": [
         "FSD-VIS-001",
@@ -1118,9 +1123,10 @@
         "signal loss 시 UI degrade"
       ],
       "evidence": [
-        "source comments: no mock numbers, ADAS/radar RAW/LAB"
+        "source comments: no mock numbers, ADAS/radar RAW/LAB",
+        "V1 read-only RADAR/ADAS public API surface probe; no getter invocation"
       ],
-      "next_action": "Sensor Source Matrix와 TTL 적용",
+      "next_action": "실차 capability evidence로 source matrix 확정 후 getter별 의미 검증",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
@@ -1180,7 +1186,9 @@
       "source_paths": [
         "app/src/main/java/com/byd/dolphin/autoassistant/hud/NavGuidanceParser.kt",
         "app/src/main/java/com/byd/dolphin/autoassistant/hud/MultiNavNotificationListener.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/drive/DriveRuntime.kt"
+        "app/src/main/java/com/byd/dolphin/autoassistant/drive/DriveRuntime.kt",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/NavNotificationEvidenceService.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DisplayDiagnostics.java"
       ],
       "test_ids": [
         "NAV-SAFE-001"
@@ -1208,9 +1216,10 @@
         "지원 내비 각 1개 route, camera/section/parking 알림 capture"
       ],
       "evidence": [
-        "NavGuidanceParser SUPPORTED_NAV_PACKAGES"
+        "NavGuidanceParser SUPPORTED_NAV_PACKAGES",
+        "V1 privacy-safe notification hash/provenance capture; parser disabled pending evidence"
       ],
-      "next_action": "app version compatibility registry 연결",
+      "next_action": "실차 notification access/connected/package별 payload contract 확보 후 parser 활성화 검토",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
@@ -1314,7 +1323,7 @@
         "COMF-MIR-001",
         "COMF-MIR-002"
       ],
-      "state": "BETA",
+      "state": "REVERIFY_REQUIRED",
       "acceptance": [
         "0~8 verified setter range만 사용",
         "5km/h 이하 gate",
@@ -1339,9 +1348,10 @@
         "R→D/P 복귀"
       ],
       "evidence": [
-        "MirrorMemoryManager calibrated reverse-down implementation"
+        "MirrorMemoryManager calibrated reverse-down implementation",
+        "V1 runtime implementation not present; legacy source is research evidence only"
       ],
-      "next_action": "실차 calibration provenance와 복원 반복성 확보",
+      "next_action": "V1 runtime 구현 전까지 기능 제공으로 간주하지 않음; 실차 API evidence 선행",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
@@ -1405,7 +1415,7 @@
         "COMF-LIGHT-001",
         "COMF-LIGHT-002"
       ],
-      "state": "BETA",
+      "state": "REVERIFY_REQUIRED",
       "acceptance": [
         "command success가 물리 반응과 일치",
         "ON/OFF readback 또는 독립 관찰",
@@ -1429,9 +1439,10 @@
         "물리 반응 기록"
       ],
       "evidence": [
-        "InsideLightManager + raw calibration patch"
+        "InsideLightManager + raw calibration patch",
+        "V1 runtime implementation not present; legacy source is research evidence only"
       ],
-      "next_action": "return code와 physical state 분리 기록",
+      "next_action": "V1 runtime 구현 전까지 기능 제공으로 간주하지 않음; 실차 API evidence 선행",
       "confidence": {
         "behavior": "LOW",
         "root_cause": "MEDIUM",
