@@ -116,8 +116,13 @@ public final class VehicleReadOnlyMonitor {
         int areaRl=staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_REAR",-1);
         int areaRr=staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_REAR",-1);
         boolean tpmsAreasReady=areaFl>=0 && areaFr>=0 && areaRl>=0 && areaRr>=0;
-        if(!tpmsAreasReady) once("tpms.area.unresolved",
-                "TPMS_AREA_UNRESOLVED fl="+areaFl+";fr="+areaFr+";rl="+areaRl+";rr="+areaRr);
+        if(!tpmsAreasReady) {
+            String detail="TPMS_AREA_UNRESOLVED fl="+areaFl+";fr="+areaFr+";rl="+areaRl+";rr="+areaRr;
+            if(errors.add(detail)) {
+                Log.w(TAG,detail);
+                VerificationEvidenceRuntime.recordPassiveEvent(app,"TPMS_AREA_UNRESOLVED",detail);
+            }
+        }
 
         Integer tyreFl=tpmsAreasReady?readIntArg(TYRE,"getTyrePressureValue",areaFl):null;
         Integer tyreFr=tpmsAreasReady?readIntArg(TYRE,"getTyrePressureValue",areaFr):null;
