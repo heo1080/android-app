@@ -33,7 +33,9 @@
       "area": "release",
       "requirement": "소스 commit, 실제 생성 APK, package/version/signature/build workflow를 1:1로 추적한다.",
       "source_paths": [
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java",
+        "dolphin-launcher-v1/app/src/main/AndroidManifest.xml",
+        "dolphin-launcher-v1/app/build.gradle.kts"
       ],
       "test_ids": [
         "BLD-ID-001",
@@ -43,17 +45,24 @@
       "acceptance": [
         "APK manifest의 package/versionCode/versionName이 release metadata와 일치",
         "APK가 어떤 source commit+patch chain에서 생성됐는지 추적 가능",
-        "동일 signing certificate 유지"
+        "동일 signing certificate 유지",
+        "packaged APK launchable activity는 com.dolphin.launcher.v1.LauncherActivity 정확히 1개",
+        "BYD 설치 호환성이 실차 검증되기 전 HOME category는 packaged Manifest에 없어야 함",
+        "minSdk=29 targetSdk=35가 packaged APK metadata와 일치"
       ],
       "required_logs": [
         "source commit",
         "workflow run id",
         "versionCode/versionName",
         "APK SHA-256",
-        "signing fingerprint"
+        "signing fingerprint",
+        "launchable activity count",
+        "HOME category absent",
+        "minSdk 29",
+        "targetSdk 35"
       ],
       "known_bad": [
-        "main build.gradle.kts는 3.0.7/versionCode37인데 최근 release line은 v34.3.1로 관찰됨"
+        "과거 V1 설치본에서 HOME category가 BYD Korean Dolphin에서 desktop app으로 분류되어 설치 거부된 회귀"
       ],
       "dependencies": [
         "GitHub Actions",
@@ -66,10 +75,11 @@
         "앱 Health/진단에서 build identity 확인"
       ],
       "evidence": [
-        "commit 1c60bec: validation trigger",
-        "workflow search: v34.3.1 artifact metadata"
+        "CI validates packaged APK package/version/minSdk/targetSdk/launchable activity",
+        "packaged Manifest must contain LAUNCHER and must not contain HOME",
+        "build identity evidence records source commit/APK SHA-256"
       ],
-      "next_action": "CI patch 결과가 실제 source tree와 어떻게 합성되는지 release provenance에 고정",
+      "next_action": "최신 V1 APK를 BYD Korean Dolphin에 설치해 desktop-app 오인 없이 앱서랍 노출/일반 실행을 LCH-ID-001로 재검증",
       "confidence": {
         "behavior": "HIGH",
         "root_cause": "HIGH",
@@ -144,13 +154,17 @@
       "acceptance": [
         "앱서랍에서 정상 아이콘/이름 표시",
         "실행 시 desktop/freeform 오인 없음",
-        "HOME 역할을 의도하지 않았다면 HOME category 없음"
+        "HOME 역할을 의도하지 않았다면 HOME category 없음",
+        "앱서랍 아이콘 표시와 일반 앱 형태 실행을 operator marker로 각각 확인",
+        "HOME category 비활성 상태에서 desktop/freeform 오인 없이 실행"
       ],
       "required_logs": [
         "resolved activity",
         "intent categories",
         "windowing mode",
-        "dumpsys activity"
+        "dumpsys activity",
+        "APP_DRAWER_ICON_VISIBLE",
+        "NORMAL_APP_LAUNCH_VISIBLE"
       ],
       "known_bad": [
         "과거 빌드에서 데스크탑 앱으로 인식되는 오류 우려/경험"
