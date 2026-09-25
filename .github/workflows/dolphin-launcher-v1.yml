@@ -103,7 +103,7 @@ jobs:
                   assert token in source, ("missing token", path, token)
           print(f"RUNTIME_SURFACES_OK schema=2 surfaces={len(surfaces)}")
           PY
-                    unzip -p "$APK" classes.dex | strings | grep -q "VerificationCenterActivity"
+          unzip -p "$APK" classes.dex | strings | grep -q "VerificationCenterActivity"
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationEvidenceRuntime"
           unzip -p "$APK" classes.dex | strings | grep -q "AppUpdateManager"
           unzip -p "$APK" classes.dex | strings | grep -q "UpdateInstallReceiver"
