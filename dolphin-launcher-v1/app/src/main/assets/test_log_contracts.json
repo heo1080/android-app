@@ -783,20 +783,33 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
-      "success_any": [],
-      "failure_any": [],
+      "required_any": [
+        "VEHICLE_RAW",
+        "OPERATOR_OBSERVATION",
+        "gear.candidate.unmapped"
+      ],
+      "success_any": [
+        "observation=GEAR_P_VISIBLE",
+        "observation=GEAR_R_VISIBLE",
+        "observation=GEAR_N_VISIBLE",
+        "observation=GEAR_D_VISIBLE"
+      ],
+      "failure_any": [
+        "gear voice emitted from unproven raw mapping"
+      ],
       "known_bad_ids": [],
       "acceptance": [
-        "P/R/N/D 각각 올바른 문구",
-        "동일 상태 반복 음성 없음",
-        "미확인 raw 값 무시"
+        "P/R/N/D operator markers each correlate to a stable distinct gear_raw value before speech is enabled",
+        "repeat each position at least 3 times and repeat in a second diagnostic session",
+        "startup baseline and unproven raw values remain silent"
       ],
       "required_logs": [
-        "gear raw",
-        "normalized state",
-        "TTS phrase",
-        "correlation id"
+        "VEHICLE_RAW",
+        "gear.candidate.unmapped",
+        "OPERATOR_OBSERVATION",
+        "gear_raw",
+        "latest_raw",
+        "elapsed_realtime_ms"
       ]
     },
     {
@@ -1030,7 +1043,8 @@
       ],
       "success_any": [
         "road_surface_raw=2;normalized=ON",
-        "prompt=snow_on"
+        "prompt=snow_on",
+        "observation=SNOW_ON_VISIBLE"
       ],
       "failure_any": [
         "SNOW_MODE_UNMAPPED on raw 2",
@@ -1049,7 +1063,10 @@
         "SNOW_RAW_TRANSITION",
         "SNOW_EVIDENCE_MAP",
         "VEHICLE_VOICE",
-        "operator Snow state"
+        "operator Snow state",
+        "OPERATOR_OBSERVATION",
+        "latest_raw",
+        "elapsed_realtime_ms"
       ]
     },
     {
@@ -1079,7 +1096,8 @@
       ],
       "success_any": [
         "road_surface_raw=1;normalized=OFF",
-        "prompt=snow_off"
+        "prompt=snow_off",
+        "observation=SNOW_OFF_VISIBLE"
       ],
       "failure_any": [
         "SNOW_MODE_UNMAPPED on raw 1",
@@ -1098,7 +1116,10 @@
         "SNOW_EVIDENCE_MAP",
         "VEHICLE_VOICE",
         "road_surface_raw",
-        "operator Snow OFF observation"
+        "operator Snow OFF observation",
+        "OPERATOR_OBSERVATION",
+        "latest_raw",
+        "elapsed_realtime_ms"
       ]
     },
     {
@@ -1233,18 +1254,31 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
-      "success_any": [],
-      "failure_any": [],
+      "required_any": [
+        "VEHICLE_RAW",
+        "OPERATOR_OBSERVATION",
+        "epb.candidate.unmapped"
+      ],
+      "success_any": [
+        "observation=EPB_HELD_VISIBLE",
+        "observation=EPB_RELEASED_VISIBLE"
+      ],
+      "failure_any": [
+        "EPB voice emitted from unproven raw mapping"
+      ],
       "known_bad_ids": [],
       "acceptance": [
-        "getEPBState edge와 음성 일치",
-        "초기 baseline을 상태 변화로 말하지 않음"
+        "EPB held/released operator markers correlate to stable distinct epb_raw values before speech is enabled",
+        "repeat held/released at least 3 times and repeat in a second diagnostic session",
+        "startup baseline remains silent"
       ],
       "required_logs": [
-        "EPB raw",
-        "normalized",
-        "phrase"
+        "VEHICLE_RAW",
+        "epb.candidate.unmapped",
+        "OPERATOR_OBSERVATION",
+        "epb_raw",
+        "latest_raw",
+        "elapsed_realtime_ms"
       ]
     },
     {
@@ -1268,19 +1302,29 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
-      "success_any": [],
-      "failure_any": [],
+      "required_any": [
+        "ICC_TJA_RAW_TRANSITION",
+        "OPERATOR_OBSERVATION"
+      ],
+      "success_any": [
+        "observation=ICC_ON_VISIBLE",
+        "observation=ICC_OFF_VISIBLE"
+      ],
+      "failure_any": [
+        "ICC voice emitted from unproven tja_raw mapping"
+      ],
       "known_bad_ids": [],
       "acceptance": [
-        "ON/OFF raw mapping 검증",
-        "각 edge 한 번만 음성",
-        "미확인 상태 무시"
+        "ICC ON/OFF operator markers correlate to stable distinct tja_raw values before speech is enabled",
+        "repeat ON/OFF at least 3 times and repeat in a second diagnostic session",
+        "unproven TJA/ICC states remain silent"
       ],
       "required_logs": [
-        "ICC/TJA candidate raw",
-        "normalized",
-        "phrase"
+        "ICC_TJA_RAW_TRANSITION",
+        "OPERATOR_OBSERVATION",
+        "tja_raw",
+        "latest_raw",
+        "elapsed_realtime_ms"
       ]
     },
     {
@@ -1304,20 +1348,33 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
-      "success_any": [],
-      "failure_any": [],
+      "required_any": [
+        "BSD_RAW_TRANSITION",
+        "TURN_SIGNAL_RAW_TRANSITION",
+        "OPERATOR_OBSERVATION"
+      ],
+      "success_any": [
+        "observation=BSD_LEFT_CONTEXT_VISIBLE",
+        "observation=BSD_RIGHT_CONTEXT_VISIBLE"
+      ],
+      "failure_any": [
+        "left/right BSD warning emitted without proven side correlation"
+      ],
       "known_bad_ids": [],
       "acceptance": [
-        "BSD raw와 turn signal 방향 일치 시만 경고",
-        "반대 방향/미감지 시 무음",
-        "순정 경고와 과도한 중복 없음"
+        "left/right operator context markers preserve bsd_raw plus both turn raw values",
+        "prove side correlation independently before any additional warning sound is enabled",
+        "opposite direction and no-BSD conditions remain silent"
       ],
       "required_logs": [
-        "BSD raw",
-        "turn raw",
-        "direction",
-        "warning timestamp"
+        "BSD_RAW_TRANSITION",
+        "TURN_SIGNAL_RAW_TRANSITION",
+        "OPERATOR_OBSERVATION",
+        "bsd_raw",
+        "turn_left_raw",
+        "turn_right_raw",
+        "latest_raw",
+        "elapsed_realtime_ms"
       ]
     },
     {
@@ -1341,20 +1398,30 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
-      "success_any": [],
-      "failure_any": [],
+      "required_any": [
+        "LEADING_OBJECT_RADAR_RAW",
+        "OPERATOR_OBSERVATION"
+      ],
+      "success_any": [
+        "observation=LEADING_CAR_DEPARTURE_VISIBLE"
+      ],
+      "failure_any": [
+        "radar object change classified as leading-car departure without provenance"
+      ],
       "known_bad_ids": [],
       "acceptance": [
-        "지원 내비 notification/확인된 차량 신호에서만 트리거",
-        "오탐 최소화",
-        "동일 이벤트 중복 음성 없음"
+        "operator departure marker preserves radar area7/area8 raw context",
+        "radar-only evidence remains classification=unknown-object until repeated vehicle correlation proves provenance",
+        "no departure speech from an unproven radar pattern"
       ],
       "required_logs": [
-        "source package",
-        "notification parser result",
-        "vehicle candidate raw",
-        "phrase"
+        "LEADING_OBJECT_RADAR_RAW",
+        "OPERATOR_OBSERVATION",
+        "radar_area7_raw",
+        "radar_area8_raw",
+        "latest_raw",
+        "elapsed_realtime_ms",
+        "classification=unknown-object"
       ]
     },
     {
