@@ -470,6 +470,16 @@ public class VerificationCenterActivity extends Activity {
                 {"우 BSD+우깜빡이","BSD_RIGHT_CONTEXT_VISIBLE"}};
         if ("AUD-LVDA-001".equals(testId)) return new String[][]{
                 {"전방차 출발","LEADING_CAR_DEPARTURE_VISIBLE"}};
+        if ("WIN-SPLIT-001".equals(testId)) return new String[][]{
+                {"2분할 보임","SPLIT_TWO_APP_VISIBLE"},
+                {"카메라 복귀 정상","SPLIT_CAMERA_RETURN_OK"}};
+        if ("WIN-SPLIT-002".equals(testId)) return new String[][]{
+                {"바로가기 아이콘","SPLIT_SHORTCUT_ICON_VISIBLE"},
+                {"바로가기 2분할","SPLIT_SHORTCUT_LAUNCH_VISIBLE"}};
+        if ("AUD-DRVSPK-001".equals(testId)) return new String[][]{
+                {"운전석 들림","DRIVER_SEAT_AUDIBLE"},
+                {"타 좌석 무음","OTHER_SEATS_SILENT"},
+                {"순정경고 정상","OEM_WARNING_PREEMPT_OK"}};
         return new String[0][0];
     }
 
