@@ -664,29 +664,37 @@
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
       "required_any": [
-        "stream14 voice played",
-        "TTS"
+        "VOICE_ASSET_READY",
+        "VOICE_ASSET_MISSING",
+        "VOICE_PLAY_REQUESTED",
+        "VOICE_TTS_FALLBACK_REQUESTED"
       ],
       "success_any": [
-        "stream14 voice played"
+        "all 22 fixed assets ready before fixed female voice claim",
+        "VOICE_PLAY_REQUESTED with immediate audible operator result"
       ],
       "failure_any": [
-        "TTS generation failed",
-        "status=-1"
+        "VOICE_ASSET_LOAD_FAILED",
+        "VOICE_PLAY_FAILED",
+        "fixed female voice claimed while any VOICE_ASSET_MISSING remains"
       ],
       "known_bad_ids": [
         "KB-007"
       ],
       "acceptance": [
-        "미리듣기 즉시 재생",
-        "이전 utterance가 비프 뒤 늦게 재생되지 않음",
-        "vehicle event→audio start latency 기록"
+        "all 22 manifest prompts preserve exact event/value/id/phrase semantics",
+        "fixed female voice is reported ready only when all 22 packaged assets load",
+        "play request and real-car audible success are recorded separately",
+        "vehicle event to audible start latency is recorded"
       ],
       "required_logs": [
-        "event timestamp",
-        "TTS generation/cache",
-        "AudioTrack start",
-        "stream/device"
+        "VOICE_ASSET_READY",
+        "VOICE_ASSET_MISSING",
+        "VOICE_ASSET_LOAD_FAILED",
+        "VOICE_PLAY_REQUESTED",
+        "VOICE_PLAY_FAILED",
+        "audible/operator result",
+        "event timestamp"
       ]
     },
     {
@@ -710,20 +718,36 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
-      "success_any": [],
-      "failure_any": [],
+      "required_any": [
+        "VOICE_TTS_READY",
+        "VOICE_TTS_FALLBACK_REQUESTED",
+        "VOICE_PROMPT_NOT_READY",
+        "VOICE_TTS_INIT_FAILED"
+      ],
+      "success_any": [
+        "TTS fallback audible immediately with no delayed previous utterance"
+      ],
+      "failure_any": [
+        "VOICE_TTS_INIT_FAILED",
+        "VOICE_TTS_FALLBACK_FAILED",
+        "previous utterance plays after a later beep or prompt",
+        "fallback reported as guaranteed female fixed voice"
+      ],
       "known_bad_ids": [],
       "acceptance": [
-        "미리듣기 즉시 재생",
-        "이전 utterance가 비프 뒤 늦게 재생되지 않음",
-        "vehicle event→audio start latency 기록"
+        "missing fixed asset may use Android TTS fallback without claiming fixed female voice",
+        "QUEUE_FLUSH prevents stale utterance from playing after a later audio action",
+        "10 repeated prompts and beep-to-voice crossings show no delayed prior utterance",
+        "cold-start fallback readiness and audible latency are recorded"
       ],
       "required_logs": [
-        "event timestamp",
-        "TTS generation/cache",
-        "AudioTrack start",
-        "stream/device"
+        "VOICE_TTS_READY",
+        "VOICE_TTS_KOREAN_UNAVAILABLE",
+        "VOICE_TTS_FALLBACK_REQUESTED",
+        "VOICE_TTS_FALLBACK_FAILED",
+        "VOICE_PROMPT_NOT_READY",
+        "audible/operator result",
+        "event timestamp"
       ]
     },
     {
