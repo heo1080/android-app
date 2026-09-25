@@ -253,8 +253,18 @@ public final class VerificationEvidenceRuntime {
     }
 
     public static void retryPendingUploadsAsync(Context context) {
+        retryPendingUploadsAsync(context, null);
+    }
+
+    public static void retryPendingUploadsAsync(Context context, Runnable completion) {
         Context app = context.getApplicationContext();
-        IO.execute(() -> retryPendingUploads(app));
+        IO.execute(() -> {
+            try {
+                retryPendingUploads(app);
+            } finally {
+                if (completion != null) completion.run();
+            }
+        });
     }
 
     private static void retryPendingUploads(Context context) {
