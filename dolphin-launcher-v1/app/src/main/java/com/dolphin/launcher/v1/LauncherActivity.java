@@ -847,6 +847,16 @@ public class LauncherActivity extends Activity {
                 label.setPadding(dp(12), 0, dp(10), 0);
                 row.addView(label, new LinearLayout.LayoutParams(0, dp(50), 1f));
 
+                Switch media = new Switch(this);
+                media.setText("미디어");
+                media.setTextColor(Color.WHITE);
+                media.setChecked(AutoStartStore.mediaEnabled(prefs, app.packageName));
+                media.setOnCheckedChangeListener((b, checked) -> {
+                    AutoStartStore.setMediaEnabled(prefs, app.packageName, checked);
+                    VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_MEDIA_CHANGED", "package=" + app.packageName + ";enabled=" + checked);
+                });
+                row.addView(media, new LinearLayout.LayoutParams(dp(92), dp(44)));
+
                 Button up = button("↑");
                 up.setOnClickListener(v -> {
                     if (AutoStartStore.move(prefs, app.packageName, -1)) {
@@ -917,9 +927,7 @@ public class LauncherActivity extends Activity {
 
             Button add = button("추가");
             add.setOnClickListener(v -> {
-                LinkedHashSet<String> next = new LinkedHashSet<>(autoStartPackages());
-                if (next.add(app.packageName)) {
-                    prefs.edit().putStringSet(KEY_AUTOSTART_SET, next).apply();
+                if (AutoStartStore.add(prefs, app.packageName)) {
                     VerificationEvidenceRuntime.recordPassiveEvent(
                             this, "AUTOSTART_APP_ADDED", "package=" + app.packageName);
                     Toast.makeText(this, app.label + " · 시동 자동실행 추가", Toast.LENGTH_SHORT).show();
