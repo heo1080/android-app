@@ -116,7 +116,8 @@ public final class VehicleReadOnlyMonitor {
             Object d=devices.get(className);
             if(d==null){
                 Class<?> c=Class.forName(className);
-                d=c.getMethod("getInstance",Context.class).invoke(null,app);
+                Context bydContext = BydPermissionContext.wrap(app);
+                d=c.getMethod("getInstance",Context.class).invoke(null,bydContext);
                 if(d==null)throw new IllegalStateException("getInstance null");
                 devices.put(className,d);
             }
