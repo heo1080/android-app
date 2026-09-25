@@ -847,7 +847,10 @@
         "load_many",
         "single_session_candidate_not_verified",
         "cross_session_candidate_not_verified",
-        "matching_stable_sessions"
+        "matching_stable_sessions",
+        "DISTINCT_GROUPS",
+        "mapping_conflicts",
+        "conflict_need_more_data"
       ]
     }
   ],
