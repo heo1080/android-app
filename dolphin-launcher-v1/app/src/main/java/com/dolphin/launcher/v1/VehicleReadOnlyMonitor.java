@@ -31,6 +31,8 @@ public final class VehicleReadOnlyMonitor {
         void onEpb(boolean held);
         void onAvhRaw(Integer raw);
         void onBsdRaw(Integer raw);
+        void onSnowRaw(Integer raw);
+        void onIccCandidateRaw(Integer raw);
         void onRaw(String signal, Integer raw);
     }
 
@@ -85,6 +87,13 @@ public final class VehicleReadOnlyMonitor {
         changed("setting.energyFeedback",regen);
         String rm=decodeRegen(regen);
         if(rm!=null && changedNormalized("regen.normalized",regen)) post(()->listener.onRegen(rm));
+
+        // Snow and ICC/TJA remain candidates until V1 real-car correlation confirms
+        // both directions. Record raw transitions without speaking guessed semantics.
+        Integer roadSurface=read(ENERGY,"getRoadSurfaceMode");
+        if(changed("energy.roadSurfaceMode",roadSurface)) post(()->listener.onSnowRaw(roadSurface));
+        Integer tja=read(ADAS,"getTJAState");
+        if(changed("adas.tja",tja)) post(()->listener.onIccCandidateRaw(tja));
 
         // Semantics still require physical-control correlation. Expose transitions to
         // the listener as raw evidence only; do not map them to spoken ON/OFF/side yet.
