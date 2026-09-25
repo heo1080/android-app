@@ -129,6 +129,17 @@
         "getRadarObstacleDistance",
         "onFrontRadarRaw"
       ]
+    },
+    {
+      "feature_id": "TPMS_READ_ONLY",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
+      "tokens": [
+        "BYDAutoTyreDevice",
+        "getTyrePressureValue",
+        "getTyrePressureState",
+        "getTyreSignalState",
+        "onTpmsRaw"
+      ]
     }
   ]
 }
