@@ -11,12 +11,6 @@ on:
     paths:
       - "dolphin-launcher-v1/**"
       - ".github/workflows/dolphin-launcher-v1.yml"
-  pull_request:
-    branches:
-      - dolphin-launcher-v1
-    paths:
-      - "dolphin-launcher-v1/**"
-      - ".github/workflows/dolphin-launcher-v1.yml"
   workflow_dispatch:
 
 permissions:
