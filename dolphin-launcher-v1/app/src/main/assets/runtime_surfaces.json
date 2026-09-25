@@ -6,9 +6,11 @@
       "feature_id": "APP_DRAWER_SHORTCUTS",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
       "tokens": [
-        "createPinnedSplitShortcut",
-        "requestPinShortcut",
-        "SPLIT_SHORTCUT_REQUEST"
+        "showAppActions",
+        "AppDrawerShortcutManager.pin",
+        "AppDrawerShortcutManager.disable",
+        "handleAppShortcutIntent",
+        "APP_SHORTCUT_INVOKED"
       ]
     },
     {
@@ -593,6 +595,22 @@
         "uid_affinity_write=false",
         "audio_policy_write=false",
         "byd_dsp_write=false"
+      ]
+    },
+    {
+      "feature_id": "APP_DRAWER_SHORTCUTS",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AppDrawerShortcutManager.java",
+      "tokens": [
+        "requestPinShortcut",
+        "APP_SHORTCUT_PIN_REQUEST",
+        "APP_SHORTCUT_DISABLED"
+      ]
+    },
+    {
+      "feature_id": "APP_DRAWER_SHORTCUTS",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/ShortcutPinReceiver.java",
+      "tokens": [
+        "APP_SHORTCUT_PIN_CONFIRMED"
       ]
     }
   ],
