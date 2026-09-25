@@ -42,6 +42,7 @@ public final class VerificationEvidenceRuntime {
     private static final String UPLOAD_URL = "https://dolphin-v1-evidence.heo1080.workers.dev/upload";
     private static final long MAX_UPLOAD_BYTES = 20L * 1024L * 1024L;
     private static final ExecutorService IO = Executors.newSingleThreadExecutor();
+    private static boolean PROCESS_SESSION_STARTED = false;
 
     private VerificationEvidenceRuntime() {}
 
@@ -57,7 +58,13 @@ public final class VerificationEvidenceRuntime {
         String session = UUID.randomUUID().toString();
         prefs(context).edit().putString(KEY_SESSION, session).apply();
         append(context, "SESSION_START", null, UUID.randomUUID().toString(), "STARTED", reason);
+        PROCESS_SESSION_STARTED = true;
         return session;
+    }
+
+    public static synchronized String ensureProcessSession(Context context, String reason) {
+        if (!PROCESS_SESSION_STARTED) return beginSession(context, reason);
+        return currentSessionId(context);
     }
 
     public static synchronized String currentSessionId(Context context) {
@@ -188,8 +195,7 @@ public final class VerificationEvidenceRuntime {
             addAsset(context, out, "test_log_contracts.json");
             addAsset(context, out, "feature_dependencies.json");
             addAsset(context, out, "runtime_surfaces.json");
-            File ledger = evidenceLedger(context);
-            if (ledger.exists()) addFile(out, ledger, LEDGER);
+            addSessionLedger(context, out, sessionId);
 
             JSONObject identity = new JSONObject();
             identity.put("package", context.getPackageName());
@@ -345,6 +351,29 @@ public final class VerificationEvidenceRuntime {
             while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
             out.closeEntry();
         }
+    }
+
+    private static void addSessionLedger(Context context, ZipOutputStream out, String sessionId) throws Exception {
+        out.putNextEntry(new ZipEntry(LEDGER));
+        File ledger = evidenceLedger(context);
+        if (ledger.exists()) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    new FileInputStream(ledger), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    try {
+                        JSONObject row = new JSONObject(line);
+                        if (sessionId.equals(row.optString("diagnostic_session_id", ""))) {
+                            out.write(line.getBytes(StandardCharsets.UTF_8));
+                            out.write('\n');
+                        }
+                    } catch (Exception malformed) {
+                        Log.w(TAG, "Skipping malformed evidence row");
+                    }
+                }
+            }
+        }
+        out.closeEntry();
     }
 
     private static void addFile(ZipOutputStream out, File file, String name) throws Exception {
