@@ -91,6 +91,14 @@ jobs:
           surface_ids={s["feature_id"] for s in surfaces}
           assert registry_ids == surface_ids, ("registry/runtime feature drift", sorted(registry_ids-surface_ids), sorted(surface_ids-registry_ids))
           root=pathlib.Path(".")
+          surface_paths={}
+          for s in surfaces:
+              surface_paths.setdefault(s["feature_id"],set()).add(s["path"])
+          for feature in registry.get("features", []):
+              declared=set(feature.get("source_paths", []))
+              actual=surface_paths.get(feature["feature_id"],set())
+              assert declared == actual, ("registry source/runtime drift", feature["feature_id"], sorted(declared-actual), sorted(actual-declared))
+              assert declared, ("registry source paths empty", feature["feature_id"])
           legacy="app/src/main/java/com/byd/dolphin/autoassistant/"
           for s in surfaces:
               path=s.get("path","")
@@ -99,7 +107,7 @@ jobs:
               p=root/path
               assert p.is_file(), ("missing surface", path)
               source=p.read_text(encoding="utf-8")
-              for token in s.get("tokens", []):
+              for token in s.get("required_tokens", s.get("tokens", [])):
                   assert token in source, ("missing token", path, token)
           print(f"RUNTIME_SURFACES_OK schema=2 surfaces={len(surfaces)}")
           PY
