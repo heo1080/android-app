@@ -735,16 +735,26 @@ public class LauncherActivity extends Activity {
                 .putExtra(EXTRA_SPLIT_LEFT, left)
                 .putExtra(EXTRA_SPLIT_RIGHT, right)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        android.content.pm.ShortcutInfo shortcut = new android.content.pm.ShortcutInfo.Builder(this,
-                        "dolphin_split_pair_" + Integer.toHexString((left + "|" + right).hashCode()))
+        String shortcutId = "dolphin_split_pair_" + Integer.toHexString((left + "|" + right).hashCode());
+        android.content.pm.ShortcutInfo shortcut = new android.content.pm.ShortcutInfo.Builder(this, shortcutId)
                 .setShortLabel("2분할")
                 .setLongLabel(label)
                 .setIcon(android.graphics.drawable.Icon.createWithResource(this, getApplicationInfo().icon))
                 .setIntent(launch)
                 .build();
+        Intent callback = new Intent(this, ShortcutPinReceiver.class)
+                .setAction("com.dolphin.launcher.v1.SPLIT_SHORTCUT_PIN_RESULT")
+                .putExtra("shortcut_kind", "split")
+                .putExtra("shortcut_id", shortcutId)
+                .putExtra(EXTRA_SPLIT_LEFT, left)
+                .putExtra(EXTRA_SPLIT_RIGHT, right);
+        android.app.PendingIntent pinResult = android.app.PendingIntent.getBroadcast(
+                this, shortcutId.hashCode(), callback,
+                android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE);
+        boolean requested = manager.requestPinShortcut(shortcut, pinResult.getIntentSender());
         VerificationEvidenceRuntime.recordPassiveEvent(
-                this, "SPLIT_SHORTCUT_REQUEST", "pair=" + splitDescription());
-        manager.requestPinShortcut(shortcut, null);
+                this, "SPLIT_SHORTCUT_REQUEST",
+                "shortcut_id=" + shortcutId + ";left=" + left + ";right=" + right + ";requested=" + requested);
     }
 
     private void launchSplitPair() {
