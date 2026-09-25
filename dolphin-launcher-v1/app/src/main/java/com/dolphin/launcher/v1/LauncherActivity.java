@@ -33,6 +33,7 @@ import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,6 +69,7 @@ public class LauncherActivity extends Activity {
     private List<AppEntry> apps = new ArrayList<>();
     private VehicleReadOnlyMonitor vehicleMonitor;
     private VehiclePromptPlayer vehiclePromptPlayer;
+    private OwnedAudioEqualizer ownedAudioEqualizer;
     private volatile Integer tpmsFlKpa, tpmsFrKpa, tpmsRlKpa, tpmsRrKpa;
     private final VehicleVoicePolicy.Output vehicleVoiceOutput = (promptId, phrase) -> {
         if (vehiclePromptPlayer == null) {
@@ -105,6 +107,7 @@ public class LauncherActivity extends Activity {
         super.onCreate(savedInstanceState);
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         vehiclePromptPlayer = new VehiclePromptPlayer(this);
+        ownedAudioEqualizer = new OwnedAudioEqualizer(this);
         vehiclePromptPlayer.preload(
                 "gear_p","gear_r","gear_n","gear_d",
                 "drive_eco","drive_normal","drive_sport",
@@ -385,6 +388,14 @@ public class LauncherActivity extends Activity {
         quick.addView(actionCard("시동 앱", autoStartCount() + "개 등록", "▶", this::showAutoStartManager), weighted());
         quick.addView(actionCard("검증 센터", "Registry v3 · Test ID", "✓", this::openVerificationCenter), weighted());
 
+        LinearLayout audio = new LinearLayout(this);
+        audio.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams audioLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(88));
+        audioLp.topMargin = dp(12);
+        content.addView(audio, audioLp);
+        audio.addView(actionCard("사운드 EQ", "저음 · 중음 · 고음", "≋", this::showEqualizer), weighted());
+        audio.addView(actionCard("음장 위치", "BETA · 차량 DSP 쓰기 차단", "◎", () -> Toast.makeText(this,"음장 위치는 실차 DSP 검증 후 활성화됩니다.",Toast.LENGTH_SHORT).show()), weighted());
+
         LinearLayout tpms = new LinearLayout(this);
         tpms.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout.LayoutParams tpmsLp = new LinearLayout.LayoutParams(
@@ -432,6 +443,43 @@ public class LauncherActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(44));
         footerLp.topMargin = dp(10);
         content.addView(footer, footerLp);
+    }
+
+    private void showEqualizer() {
+        if (ownedAudioEqualizer == null) ownedAudioEqualizer = new OwnedAudioEqualizer(this);
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(24),dp(20),dp(24),dp(20));
+        panel.setBackground(round("#0D1920",22,"#294451"));
+        panel.addView(text("SOUND EQ",24f,Color.WHITE,true));
+        panel.addView(text("앱 소유 오디오 · BYD 차량 DSP 쓰기 차단",12f,Color.parseColor("#91A8B5"),false));
+        addEqBand(panel,"저음  BASS",ownedAudioEqualizer.bass(),0);
+        addEqBand(panel,"중음  MID",ownedAudioEqualizer.mid(),1);
+        addEqBand(panel,"고음  TREBLE",ownedAudioEqualizer.treble(),2);
+        new AlertDialog.Builder(this).setView(panel).setPositiveButton("완료",null)
+                .setNeutralButton("초기화",(d,w)->{ ownedAudioEqualizer.reset(); Toast.makeText(this,"EQ를 0 / 0 / 0으로 초기화했습니다.",Toast.LENGTH_SHORT).show(); })
+                .show();
+    }
+
+    private void addEqBand(LinearLayout panel,String label,int value,int band) {
+        TextView title=text(label+"   "+(value>0?"+":"")+value+" dB",15f,Color.WHITE,true);
+        panel.addView(title);
+        SeekBar bar=new SeekBar(this);
+        bar.setMax(OwnedAudioEqualizer.MAX_DB-OwnedAudioEqualizer.MIN_DB);
+        bar.setProgress(value-OwnedAudioEqualizer.MIN_DB);
+        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            @Override public void onProgressChanged(SeekBar seekBar,int progress,boolean fromUser){
+                if(!fromUser) return;
+                int db=progress+OwnedAudioEqualizer.MIN_DB;
+                int b=ownedAudioEqualizer.bass(),m=ownedAudioEqualizer.mid(),t=ownedAudioEqualizer.treble();
+                if(band==0)b=db; else if(band==1)m=db; else t=db;
+                ownedAudioEqualizer.setBands(b,m,t);
+                title.setText(label+"   "+(db>0?"+":"")+db+" dB");
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar){}
+            @Override public void onStopTrackingTouch(SeekBar seekBar){}
+        });
+        panel.addView(bar,new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,dp(54)));
     }
 
     private void showAppDrawer() {
