@@ -141,7 +141,9 @@
         "requiredMarkersForTest",
         "activeCorrelationReadyForPass",
         "PASS 잠금",
-        "count < 3"
+        "count < 3",
+        "markerPlanForTest",
+        "for (String[] markerSpec : markerPlanForTest(activeTestId))"
       ]
     },
     {
