@@ -33,3 +33,5 @@ android {
     }
 }
 
+
+// CI trigger: runtime surface drift enforcement
