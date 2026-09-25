@@ -298,39 +298,14 @@ public class VerificationCenterActivity extends Activity {
 
     private String markerProgressText(Map<String,Integer> counts) {
         StringBuilder out = new StringBuilder("마커 진행");
-        if ("AUD-GEAR-001".equals(activeTestId)) {
-            progress(out, counts, "P", "GEAR_P_VISIBLE");
-            progress(out, counts, "R", "GEAR_R_VISIBLE");
-            progress(out, counts, "N", "GEAR_N_VISIBLE");
-            progress(out, counts, "D", "GEAR_D_VISIBLE");
-        } else if ("AUD-DRV-002".equals(activeTestId)) {
-            progress(out, counts, "NORMAL", "OEM_NORMAL_VISIBLE");
-        } else if ("AUD-REG-002".equals(activeTestId)) {
-            progress(out, counts, "STANDARD", "OEM_STANDARD_VISIBLE");
-        } else if ("AUD-SNOW-001".equals(activeTestId)) {
-            progress(out, counts, "Snow ON", "SNOW_ON_VISIBLE");
-        } else if ("AUD-SNOW-002".equals(activeTestId)) {
-            progress(out, counts, "Snow OFF", "SNOW_OFF_VISIBLE");
-        } else if ("AUD-AVH-001".equals(activeTestId)) {
-            progress(out, counts, "버튼 ON", "AUTOHOLD_SWITCH_ON_VISIBLE");
-            progress(out, counts, "버튼 OFF", "AUTOHOLD_SWITCH_OFF_VISIBLE");
-        } else if ("AUD-AVH-002".equals(activeTestId)) {
-            progress(out, counts, "체결", "AUTOHOLD_HELD_VISIBLE");
-            progress(out, counts, "해제", "AUTOHOLD_RELEASE_VISIBLE");
-        } else if ("AUD-EPB-001".equals(activeTestId)) {
-            progress(out, counts, "EPB 체결", "EPB_HELD_VISIBLE");
-            progress(out, counts, "EPB 해제", "EPB_RELEASED_VISIBLE");
-        } else if ("AUD-ICC-001".equals(activeTestId)) {
-            progress(out, counts, "ICC ON", "ICC_ON_VISIBLE");
-            progress(out, counts, "ICC OFF", "ICC_OFF_VISIBLE");
-        } else if ("AUD-BSD-001".equals(activeTestId)) {
-            progress(out, counts, "좌", "BSD_LEFT_CONTEXT_VISIBLE");
-            progress(out, counts, "우", "BSD_RIGHT_CONTEXT_VISIBLE");
-        } else if ("AUD-LVDA-001".equals(activeTestId)) {
-            progress(out, counts, "전방차 출발", "LEADING_CAR_DEPARTURE_VISIBLE");
-        } else {
+        String[][] plan = markerPlanForTest(activeTestId);
+        if (plan.length == 0) {
             out.append(" · 시점 ").append(counts.containsKey("OPERATOR_MARK")
                     ? counts.get("OPERATOR_MARK") : 0);
+            return out.toString();
+        }
+        for (String[] markerSpec : plan) {
+            progress(out, counts, markerSpec[0], markerSpec[1]);
         }
         return out.toString();
     }
@@ -405,36 +380,8 @@ public class VerificationCenterActivity extends Activity {
         markerRow.setOrientation(LinearLayout.HORIZONTAL);
         addMarkerButton(markerRow, "시점 기록", "OPERATOR_MARK");
 
-        if ("AUD-GEAR-001".equals(activeTestId)) {
-            addMarkerButton(markerRow, "P", "GEAR_P_VISIBLE");
-            addMarkerButton(markerRow, "R", "GEAR_R_VISIBLE");
-            addMarkerButton(markerRow, "N", "GEAR_N_VISIBLE");
-            addMarkerButton(markerRow, "D", "GEAR_D_VISIBLE");
-        } else if ("AUD-DRV-002".equals(activeTestId)) {
-            addMarkerButton(markerRow, "OEM NORMAL", "OEM_NORMAL_VISIBLE");
-        } else if ("AUD-REG-002".equals(activeTestId)) {
-            addMarkerButton(markerRow, "OEM STANDARD", "OEM_STANDARD_VISIBLE");
-        } else if ("AUD-SNOW-001".equals(activeTestId)) {
-            addMarkerButton(markerRow, "Snow ON", "SNOW_ON_VISIBLE");
-        } else if ("AUD-SNOW-002".equals(activeTestId)) {
-            addMarkerButton(markerRow, "Snow OFF", "SNOW_OFF_VISIBLE");
-        } else if ("AUD-AVH-001".equals(activeTestId)) {
-            addMarkerButton(markerRow, "버튼 ON", "AUTOHOLD_SWITCH_ON_VISIBLE");
-            addMarkerButton(markerRow, "버튼 OFF", "AUTOHOLD_SWITCH_OFF_VISIBLE");
-        } else if ("AUD-AVH-002".equals(activeTestId)) {
-            addMarkerButton(markerRow, "체결 표시", "AUTOHOLD_HELD_VISIBLE");
-            addMarkerButton(markerRow, "해제/출발", "AUTOHOLD_RELEASE_VISIBLE");
-        } else if ("AUD-EPB-001".equals(activeTestId)) {
-            addMarkerButton(markerRow, "EPB 체결", "EPB_HELD_VISIBLE");
-            addMarkerButton(markerRow, "EPB 해제", "EPB_RELEASED_VISIBLE");
-        } else if ("AUD-ICC-001".equals(activeTestId)) {
-            addMarkerButton(markerRow, "ICC ON", "ICC_ON_VISIBLE");
-            addMarkerButton(markerRow, "ICC OFF", "ICC_OFF_VISIBLE");
-        } else if ("AUD-BSD-001".equals(activeTestId)) {
-            addMarkerButton(markerRow, "좌 BSD+좌깜빡이", "BSD_LEFT_CONTEXT_VISIBLE");
-            addMarkerButton(markerRow, "우 BSD+우깜빡이", "BSD_RIGHT_CONTEXT_VISIBLE");
-        } else if ("AUD-LVDA-001".equals(activeTestId)) {
-            addMarkerButton(markerRow, "전방차 출발", "LEADING_CAR_DEPARTURE_VISIBLE");
+        for (String[] markerSpec : markerPlanForTest(activeTestId)) {
+            addMarkerButton(markerRow, markerSpec[0], markerSpec[1]);
         }
         activeCaptureActions.addView(markerRow,
                 new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
@@ -472,26 +419,41 @@ public class VerificationCenterActivity extends Activity {
                 Toast.LENGTH_SHORT).show();
     }
 
+    private String[][] markerPlanForTest(String testId) {
+        if ("AUD-GEAR-001".equals(testId)) return new String[][]{
+                {"P","GEAR_P_VISIBLE"},{"R","GEAR_R_VISIBLE"},
+                {"N","GEAR_N_VISIBLE"},{"D","GEAR_D_VISIBLE"}};
+        if ("AUD-DRV-002".equals(testId)) return new String[][]{
+                {"OEM NORMAL","OEM_NORMAL_VISIBLE"}};
+        if ("AUD-REG-002".equals(testId)) return new String[][]{
+                {"OEM STANDARD","OEM_STANDARD_VISIBLE"}};
+        if ("AUD-SNOW-001".equals(testId)) return new String[][]{
+                {"Snow ON","SNOW_ON_VISIBLE"}};
+        if ("AUD-SNOW-002".equals(testId)) return new String[][]{
+                {"Snow OFF","SNOW_OFF_VISIBLE"}};
+        if ("AUD-AVH-001".equals(testId)) return new String[][]{
+                {"버튼 ON","AUTOHOLD_SWITCH_ON_VISIBLE"},
+                {"버튼 OFF","AUTOHOLD_SWITCH_OFF_VISIBLE"}};
+        if ("AUD-AVH-002".equals(testId)) return new String[][]{
+                {"체결 표시","AUTOHOLD_HELD_VISIBLE"},
+                {"해제/출발","AUTOHOLD_RELEASE_VISIBLE"}};
+        if ("AUD-EPB-001".equals(testId)) return new String[][]{
+                {"EPB 체결","EPB_HELD_VISIBLE"},{"EPB 해제","EPB_RELEASED_VISIBLE"}};
+        if ("AUD-ICC-001".equals(testId)) return new String[][]{
+                {"ICC ON","ICC_ON_VISIBLE"},{"ICC OFF","ICC_OFF_VISIBLE"}};
+        if ("AUD-BSD-001".equals(testId)) return new String[][]{
+                {"좌 BSD+좌깜빡이","BSD_LEFT_CONTEXT_VISIBLE"},
+                {"우 BSD+우깜빡이","BSD_RIGHT_CONTEXT_VISIBLE"}};
+        if ("AUD-LVDA-001".equals(testId)) return new String[][]{
+                {"전방차 출발","LEADING_CAR_DEPARTURE_VISIBLE"}};
+        return new String[0][0];
+    }
+
     private String[] requiredMarkersForTest(String testId) {
-        if ("AUD-GEAR-001".equals(testId)) return new String[]{
-                "GEAR_P_VISIBLE","GEAR_R_VISIBLE","GEAR_N_VISIBLE","GEAR_D_VISIBLE"};
-        if ("AUD-DRV-002".equals(testId)) return new String[]{"OEM_NORMAL_VISIBLE"};
-        if ("AUD-REG-002".equals(testId)) return new String[]{"OEM_STANDARD_VISIBLE"};
-        if ("AUD-SNOW-001".equals(testId)) return new String[]{"SNOW_ON_VISIBLE"};
-        if ("AUD-SNOW-002".equals(testId)) return new String[]{"SNOW_OFF_VISIBLE"};
-        if ("AUD-AVH-001".equals(testId)) return new String[]{
-                "AUTOHOLD_SWITCH_ON_VISIBLE","AUTOHOLD_SWITCH_OFF_VISIBLE"};
-        if ("AUD-AVH-002".equals(testId)) return new String[]{
-                "AUTOHOLD_HELD_VISIBLE","AUTOHOLD_RELEASE_VISIBLE"};
-        if ("AUD-EPB-001".equals(testId)) return new String[]{
-                "EPB_HELD_VISIBLE","EPB_RELEASED_VISIBLE"};
-        if ("AUD-ICC-001".equals(testId)) return new String[]{
-                "ICC_ON_VISIBLE","ICC_OFF_VISIBLE"};
-        if ("AUD-BSD-001".equals(testId)) return new String[]{
-                "BSD_LEFT_CONTEXT_VISIBLE","BSD_RIGHT_CONTEXT_VISIBLE"};
-        if ("AUD-LVDA-001".equals(testId)) return new String[]{
-                "LEADING_CAR_DEPARTURE_VISIBLE"};
-        return new String[0];
+        String[][] plan = markerPlanForTest(testId);
+        String[] markers = new String[plan.length];
+        for (int i = 0; i < plan.length; i++) markers[i] = plan[i][1];
+        return markers;
     }
 
     private boolean activeCorrelationReadyForPass() {
