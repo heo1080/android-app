@@ -2294,7 +2294,10 @@
         "marker buttons, progress counting, and PASS gating derive from one markerPlanForTest catalog",
         "marker catalog drift must fail runtime-surface validation",
         "newer V1 commits cancel stale in-progress CI runs on the same ref",
-        "workflow emits V1_CI_POLICY_OK before build validation"
+        "workflow emits V1_CI_POLICY_OK before build validation",
+        "operator can start an explicit new diagnostic session only when no test correlation is active",
+        "previous-session Evidence ZIP is created before rollover",
+        "manual session rollover enables independent repeatability without killing the app"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2313,7 +2316,9 @@
         "PROCESS_RESUME_ACTIVE_TEST",
         "ACTIVE_TEST_STALE_CLEARED",
         "V1_CI_POLICY_OK",
-        "stale_runs_cancelled=true"
+        "stale_runs_cancelled=true",
+        "SESSION_ROLLOVER_REQUESTED",
+        "SESSION_ROLLOVER_COMPLETED"
       ]
     },
     {
