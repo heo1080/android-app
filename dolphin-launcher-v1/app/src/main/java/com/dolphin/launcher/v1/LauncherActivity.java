@@ -475,18 +475,23 @@ public class LauncherActivity extends Activity {
             return;
         }
 
-        // 1.2.1 real-car evidence: launch bounds alone did not enter BYD split-screen;
-        // only one selected app launched. Keep the pair and capture the attempt, but
-        // never claim success until a vehicle-compatible split transition is verified.
+        // Static analysis of the known-working BYD Auto Split 1.2.0 reference shows
+        // Android shell launches with --windowingMode 3 (split-primary) and 4
+        // (split-secondary). V1 does not assume ordinary launchBounds are equivalent.
+        // Until an authorized shell bridge exists in V1 and this exact path is retested
+        // on the user's DiLink 3.0 vehicle, preserve the pair and collect evidence only.
         VerificationEvidenceRuntime.recordPassiveEvent(
-                this, "SPLIT_REVERIFY_REQUIRED",
-                "left=" + left + ";right=" + right + ";reason=1.2.1-single-app-only");
-        VerificationEvidenceRuntime.queueBundleAndUpload(this, "split-reverify-required");
+                this, "SPLIT_REFERENCE_PATH_IDENTIFIED",
+                "left=" + left + ";right=" + right +
+                        ";reference=BydAutoSplit-1.2.0;windowingMode=3,4;execution=blocked-until-authorized-shell");
+        VerificationEvidenceRuntime.queueBundleAndUpload(this, "split-reference-path-identified");
 
         new AlertDialog.Builder(this)
-                .setTitle("2분할 · 실차 재검증 필요")
-                .setMessage("1.2.1 실차에서 기존 방식은 실제 분할 화면으로 전환되지 않고 앱 1개만 실행되는 회귀가 확인되었습니다.\n\n" +
-                        "선택한 좌/우 조합은 그대로 보존합니다. 차량 호환 분할 진입 경로가 검증되기 전에는 성공으로 표시하거나 단일 앱을 대신 실행하지 않습니다.")
+                .setTitle("2분할 · 차량 호환 경로 확인됨")
+                .setMessage("정상 동작 레퍼런스의 정적 분석에서 Android windowingMode 3/4 분할 진입 경로를 확인했습니다. " +
+                        "1.2.1의 launchBounds 방식과 다릅니다.\n\n" +
+                        "V1에는 아직 검증된 권한 셸 브리지가 없으므로 임의 실행하지 않습니다. 좌/우 조합은 보존하며, " +
+                        "권한 경로까지 검증한 뒤 BETA 실차 재시험으로 전환합니다.")
                 .setPositiveButton("확인", null)
                 .show();
     }
