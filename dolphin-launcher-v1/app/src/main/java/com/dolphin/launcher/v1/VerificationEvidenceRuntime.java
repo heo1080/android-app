@@ -118,6 +118,27 @@ public final class VerificationEvidenceRuntime {
         return session;
     }
 
+    public static synchronized String rolloverSession(Context context, String reason)
+            throws Exception {
+        String activeId = activeTestId(context);
+        if (activeId != null && !activeId.isEmpty()) {
+            throw new IllegalStateException("active test must finish before session rollover");
+        }
+
+        String previous = currentSessionId(context);
+        append(context, "SESSION_ROLLOVER_REQUESTED", null, UUID.randomUUID().toString(),
+                "STARTED", "previous_session=" + previous + ";reason=" + reason);
+        File bundle = createEvidenceBundle(context, queueDir(context));
+
+        String next = beginSession(context, reason);
+        append(context, "SESSION_ROLLOVER_COMPLETED", null, UUID.randomUUID().toString(),
+                "STARTED", "previous_session=" + previous
+                        + ";new_session=" + next
+                        + ";previous_bundle=" + bundle.getName());
+        retryPendingUploadsAsync(context);
+        return next;
+    }
+
     public static void recordPassiveEvent(Context context, String event, String note) {
         append(context, event, null, UUID.randomUUID().toString(), "OBSERVED", note);
     }
