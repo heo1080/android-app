@@ -2,6 +2,7 @@ package com.dolphin.launcher.v1;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.audiofx.Equalizer;
 
 /**
  * Persistent three-band EQ settings for V1-owned audio.
@@ -13,6 +14,8 @@ public final class OwnedAudioEqualizer {
     private static final String PREFS="v1_owned_audio_eq";
     private final Context app;
     private final SharedPreferences prefs;
+    private Equalizer effect;
+    private int boundSession=-1;
 
     public OwnedAudioEqualizer(Context context){
         app=context.getApplicationContext();
@@ -27,11 +30,52 @@ public final class OwnedAudioEqualizer {
         int b=clamp(bassDb), m=clamp(midDb), t=clamp(trebleDb);
         prefs.edit().putInt("bass_db",b).putInt("mid_db",m).putInt("treble_db",t).apply();
         evidence("EQ_BANDS_CHANGED","bass="+b+";mid="+m+";treble="+t);
+        applyStoredBands();
     }
 
     public void reset(){
         prefs.edit().putInt("bass_db",0).putInt("mid_db",0).putInt("treble_db",0).apply();
         evidence("EQ_RESET","bass=0;mid=0;treble=0");
+        applyStoredBands();
+    }
+
+    public boolean bindToAudioSession(int audioSessionId){
+        releaseEffect();
+        if(audioSessionId<=0){ evidence("EQ_SESSION_REJECTED","session="+audioSessionId); return false; }
+        try{
+            effect=new Equalizer(0,audioSessionId);
+            boundSession=audioSessionId;
+            effect.setEnabled(true);
+            applyStoredBands();
+            evidence("EQ_SESSION_BOUND","session="+audioSessionId+";bands="+effect.getNumberOfBands());
+            return true;
+        }catch(Throwable t){
+            effect=null; boundSession=-1;
+            evidence("EQ_SESSION_BIND_FAILED","session="+audioSessionId+";error="+t.getClass().getSimpleName());
+            return false;
+        }
+    }
+
+    public boolean applyStoredBands(){
+        if(effect==null) return false;
+        try{
+            short bands=effect.getNumberOfBands();
+            if(bands<=0) return false;
+            for(short band=0;band<bands;band++){
+                int group=Math.min(2,(band*3)/Math.max(1,bands));
+                int db=group==0?bass():(group==1?mid():treble());
+                short[] range=effect.getBandLevelRange();
+                int mb=Math.max(range[0],Math.min(range[1],db*100));
+                effect.setBandLevel(band,(short)mb);
+            }
+            evidence("EQ_APPLIED","session="+boundSession+";"+snapshot());
+            return true;
+        }catch(Throwable t){ evidence("EQ_APPLY_FAILED","error="+t.getClass().getSimpleName()); return false; }
+    }
+
+    public void releaseEffect(){
+        if(effect!=null){ try{ effect.setEnabled(false); }catch(Throwable ignored){} effect.release(); effect=null; }
+        boundSession=-1;
     }
 
     public float gainForBand(int db){
