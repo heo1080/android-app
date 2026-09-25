@@ -150,7 +150,14 @@
         "allowedOutcomesForTest",
         "removeOutcome",
         "containsOutcome",
-        "testContracts"
+        "testContracts",
+        "SPLIT_TWO_APP_VISIBLE",
+        "SPLIT_CAMERA_RETURN_OK",
+        "SPLIT_SHORTCUT_ICON_VISIBLE",
+        "SPLIT_SHORTCUT_LAUNCH_VISIBLE",
+        "DRIVER_SEAT_AUDIBLE",
+        "OTHER_SEATS_SILENT",
+        "OEM_WARNING_PREEMPT_OK"
       ]
     },
     {
