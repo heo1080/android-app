@@ -676,7 +676,8 @@
       "failure_any": [
         "VOICE_ASSET_LOAD_FAILED",
         "VOICE_PLAY_FAILED",
-        "fixed female voice claimed while any VOICE_ASSET_MISSING remains"
+        "fixed female voice claimed while any VOICE_ASSET_MISSING remains",
+        "Android TTS fallback used while packaged fixed asset is still loading"
       ],
       "known_bad_ids": [
         "KB-007"
@@ -685,7 +686,9 @@
         "all 22 manifest prompts preserve exact event/value/id/phrase semantics",
         "fixed female voice is reported ready only when all 22 packaged assets load",
         "play request and real-car audible success are recorded separately",
-        "vehicle event to audible start latency is recorded"
+        "vehicle event to audible start latency is recorded",
+        "fixed asset loading state never falls through to Android TTS",
+        "fixed asset loading race produces VOICE_FIXED_ASSET_LOADING_DROP instead of mixed voice"
       ],
       "required_logs": [
         "VOICE_ASSET_READY",
@@ -694,7 +697,9 @@
         "VOICE_PLAY_REQUESTED",
         "VOICE_PLAY_FAILED",
         "audible/operator result",
-        "event timestamp"
+        "event timestamp",
+        "VOICE_FIXED_ASSET_LOADING_DROP",
+        "tts_fallback=false"
       ]
     },
     {
@@ -733,7 +738,8 @@
         "VOICE_TTS_FALLBACK_FAILED",
         "previous utterance plays after a later beep or prompt",
         "fallback reported as guaranteed female fixed voice",
-        "stale utterance starts after a newer QUEUE_FLUSH request"
+        "stale utterance starts after a newer QUEUE_FLUSH request",
+        "prompt received before TTS readiness plays later after TTS becomes ready"
       ],
       "known_bad_ids": [],
       "acceptance": [
@@ -742,7 +748,9 @@
         "10 repeated prompts and beep-to-voice crossings show no delayed prior utterance",
         "cold-start fallback readiness and audible latency are recorded",
         "each fallback request uses a unique utterance id so QUEUE_FLUSH stop/start ordering is attributable",
-        "fallback TTS uses navigation-guidance audio attributes without claiming BYD driver-speaker routing"
+        "fallback TTS uses navigation-guidance audio attributes without claiming BYD driver-speaker routing",
+        "TTS not-ready fallback requests are dropped immediately and never replayed after readiness",
+        "no deferred phrase queue exists for fallback prompts"
       ],
       "required_logs": [
         "VOICE_TTS_READY",
@@ -759,7 +767,10 @@
         "request_to_start_ms",
         "VOICE_TTS_AUDIO_ATTRIBUTES",
         "usage=navigation_guidance",
-        "driver_speaker_route=not_proven"
+        "driver_speaker_route=not_proven",
+        "VOICE_TTS_FALLBACK_DROPPED_NOT_READY",
+        "queued=false",
+        "delayed_replay=false"
       ]
     },
     {
