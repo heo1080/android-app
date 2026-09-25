@@ -127,6 +127,7 @@ public class LauncherActivity extends Activity {
         VerificationEvidenceRuntime.recordPassiveEvent(this, "APP_LAUNCH", "LauncherActivity created");
         DisplayDiagnostics.capture(this);
         DisplayDiagnostics.captureDisplayInventory(this);
+        InstrumentCapabilityProbe.capture(this);
         DisplayDiagnostics.captureLaunchableAppOrientations(this);
         VerificationEvidenceRuntime.retryPendingUploadsAsync(this);
         startVehicleReadOnlyRuntime();
