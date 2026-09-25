@@ -61,7 +61,9 @@
         "gear.candidate.unmapped",
         "captureGearboxConstants",
         "GEARBOX_RUNTIME_CONSTANT",
-        "GEARBOX_RUNTIME_CONSTANT_SCAN"
+        "GEARBOX_RUNTIME_CONSTANT_SCAN",
+        "updateLiveCorrelationValue",
+        "gear_raw"
       ]
     },
     {
@@ -123,7 +125,14 @@
         "OEM_NORMAL_VISIBLE",
         "OEM_STANDARD_VISIBLE",
         "AUTOHOLD_HELD_VISIBLE",
-        "queueBundleAndUpload"
+        "queueBundleAndUpload",
+        "GEAR_P_VISIBLE",
+        "SNOW_ON_VISIBLE",
+        "SNOW_OFF_VISIBLE",
+        "EPB_HELD_VISIBLE",
+        "ICC_ON_VISIBLE",
+        "BSD_LEFT_CONTEXT_VISIBLE",
+        "LEADING_CAR_DEPARTURE_VISIBLE"
       ]
     },
     {
@@ -152,7 +161,8 @@
         "onSnowRaw",
         "captureStateConstants",
         "ENERGY_RUNTIME_CONSTANT",
-        "event+\"_SCAN\""
+        "event+\"_SCAN\"",
+        "road_surface_raw"
       ]
     },
     {
@@ -163,7 +173,9 @@
         "onIccCandidateRaw",
         "captureStateConstants",
         "ADAS_RUNTIME_CONSTANT",
-        "event+\"_SCAN\""
+        "event+\"_SCAN\"",
+        "updateLiveCorrelationValue",
+        "tja_raw"
       ]
     },
     {
@@ -176,7 +188,9 @@
         "captureStateConstants",
         "ADAS_RUNTIME_CONSTANT",
         "RADAR_RUNTIME_CONSTANT",
-        "event+\"_SCAN\""
+        "event+\"_SCAN\"",
+        "radar_area7_raw",
+        "radar_area8_raw"
       ]
     },
     {
@@ -209,7 +223,9 @@
         "epb.candidate.unmapped",
         "captureGearboxConstants",
         "GEARBOX_RUNTIME_CONSTANT",
-        "GEARBOX_RUNTIME_CONSTANT_SCAN"
+        "GEARBOX_RUNTIME_CONSTANT_SCAN",
+        "updateLiveCorrelationValue",
+        "epb_raw"
       ]
     },
     {
@@ -241,7 +257,11 @@
         "getLeftTurnLightState",
         "getRightTurnLightState",
         "captureStateConstants",
-        "ADAS_RUNTIME_CONSTANT"
+        "ADAS_RUNTIME_CONSTANT",
+        "updateLiveCorrelationValue",
+        "bsd_raw",
+        "turn_left_raw",
+        "turn_right_raw"
       ]
     },
     {
@@ -249,7 +269,9 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
       "tokens": [
         "getRadarObstacleDistance",
-        "onFrontRadarRaw"
+        "onFrontRadarRaw",
+        "radar_area7_raw",
+        "radar_area8_raw"
       ]
     },
     {
@@ -802,7 +824,13 @@
         "OEM_NORMAL_VISIBLE",
         "OEM_STANDARD_VISIBLE",
         "AUTOHOLD_HELD_VISIBLE",
-        "V1_CORRELATION_EVALUATOR_OK"
+        "V1_CORRELATION_EVALUATOR_OK",
+        "GEAR_P_VISIBLE",
+        "SNOW_ON_VISIBLE",
+        "EPB_HELD_VISIBLE",
+        "ICC_ON_VISIBLE",
+        "BSD_LEFT_CONTEXT_VISIBLE",
+        "LEADING_CAR_DEPARTURE_VISIBLE"
       ]
     }
   ],
