@@ -70,6 +70,7 @@ public class LauncherActivity extends Activity {
     private VehicleReadOnlyMonitor vehicleMonitor;
     private VehiclePromptPlayer vehiclePromptPlayer;
     private OwnedAudioEqualizer ownedAudioEqualizer;
+    private OwnedSoundPosition ownedSoundPosition;
     private volatile Integer tpmsFlKpa, tpmsFrKpa, tpmsRlKpa, tpmsRrKpa;
     private final VehicleVoicePolicy.Output vehicleVoiceOutput = (promptId, phrase) -> {
         if (vehiclePromptPlayer == null) {
@@ -108,6 +109,7 @@ public class LauncherActivity extends Activity {
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         vehiclePromptPlayer = new VehiclePromptPlayer(this);
         ownedAudioEqualizer = new OwnedAudioEqualizer(this);
+        ownedSoundPosition = new OwnedSoundPosition(this);
         vehiclePromptPlayer.preload(
                 "gear_p","gear_r","gear_n","gear_d",
                 "drive_eco","drive_normal","drive_sport",
@@ -395,7 +397,7 @@ public class LauncherActivity extends Activity {
         audioLp.topMargin = dp(12);
         content.addView(audio, audioLp);
         audio.addView(actionCard("사운드 EQ", "저음 · 중음 · 고음", "≋", this::showEqualizer), weighted());
-        audio.addView(actionCard("음장 위치", "BETA · 차량 DSP 쓰기 차단", "◎", () -> Toast.makeText(this,"음장 위치는 실차 DSP 검증 후 활성화됩니다.",Toast.LENGTH_SHORT).show()), weighted());
+        audio.addView(actionCard("음장 위치", "BETA · 미리보기", "◎", this::showSoundPosition), weighted());
 
         LinearLayout tpms = new LinearLayout(this);
         tpms.setOrientation(LinearLayout.HORIZONTAL);
@@ -444,6 +446,40 @@ public class LauncherActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(44));
         footerLp.topMargin = dp(10);
         content.addView(footer, footerLp);
+    }
+
+    private void showSoundPosition() {
+        if(ownedSoundPosition==null) ownedSoundPosition=new OwnedSoundPosition(this);
+        LinearLayout panel=new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(24),dp(20),dp(24),dp(20));
+        panel.setBackground(round("#0D1920",22,"#294451"));
+        panel.addView(text("SOUND POSITION",24f,Color.WHITE,true));
+        panel.addView(text("앞/뒤 · 좌/우 미리보기 · 차량 DSP 쓰기 차단",12f,Color.parseColor("#91A8B5"),false));
+        addPositionAxis(panel,"좌  BALANCE  우",ownedSoundPosition.balance(),true);
+        addPositionAxis(panel,"뒤  FADER  앞",ownedSoundPosition.fader(),false);
+        Button driver=button("운전석 중심 프리셋");
+        driver.setOnClickListener(v->{ ownedSoundPosition.driverCenter(); Toast.makeText(this,"운전석 중심 요청값을 저장했습니다. 차량 적용은 아직 차단됩니다.",Toast.LENGTH_SHORT).show(); });
+        panel.addView(driver,new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,dp(48)));
+        new AlertDialog.Builder(this).setView(panel).setPositiveButton("완료",null)
+                .setNeutralButton("중앙 초기화",(d,w)->ownedSoundPosition.reset()).show();
+    }
+
+    private void addPositionAxis(LinearLayout panel,String label,int value,boolean balance) {
+        TextView title=text(label+"   "+value,15f,Color.WHITE,true);
+        panel.addView(title);
+        SeekBar bar=new SeekBar(this); bar.setMax(20); bar.setProgress(value+10);
+        bar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+            @Override public void onProgressChanged(SeekBar s,int p,boolean fromUser){
+                if(!fromUser)return; int v=p-10;
+                int b=ownedSoundPosition.balance(), f=ownedSoundPosition.fader();
+                ownedSoundPosition.set(balance?v:b,balance?f:v);
+                title.setText(label+"   "+v);
+            }
+            @Override public void onStartTrackingTouch(SeekBar s){}
+            @Override public void onStopTrackingTouch(SeekBar s){}
+        });
+        panel.addView(bar,new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,dp(54)));
     }
 
     private void showEqualizer() {
