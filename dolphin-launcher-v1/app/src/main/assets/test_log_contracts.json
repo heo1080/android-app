@@ -470,7 +470,9 @@
         "operator visually confirms two-app split",
         "shell exit alone is never treated as split success",
         "operator marker SPLIT_TWO_APP_VISIBLE is required in addition to readback",
-        "operator marker SPLIT_CAMERA_RETURN_OK is required for safe camera return"
+        "operator marker SPLIT_CAMERA_RETURN_OK is required for safe camera return",
+        "each required operator marker must reach at least 3 observations in the active correlation before PASS is exposed",
+        "single-session marker completion is not sufficient for VERIFIED"
       ],
       "required_logs": [
         "SPLIT_ADB_COMMAND",
@@ -530,7 +532,9 @@
         "shortcut invocation carries the captured left/right packages",
         "shortcut launch proceeds through the same readback-verified split path",
         "operator marker SPLIT_SHORTCUT_ICON_VISIBLE confirms launcher pin visibility",
-        "operator marker SPLIT_SHORTCUT_LAUNCH_VISIBLE confirms shortcut invokes visible split"
+        "operator marker SPLIT_SHORTCUT_LAUNCH_VISIBLE confirms shortcut invokes visible split",
+        "each required operator marker must reach at least 3 observations in the active correlation before PASS is exposed",
+        "single-session marker completion is not sufficient for VERIFIED"
       ],
       "required_logs": [
         "SPLIT_SHORTCUT_REQUEST",
@@ -1552,7 +1556,9 @@
         "다른 좌석/일반 media route와 분리",
         "순정 안전경고 방해 없음",
         "operator markers separately confirm driver-seat audible output, other-seat silence, and OEM warning preemption",
-        "all required seat/safety markers must be repeated before PASS is available"
+        "all required seat/safety markers must be repeated before PASS is available",
+        "each required operator marker must reach at least 3 observations in the active correlation before PASS is exposed",
+        "single-session marker completion is not sufficient for VERIFIED"
       ],
       "required_logs": [
         "AUDIO_OUTPUT_DEVICE inventory",
