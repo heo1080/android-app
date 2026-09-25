@@ -86,6 +86,10 @@ jobs:
           assert d.get("schema_version")==2, d.get("schema_version")
           surfaces=d.get("surfaces", [])
           assert surfaces, "runtime surfaces empty"
+          registry=json.load(open(sys.argv[1].replace("runtime_surfaces.json","verification_registry.json"), encoding="utf-8"))
+          registry_ids={f["feature_id"] for f in registry.get("features", [])}
+          surface_ids={s["feature_id"] for s in surfaces}
+          assert registry_ids == surface_ids, ("registry/runtime feature drift", sorted(registry_ids-surface_ids), sorted(surface_ids-registry_ids))
           root=pathlib.Path(".")
           legacy="app/src/main/java/com/byd/dolphin/autoassistant/"
           for s in surfaces:
