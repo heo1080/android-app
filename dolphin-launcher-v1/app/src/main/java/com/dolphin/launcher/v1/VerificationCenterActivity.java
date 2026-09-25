@@ -547,6 +547,9 @@ public class VerificationCenterActivity extends Activity {
                 {"운전석 들림","DRIVER_SEAT_AUDIBLE"},
                 {"타 좌석 무음","OTHER_SEATS_SILENT"},
                 {"순정경고 정상","OEM_WARNING_PREEMPT_OK"}};
+        if ("LCH-ID-001".equals(testId)) return new String[][]{
+                {"앱서랍 아이콘","APP_DRAWER_ICON_VISIBLE"},
+                {"일반 앱 실행","NORMAL_APP_LAUNCH_VISIBLE"}};
         return new String[0][0];
     }
 
