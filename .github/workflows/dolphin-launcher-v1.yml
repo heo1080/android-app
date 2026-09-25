@@ -79,7 +79,27 @@ jobs:
           assert len(ids)==49, len(ids)
           print("REGISTRY_OK schema=3 features=33 test_ids=49")
           PY
-          unzip -p "$APK" classes.dex | strings | grep -q "VerificationCenterActivity"
+          unzip -p "$APK" assets/runtime_surfaces.json > "$RUNNER_TEMP/runtime_surfaces.json"
+          python3 - "$RUNNER_TEMP/runtime_surfaces.json" <<'PY'
+          import json, pathlib, sys
+          d=json.load(open(sys.argv[1], encoding="utf-8"))
+          assert d.get("schema_version")==2, d.get("schema_version")
+          surfaces=d.get("surfaces", [])
+          assert surfaces, "runtime surfaces empty"
+          root=pathlib.Path(".")
+          legacy="app/src/main/java/com/byd/dolphin/autoassistant/"
+          for s in surfaces:
+              path=s.get("path","")
+              assert path.startswith("dolphin-launcher-v1/"), ("non-V1 surface", path)
+              assert legacy not in path, ("legacy surface", path)
+              p=root/path
+              assert p.is_file(), ("missing surface", path)
+              source=p.read_text(encoding="utf-8")
+              for token in s.get("tokens", []):
+                  assert token in source, ("missing token", path, token)
+          print(f"RUNTIME_SURFACES_OK schema=2 surfaces={len(surfaces)}")
+          PY
+                    unzip -p "$APK" classes.dex | strings | grep -q "VerificationCenterActivity"
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationEvidenceRuntime"
           unzip -p "$APK" classes.dex | strings | grep -q "AppUpdateManager"
           unzip -p "$APK" classes.dex | strings | grep -q "UpdateInstallReceiver"
