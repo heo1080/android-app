@@ -475,7 +475,12 @@
         "setAudioAttributes",
         "USAGE_ASSISTANCE_NAVIGATION_GUIDANCE",
         "VOICE_TTS_AUDIO_ATTRIBUTES",
-        "driver_speaker_route=not_proven"
+        "driver_speaker_route=not_proven",
+        "VOICE_FIXED_ASSET_LOADING_DROP",
+        "VOICE_TTS_FALLBACK_DROPPED_NOT_READY",
+        "playTtsFallback",
+        "queued=false",
+        "delayed_replay=false"
       ]
     },
     {
