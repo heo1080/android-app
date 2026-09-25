@@ -457,6 +457,14 @@ public class LauncherActivity extends Activity {
         addEqBand(panel,"저음  BASS",ownedAudioEqualizer.bass(),0);
         addEqBand(panel,"중음  MID",ownedAudioEqualizer.mid(),1);
         addEqBand(panel,"고음  TREBLE",ownedAudioEqualizer.treble(),2);
+        Button test=button("EQ 테스트 · 100 Hz → 1 kHz → 8 kHz");
+        test.setOnClickListener(v->{
+            VerificationEvidenceRuntime.recordPassiveEvent(this,"EQ_AUDIBLE_TEST_REQUESTED",ownedAudioEqualizer.snapshot());
+            EqualizerAudibleTest.play(this,ownedAudioEqualizer);
+        });
+        LinearLayout.LayoutParams testLp=new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,dp(48));
+        testLp.topMargin=dp(10);
+        panel.addView(test,testLp);
         new AlertDialog.Builder(this).setView(panel).setPositiveButton("완료",null)
                 .setNeutralButton("초기화",(d,w)->{ ownedAudioEqualizer.reset(); Toast.makeText(this,"EQ를 0 / 0 / 0으로 초기화했습니다.",Toast.LENGTH_SHORT).show(); })
                 .show();
