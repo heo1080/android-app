@@ -485,7 +485,10 @@
         "과거 지연 TTS가 후속 비프/오디오 뒤 늦게 재생되지 않음",
         "fallback TTS는 고유 utterance ID별 request→start 지연과 QUEUE_FLUSH 중단을 추적",
         "fallback TTS는 navigation-guidance AudioAttributes를 사용하되 BYD 운전석 전용 라우팅 성공으로 간주하지 않음",
-        "Android 11+ package visibility를 위해 TTS_SERVICE query가 Manifest에 존재"
+        "Android 11+ package visibility를 위해 TTS_SERVICE query가 Manifest에 존재",
+        "패키지 고정 음성 자산이 존재하지만 SoundPool 로딩 중이면 Android TTS로 우회하지 않고 해당 이벤트를 즉시 드롭",
+        "TTS 미준비 상태의 fallback 요청은 queued=false/delayed_replay=false로 드롭하며 준비 후 재생하지 않음",
+        "Android TTS fallback은 fixed asset missing/load-failed일 때만 사용"
       ],
       "required_logs": [
         "VOICE_ASSET_READY",
@@ -501,7 +504,11 @@
         "request_to_start_ms",
         "VOICE_TTS_AUDIO_ATTRIBUTES",
         "usage=navigation_guidance",
-        "driver_speaker_route=not_proven"
+        "driver_speaker_route=not_proven",
+        "VOICE_FIXED_ASSET_LOADING_DROP",
+        "VOICE_TTS_FALLBACK_DROPPED_NOT_READY",
+        "queued=false",
+        "delayed_replay=false"
       ],
       "known_bad": [
         "현재 고정 voice_* raw 자산이 아직 공급되지 않아 Android TTS fallback에 의존",
@@ -526,9 +533,10 @@
         "CI VOICE_CONTRACT_OK validates policy/manifest/preload drift",
         "UtteranceProgressListener captures fallback request/start/done/stop/error timing",
         "Android TTS fallback explicitly applies USAGE_ASSISTANCE_NAVIGATION_GUIDANCE; driver-speaker routing remains unproven",
-        "CI verifies AndroidManifest TTS_SERVICE query"
+        "CI verifies AndroidManifest TTS_SERVICE query",
+        "VehiclePromptPlayer forbids TTS fallback while fixed asset is still loading"
       ],
-      "next_action": "22개 한국어 여성 고정 음성 자산 공급 전까지 fallback 상태를 명시하고, 자산 공급 후 APK asset presence·실차 audible latency·queue 회귀를 AUD-TTS-001/002로 재검증",
+      "next_action": "22개 고정 여성 음성 자산 공급 후 fixed-asset load race에서 TTS 혼용이 없는지, fallback cold-start 요청이 지연 재생되지 않는지 AUD-TTS-001/002 실차 재검증",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
