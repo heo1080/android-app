@@ -774,7 +774,8 @@
         "브레이크를 떼는 순간을 HOLD 체결로 추론하지 않음",
         "체결/해제 동일 시점 이중 발화 금지",
         "확정 전 모든 AutoHold 음성은 fail-closed",
-        "AUD-AVH active test 동안 500ms live sample로 brake 유지 중 체결 전후 raw를 연속 보존"
+        "AUD-AVH active test 동안 500ms live sample로 brake 유지 중 체결 전후 raw를 연속 보존",
+        "AUTOHOLD_LIVE_SAMPLE 연속 수집은 active test 시작 후 10분으로 제한"
       ],
       "required_logs": [
         "AUTOHOLD_RAW_TRANSITION",
@@ -1709,7 +1710,8 @@
         "진행 중 Test ID/correlation은 process 재생성 후 Verification Center에서 복원",
         "Test 완료/중단 시 Evidence ZIP을 자동 queue/upload",
         "Evidence ZIP은 Registry/Test Contract/Dependencies/Runtime Surface/Known-Bad/Voice Manifest를 함께 포함",
-        "V1 correlation evaluator는 3회 동일 raw도 VERIFIED가 아닌 candidate_not_verified로만 보고"
+        "V1 correlation evaluator는 3회 동일 raw도 VERIFIED가 아닌 candidate_not_verified로만 보고",
+        "진행 중 Test ID는 monotonic start age를 보존하고 장시간 연속 raw sampling은 bounded"
       ],
       "required_logs": [
         "registry schema/version",
