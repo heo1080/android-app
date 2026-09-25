@@ -67,10 +67,14 @@ public class LauncherActivity extends Activity {
     private TextView splitChip;
     private List<AppEntry> apps = new ArrayList<>();
     private VehicleReadOnlyMonitor vehicleMonitor;
+    private VehiclePromptPlayer vehiclePromptPlayer;
     private final VehicleVoicePolicy.Output vehicleVoiceOutput = (promptId, phrase) -> {
-        // Fixed female prompt assets/SoundPool are the target output. Until owned assets are bundled,
-        // never fall back to unreliable raw TTS or pretend playback succeeded.
-        VerificationEvidenceRuntime.recordPassiveEvent(this, "VOICE_PROMPT_PENDING_AUDIO", promptId + " phrase=" + phrase);
+        if (vehiclePromptPlayer == null) {
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "VOICE_PROMPT_NOT_READY", promptId + " phrase=" + phrase);
+            return;
+        }
+        vehiclePromptPlayer.play(promptId, phrase);
     };
 
     private final Runnable clockTick = new Runnable() {
@@ -99,6 +103,14 @@ public class LauncherActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+        vehiclePromptPlayer = new VehiclePromptPlayer(this);
+        vehiclePromptPlayer.preload(
+                "gear_p","gear_r","gear_n","gear_d",
+                "drive_eco","drive_normal","drive_sport",
+                "regen_standard","regen_high","snow_on","snow_off",
+                "autohold_on","autohold_off","autohold_held","autohold_released",
+                "epb_held","epb_released","icc_on","icc_off",
+                "leading_car_departure","bsd_left","bsd_right");
         getWindow().setStatusBarColor(Color.parseColor("#03080B"));
         getWindow().setNavigationBarColor(Color.parseColor("#03080B"));
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
