@@ -189,6 +189,16 @@ public class LauncherActivity extends Activity {
             @Override public void onEpb(boolean held) {
                 VehicleVoicePolicy.epb(LauncherActivity.this, vehicleVoiceOutput, held);
             }
+            @Override public void onAvhRaw(Integer raw) {
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        LauncherActivity.this, "AUTOHOLD_RAW_TRANSITION",
+                        "avh_raw=" + raw + ";voice=suppressed-pending-correlation");
+            }
+            @Override public void onBsdRaw(Integer raw) {
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        LauncherActivity.this, "BSD_RAW_TRANSITION",
+                        "bsd_raw=" + raw + ";voice=suppressed-pending-side-correlation");
+            }
             @Override public void onRaw(String signal, Integer raw) {
                 // AVH/BSD and other not-yet-normalized signals remain evidence-only.
             }
