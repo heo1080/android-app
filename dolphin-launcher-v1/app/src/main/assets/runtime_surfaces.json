@@ -48,7 +48,9 @@
         "SPLIT_EXECUTION_ATTEMPT",
         "SPLIT_EXECUTION_BLOCKED",
         "SPLIT_EXECUTION_SUCCESS",
-        "SPLIT_EXECUTION_FAILED"
+        "SPLIT_EXECUTION_FAILED",
+        "SPLIT_SHORTCUT_REQUEST",
+        "requested="
       ]
     },
     {
@@ -686,6 +688,14 @@
       "tokens": [
         "SNOW_RAW_TRANSITION",
         "suppressed-pending-on-off-correlation"
+      ]
+    },
+    {
+      "feature_id": "SPLIT_SCREEN_TWO_APP",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/ShortcutPinReceiver.java",
+      "tokens": [
+        "SPLIT_SHORTCUT_PIN_CONFIRMED",
+        "shortcut_id="
       ]
     }
   ],
