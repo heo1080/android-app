@@ -903,7 +903,8 @@
         "TTS Core"
       ],
       "real_vehicle_test": [
-        "정차/허용조건에서 ICC on/off 조작 후 raw correlation"
+        "정차/허용조건에서 ICC on/off 조작 후 raw correlation",
+        "주행 중 수동 marker 입력이 필요하면 운전자가 화면을 조작하지 않고 동승자/안전한 시험 환경에서 기록"
       ],
       "evidence": [
         "ICC ON/OFF phrase support exists"
@@ -950,7 +951,8 @@
         "Audio Arbitration"
       ],
       "real_vehicle_test": [
-        "안전한 정차/보조 환경에서 raw capture 중심; 위험한 도로 재현 금지"
+        "안전한 정차/보조 환경에서 raw capture 중심; 위험한 도로 재현 금지",
+        "주행 중 수동 marker 입력이 필요하면 운전자가 화면을 조작하지 않고 동승자/안전한 시험 환경에서 기록"
       ],
       "evidence": [
         "sampleBsdAndTurnSignal source"
@@ -999,7 +1001,8 @@
       ],
       "real_vehicle_test": [
         "지원 내비별 실제 전방차 출발 알림 capture",
-        "오탐 negative test"
+        "오탐 negative test",
+        "주행 중 수동 marker 입력이 필요하면 운전자가 화면을 조작하지 않고 동승자/안전한 시험 환경에서 기록"
       ],
       "evidence": [
         "NavGuidanceParser internal leading-car action"
@@ -1715,7 +1718,10 @@
         "OPERATOR_OBSERVATION marker는 자동 PASS 신호로 사용하지 않고 correlation candidate evidence로만 사용",
         "V1 correlation evaluator는 단일 session 3회와 교차 session 2개×각 3회를 구분",
         "cross_session_candidate_not_verified도 자동 VERIFIED 승격 근거가 아님",
-        "evaluator는 여러 Evidence ZIP/JSONL 입력을 dedupe 후 통합 분석"
+        "evaluator는 여러 Evidence ZIP/JSONL 입력을 dedupe 후 통합 분석",
+        "Verification Center는 Registry real_vehicle_test 절차를 실차 캡처 시작 전에 표시",
+        "진행 중 correlation에서 marker별 3회 목표 진행률을 자동 표시",
+        "주행이 필요한 operator marker는 운전자가 아닌 동승자 또는 안전한 시험 환경에서 기록하도록 안내"
       ],
       "required_logs": [
         "registry schema/version",
@@ -1727,7 +1733,10 @@
         "automatic evidence bundle/upload",
         "single_session_candidate_not_verified",
         "cross_session_candidate_not_verified",
-        "matching_stable_sessions"
+        "matching_stable_sessions",
+        "operatorObservationCounts",
+        "marker progress",
+        "real_vehicle_test guide"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
@@ -1745,7 +1754,9 @@
         "operator observation markers share the active Test ID correlation",
         "monotonic elapsed_realtime_ms added to every evidence row",
         "evaluate_live_correlations.py CI self-test",
-        "CI rejects success_any entries beginning with observation="
+        "CI rejects success_any entries beginning with observation=",
+        "Verification Center renders Registry real_vehicle_test steps",
+        "marker progress is counted from the active correlation only"
       ],
       "next_action": "실차 Evidence ZIP을 최소 2개 session에서 수집하고 evaluator 다중 입력으로 동일 raw 반복성을 비교; cross-session 후보도 수동 검토 전 매핑 활성화 금지",
       "confidence": {
