@@ -366,6 +366,17 @@ public class LauncherActivity extends Activity {
         quick.addView(actionCard("시동 앱", autoStartCount() + "개 등록", "▶", this::showAutoStartManager), weighted());
         quick.addView(actionCard("검증 센터", "Registry v3 · Test ID", "✓", this::openVerificationCenter), weighted());
 
+        LinearLayout tpms = new LinearLayout(this);
+        tpms.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams tpmsLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(88));
+        tpmsLp.topMargin = dp(12);
+        content.addView(tpms, tpmsLp);
+        tpms.addView(actionCard("FL · 앞좌측", tpmsDisplay(tpmsFlKpa), "◉", () -> {}), weighted());
+        tpms.addView(actionCard("FR · 앞우측", tpmsDisplay(tpmsFrKpa), "◉", () -> {}), weighted());
+        tpms.addView(actionCard("RL · 뒤좌측", tpmsDisplay(tpmsRlKpa), "◉", () -> {}), weighted());
+        tpms.addView(actionCard("RR · 뒤우측", tpmsDisplay(tpmsRrKpa), "◉", () -> {}), weighted());
+
         LinearLayout titleRow = new LinearLayout(this);
         titleRow.setOrientation(LinearLayout.HORIZONTAL);
         titleRow.setGravity(Gravity.CENTER_VERTICAL);
@@ -1055,6 +1066,10 @@ public class LauncherActivity extends Activity {
     private String tpmsPsi(Integer kpa) {
         if (kpa == null) return "-- psi";
         return String.format(java.util.Locale.US, "%.1f psi", kpa * 0.1450377377d);
+    }
+
+    private String tpmsDisplay(Integer kpa) {
+        return kpa == null ? "-- psi · 연결 대기" : tpmsPsi(kpa) + " · BETA";
     }
 
     private View actionCard(String title, String subtitle, String symbol, Runnable action) {
