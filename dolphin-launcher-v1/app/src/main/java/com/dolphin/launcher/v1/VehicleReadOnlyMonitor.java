@@ -109,25 +109,32 @@ public final class VehicleReadOnlyMonitor {
         radarChanged=changed("radar.frontRightMid",radarRight) || radarChanged;
         if(radarChanged) post(()->listener.onFrontRadarRaw(radarLeft,radarRight));
 
-        // Public DiLink 3 OpenAPI exposes per-wheel TPMS pressure values.
-        // Preserve the raw integers until the Korean Dolphin's pressure unit is
-        // confirmed by real-car evidence; no guessed psi/bar conversion here.
-        Integer tyreFl=readIntArg(TYRE,"getTyrePressureValue",staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_FRONT",-1));
-        Integer tyreFr=readIntArg(TYRE,"getTyrePressureValue",staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_FRONT",-1));
-        Integer tyreRl=readIntArg(TYRE,"getTyrePressureValue",staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_REAR",-1));
-        Integer tyreRr=readIntArg(TYRE,"getTyrePressureValue",staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_REAR",-1));
+        // Resolve BYD wheel-area constants before any TPMS API call. Never pass
+        // the -1 fallback into a vehicle API when a runtime constant is absent.
+        int areaFl=staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_FRONT",-1);
+        int areaFr=staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_FRONT",-1);
+        int areaRl=staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_REAR",-1);
+        int areaRr=staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_REAR",-1);
+        boolean tpmsAreasReady=areaFl>=0 && areaFr>=0 && areaRl>=0 && areaRr>=0;
+        if(!tpmsAreasReady) once("tpms.area.unresolved",
+                "TPMS_AREA_UNRESOLVED fl="+areaFl+";fr="+areaFr+";rl="+areaRl+";rr="+areaRr);
+
+        Integer tyreFl=tpmsAreasReady?readIntArg(TYRE,"getTyrePressureValue",areaFl):null;
+        Integer tyreFr=tpmsAreasReady?readIntArg(TYRE,"getTyrePressureValue",areaFr):null;
+        Integer tyreRl=tpmsAreasReady?readIntArg(TYRE,"getTyrePressureValue",areaRl):null;
+        Integer tyreRr=tpmsAreasReady?readIntArg(TYRE,"getTyrePressureValue",areaRr):null;
         boolean tyreChanged=changed("tyre.fl.raw",tyreFl);
         tyreChanged=changed("tyre.fr.raw",tyreFr) || tyreChanged;
         tyreChanged=changed("tyre.rl.raw",tyreRl) || tyreChanged;
         tyreChanged=changed("tyre.rr.raw",tyreRr) || tyreChanged;
-        Integer tyreFlState=readIntArg(TYRE,"getTyrePressureState",staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_FRONT",-1));
-        Integer tyreFrState=readIntArg(TYRE,"getTyrePressureState",staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_FRONT",-1));
-        Integer tyreRlState=readIntArg(TYRE,"getTyrePressureState",staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_REAR",-1));
-        Integer tyreRrState=readIntArg(TYRE,"getTyrePressureState",staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_REAR",-1));
-        Integer tyreFlSignal=readIntArg(TYRE,"getTyreSignalState",staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_FRONT",-1));
-        Integer tyreFrSignal=readIntArg(TYRE,"getTyreSignalState",staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_FRONT",-1));
-        Integer tyreRlSignal=readIntArg(TYRE,"getTyreSignalState",staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_REAR",-1));
-        Integer tyreRrSignal=readIntArg(TYRE,"getTyreSignalState",staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_REAR",-1));
+        Integer tyreFlState=tpmsAreasReady?readIntArg(TYRE,"getTyrePressureState",areaFl):null;
+        Integer tyreFrState=tpmsAreasReady?readIntArg(TYRE,"getTyrePressureState",areaFr):null;
+        Integer tyreRlState=tpmsAreasReady?readIntArg(TYRE,"getTyrePressureState",areaRl):null;
+        Integer tyreRrState=tpmsAreasReady?readIntArg(TYRE,"getTyrePressureState",areaRr):null;
+        Integer tyreFlSignal=tpmsAreasReady?readIntArg(TYRE,"getTyreSignalState",areaFl):null;
+        Integer tyreFrSignal=tpmsAreasReady?readIntArg(TYRE,"getTyreSignalState",areaFr):null;
+        Integer tyreRlSignal=tpmsAreasReady?readIntArg(TYRE,"getTyreSignalState",areaRl):null;
+        Integer tyreRrSignal=tpmsAreasReady?readIntArg(TYRE,"getTyreSignalState",areaRr):null;
         tyreChanged=changed("tyre.fl.pressureState",tyreFlState)||tyreChanged;
         tyreChanged=changed("tyre.fr.pressureState",tyreFrState)||tyreChanged;
         tyreChanged=changed("tyre.rl.pressureState",tyreRlState)||tyreChanged;
