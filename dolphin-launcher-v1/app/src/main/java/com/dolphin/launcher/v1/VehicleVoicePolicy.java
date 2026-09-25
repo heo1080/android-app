@@ -156,7 +156,7 @@ public final class VehicleVoicePolicy {
     }
 
     private static String key(String event,String value) {
-        return event+"\u0000"+value;
+        return event+"::"+value;
     }
 
     private static void evidence(Context c,String event,String value,String promptId) {
