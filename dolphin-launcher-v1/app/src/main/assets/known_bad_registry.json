@@ -131,6 +131,18 @@
       "summary": "third-party per-app driver-speaker routing is not yet proven safe or effective",
       "state": "OPEN",
       "close_gate": "real-car target-app-only driver output, non-target media unchanged, stock safety warning preemption, and stock routing restored after target removal"
+    },
+    {
+      "id": "KB-012",
+      "severity": "P1",
+      "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
+      "test_ids": [
+        "MED-BG-001",
+        "MED-BG-002"
+      ],
+      "summary": "background media autoplay path restored; target MediaSession playback and stock safety-audio coexistence pending real-car verification",
+      "state": "FIX_CANDIDATE",
+      "close_gate": "real-car configured target app launches after saved delay, audibly starts/resumes playback, non-target media is not hijacked, and stock safety warning audio remains functional"
     }
   ]
 }
