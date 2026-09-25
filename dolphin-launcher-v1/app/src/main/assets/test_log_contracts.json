@@ -412,32 +412,37 @@
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
       "required_any": [
-        "SPLIT",
-        "windowingMode",
-        "mWindowingMode"
+        "SPLIT_ADB_COMMAND",
+        "SPLIT_READBACK",
+        "readback_verified"
       ],
       "success_any": [
-        "2분할",
-        "mode=3",
-        "mode=4"
+        "readback_verified=true",
+        "left_primary=true",
+        "right_secondary=true"
       ],
       "failure_any": [
-        "split launch failed",
+        "readback_verified=false",
+        "SPLIT_EXECUTION_FAILED",
         "2분할 실행에 실패"
       ],
       "known_bad_ids": [
         "KB-004"
       ],
       "acceptance": [
-        "두 앱이 mode 3/4로 실제 배치",
-        "dumpsys readback 일치",
-        "비율 적용 또는 명확한 실패",
-        "카메라 종료 후 안전한 복원"
+        "두 앱 shell launch success",
+        "left package readback as split primary / windowing mode 3",
+        "right package readback as split secondary / windowing mode 4",
+        "operator visually confirms two-app split",
+        "shell exit alone is never treated as split success"
       ],
       "required_logs": [
-        "ADB command",
-        "task/stack/windowing mode",
-        "ratio result"
+        "SPLIT_ADB_COMMAND",
+        "SPLIT_READBACK",
+        "left/right package",
+        "left_primary/right_secondary",
+        "readback_verified",
+        "operator visual result"
       ]
     },
     {
@@ -461,20 +466,36 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
-      "success_any": [],
-      "failure_any": [],
+      "required_any": [
+        "SPLIT_ADB_COMMAND",
+        "SPLIT_READBACK",
+        "readback_verified"
+      ],
+      "success_any": [
+        "readback_verified=true",
+        "left_primary=true",
+        "right_secondary=true"
+      ],
+      "failure_any": [
+        "readback_verified=false",
+        "SPLIT_EXECUTION_FAILED",
+        "2분할 실행에 실패"
+      ],
       "known_bad_ids": [],
       "acceptance": [
-        "두 앱이 mode 3/4로 실제 배치",
-        "dumpsys readback 일치",
-        "비율 적용 또는 명확한 실패",
-        "카메라 종료 후 안전한 복원"
+        "두 앱 shell launch success",
+        "left package readback as split primary / windowing mode 3",
+        "right package readback as split secondary / windowing mode 4",
+        "operator visually confirms two-app split",
+        "shell exit alone is never treated as split success"
       ],
       "required_logs": [
-        "ADB command",
-        "task/stack/windowing mode",
-        "ratio result"
+        "SPLIT_ADB_COMMAND",
+        "SPLIT_READBACK",
+        "left/right package",
+        "left_primary/right_secondary",
+        "readback_verified",
+        "operator visual result"
       ]
     },
     {
