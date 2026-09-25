@@ -132,7 +132,12 @@
         "EPB_HELD_VISIBLE",
         "ICC_ON_VISIBLE",
         "BSD_LEFT_CONTEXT_VISIBLE",
-        "LEADING_CAR_DEPARTURE_VISIBLE"
+        "LEADING_CAR_DEPARTURE_VISIBLE",
+        "captureGuide",
+        "markerProgressText",
+        "operatorObservationCounts",
+        "실차 절차",
+        "동승자"
       ]
     },
     {
@@ -817,7 +822,9 @@
         "voice_prompt_manifest.json",
         "activeTestAgeMs",
         "activeTestWithin",
-        "KEY_ACTIVE_TEST_STARTED_ELAPSED"
+        "KEY_ACTIVE_TEST_STARTED_ELAPSED",
+        "operatorObservationCounts",
+        "observationFromNote"
       ]
     },
     {
