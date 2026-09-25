@@ -137,7 +137,11 @@
         "markerProgressText",
         "operatorObservationCounts",
         "실차 절차",
-        "동승자"
+        "동승자",
+        "requiredMarkersForTest",
+        "activeCorrelationReadyForPass",
+        "PASS 잠금",
+        "count < 3"
       ]
     },
     {
