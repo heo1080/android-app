@@ -634,26 +634,32 @@ public class LauncherActivity extends Activity {
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this, "SPLIT_CAPABILITY_PROBE", capability.evidence());
 
-        // Static analysis of the known-working BYD Auto Split 1.2.0 reference shows
-        // Android shell launches with --windowingMode 3 (split-primary) and 4
-        // (split-secondary). V1 does not assume ordinary launchBounds are equivalent.
-        // Until an authorized shell bridge exists in V1 and this exact path is retested
-        // on the user's DiLink 3.0 vehicle, preserve the pair and collect evidence only.
         VerificationEvidenceRuntime.recordPassiveEvent(
-                this, "SPLIT_REFERENCE_PATH_IDENTIFIED",
-                "left=" + left + ";right=" + right +
-                        ";reference=BydAutoSplit-1.2.0;windowingMode=3,4;execution=blocked-until-authorized-shell;" +
-                        capability.evidence());
-        VerificationEvidenceRuntime.queueBundleAndUpload(this, "split-reference-path-identified");
+                this, "SPLIT_EXECUTION_ATTEMPT",
+                "left=" + left + ";right=" + right + ";" + capability.evidence());
+        if (!capability.authorizedPathReady()) {
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "SPLIT_EXECUTION_BLOCKED",
+                    "reason=localhost-adb-not-authorized;left=" + left + ";right=" + right);
+            VerificationEvidenceRuntime.queueBundleAndUpload(this, "split-adb-authorization-required");
+            new AlertDialog.Builder(this)
+                    .setTitle("2분할 · ADB 승인 필요")
+                    .setMessage("차량의 localhost ADB 인증이 아직 승인되지 않았습니다. 한쪽 앱만 실행하는 방식으로 대체하지 않습니다. " +
+                            "차량에 ADB 승인 창이 표시되면 V1 키를 승인한 뒤 다시 실행하세요.")
+                    .setPositiveButton("확인", null)
+                    .show();
+            return;
+        }
 
-        new AlertDialog.Builder(this)
-                .setTitle("2분할 · 차량 호환 경로 확인됨")
-                .setMessage("정상 동작 레퍼런스의 정적 분석에서 Android windowingMode 3/4 분할 진입 경로를 확인했습니다. " +
-                        "1.2.1의 launchBounds 방식과 다릅니다.\n\n" +
-                        "V1에는 아직 검증된 권한 셸 브리지가 없으므로 임의 실행하지 않습니다. 좌/우 조합은 보존하며, " +
-                        "권한 경로까지 검증한 뒤 BETA 실차 재시험으로 전환합니다.")
-                .setPositiveButton("확인", null)
-                .show();
+        SplitExecutionBridge.Result result = SplitExecutionBridge.launch(this, left, right);
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this, result.success ? "SPLIT_EXECUTION_SUCCESS" : "SPLIT_EXECUTION_FAILED",
+                "left=" + left + ";right=" + right + ";" + result.detail);
+        VerificationEvidenceRuntime.queueBundleAndUpload(
+                this, result.success ? "split-execution-success-candidate" : "split-execution-failed");
+        if (!result.success) {
+            Toast.makeText(this, "2분할 실행에 실패했습니다. 검증 로그를 자동 저장했습니다.", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void showAutoStartManager() {
