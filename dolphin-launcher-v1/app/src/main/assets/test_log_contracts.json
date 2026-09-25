@@ -55,14 +55,21 @@
       "acceptance": [
         "APK manifest의 package/versionCode/versionName이 release metadata와 일치",
         "APK가 어떤 source commit+patch chain에서 생성됐는지 추적 가능",
-        "동일 signing certificate 유지"
+        "동일 signing certificate 유지",
+        "packaged APK has exactly one launchable LauncherActivity",
+        "packaged APK contains LAUNCHER category and no HOME category",
+        "packaged minSdk=29 and targetSdk=35"
       ],
       "required_logs": [
         "source commit",
         "workflow run id",
         "versionCode/versionName",
         "APK SHA-256",
-        "signing fingerprint"
+        "signing fingerprint",
+        "launchable-activity count=1",
+        "HOME category absent",
+        "sdkVersion=29",
+        "targetSdkVersion=35"
       ]
     },
     {
@@ -93,14 +100,21 @@
       "acceptance": [
         "APK manifest의 package/versionCode/versionName이 release metadata와 일치",
         "APK가 어떤 source commit+patch chain에서 생성됐는지 추적 가능",
-        "동일 signing certificate 유지"
+        "동일 signing certificate 유지",
+        "packaged APK has exactly one launchable LauncherActivity",
+        "packaged APK contains LAUNCHER category and no HOME category",
+        "packaged minSdk=29 and targetSdk=35"
       ],
       "required_logs": [
         "source commit",
         "workflow run id",
         "versionCode/versionName",
         "APK SHA-256",
-        "signing fingerprint"
+        "signing fingerprint",
+        "launchable-activity count=1",
+        "HOME category absent",
+        "sdkVersion=29",
+        "targetSdkVersion=35"
       ]
     },
     {
@@ -207,13 +221,20 @@
       "acceptance": [
         "앱서랍에서 정상 아이콘/이름 표시",
         "실행 시 desktop/freeform 오인 없음",
-        "HOME 역할을 의도하지 않았다면 HOME category 없음"
+        "HOME 역할을 의도하지 않았다면 HOME category 없음",
+        "operator confirms app drawer icon is visible after install",
+        "operator confirms normal app launch without desktop/freeform misclassification",
+        "required launcher markers reach 3 observations before PASS"
       ],
       "required_logs": [
         "resolved activity",
         "intent categories",
         "windowing mode",
-        "dumpsys activity"
+        "dumpsys activity",
+        "OPERATOR_OBSERVATION",
+        "APP_DRAWER_ICON_VISIBLE",
+        "NORMAL_APP_LAUNCH_VISIBLE",
+        "elapsed_realtime_ms"
       ]
     },
     {
