@@ -209,6 +209,12 @@ public class LauncherActivity extends Activity {
                         LauncherActivity.this, "ICC_TJA_RAW_TRANSITION",
                         "tja_raw=" + raw + ";voice=suppressed-pending-icc-correlation");
             }
+            @Override public void onFrontRadarRaw(Integer leftMid, Integer rightMid) {
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        LauncherActivity.this, "LEADING_OBJECT_RADAR_RAW",
+                        "area7=" + leftMid + ";area8=" + rightMid
+                                + ";voice=suppressed;classification=unknown-object");
+            }
             @Override public void onRaw(String signal, Integer raw) {
                 // AVH/BSD and other not-yet-normalized signals remain evidence-only.
             }
