@@ -43,6 +43,7 @@ public final class VerificationEvidenceRuntime {
     private static final String KEY_LAST_UPLOAD = "last_upload_receipt";
     private static final String KEY_ACTIVE_TEST_ID = "active_test_id";
     private static final String KEY_ACTIVE_TEST_CORRELATION = "active_test_correlation";
+    private static final String KEY_ACTIVE_TEST_STARTED_ELAPSED = "active_test_started_elapsed";
     private static final String UPLOAD_URL = "https://dolphin-v1-evidence.heo1080.workers.dev/upload";
     private static final long MAX_UPLOAD_BYTES = 20L * 1024L * 1024L;
     private static final ExecutorService IO = Executors.newSingleThreadExecutor();
@@ -92,6 +93,7 @@ public final class VerificationEvidenceRuntime {
         prefs(context).edit()
                 .putString(KEY_ACTIVE_TEST_ID, testId)
                 .putString(KEY_ACTIVE_TEST_CORRELATION, correlationId)
+                .putLong(KEY_ACTIVE_TEST_STARTED_ELAPSED, SystemClock.elapsedRealtime())
                 .apply();
         append(context, "TEST_START", testId, correlationId, "STARTED", null);
         return correlationId;
@@ -103,6 +105,17 @@ public final class VerificationEvidenceRuntime {
 
     public static String activeTestCorrelation(Context context) {
         return prefs(context).getString(KEY_ACTIVE_TEST_CORRELATION, null);
+    }
+
+    public static long activeTestAgeMs(Context context) {
+        long started = prefs(context).getLong(KEY_ACTIVE_TEST_STARTED_ELAPSED, -1L);
+        long now = SystemClock.elapsedRealtime();
+        if (started < 0L || now < started) return Long.MAX_VALUE;
+        return now - started;
+    }
+
+    public static boolean activeTestWithin(Context context, long maxAgeMs) {
+        return activeTestAgeMs(context) <= maxAgeMs;
     }
 
     public static void updateLiveCorrelationValue(String key, Object value) {
@@ -149,6 +162,7 @@ public final class VerificationEvidenceRuntime {
             prefs(context).edit()
                     .remove(KEY_ACTIVE_TEST_ID)
                     .remove(KEY_ACTIVE_TEST_CORRELATION)
+                    .remove(KEY_ACTIVE_TEST_STARTED_ELAPSED)
                     .apply();
         }
     }
