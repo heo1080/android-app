@@ -14,29 +14,6 @@
       ]
     },
     {
-      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
-      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
-      "tokens": [
-        "showAutoStartManager",
-        "showAutoStartAppPicker",
-        "KEY_AUTOSTART_SET",
-        "AUTOSTART_TRIGGER_CONSUMED",
-        "AUTOSTART_BATCH_SCHEDULED",
-        "AUTOSTART_LAUNCH_ATTEMPT",
-        "AUTOSTART_SKIPPED",
-        "runPendingAutostart"
-      ]
-    },
-    {
-      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
-      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootReceiver.java",
-      "tokens": [
-        "KEY_PENDING_AUTOSTART",
-        "goAsync",
-        "BOOT_UPLOAD_RETRY_FINISHED"
-      ]
-    },
-    {
       "feature_id": "SPLIT_SCREEN_TWO_APP",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SplitCapabilityProbe.java",
       "tokens": [
@@ -611,6 +588,34 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/ShortcutPinReceiver.java",
       "tokens": [
         "APP_SHORTCUT_PIN_CONFIRMED"
+      ]
+    },
+    {
+      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+      "tokens": [
+        "showAutoStartManager",
+        "showAutoStartAppPicker",
+        "KEY_AUTOSTART_SET",
+        "AUTOSTART_APP_ADDED"
+      ]
+    },
+    {
+      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootReceiver.java",
+      "tokens": [
+        "BOOT_COMPLETED",
+        "BootAutoLaunchRuntime.dispatch",
+        "BOOT_UPLOAD_RETRY_FINISHED"
+      ]
+    },
+    {
+      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchRuntime.java",
+      "tokens": [
+        "AUTOSTART_BOOT_BATCH",
+        "AUTOSTART_LAUNCH_DISPATCHED",
+        "AUTOSTART_LAUNCH_FAILED"
       ]
     }
   ],
