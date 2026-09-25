@@ -69,7 +69,8 @@
         "launchable-activity count=1",
         "HOME category absent",
         "sdkVersion=29",
-        "targetSdkVersion=35"
+        "targetSdkVersion=35",
+        "BUILD_IDENTITY_OK"
       ]
     },
     {
@@ -114,7 +115,8 @@
         "launchable-activity count=1",
         "HOME category absent",
         "sdkVersion=29",
-        "targetSdkVersion=35"
+        "targetSdkVersion=35",
+        "BUILD_IDENTITY_OK"
       ]
     },
     {
@@ -224,7 +226,8 @@
         "HOME 역할을 의도하지 않았다면 HOME category 없음",
         "operator confirms app drawer icon is visible after install",
         "operator confirms normal app launch without desktop/freeform misclassification",
-        "required launcher markers reach 3 observations before PASS"
+        "required launcher markers reach 3 observations before PASS",
+        "HOME launcher role remains disabled until separate BYD compatibility evidence exists"
       ],
       "required_logs": [
         "resolved activity",
@@ -234,7 +237,8 @@
         "OPERATOR_OBSERVATION",
         "APP_DRAWER_ICON_VISIBLE",
         "NORMAL_APP_LAUNCH_VISIBLE",
-        "elapsed_realtime_ms"
+        "elapsed_realtime_ms",
+        "BUILD_IDENTITY_OK"
       ]
     },
     {
