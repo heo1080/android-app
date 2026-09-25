@@ -155,6 +155,28 @@ public class VerificationCenterActivity extends Activity {
         });
         actions.addView(problem, weighted());
 
+        Button newSession = button("새 검증 세션");
+        newSession.setOnClickListener(v -> {
+            if (activeTestId != null) {
+                Toast.makeText(this, "진행 중인 " + activeTestId + " 테스트를 먼저 종료하세요.",
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
+            try {
+                String next = VerificationEvidenceRuntime.rolloverSession(
+                        this, "Verification Center manual cross-session repeat");
+                refreshLedger();
+                refreshRuntimeStatus();
+                Toast.makeText(this, "새 검증 세션 시작 · "
+                                + next.substring(0, Math.min(8, next.length())),
+                        Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Toast.makeText(this, "세션 전환 실패: " + e.getMessage(),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+        actions.addView(newSession, weighted());
+
         Button export = button("Evidence ZIP 생성");
         export.setOnClickListener(v -> {
             try {
@@ -290,7 +312,7 @@ public class VerificationCenterActivity extends Activity {
                 out.append("\n").append(i + 1).append(". ").append(steps.optString(i));
             }
         }
-        out.append("\n\n마커는 같은 상태를 최소 3회 기록하고, 가능하면 별도 시동/진단 세션에서 다시 반복하세요.");
+        out.append("\n\n마커는 같은 상태를 최소 3회 기록하세요. 한 세션을 마친 뒤 '새 검증 세션'으로 이전 Evidence를 보존하고 별도 세션에서 다시 반복할 수 있습니다.");
         out.append("\n주행 중 필요한 테스트는 운전자가 화면을 조작하지 말고 동승자 또는 안전한 시험 환경에서 기록하세요.");
         out.append("\n마커 자체는 PASS가 아니며 raw 상관 후보만 만듭니다.");
         return out.toString();
