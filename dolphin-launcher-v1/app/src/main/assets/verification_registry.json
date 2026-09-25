@@ -349,7 +349,11 @@
         "카메라 종료 후 안전한 복원",
         "실제 2분할 화면과 카메라 복귀를 operator marker로 readback과 별도 확인",
         "바로가기 pin 표시와 바로가기 실행 후 실제 split을 operator marker로 별도 확인",
-        "실차 operator marker는 active correlation에서 각 3회 이상 기록되어야 PASS 선택 가능"
+        "실차 operator marker는 active correlation에서 각 3회 이상 기록되어야 PASS 선택 가능",
+        "OEM 360/파노라마 종료 broadcast 후보를 passive evidence로 수집",
+        "카메라 종료 후보 700ms 후 저장된 좌/우 pair의 primary/secondary readback만 수행",
+        "카메라 종료 후 자동 split restore는 국내 돌핀 lifecycle 상관관계가 실차로 확정되기 전 비활성",
+        "passive camera evidence 경로는 앱/stack write를 수행하지 않음"
       ],
       "required_logs": [
         "SPLIT_ADB_COMMAND",
@@ -363,7 +367,13 @@
         "SPLIT_TWO_APP_VISIBLE",
         "SPLIT_CAMERA_RETURN_OK",
         "SPLIT_SHORTCUT_ICON_VISIBLE",
-        "SPLIT_SHORTCUT_LAUNCH_VISIBLE"
+        "SPLIT_SHORTCUT_LAUNCH_VISIBLE",
+        "SPLIT_CAMERA_EVENT",
+        "SPLIT_CAMERA_EVIDENCE_RUNTIME",
+        "SPLIT_POST_CAMERA_READBACK",
+        "SPLIT_READBACK_PASSIVE",
+        "restore_attempted=false",
+        "actuation=false"
       ],
       "known_bad": [
         "사용자 실차에서 분할화면 미작동 보고",
@@ -383,9 +393,11 @@
       ],
       "evidence": [
         "SplitScreenManager readback implementation",
-        "v32.2 regression guard"
+        "v32.2 regression guard",
+        "V1 passive camera lifecycle receiver observes BYD pano/auto-video exit candidates",
+        "SplitExecutionBridge.inspectCurrentPair performs dumpsys/am stack readback without actuation"
       ],
-      "next_action": "실차에서 SPLIT_READBACK과 실제 화면을 함께 대조해 BYD DiLink window manager의 primary/secondary 수용 여부 확정",
+      "next_action": "실차 WIN-SPLIT-001에서 카메라 진입/종료 broadcast와 700ms post-camera readback을 반복 수집해 split 유지/붕괴를 확정; 자동 restore는 그 전까지 금지",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "MEDIUM",
