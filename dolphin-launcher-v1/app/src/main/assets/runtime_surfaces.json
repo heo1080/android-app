@@ -637,7 +637,33 @@
       ]
     },
     {
-      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
+      "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+      "tokens": [
+        "AUTOSTART_MEDIA_CHANGED",
+        "AUTOSTART_DELAY_CHANGED"
+      ]
+    },
+    {
+      "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AutoStartStore.java",
+      "tokens": [
+        "mediaEnabled",
+        "setMediaEnabled",
+        "delayMs",
+        "setDelayMs"
+      ]
+    },
+    {
+      "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchRuntime.java",
+      "tokens": [
+        "AutoStartStore.mediaEnabled",
+        "BackgroundMediaRuntime.requestPlay"
+      ]
+    },
+    {
+      "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BackgroundMediaRuntime.java",
       "tokens": [
         "BACKGROUND_MEDIA_APP_DISPATCHED",
