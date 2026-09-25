@@ -999,6 +999,16 @@ public class LauncherActivity extends Activity {
         return button;
     }
 
+    private Button button(String label) {
+        Button b = new Button(this);
+        b.setText(label);
+        b.setTextColor(Color.WHITE);
+        b.setTextSize(12f);
+        b.setAllCaps(false);
+        b.setBackground(round("#10252E", 14, "#2A5362"));
+        return b;
+    }
+
     private TextView chip(String value) {
         TextView view = text(value, 11f, Color.parseColor("#A8BBC4"), false);
         view.setGravity(Gravity.CENTER);
