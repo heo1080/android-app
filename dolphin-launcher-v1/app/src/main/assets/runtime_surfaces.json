@@ -574,6 +574,26 @@
         "운전석 중심 프리셋",
         "차량 DSP 쓰기 차단"
       ]
+    },
+    {
+      "feature_id": "DRIVER_ONLY_APP_OWNED_AUDIO",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DriverAudioCapabilityProbe.java",
+      "required_tokens": [
+        "AUDIO_OUTPUT_DEVICE",
+        "DRIVER_AUDIO_CAPABILITY",
+        "routing_write=false",
+        "byd_dsp_write=false"
+      ]
+    },
+    {
+      "feature_id": "PER_APP_DRIVER_SPEAKER_ROUTING",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DriverAudioCapabilityProbe.java",
+      "required_tokens": [
+        "AUDIO_OUTPUT_DEVICE",
+        "uid_affinity_write=false",
+        "audio_policy_write=false",
+        "byd_dsp_write=false"
+      ]
     }
   ],
   "notes": [
