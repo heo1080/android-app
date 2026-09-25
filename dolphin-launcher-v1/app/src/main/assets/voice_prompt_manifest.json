@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "preferred_voice": {
+    "language": "ko-KR",
+    "gender": "female",
+    "style": "calm OEM-like",
+    "delivery": "pre-generated fixed assets",
+    "fallback": "Android TextToSpeech; gender not guaranteed"
+  },
+  "verification_policy": {
+    "fixed_asset_ready_requires_all_assets": true,
+    "tts_fallback_must_not_be_reported_as_fixed_female_voice": true,
+    "play_request_is_not_audible_success": true
+  },
+  "prompts": [
+    {
+      "id": "gear_p",
+      "resource": "voice_gear_p",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "gear_r",
+      "resource": "voice_gear_r",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "gear_n",
+      "resource": "voice_gear_n",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "gear_d",
+      "resource": "voice_gear_d",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "drive_eco",
+      "resource": "voice_drive_eco",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "drive_normal",
+      "resource": "voice_drive_normal",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "drive_sport",
+      "resource": "voice_drive_sport",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "regen_standard",
+      "resource": "voice_regen_standard",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "regen_high",
+      "resource": "voice_regen_high",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "snow_on",
+      "resource": "voice_snow_on",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "snow_off",
+      "resource": "voice_snow_off",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "autohold_on",
+      "resource": "voice_autohold_on",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "autohold_off",
+      "resource": "voice_autohold_off",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "autohold_held",
+      "resource": "voice_autohold_held",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "autohold_released",
+      "resource": "voice_autohold_released",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "epb_held",
+      "resource": "voice_epb_held",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "epb_released",
+      "resource": "voice_epb_released",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "icc_on",
+      "resource": "voice_icc_on",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "icc_off",
+      "resource": "voice_icc_off",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "leading_car_departure",
+      "resource": "voice_leading_car_departure",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "bsd_left",
+      "resource": "voice_bsd_left",
+      "state": "ASSET_REQUIRED"
+    },
+    {
+      "id": "bsd_right",
+      "resource": "voice_bsd_right",
+      "state": "ASSET_REQUIRED"
+    }
+  ]
+}
