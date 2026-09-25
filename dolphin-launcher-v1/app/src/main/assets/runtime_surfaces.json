@@ -511,6 +511,38 @@
         "state=BETA",
         "actuation=false"
       ]
+    },
+    {
+      "feature_id": "AUDIO_EQUALIZER",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AudioCapabilityProbe.java",
+      "required_tokens": [
+        "AUDIO_CAPABILITY",
+        "AUDIO_CAPABILITY_CONSTANT",
+        "AUDIO_CAPABILITY_SCAN",
+        "vehicle_write=false"
+      ]
+    },
+    {
+      "feature_id": "AUDIO_EQUALIZER",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/OwnedAudioEqualizer.java",
+      "required_tokens": [
+        "MIN_DB=-6",
+        "MAX_DB=6",
+        "EQ_BANDS_CHANGED",
+        "EQ_RESET",
+        "target=app-owned",
+        "byd_dsp_write=false"
+      ]
+    },
+    {
+      "feature_id": "AUDIO_SOUND_POSITION",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AudioCapabilityProbe.java",
+      "required_tokens": [
+        "balance",
+        "fader",
+        "AUDIO_CAPABILITY_SCAN",
+        "vehicle_write=false"
+      ]
     }
   ],
   "notes": [
