@@ -435,41 +435,20 @@ public class LauncherActivity extends Activity {
             return;
         }
 
-        Intent first = getPackageManager().getLaunchIntentForPackage(left);
-        Intent second = getPackageManager().getLaunchIntentForPackage(right);
-        if (first == null || second == null) {
-            Toast.makeText(this, "지정한 앱을 실행할 수 없습니다.", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // 1.2.1 real-car evidence: launch bounds alone did not enter BYD split-screen;
+        // only one selected app launched. Keep the pair and capture the attempt, but
+        // never claim success until a vehicle-compatible split transition is verified.
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this, "SPLIT_REVERIFY_REQUIRED",
+                "left=" + left + ";right=" + right + ";reason=1.2.1-single-app-only");
+        VerificationEvidenceRuntime.queueBundleAndUpload(this, "split-reverify-required");
 
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        int w = dm.widthPixels;
-        int h = dm.heightPixels;
-        Rect leftBounds = new Rect(0, 0, Math.max(1, w / 2), h);
-        Rect rightBounds = new Rect(Math.max(1, w / 2), 0, w, h);
-
-        try {
-            first.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-            ActivityOptions firstOptions = ActivityOptions.makeBasic();
-            firstOptions.setLaunchBounds(leftBounds);
-            startActivity(first, firstOptions.toBundle());
-
-            handler.postDelayed(() -> {
-                try {
-                    second.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
-                            Intent.FLAG_ACTIVITY_MULTIPLE_TASK |
-                            Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT);
-                    ActivityOptions secondOptions = ActivityOptions.makeBasic();
-                    secondOptions.setLaunchBounds(rightBounds);
-                    startActivity(second, secondOptions.toBundle());
-                    Toast.makeText(this, "2분할 실행 요청 전송", Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    Toast.makeText(this, "두 번째 앱 실행 실패", Toast.LENGTH_SHORT).show();
-                }
-            }, 550L);
-        } catch (Exception e) {
-            Toast.makeText(this, "2분할 실행 요청 실패", Toast.LENGTH_SHORT).show();
-        }
+        new AlertDialog.Builder(this)
+                .setTitle("2분할 · 실차 재검증 필요")
+                .setMessage("1.2.1 실차에서 기존 방식은 실제 분할 화면으로 전환되지 않고 앱 1개만 실행되는 회귀가 확인되었습니다.\n\n" +
+                        "선택한 좌/우 조합은 그대로 보존합니다. 차량 호환 분할 진입 경로가 검증되기 전에는 성공으로 표시하거나 단일 앱을 대신 실행하지 않습니다.")
+                .setPositiveButton("확인", null)
+                .show();
     }
 
     private void showAutoStartManager() {
