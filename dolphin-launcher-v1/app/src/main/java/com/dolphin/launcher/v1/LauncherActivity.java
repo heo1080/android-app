@@ -195,6 +195,12 @@ public class LauncherActivity extends Activity {
                         LauncherActivity.this, "AUTOHOLD_RAW_TRANSITION",
                         "avh_raw=" + raw + ";voice=suppressed-pending-correlation");
             }
+            @Override public void onAvhSwitchRaw(Integer raw) {
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        LauncherActivity.this, "AUTOHOLD_SWITCH_RAW_TRANSITION",
+                        "avh_switch_raw=" + raw
+                                + ";hold_state_source=adas.avh;voice=suppressed-pending-correlation");
+            }
             @Override public void onBsdRaw(Integer raw) {
                 VerificationEvidenceRuntime.recordPassiveEvent(
                         LauncherActivity.this, "BSD_RAW_TRANSITION",
