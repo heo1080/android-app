@@ -3,19 +3,59 @@ package com.dolphin.launcher.v1;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 
 /**
- * V1 vehicle voice policy. UI labels and spoken phrases are deliberately separated:
- * fixed driving feedback must never feed raw "ON"/"OFF" strings into TTS.
+ * V1 vehicle voice policy. Every normalized vehicle state is bound to exactly one
+ * prompt ID and spoken phrase in the catalog below. Callers never pass a prompt ID
+ * and phrase independently, preventing cross-label regressions.
  *
- * This class is signal-source agnostic. BYD listeners may call onState only after
- * their raw->normalized mapping has evidence. UNKNOWN/raw values must not be spoken.
+ * This class is signal-source agnostic. BYD listeners may call these methods only
+ * after raw->normalized mapping has evidence. UNKNOWN/raw values must not be spoken.
  */
 public final class VehicleVoicePolicy {
     private static final String TAG = "V1_VEHICLE_VOICE";
     private static String lastGear, lastDrive, lastRegen, lastSnow, lastAutoHoldSwitch;
     private static String lastAutoHoldState, lastEpb, lastIcc, lastLeading;
+
+    private static final class PromptSpec {
+        final String id;
+        final String phrase;
+
+        PromptSpec(String id, String phrase) {
+            this.id = id;
+            this.phrase = phrase;
+        }
+    }
+
+    private static final Map<String, PromptSpec> PROMPTS = new LinkedHashMap<>();
+
+    static {
+        register("GEAR","P","gear_p","P");
+        register("GEAR","R","gear_r","R");
+        register("GEAR","N","gear_n","N");
+        register("GEAR","D","gear_d","D");
+        register("DRIVE_MODE","ECO","drive_eco","에코");
+        register("DRIVE_MODE","NORMAL","drive_normal","노멀");
+        register("DRIVE_MODE","SPORT","drive_sport","스포츠");
+        register("REGEN","STANDARD","regen_standard","회생제동 스탠다드");
+        register("REGEN","HIGH","regen_high","회생제동 하이");
+        register("SNOW","ON","snow_on","스노우 모드 켜짐");
+        register("SNOW","OFF","snow_off","스노우 모드 꺼짐");
+        register("AUTOHOLD_SWITCH","ON","autohold_on","오토홀드 켜짐");
+        register("AUTOHOLD_SWITCH","OFF","autohold_off","오토홀드 꺼짐");
+        register("AUTOHOLD_STATE","HELD","autohold_held","오토홀드 체결");
+        register("AUTOHOLD_STATE","RELEASED","autohold_released","오토홀드 해제");
+        register("EPB","HELD","epb_held","사이드 브레이크 체결");
+        register("EPB","RELEASED","epb_released","사이드 브레이크 해제");
+        register("ICC","ON","icc_on","ICC 켜짐");
+        register("ICC","OFF","icc_off","ICC 꺼짐");
+        register("LEADING_CAR","DEPARTED","leading_car_departure","전방 차량 출발");
+        register("BSD","LEFT","bsd_left","왼쪽 주의");
+        register("BSD","RIGHT","bsd_right","오른쪽 주의");
+    }
 
     public interface Output {
         void playFixedPrompt(String promptId, String koreanPhrase);
@@ -23,88 +63,100 @@ public final class VehicleVoicePolicy {
 
     private VehicleVoicePolicy() {}
 
+    public static String[] promptIds() {
+        String[] ids = new String[PROMPTS.size()];
+        int i = 0;
+        for (PromptSpec prompt : PROMPTS.values()) ids[i++] = prompt.id;
+        return ids;
+    }
+
     public static synchronized void gear(Context c, Output out, String value) {
         String v = upper(value);
-        String phrase = null, id = null;
-        if ("P".equals(v)) { id="gear_p"; phrase="P"; }
-        else if ("R".equals(v)) { id="gear_r"; phrase="R"; }
-        else if ("N".equals(v)) { id="gear_n"; phrase="N"; }
-        else if ("D".equals(v)) { id="gear_d"; phrase="D"; }
-        lastGear = emitChanged(c,out,"GEAR",lastGear,v,id,phrase);
+        lastGear = emitChanged(c,out,"GEAR",lastGear,v);
     }
 
     public static synchronized void driveMode(Context c, Output out, String value) {
-        String v=upper(value), id=null, phrase=null;
-        if ("ECO".equals(v)) { id="drive_eco"; phrase="에코"; }
-        else if ("NORMAL".equals(v)) { id="drive_normal"; phrase="노멀"; }
-        else if ("SPORT".equals(v)) { id="drive_sport"; phrase="스포츠"; }
-        lastDrive=emitChanged(c,out,"DRIVE_MODE",lastDrive,v,id,phrase);
+        String v=upper(value);
+        lastDrive=emitChanged(c,out,"DRIVE_MODE",lastDrive,v);
     }
 
     public static synchronized void regen(Context c, Output out, String value) {
-        String v=upper(value), id=null, phrase=null;
-        if ("STANDARD".equals(v)) { id="regen_standard"; phrase="회생제동 스탠다드"; }
-        else if ("HIGH".equals(v)) { id="regen_high"; phrase="회생제동 하이"; }
-        lastRegen=emitChanged(c,out,"REGEN",lastRegen,v,id,phrase);
+        String v=upper(value);
+        lastRegen=emitChanged(c,out,"REGEN",lastRegen,v);
     }
 
     public static synchronized void snow(Context c, Output out, boolean on) {
         String v=on?"ON":"OFF";
-        lastSnow=emitChanged(c,out,"SNOW",lastSnow,v,on?"snow_on":"snow_off",
-                on?"스노우 모드 켜짐":"스노우 모드 꺼짐");
+        lastSnow=emitChanged(c,out,"SNOW",lastSnow,v);
     }
 
     public static synchronized void autoHoldSwitch(Context c, Output out, boolean on) {
         String v=on?"ON":"OFF";
-        lastAutoHoldSwitch=emitChanged(c,out,"AUTOHOLD_SWITCH",lastAutoHoldSwitch,v,
-                on?"autohold_on":"autohold_off",on?"오토홀드 켜짐":"오토홀드 꺼짐");
+        lastAutoHoldSwitch=emitChanged(c,out,"AUTOHOLD_SWITCH",lastAutoHoldSwitch,v);
     }
 
     public static synchronized void autoHoldState(Context c, Output out, boolean held) {
         String v=held?"HELD":"RELEASED";
-        lastAutoHoldState=emitChanged(c,out,"AUTOHOLD_STATE",lastAutoHoldState,v,
-                held?"autohold_held":"autohold_released",held?"오토홀드 체결":"오토홀드 해제");
+        lastAutoHoldState=emitChanged(c,out,"AUTOHOLD_STATE",lastAutoHoldState,v);
     }
 
     public static synchronized void epb(Context c, Output out, boolean held) {
         String v=held?"HELD":"RELEASED";
-        lastEpb=emitChanged(c,out,"EPB",lastEpb,v,held?"epb_held":"epb_released",
-                held?"사이드 브레이크 체결":"사이드 브레이크 해제");
+        lastEpb=emitChanged(c,out,"EPB",lastEpb,v);
     }
 
     public static synchronized void icc(Context c, Output out, boolean on) {
         String v=on?"ON":"OFF";
-        lastIcc=emitChanged(c,out,"ICC",lastIcc,v,on?"icc_on":"icc_off",
-                on?"ICC 켜짐":"ICC 꺼짐");
+        lastIcc=emitChanged(c,out,"ICC",lastIcc,v);
     }
 
     public static synchronized void leadingCarDeparture(Context c, Output out, boolean detected) {
         String v=detected?"DEPARTED":"IDLE";
-        if (detected) lastLeading=emitChanged(c,out,"LEADING_CAR",lastLeading,v,
-                "leading_car_departure","전방 차량 출발");
+        if (detected) lastLeading=emitChanged(c,out,"LEADING_CAR",lastLeading,v);
         else lastLeading=v;
     }
 
     public static synchronized void bsd(Context c, Output out, String side) {
-        String v=upper(side), id=null, phrase=null;
-        if ("LEFT".equals(v)) { id="bsd_left"; phrase="왼쪽 주의"; }
-        else if ("RIGHT".equals(v)) { id="bsd_right"; phrase="오른쪽 주의"; }
-        if (id==null) unknown(c,"BSD",v); else {
-            evidence(c,"BSD",v,id);
-            if(out!=null) out.playFixedPrompt(id,phrase);
+        String v=upper(side);
+        PromptSpec prompt=prompt("BSD",v);
+        if (prompt==null) {
+            unknown(c,"BSD",v);
+            return;
         }
+        evidence(c,"BSD",v,prompt.id);
+        if(out!=null) out.playFixedPrompt(prompt.id,prompt.phrase);
     }
 
-    private static String emitChanged(Context c, Output out, String event, String previous,
-                                      String normalized, String promptId, String phrase) {
-        if (normalized==null || normalized.length()==0 || promptId==null) {
+    private static String emitChanged(Context c, Output out, String event,
+                                      String previous, String normalized) {
+        if (normalized==null || normalized.length()==0) {
+            unknown(c,event,normalized);
+            return previous;
+        }
+        PromptSpec prompt=prompt(event,normalized);
+        if (prompt==null) {
             unknown(c,event,normalized);
             return previous;
         }
         if (normalized.equals(previous)) return previous;
-        evidence(c,event,normalized,promptId);
-        if(out!=null) out.playFixedPrompt(promptId,phrase);
+        evidence(c,event,normalized,prompt.id);
+        if(out!=null) out.playFixedPrompt(prompt.id,prompt.phrase);
         return normalized;
+    }
+
+    private static void register(String event,String value,String id,String phrase) {
+        String key=key(event,value);
+        PromptSpec previous=PROMPTS.put(key,new PromptSpec(id,phrase));
+        if(previous!=null) throw new IllegalStateException("duplicate voice state "+event+"/"+value);
+    }
+
+    private static PromptSpec prompt(String event,String value) {
+        if(event==null || value==null) return null;
+        return PROMPTS.get(key(event,value));
+    }
+
+    private static String key(String event,String value) {
+        return event+"\u0000"+value;
     }
 
     private static void evidence(Context c,String event,String value,String promptId) {
