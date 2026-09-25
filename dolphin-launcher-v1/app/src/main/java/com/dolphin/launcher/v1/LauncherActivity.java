@@ -203,6 +203,10 @@ public class LauncherActivity extends Activity {
             vehicleMonitor.stop();
             vehicleMonitor = null;
         }
+        if (vehiclePromptPlayer != null) {
+            vehiclePromptPlayer.release();
+            vehiclePromptPlayer = null;
+        }
         super.onDestroy();
     }
 
