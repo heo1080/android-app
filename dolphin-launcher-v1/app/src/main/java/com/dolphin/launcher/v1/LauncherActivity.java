@@ -561,7 +561,7 @@ public class LauncherActivity extends Activity {
 
     private void showSettings() {
         String[] actions = new String[] {
-                "기본 HOME 런처 선택",
+                "HOME 역할 · 1.2.2 BETA 재검증",
                 "앱 업데이트 확인",
                 "실차 검증 센터",
                 "즐겨찾기 초기화",
@@ -573,11 +573,17 @@ public class LauncherActivity extends Activity {
                 .setTitle("Dolphin Launcher V1")
                 .setItems(actions, (dialog, which) -> {
                     if (which == 0) {
-                        try {
-                            startActivity(new Intent(Settings.ACTION_HOME_SETTINGS));
-                        } catch (Exception e) {
-                            Toast.makeText(this, "HOME 설정 화면을 열 수 없습니다.", Toast.LENGTH_SHORT).show();
-                        }
+                        VerificationEvidenceRuntime.recordPassiveEvent(
+                                this, "HOME_ROLE_REVERIFY_REQUIRED",
+                                "HOME/DEFAULT category intentionally disabled after BYD desktop-app install failure");
+                        new AlertDialog.Builder(this)
+                                .setTitle("HOME 역할 · 재검증 필요")
+                                .setMessage("1.2.0은 HOME/DEFAULT 선언 상태에서 BYD 차량 설치기가 'desktop apps' 설치 실패를 반환했습니다. " +
+                                        "1.2.1부터 설치 호환성 확인을 위해 HOME 역할을 임시 비활성화했습니다.\n\n" +
+                                        "현재 빌드에서 Android 기본 HOME 선택 화면을 여는 것은 실제 역할과 맞지 않으므로 제공하지 않습니다. " +
+                                        "설치 호환성과 HOME 복원 경로가 실차에서 확인될 때까지 BETA/REVERIFY_REQUIRED로 유지합니다.")
+                                .setPositiveButton("확인", null)
+                                .show();
                     }
                     if (which == 1) {
                         AppUpdateManager.checkForUpdates(this, true);
