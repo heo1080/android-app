@@ -148,6 +148,7 @@ public final class VehicleReadOnlyMonitor {
         if(roadSurfaceChanged && changedNormalized("voice.energy.roadSurfaceMode",roadSurface))
             post(()->listener.onSnowRaw(roadSurface));
         Integer tja=read(ADAS,"getTJAState");
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("tja_raw",tja);
         if(changed("adas.tja",tja)) post(()->listener.onIccCandidateRaw(tja));
 
         // Areas 7/8 are front-centre parking-radar candidates in the legacy
@@ -155,6 +156,8 @@ public final class VehicleReadOnlyMonitor {
         // obstacle moving away a "leading vehicle departure" yet.
         Integer radarLeft=readIntArg(RADAR,"getRadarObstacleDistance",7);
         Integer radarRight=readIntArg(RADAR,"getRadarObstacleDistance",8);
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("radar_area7_raw",radarLeft);
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("radar_area8_raw",radarRight);
         boolean radarChanged=changed("radar.frontLeftMid",radarLeft);
         radarChanged=changed("radar.frontRightMid",radarRight) || radarChanged;
         if(radarChanged) post(()->listener.onFrontRadarRaw(radarLeft,radarRight));
@@ -242,12 +245,15 @@ public final class VehicleReadOnlyMonitor {
         if(avhChanged) post(()->listener.onAvhRaw(avh));
         if(avhSwitchChanged) post(()->listener.onAvhSwitchRaw(avhSwitch));
         Integer bsd=read(ADAS,"getBSDState");
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("bsd_raw",bsd);
         if(changed("adas.bsd",bsd)) post(()->listener.onBsdRaw(bsd));
 
         // Capture turn-signal candidates separately so BSD side correlation can be
         // established from real-car evidence before any left/right warning is spoken.
         Integer turnLeft=read(GEARBOX,"getLeftTurnLightState");
         Integer turnRight=read(GEARBOX,"getRightTurnLightState");
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("turn_left_raw",turnLeft);
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("turn_right_raw",turnRight);
         boolean turnChanged=changed("gear.turn.left",turnLeft);
         turnChanged=changed("gear.turn.right",turnRight)||turnChanged;
         if(turnChanged) post(()->listener.onTurnRaw(turnLeft,turnRight));
