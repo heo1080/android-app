@@ -72,6 +72,14 @@ public final class VerificationEvidenceRuntime {
         return contracts;
     }
 
+    public static JSONObject loadKnownBadRegistry(Context context) throws Exception {
+        JSONObject knownBad = new JSONObject(readAsset(context, "known_bad_registry.json"));
+        if (knownBad.optInt("schema_version", -1) != 1) {
+            throw new IllegalStateException("Known-Bad registry schema must be 1");
+        }
+        return knownBad;
+    }
+
     public static synchronized String beginSession(Context context, String reason) {
         String session = UUID.randomUUID().toString();
         prefs(context).edit().putString(KEY_SESSION, session).apply();
