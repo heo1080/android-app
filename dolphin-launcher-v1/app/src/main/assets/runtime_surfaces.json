@@ -597,7 +597,9 @@
         "showAutoStartManager",
         "showAutoStartAppPicker",
         "AutoStartStore.add",
-        "AutoStartStore.remove"
+        "AutoStartStore.remove",
+        "AUTOSTART_DELAY_CHANGED",
+        "AUTOSTART_MEDIA_CHANGED"
       ]
     },
     {
@@ -615,7 +617,9 @@
       "tokens": [
         "AUTOSTART_BOOT_BATCH",
         "AUTOSTART_LAUNCH_DISPATCHED",
-        "AUTOSTART_LAUNCH_FAILED"
+        "AUTOSTART_LAUNCH_FAILED",
+        "AutoStartStore.delayMs",
+        "AutoStartStore.mediaEnabled"
       ]
     },
     {
@@ -627,7 +631,9 @@
         "write(SharedPreferences",
         "putStringSet",
         "mediaEnabled",
-        "setMediaEnabled"
+        "setMediaEnabled",
+        "delayMs",
+        "setDelayMs"
       ]
     },
     {
