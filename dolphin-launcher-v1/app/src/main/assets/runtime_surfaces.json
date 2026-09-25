@@ -792,6 +792,18 @@
         "known_bad_registry.json",
         "voice_prompt_manifest.json"
       ]
+    },
+    {
+      "feature_id": "MASTER_VERIFICATION_REGISTRY",
+      "path": "dolphin-launcher-v1/tools/evaluate_live_correlations.py",
+      "tokens": [
+        "candidate_not_verified",
+        "automatic_verified_transition_allowed",
+        "OEM_NORMAL_VISIBLE",
+        "OEM_STANDARD_VISIBLE",
+        "AUTOHOLD_HELD_VISIBLE",
+        "V1_CORRELATION_EVALUATOR_OK"
+      ]
     }
   ],
   "notes": [
