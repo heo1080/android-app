@@ -68,7 +68,7 @@ jobs:
         run: |
           set -euo pipefail
           APK="dolphin-launcher-v1/app/build/outputs/apk/release/app-release-unsigned.apk"
-          for F in verification_registry.json test_log_contracts.json feature_dependencies.json runtime_surfaces.json voice_prompt_manifest.json; do
+          for F in verification_registry.json test_log_contracts.json feature_dependencies.json runtime_surfaces.json known_bad_registry.json voice_prompt_manifest.json; do
             unzip -l "$APK" | grep -q "assets/$F"
           done
           unzip -p "$APK" assets/verification_registry.json > "$RUNNER_TEMP/verification_registry.json"
@@ -81,6 +81,37 @@ jobs:
           assert len(features)==36, len(features)
           assert len(ids)==54, len(ids)
           print("REGISTRY_OK schema=3 features=36 test_ids=54")
+          PY
+          unzip -p "$APK" assets/feature_dependencies.json > "$RUNNER_TEMP/feature_dependencies.json"
+          python3 - "$RUNNER_TEMP/verification_registry.json" "$RUNNER_TEMP/feature_dependencies.json" <<'PY'
+          import json, sys
+          reg=json.load(open(sys.argv[1], encoding="utf-8"))
+          dep=json.load(open(sys.argv[2], encoding="utf-8"))
+          assert dep.get("schema_version")==1, dep.get("schema_version")
+          ids={f["feature_id"] for f in reg.get("features", [])}
+          pairs=set()
+          graph={i:[] for i in ids}
+          for edge in dep.get("edges", []):
+              pair=(edge["feature_id"],edge["depends_on"])
+              assert pair not in pairs, ("duplicate dependency", pair)
+              pairs.add(pair)
+              assert pair[0] in ids, ("unknown dependent feature", pair[0])
+              assert pair[1] in ids, ("unknown dependency feature", pair[1])
+              assert pair[0] != pair[1], ("self dependency", pair[0])
+              graph[pair[0]].append(pair[1])
+          visiting=set(); visited=set()
+          def visit(node):
+              assert node not in visiting, ("dependency cycle", node)
+              if node in visited:
+                  return
+              visiting.add(node)
+              for nxt in graph[node]:
+                  visit(nxt)
+              visiting.remove(node)
+              visited.add(node)
+          for node in ids:
+              visit(node)
+          print("FEATURE_DEPENDENCIES_OK edges=%d acyclic=true" % len(pairs))
           PY
           unzip -p "$APK" assets/test_log_contracts.json > "$RUNNER_TEMP/test_log_contracts.json"
           python3 - "$RUNNER_TEMP/verification_registry.json" "$RUNNER_TEMP/test_log_contracts.json" <<'PY'
@@ -108,12 +139,35 @@ jobs:
           print("TEST_CONTRACT_STATE_OK contracts=%d" % len(seen))
           PY
           unzip -p "$APK" assets/runtime_surfaces.json > "$RUNNER_TEMP/runtime_surfaces.json"
-          python3 - "$RUNNER_TEMP/runtime_surfaces.json" <<'PY'
+          python3 - "$RUNNER_TEMP/verification_registry.json" "$RUNNER_TEMP/runtime_surfaces.json" <<'PY'
           import json, pathlib, sys
-          d=json.load(open(sys.argv[1], encoding="utf-8"))
+          reg=json.load(open(sys.argv[1], encoding="utf-8"))
+          d=json.load(open(sys.argv[2], encoding="utf-8"))
+          assert d.get("schema_version")==2, d.get("schema_version")
+          surfaces=d.get("surfaces", [])
+          assert surfaces, "runtime surfaces empty"
+          registry_ids={f["feature_id"] for f in reg.get("features", [])}
+          surface_ids={s["feature_id"] for s in surfaces}
+          assert registry_ids==surface_ids, (
+              "registry/runtime feature drift",
+              sorted(registry_ids-surface_ids), sorted(surface_ids-registry_ids)
+          )
+          surface_paths={}
+          for s in surfaces:
+              surface_paths.setdefault(s["feature_id"],set()).add(s["path"])
           missing=[]
-          for surface in d.get("surfaces", []):
-              path=pathlib.Path(surface["path"])
+          for feature in reg.get("features", []):
+              declared=set(feature.get("source_paths", []))
+              actual=surface_paths.get(feature["feature_id"],set())
+              assert declared, ("registry source paths empty", feature["feature_id"])
+              assert declared==actual, (
+                  "registry source/runtime drift", feature["feature_id"],
+                  sorted(declared-actual), sorted(actual-declared)
+              )
+          for surface in surfaces:
+              raw_path=surface["path"]
+              assert raw_path.startswith("dolphin-launcher-v1/"), ("non-V1 surface", raw_path)
+              path=pathlib.Path(raw_path)
               if not path.is_file():
                   missing.append("%s: missing file %s" % (surface["feature_id"], path))
                   continue
@@ -123,7 +177,31 @@ jobs:
                   missing.append("%s %s missing tokens=%s" % (
                       surface["feature_id"], path, ",".join(absent)))
           assert not missing, "runtime surface drift:\n" + "\n".join(missing)
-          print("RUNTIME_SURFACE_OK surfaces=%d" % len(d.get("surfaces", [])))
+          print("RUNTIME_SURFACE_OK surfaces=%d features=%d" % (len(surfaces), len(surface_ids)))
+          PY
+          unzip -p "$APK" assets/known_bad_registry.json > "$RUNNER_TEMP/known_bad_registry.json"
+          python3 - "$RUNNER_TEMP/known_bad_registry.json" "$RUNNER_TEMP/verification_registry.json" <<'PY'
+          import json, sys
+          kb=json.load(open(sys.argv[1], encoding="utf-8"))
+          reg=json.load(open(sys.argv[2], encoding="utf-8"))
+          assert kb.get("schema_version")==1, kb.get("schema_version")
+          features={f["feature_id"]:set(f.get("test_ids", [])) for f in reg.get("features", [])}
+          rows=kb.get("known_bad", [])
+          assert [r["id"] for r in rows]==["KB-%03d" % i for i in range(1,13)], "Known-Bad ID drift"
+          allowed={"OPEN","FIX_CANDIDATE","REAL_CAR_RETEST","CLOSED"}
+          for row in rows:
+              assert row["severity"] in {"P0","P1"}, ("invalid severity", row["id"])
+              assert row["state"] in allowed, ("invalid state", row["id"])
+              assert row["feature_id"] in features, ("unknown feature", row["id"])
+              registered=features[row["feature_id"]]
+              tests=set(row.get("test_ids", []))
+              if row["id"]=="KB-010":
+                  assert tests=={"BLD-ID-001","BLD-ID-002","LCH-ID-001"}, ("KB-010 tests drift", sorted(tests))
+              else:
+                  assert tests.issubset(registered), ("Known-Bad Test ID drift", row["id"], sorted(tests-registered))
+              assert row.get("close_gate"), ("missing close gate", row["id"])
+          assert not any(r["state"]=="CLOSED" for r in rows), "Known-Bad cannot close without committed real-car evidence"
+          print("KNOWN_BAD_OK count=12 p0=%d" % sum(r["severity"]=="P0" for r in rows))
           PY
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationCenterActivity"
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationEvidenceRuntime"
@@ -196,6 +274,20 @@ jobs:
             dolphin-launcher-v1/app/build/outputs/apk/release/DolphinLauncherV1-Evolution.sha256
           if-no-files-found: error
           retention-days: 30
+
+      - name: Enforce release Known-Bad gate
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dolphin-launcher-v1' && vars.V1_RELEASE_READY == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          kb=json.load(open("dolphin-launcher-v1/app/src/main/assets/known_bad_registry.json", encoding="utf-8"))
+          open_p0=[r["id"] for r in kb["known_bad"] if r["severity"]=="P0" and r["state"]!="CLOSED"]
+          if open_p0:
+              raise SystemExit("RELEASE_BLOCKED_OPEN_P0="+",".join(open_p0))
+          print("RELEASE_KNOWN_BAD_GATE_OK")
+          PY
 
       - name: Publish V1 OTA prerelease
         if: github.event_name == 'push' && github.ref == 'refs/heads/dolphin-launcher-v1' && vars.V1_RELEASE_READY == 'true'
