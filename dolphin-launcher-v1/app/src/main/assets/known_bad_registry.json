@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "known_bad": [
+    {
+      "id": "KB-001",
+      "severity": "P0",
+      "feature_id": "DRIVE_MODE_VOICE",
+      "test_ids": [
+        "AUD-DRV-001",
+        "AUD-DRV-002"
+      ],
+      "summary": "NORMAL voice missing",
+      "state": "FIX_CANDIDATE",
+      "close_gate": "real-car NORMAL transition evidence with correct prompt and no false speech"
+    },
+    {
+      "id": "KB-002",
+      "severity": "P0",
+      "feature_id": "REGEN_MODE_VOICE",
+      "test_ids": [
+        "AUD-REG-001",
+        "AUD-REG-002"
+      ],
+      "summary": "STANDARD was mis-announced as ECO",
+      "state": "FIX_CANDIDATE",
+      "close_gate": "real-car STANDARD/HIGH correlation evidence with zero cross-label speech"
+    },
+    {
+      "id": "KB-003",
+      "severity": "P0",
+      "feature_id": "SNOW_MODE_VOICE",
+      "test_ids": [
+        "AUD-SNOW-001",
+        "AUD-SNOW-002"
+      ],
+      "summary": "Snow OFF voice missing",
+      "state": "FIX_CANDIDATE",
+      "close_gate": "real-car Snow ON and OFF transitions correlated bidirectionally"
+    },
+    {
+      "id": "KB-004",
+      "severity": "P0",
+      "feature_id": "SPLIT_SCREEN_TWO_APP",
+      "test_ids": [
+        "WIN-SPLIT-001",
+        "WIN-SPLIT-002"
+      ],
+      "summary": "split screen did not visually split on vehicle",
+      "state": "FIX_CANDIDATE",
+      "close_gate": "real-car two-app visual split evidence; shell exit alone is insufficient"
+    },
+    {
+      "id": "KB-005",
+      "severity": "P1",
+      "feature_id": "APP_DRAWER_SHORTCUTS",
+      "test_ids": [
+        "LCH-DRW-001",
+        "LCH-DRW-002"
+      ],
+      "summary": "app drawer shortcut creation missing",
+      "state": "OPEN",
+      "close_gate": "real-car pinned pair shortcut creation and cold-start launch evidence"
+    },
+    {
+      "id": "KB-006",
+      "severity": "P1",
+      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
+      "test_ids": [
+        "LCH-BOOT-001",
+        "LCH-BOOT-002"
+      ],
+      "summary": "multi-app add control missing in prior install",
+      "state": "OPEN",
+      "close_gate": "real-car multi-app configuration persistence and boot launch evidence"
+    },
+    {
+      "id": "KB-007",
+      "severity": "P1",
+      "feature_id": "IN_APP_TTS_CORE",
+      "test_ids": [
+        "AUD-TTS-001",
+        "AUD-TTS-002"
+      ],
+      "summary": "TTS preview delayed until later audio action",
+      "state": "OPEN",
+      "close_gate": "real-car immediate prompt playback evidence across repeated trials"
+    },
+    {
+      "id": "KB-008",
+      "severity": "P0",
+      "feature_id": "INTERIOR_LIGHT",
+      "test_ids": [
+        "COMF-LIGHT-001",
+        "COMF-LIGHT-002"
+      ],
+      "summary": "API success did not match physical interior-light response",
+      "state": "OPEN",
+      "close_gate": "physical lamp response plus independent readback/observation; return code alone insufficient"
+    },
+    {
+      "id": "KB-009",
+      "severity": "P0",
+      "feature_id": "DRIVER_ONLY_APP_OWNED_AUDIO",
+      "test_ids": [
+        "AUD-DRVSPK-001"
+      ],
+      "summary": "audio route API success but no audible driver-speaker output",
+      "state": "OPEN",
+      "close_gate": "real-car audible driver-only output with safety-warning arbitration evidence"
+    },
+    {
+      "id": "KB-010",
+      "severity": "P0",
+      "feature_id": "BUILD_IDENTITY",
+      "test_ids": [
+        "BLD-ID-001",
+        "BLD-ID-002",
+        "LCH-ID-001"
+      ],
+      "summary": "build/install identity and desktop-app rejection regression",
+      "state": "REAL_CAR_RETEST",
+      "close_gate": "current candidate installs on BYD and build identity matches package/version/source/APK hash"
+    }
+  ]
+}
