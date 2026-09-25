@@ -24,7 +24,10 @@ public final class BootAutoLaunchRuntime {
         Handler h=new Handler(Looper.getMainLooper());
         for(int i=0;i<packages.size();i++){
             String pkg=packages.get(i); long delay=1800L+i*3000L;
-            h.postDelayed(()->launch(app,pkg,delay),delay);
+            h.postDelayed(()->{
+                if(AutoStartStore.mediaEnabled(p,pkg)) BackgroundMediaRuntime.requestPlay(app,pkg);
+                else launch(app,pkg,delay);
+            },delay);
         }
     }
 
