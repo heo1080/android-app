@@ -215,6 +215,12 @@ public class LauncherActivity extends Activity {
                         "area7=" + leftMid + ";area8=" + rightMid
                                 + ";voice=suppressed;classification=unknown-object");
             }
+            @Override public void onTpmsRaw(Integer fl, Integer fr, Integer rl, Integer rr) {
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        LauncherActivity.this, "TPMS_RAW",
+                        "fl=" + fl + ";fr=" + fr + ";rl=" + rl + ";rr=" + rr
+                                + ";unit=UNVERIFIED");
+            }
             @Override public void onRaw(String signal, Integer raw) {
                 // AVH/BSD and other not-yet-normalized signals remain evidence-only.
             }
