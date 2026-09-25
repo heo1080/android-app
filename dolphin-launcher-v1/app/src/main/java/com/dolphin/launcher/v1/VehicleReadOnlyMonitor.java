@@ -87,15 +87,18 @@ public final class VehicleReadOnlyMonitor {
         // Gear and EPB numeric meanings are not yet proven against Korean Dolphin
         // runtime constants. Capture transitions only; guessed speech is fail-closed.
         Integer gear=read(GEARBOX,"getCurrentGear");
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("gear_raw",gear);
         if(changed("gear.current",gear)) post(()->listener.onRaw("gear.candidate.unmapped",gear));
 
         Integer epb=read(GEARBOX,"getEPBState");
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("epb_raw",epb);
         if(changed("gear.epb",epb)) post(()->listener.onRaw("epb.candidate.unmapped",epb));
 
         // Real-car evidence from 2026-09-18/19 repeatedly correlates
         // getOperationMode 1=ECO and 2=SPORT on the Korean Dolphin. NORMAL is still
         // deliberately unmapped. Baseline is silent; only subsequent transitions speak.
         Integer drive=read(ENERGY,"getOperationMode");
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("operation_raw",drive);
         boolean driveChanged=changed("energy.operationMode",drive);
         if(driveChanged && changedNormalized("voice.energy.operationMode",drive)){
             final String normalizedDrive=Integer.valueOf(1).equals(drive)?"ECO"
@@ -118,6 +121,7 @@ public final class VehicleReadOnlyMonitor {
         // STANDARD remains unmapped so the historical STANDARD cross-label regression
         // cannot recur. Baseline remains silent.
         Integer regen=read(SETTING,"getEnergyFeedback");
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("energy_feedback_raw",regen);
         boolean regenChanged=changed("setting.energyFeedback",regen);
         if(regenChanged && changedNormalized("voice.setting.energyFeedback",regen)){
             if(Integer.valueOf(2).equals(regen)){
@@ -139,6 +143,7 @@ public final class VehicleReadOnlyMonitor {
         // 2026-09-17 real-car evidence captured 1->2 snow=true and 2->1 snow=false;
         // 2026-09-19 independently captured Snow OFF raw=1. Baseline is silent.
         Integer roadSurface=read(ENERGY,"getRoadSurfaceMode");
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("road_surface_raw",roadSurface);
         boolean roadSurfaceChanged=changed("energy.roadSurfaceMode",roadSurface);
         if(roadSurfaceChanged && changedNormalized("voice.energy.roadSurfaceMode",roadSurface))
             post(()->listener.onSnowRaw(roadSurface));
@@ -204,17 +209,27 @@ public final class VehicleReadOnlyMonitor {
         // separate. The real car previously produced delayed/paired speech when these
         // concepts were conflated; collect both timelines before mapping semantics.
         Integer avh=read(ADAS,"getAVHState");
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("avh_raw",avh);
         boolean avhChanged=changed("adas.avh",avh);
         Integer avhSwitch=read(SETTING,"getAVHEnable");
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("avh_enable_raw",avhSwitch);
         boolean avhSwitchChanged=changed("setting.avhEnable",avhSwitch);
-        if(avhChanged || avhSwitchChanged){
+
+        String activeTestId=VerificationEvidenceRuntime.activeTestId(app);
+        boolean liveAutoHold="AUD-AVH-001".equals(activeTestId) || "AUD-AVH-002".equals(activeTestId);
+        if(liveAutoHold || avhChanged || avhSwitchChanged){
             Integer speed=read(SPEED,"getCurrentSpeed");
             Integer brakeDepth=read(SPEED,"getBrakeDeepness");
             Integer accelDepth=read(SPEED,"getAccelerateDeepness");
             Integer brakePedal=read(GEARBOX,"getBrakePedalState");
+            VerificationEvidenceRuntime.updateLiveCorrelationValue("speed_raw",speed);
+            VerificationEvidenceRuntime.updateLiveCorrelationValue("brake_pedal_raw",brakePedal);
+            VerificationEvidenceRuntime.updateLiveCorrelationValue("brake_depth_raw",brakeDepth);
+            VerificationEvidenceRuntime.updateLiveCorrelationValue("accel_depth_raw",accelDepth);
             VerificationEvidenceRuntime.recordPassiveEvent(
-                    app,"AUTOHOLD_CORRELATION_SNAPSHOT",
-                    "avh_raw="+avh
+                    app,liveAutoHold?"AUTOHOLD_LIVE_SAMPLE":"AUTOHOLD_CORRELATION_SNAPSHOT",
+                    "active_test="+String.valueOf(activeTestId)
+                            +";avh_raw="+avh
                             +";avh_enable_raw="+avhSwitch
                             +";gear_raw="+gear
                             +";epb_raw="+epb
