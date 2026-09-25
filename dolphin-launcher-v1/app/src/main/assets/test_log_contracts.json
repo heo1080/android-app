@@ -468,7 +468,9 @@
         "left package readback as split primary / windowing mode 3",
         "right package readback as split secondary / windowing mode 4",
         "operator visually confirms two-app split",
-        "shell exit alone is never treated as split success"
+        "shell exit alone is never treated as split success",
+        "operator marker SPLIT_TWO_APP_VISIBLE is required in addition to readback",
+        "operator marker SPLIT_CAMERA_RETURN_OK is required for safe camera return"
       ],
       "required_logs": [
         "SPLIT_ADB_COMMAND",
@@ -476,7 +478,11 @@
         "left/right package",
         "left_primary/right_secondary",
         "readback_verified",
-        "operator visual result"
+        "operator visual result",
+        "OPERATOR_OBSERVATION",
+        "SPLIT_TWO_APP_VISIBLE",
+        "SPLIT_CAMERA_RETURN_OK",
+        "elapsed_realtime_ms"
       ]
     },
     {
@@ -522,7 +528,9 @@
         "split pair shortcut request reports requested=true on supported launcher",
         "pin-success callback is received only after launcher accepts pin",
         "shortcut invocation carries the captured left/right packages",
-        "shortcut launch proceeds through the same readback-verified split path"
+        "shortcut launch proceeds through the same readback-verified split path",
+        "operator marker SPLIT_SHORTCUT_ICON_VISIBLE confirms launcher pin visibility",
+        "operator marker SPLIT_SHORTCUT_LAUNCH_VISIBLE confirms shortcut invokes visible split"
       ],
       "required_logs": [
         "SPLIT_SHORTCUT_REQUEST",
@@ -530,7 +538,11 @@
         "SPLIT_SHORTCUT_INVOKED",
         "shortcut_id",
         "captured_left/captured_right",
-        "operator launcher icon observation"
+        "operator launcher icon observation",
+        "OPERATOR_OBSERVATION",
+        "SPLIT_SHORTCUT_ICON_VISIBLE",
+        "SPLIT_SHORTCUT_LAUNCH_VISIBLE",
+        "elapsed_realtime_ms"
       ]
     },
     {
@@ -1538,7 +1550,9 @@
       "acceptance": [
         "운전석에서만 명확히 청취",
         "다른 좌석/일반 media route와 분리",
-        "순정 안전경고 방해 없음"
+        "순정 안전경고 방해 없음",
+        "operator markers separately confirm driver-seat audible output, other-seat silence, and OEM warning preemption",
+        "all required seat/safety markers must be repeated before PASS is available"
       ],
       "required_logs": [
         "AUDIO_OUTPUT_DEVICE inventory",
@@ -1546,7 +1560,12 @@
         "AudioAttributes",
         "output device id/type/product",
         "focus",
-        "actual seat-by-seat audible result"
+        "actual seat-by-seat audible result",
+        "OPERATOR_OBSERVATION",
+        "DRIVER_SEAT_AUDIBLE",
+        "OTHER_SEATS_SILENT",
+        "OEM_WARNING_PREEMPT_OK",
+        "elapsed_realtime_ms"
       ]
     },
     {
@@ -2001,10 +2020,6 @@
         "TEST_END"
       ],
       "allowed_outcomes": [
-        "PASS",
-        "FAIL",
-        "INTERMITTENT",
-        "DELAYED",
         "NEED_MORE_DATA"
       ],
       "requires_build_fingerprint": true,
@@ -2016,25 +2031,28 @@
         "InsideLightManager",
         "실내등"
       ],
-      "success_any": [
-        "실내등 ON 요청=true",
-        "실내등 OFF 요청=true"
+      "success_any": [],
+      "failure_any": [
+        "V1 runtime actuation/readback path absent"
       ],
-      "failure_any": [],
       "known_bad_ids": [
         "KB-008"
       ],
       "acceptance": [
         "command success가 물리 반응과 일치",
         "ON/OFF readback 또는 독립 관찰",
-        "raw fallback은 calibration 모드에서만"
+        "raw fallback은 calibration 모드에서만",
+        "PASS is unavailable while V1 runtime actuation/readback implementation is absent",
+        "legacy source or return code alone cannot satisfy the physical lamp test"
       ],
       "required_logs": [
         "method overload",
         "raw param",
         "return",
         "getter/readback",
-        "operator observed result"
+        "operator observed result",
+        "FEATURE_FAIL_CLOSED",
+        "actuation=false"
       ]
     },
     {
@@ -2047,10 +2065,6 @@
         "TEST_END"
       ],
       "allowed_outcomes": [
-        "PASS",
-        "FAIL",
-        "INTERMITTENT",
-        "DELAYED",
         "NEED_MORE_DATA"
       ],
       "requires_build_fingerprint": true,
@@ -2060,19 +2074,25 @@
       "repeatability_required_sessions": 2,
       "required_any": [],
       "success_any": [],
-      "failure_any": [],
+      "failure_any": [
+        "V1 runtime actuation/readback path absent"
+      ],
       "known_bad_ids": [],
       "acceptance": [
         "command success가 물리 반응과 일치",
         "ON/OFF readback 또는 독립 관찰",
-        "raw fallback은 calibration 모드에서만"
+        "raw fallback은 calibration 모드에서만",
+        "PASS is unavailable while V1 runtime actuation/readback implementation is absent",
+        "legacy source or return code alone cannot satisfy the physical lamp test"
       ],
       "required_logs": [
         "method overload",
         "raw param",
         "return",
         "getter/readback",
-        "operator observed result"
+        "operator observed result",
+        "FEATURE_FAIL_CLOSED",
+        "actuation=false"
       ]
     },
     {
@@ -2297,7 +2317,9 @@
         "workflow emits V1_CI_POLICY_OK before build validation",
         "operator can start an explicit new diagnostic session only when no test correlation is active",
         "previous-session Evidence ZIP is created before rollover",
-        "manual session rollover enables independent repeatability without killing the app"
+        "manual session rollover enables independent repeatability without killing the app",
+        "Verification Center result choices are sourced from test_log_contracts.allowed_outcomes",
+        "tests whose contracts exclude PASS can never expose PASS in the UI"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2318,7 +2340,9 @@
         "V1_CI_POLICY_OK",
         "stale_runs_cancelled=true",
         "SESSION_ROLLOVER_REQUESTED",
-        "SESSION_ROLLOVER_COMPLETED"
+        "SESSION_ROLLOVER_COMPLETED",
+        "loadTestContracts",
+        "allowedOutcomesForTest"
       ]
     },
     {
