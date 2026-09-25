@@ -557,7 +557,10 @@
         "gear raw",
         "normalized state",
         "TTS phrase",
-        "correlation id"
+        "correlation id",
+        "OPERATOR_OBSERVATION",
+        "latest_raw snapshot",
+        "elapsed_realtime_ms"
       ],
       "known_bad": [],
       "dependencies": [
@@ -570,7 +573,7 @@
       "evidence": [
         "getCurrentGear path exists"
       ],
-      "next_action": "latest APK repeatability test",
+      "next_action": "AUD-GEAR-001 live capture에서 P/R/N/D 각 3회 operator marker와 gear_raw를 상관하고 별도 session 반복 전 매핑/음성 활성화 금지",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
@@ -720,7 +723,10 @@
         "SNOW_RAW_TRANSITION",
         "SNOW_EVIDENCE_MAP",
         "SNOW_MODE_UNMAPPED",
-        "VEHICLE_VOICE"
+        "VEHICLE_VOICE",
+        "OPERATOR_OBSERVATION",
+        "latest_raw snapshot",
+        "elapsed_realtime_ms"
       ],
       "known_bad": [
         "과거 설치본에서 Snow OFF 음성 없음",
@@ -839,7 +845,10 @@
       "required_logs": [
         "EPB raw",
         "normalized",
-        "phrase"
+        "phrase",
+        "OPERATOR_OBSERVATION",
+        "latest_raw snapshot",
+        "elapsed_realtime_ms"
       ],
       "known_bad": [],
       "dependencies": [
@@ -852,7 +861,7 @@
       "evidence": [
         "exact getEPBState path in source"
       ],
-      "next_action": "latest build repeatability",
+      "next_action": "AUD-EPB-001 live capture에서 체결/해제 각 3회 operator marker와 epb_raw를 상관하고 별도 session 반복",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
@@ -880,7 +889,10 @@
       "required_logs": [
         "ICC/TJA candidate raw",
         "normalized",
-        "phrase"
+        "phrase",
+        "OPERATOR_OBSERVATION",
+        "latest_raw snapshot",
+        "elapsed_realtime_ms"
       ],
       "known_bad": [
         "실차 raw mapping 미확정"
@@ -895,7 +907,7 @@
       "evidence": [
         "ICC ON/OFF phrase support exists"
       ],
-      "next_action": "실차 read-only mapping 확정 전 VERIFIED 금지",
+      "next_action": "AUD-ICC-001 live capture에서 ICC ON/OFF marker와 tja_raw를 각 3회 상관; 확정 전 음성 억제",
       "confidence": {
         "behavior": "LOW",
         "root_cause": "TENTATIVE",
@@ -924,7 +936,10 @@
         "BSD raw",
         "turn raw",
         "direction",
-        "warning timestamp"
+        "warning timestamp",
+        "OPERATOR_OBSERVATION",
+        "latest_raw snapshot",
+        "elapsed_realtime_ms"
       ],
       "known_bad": [
         "실차 mapping/순정 경고 arbitration 미확정"
@@ -939,7 +954,7 @@
       "evidence": [
         "sampleBsdAndTurnSignal source"
       ],
-      "next_action": "passive correlation 우선",
+      "next_action": "AUD-BSD-001에서 좌/우 BSD+깜빡이 context marker로 bsd_raw와 turn raw 방향성을 독립 상관",
       "confidence": {
         "behavior": "LOW",
         "root_cause": "TENTATIVE",
@@ -969,7 +984,10 @@
         "source package",
         "notification parser result",
         "vehicle candidate raw",
-        "phrase"
+        "phrase",
+        "OPERATOR_OBSERVATION",
+        "latest_raw snapshot",
+        "elapsed_realtime_ms"
       ],
       "known_bad": [
         "내비 parsing과 차량 signal 후보가 섞일 수 있어 provenance 필수"
@@ -985,7 +1003,7 @@
       "evidence": [
         "NavGuidanceParser internal leading-car action"
       ],
-      "next_action": "provenance별 accuracy 분리",
+      "next_action": "AUD-LVDA-001 operator marker와 radar area7/8 raw를 반복 상관하되 차량/객체 provenance 확정 전 음성 금지",
       "confidence": {
         "behavior": "LOW",
         "root_cause": "MEDIUM",
