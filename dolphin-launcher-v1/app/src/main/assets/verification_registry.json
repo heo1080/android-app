@@ -1747,7 +1747,9 @@
         "프로세스 재시작만으로 repeatability_required_sessions를 충족할 수 없음",
         "marker-controlled Test ID는 필수 marker가 각각 3회 미만이면 Verification Center에서 PASS 선택 불가",
         "현재 session marker 3회 충족은 PASS 입력 조건일 뿐 VERIFIED 승격 조건이 아님",
-        "별도 diagnostic session 반복성과 evaluator conflict-free 검토가 최종 검증에 계속 필요"
+        "별도 diagnostic session 반복성과 evaluator conflict-free 검토가 최종 검증에 계속 필요",
+        "Verification Center의 marker 버튼·진행률·PASS gate는 markerPlanForTest 단일 카탈로그를 사용",
+        "Test ID marker ID를 여러 UI 로직에 중복 선언하지 않음"
       ],
       "required_logs": [
         "registry schema/version",
@@ -1771,7 +1773,8 @@
         "session_reused=true",
         "requiredMarkersForTest",
         "activeCorrelationReadyForPass",
-        "PASS 잠금"
+        "PASS 잠금",
+        "markerPlanForTest"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
