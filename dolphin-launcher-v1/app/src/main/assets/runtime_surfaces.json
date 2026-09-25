@@ -169,7 +169,11 @@
       "tokens": [
         "BYDAutoRadarDevice",
         "getRadarObstacleDistance",
-        "onFrontRadarRaw"
+        "onFrontRadarRaw",
+        "captureStateConstants",
+        "ADAS_RUNTIME_CONSTANT",
+        "RADAR_RUNTIME_CONSTANT",
+        "RADAR_RUNTIME_CONSTANT_SCAN"
       ]
     },
     {
