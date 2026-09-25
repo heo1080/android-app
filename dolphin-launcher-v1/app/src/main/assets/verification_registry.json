@@ -1717,7 +1717,7 @@
       "req_id": "REQ-MEDIA-001",
       "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
       "area": "media",
-      "requirement": "시동 자동실행에 등록한 미디어 앱을 앱별 옵션과 지연시간에 따라 실행하고 재생 요청하되 PLAY 요청 자체를 실제 재생 성공으로 간주하지 않는다.",
+      "requirement": "시동 자동실행에 등록한 미디어 앱을 앱별 옵션과 지연시간에 따라 실행하고, 정확히 일치하는 활성 MediaSession에만 PLAY를 요청한다. PLAY 요청 자체는 실제 재생 성공으로 간주하지 않는다.",
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AutoStartStore.java",
@@ -1731,36 +1731,47 @@
       "state": "REVERIFY_REQUIRED",
       "acceptance": [
         "앱별 미디어 자동재생 ON/OFF 저장",
-        "앱별 0~30초 지연 후 대상 앱 실행 및 PLAY 요청",
-        "PLAY 요청/실패 evidence 기록",
-        "실차에서 지정 앱 재생을 확인하기 전 VERIFIED 금지"
+        "앱별 0~30초 지연 후 대상 앱 실행",
+        "대상 패키지와 일치하는 활성 MediaSession에만 PLAY 요청",
+        "대상 세션/권한이 없으면 전역 media key fallback 없이 fail-closed",
+        "PLAY 요청/PlaybackState readback/실패 evidence 기록",
+        "실차에서 지정 앱 재생과 순정 안전 경고음 공존을 확인하기 전 VERIFIED 금지"
       ],
       "required_logs": [
         "AUTOSTART_MEDIA_CHANGED",
         "AUTOSTART_DELAY_CHANGED",
         "BACKGROUND_MEDIA_APP_DISPATCHED",
+        "BACKGROUND_MEDIA_SESSION_SCAN",
+        "BACKGROUND_MEDIA_TARGET_SESSION_FOUND",
         "BACKGROUND_MEDIA_PLAY_REQUESTED",
+        "BACKGROUND_MEDIA_PLAYBACK_READBACK",
+        "BACKGROUND_MEDIA_SESSION_ACCESS_REQUIRED",
         "BACKGROUND_MEDIA_PLAY_FAILED"
       ],
       "known_bad": [
-        "Android 전역 media key가 지정 앱 MediaSession으로 전달되는지 BYD Android 10 실차 미검증"
+        "대상 앱이 활성 MediaSession을 노출하는지 앱별 차이가 있으며 BYD Android 10 실차 재검증 필요",
+        "Notification Listener 기반 active-session 조회 권한이 차량 설정에서 허용되는지 실차 재검증 필요"
       ],
       "dependencies": [
         "BOOT_MULTI_APP_AUTOLAUNCH",
-        "Android media key dispatch",
+        "MediaSessionManager active-session access",
+        "NavNotificationEvidenceService notification-listener access",
         "target app MediaSession behavior"
       ],
       "real_vehicle_test": [
-        "미디어 앱 1개를 자동재생 ON으로 등록",
-        "재부팅 후 지정 지연시간에 앱 실행 확인",
+        "미디어 앱 1개를 자동재생 ON으로 등록하고 Notification access 허용",
+        "재부팅 후 저장한 지연시간에 대상 앱 실행 확인",
+        "BACKGROUND_MEDIA_SESSION_SCAN에서 target_matches>=1 확인",
+        "BACKGROUND_MEDIA_PLAY_REQUESTED의 session_package가 target_package와 일치하는지 확인",
         "지정 앱에서 실제 오디오 재생 시작 확인",
-        "다른 미디어/순정 안전 경고음 간섭 여부 확인"
+        "비대상 미디어가 재생/중단되지 않는지 확인",
+        "순정 안전 경고음이 정상 우선 출력되는지 확인"
       ],
       "evidence": [],
-      "next_action": "1.2.2 BETA 실차에서 대상 미디어 앱 재생과 오디오 arbitration evidence 수집",
+      "next_action": "1.2.2 BETA 실차에서 target MediaSession discovery/play/readback 및 순정 안전 오디오 arbitration evidence 수집",
       "confidence": {
         "behavior": "MEDIUM",
-        "root_cause": "MEDIUM",
+        "root_cause": "HIGH",
         "safety": "HIGH",
         "compatibility": "LOW"
       }
