@@ -789,10 +789,7 @@
         "gear.candidate.unmapped"
       ],
       "success_any": [
-        "observation=GEAR_P_VISIBLE",
-        "observation=GEAR_R_VISIBLE",
-        "observation=GEAR_N_VISIBLE",
-        "observation=GEAR_D_VISIBLE"
+        "P/R/N/D raw mappings correlated at least 3 times each and repeated in a second diagnostic session"
       ],
       "failure_any": [
         "gear voice emitted from unproven raw mapping"
@@ -888,8 +885,7 @@
         "drive.candidate.unmapped"
       ],
       "success_any": [
-        "NORMAL raw correlated 3 times with OEM UI before mapping",
-        "observation=OEM_NORMAL_VISIBLE"
+        "NORMAL raw correlated 3 times with OEM UI before mapping"
       ],
       "failure_any": [
         "NORMAL spoken from an unproven raw value",
@@ -989,8 +985,7 @@
         "regen.candidate.unmapped"
       ],
       "success_any": [
-        "STANDARD raw correlated 3 times with OEM UI before mapping",
-        "observation=OEM_STANDARD_VISIBLE"
+        "STANDARD raw correlated 3 times with OEM UI before mapping"
       ],
       "failure_any": [
         "STANDARD spoken from an unproven raw value",
@@ -1043,8 +1038,7 @@
       ],
       "success_any": [
         "road_surface_raw=2;normalized=ON",
-        "prompt=snow_on",
-        "observation=SNOW_ON_VISIBLE"
+        "prompt=snow_on"
       ],
       "failure_any": [
         "SNOW_MODE_UNMAPPED on raw 2",
@@ -1096,8 +1090,7 @@
       ],
       "success_any": [
         "road_surface_raw=1;normalized=OFF",
-        "prompt=snow_off",
-        "observation=SNOW_OFF_VISIBLE"
+        "prompt=snow_off"
       ],
       "failure_any": [
         "SNOW_MODE_UNMAPPED on raw 1",
@@ -1149,8 +1142,7 @@
         "AUTOHOLD_CORRELATION_SNAPSHOT"
       ],
       "success_any": [
-        "button ON/OFF operator state correlated to stable raw edge in 3 repetitions",
-        "observation=AUTOHOLD_SWITCH_ON_VISIBLE"
+        "button ON/OFF operator state correlated to stable raw edge in 3 repetitions"
       ],
       "failure_any": [
         "button state inferred from brake release",
@@ -1204,8 +1196,7 @@
       ],
       "success_any": [
         "physical HOLD indicator change correlated while brake_depth_raw remains >0",
-        "unique direct hold-state raw edge found",
-        "observation=AUTOHOLD_HELD_VISIBLE"
+        "unique direct hold-state raw edge found"
       ],
       "failure_any": [
         "HOLD only inferred after brake_depth_raw becomes 0",
@@ -1262,8 +1253,7 @@
         "epb.candidate.unmapped"
       ],
       "success_any": [
-        "observation=EPB_HELD_VISIBLE",
-        "observation=EPB_RELEASED_VISIBLE"
+        "EPB held/released raw mappings correlated at least 3 times each and repeated in a second diagnostic session"
       ],
       "failure_any": [
         "EPB voice emitted from unproven raw mapping"
@@ -1309,8 +1299,7 @@
         "OPERATOR_OBSERVATION"
       ],
       "success_any": [
-        "observation=ICC_ON_VISIBLE",
-        "observation=ICC_OFF_VISIBLE"
+        "ICC ON/OFF raw mappings correlated at least 3 times each and repeated in a second diagnostic session"
       ],
       "failure_any": [
         "ICC voice emitted from unproven tja_raw mapping"
@@ -1356,8 +1345,7 @@
         "OPERATOR_OBSERVATION"
       ],
       "success_any": [
-        "observation=BSD_LEFT_CONTEXT_VISIBLE",
-        "observation=BSD_RIGHT_CONTEXT_VISIBLE"
+        "left/right BSD plus turn-signal side correlation proven across required repetitions"
       ],
       "failure_any": [
         "left/right BSD warning emitted without proven side correlation"
@@ -1405,7 +1393,7 @@
         "OPERATOR_OBSERVATION"
       ],
       "success_any": [
-        "observation=LEADING_CAR_DEPARTURE_VISIBLE"
+        "leading-car departure provenance correlated across required repetitions"
       ],
       "failure_any": [
         "radar object change classified as leading-car departure without provenance"
