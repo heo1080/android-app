@@ -25,6 +25,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.UUID;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -227,6 +229,44 @@ public final class VerificationEvidenceRuntime {
             Log.e(TAG, "ledger count failed", e);
         }
         return count;
+    }
+
+    public static Map<String,Integer> operatorObservationCounts(
+            Context context, String correlationId) {
+        Map<String,Integer> counts = new LinkedHashMap<>();
+        if (correlationId == null || correlationId.isEmpty()) return counts;
+        File file = evidenceLedger(context);
+        if (!file.exists()) return counts;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                new FileInputStream(file), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                try {
+                    JSONObject row = new JSONObject(line);
+                    if (!"OPERATOR_OBSERVATION".equals(row.optString("event"))) continue;
+                    if (!correlationId.equals(row.optString("correlation_id"))) continue;
+                    String observation = observationFromNote(row.optString("note", ""));
+                    if (observation == null || observation.isEmpty()) continue;
+                    counts.put(observation, counts.containsKey(observation)
+                            ? counts.get(observation) + 1 : 1);
+                } catch (Exception malformed) {
+                    Log.w(TAG, "Skipping malformed observation row");
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "observation count failed", e);
+        }
+        return counts;
+    }
+
+    private static String observationFromNote(String note) {
+        if (note == null) return null;
+        for (String part : note.split(";")) {
+            if (part.startsWith("observation=")) {
+                return part.substring("observation=".length()).trim();
+            }
+        }
+        return null;
     }
 
     private static File queueDir(Context context) {
