@@ -31,11 +31,33 @@
     },
     {
       "feature_id": "SPLIT_SCREEN_TWO_APP",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SplitCapabilityProbe.java",
+      "tokens": [
+        "connectAuthorized",
+        "localhost",
+        "5555",
+        "authorizedPathReady"
+      ]
+    },
+    {
+      "feature_id": "SPLIT_SCREEN_TWO_APP",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SplitExecutionBridge.java",
+      "tokens": [
+        "--windowingMode 3",
+        "--windowingMode 4",
+        "authorizedPathReady",
+        "left-exit",
+        "right-exit"
+      ]
+    },
+    {
+      "feature_id": "SPLIT_SCREEN_TWO_APP",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
       "tokens": [
-        "launchSplitPair",
-        "SPLIT_REFERENCE_PATH_IDENTIFIED",
-        "windowingMode=3,4"
+        "SPLIT_EXECUTION_ATTEMPT",
+        "SPLIT_EXECUTION_BLOCKED",
+        "SPLIT_EXECUTION_SUCCESS",
+        "SPLIT_EXECUTION_FAILED"
       ]
     },
     {
