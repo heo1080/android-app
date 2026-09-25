@@ -324,6 +324,38 @@
       "tokens": [
         "DisplayDiagnostics.captureDisplayInventory(this)"
       ]
+    },
+    {
+      "feature_id": "NAV_SAFETY_FEED",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/NavNotificationEvidenceService.java",
+      "tokens": [
+        "NotificationListenerService",
+        "SUPPORTED",
+        "NAV_NOTIFICATION_RAW",
+        "textSha256",
+        "parser=none",
+        "mode=read-only"
+      ]
+    },
+    {
+      "feature_id": "NAV_SAFETY_FEED",
+      "path": "dolphin-launcher-v1/app/src/main/AndroidManifest.xml",
+      "tokens": [
+        ".NavNotificationEvidenceService",
+        "android.permission.BIND_NOTIFICATION_LISTENER_SERVICE",
+        "android.service.notification.NotificationListenerService"
+      ]
+    },
+    {
+      "feature_id": "CLUSTER_TBT",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/InstrumentCapabilityProbe.java",
+      "tokens": [
+        "BYDAutoInstrumentDevice",
+        "INSTRUMENT_CAPABILITY",
+        "INSTRUMENT_CAPABILITY_SCAN",
+        "invoked=false",
+        "mode=read-only"
+      ]
     }
   ],
   "notes": [
