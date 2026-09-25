@@ -10,117 +10,184 @@
   "verification_policy": {
     "fixed_asset_ready_requires_all_assets": true,
     "tts_fallback_must_not_be_reported_as_fixed_female_voice": true,
-    "play_request_is_not_audible_success": true
+    "play_request_is_not_audible_success": true,
+    "semantic_contract_must_match_runtime": true
   },
   "prompts": [
     {
       "id": "gear_p",
+      "event": "GEAR",
+      "value": "P",
       "resource": "voice_gear_p",
+      "phrase": "P",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "gear_r",
+      "event": "GEAR",
+      "value": "R",
       "resource": "voice_gear_r",
+      "phrase": "R",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "gear_n",
+      "event": "GEAR",
+      "value": "N",
       "resource": "voice_gear_n",
+      "phrase": "N",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "gear_d",
+      "event": "GEAR",
+      "value": "D",
       "resource": "voice_gear_d",
+      "phrase": "D",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "drive_eco",
+      "event": "DRIVE_MODE",
+      "value": "ECO",
       "resource": "voice_drive_eco",
+      "phrase": "에코",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "drive_normal",
+      "event": "DRIVE_MODE",
+      "value": "NORMAL",
       "resource": "voice_drive_normal",
+      "phrase": "노멀",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "drive_sport",
+      "event": "DRIVE_MODE",
+      "value": "SPORT",
       "resource": "voice_drive_sport",
+      "phrase": "스포츠",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "regen_standard",
+      "event": "REGEN",
+      "value": "STANDARD",
       "resource": "voice_regen_standard",
+      "phrase": "회생제동 스탠다드",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "regen_high",
+      "event": "REGEN",
+      "value": "HIGH",
       "resource": "voice_regen_high",
+      "phrase": "회생제동 하이",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "snow_on",
+      "event": "SNOW",
+      "value": "ON",
       "resource": "voice_snow_on",
+      "phrase": "스노우 모드 켜짐",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "snow_off",
+      "event": "SNOW",
+      "value": "OFF",
       "resource": "voice_snow_off",
+      "phrase": "스노우 모드 꺼짐",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "autohold_on",
+      "event": "AUTOHOLD_SWITCH",
+      "value": "ON",
       "resource": "voice_autohold_on",
+      "phrase": "오토홀드 켜짐",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "autohold_off",
+      "event": "AUTOHOLD_SWITCH",
+      "value": "OFF",
       "resource": "voice_autohold_off",
+      "phrase": "오토홀드 꺼짐",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "autohold_held",
+      "event": "AUTOHOLD_STATE",
+      "value": "HELD",
       "resource": "voice_autohold_held",
+      "phrase": "오토홀드 체결",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "autohold_released",
+      "event": "AUTOHOLD_STATE",
+      "value": "RELEASED",
       "resource": "voice_autohold_released",
+      "phrase": "오토홀드 해제",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "epb_held",
+      "event": "EPB",
+      "value": "HELD",
       "resource": "voice_epb_held",
+      "phrase": "사이드 브레이크 체결",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "epb_released",
+      "event": "EPB",
+      "value": "RELEASED",
       "resource": "voice_epb_released",
+      "phrase": "사이드 브레이크 해제",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "icc_on",
+      "event": "ICC",
+      "value": "ON",
       "resource": "voice_icc_on",
+      "phrase": "ICC 켜짐",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "icc_off",
+      "event": "ICC",
+      "value": "OFF",
       "resource": "voice_icc_off",
+      "phrase": "ICC 꺼짐",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "leading_car_departure",
+      "event": "LEADING_CAR",
+      "value": "DEPARTED",
       "resource": "voice_leading_car_departure",
+      "phrase": "전방 차량 출발",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "bsd_left",
+      "event": "BSD",
+      "value": "LEFT",
       "resource": "voice_bsd_left",
+      "phrase": "왼쪽 주의",
       "state": "ASSET_REQUIRED"
     },
     {
       "id": "bsd_right",
+      "event": "BSD",
+      "value": "RIGHT",
       "resource": "voice_bsd_right",
+      "phrase": "오른쪽 주의",
       "state": "ASSET_REQUIRED"
     }
   ]
