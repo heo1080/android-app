@@ -270,10 +270,8 @@ jobs:
               assert policy.count('"'+prompt_id+'"')==1, ("prompt id duplicated outside catalog",prompt_id)
 
           launcher=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java").read_text(encoding="utf-8")
-          preload=re.search(r'vehiclePromptPlayer\.preload\((.*?)\);',launcher,re.S)
-          assert preload, "vehicle prompt preload call missing"
-          preload_ids=re.findall(r'"([^"]+)"',preload.group(1))
-          assert preload_ids==ids, ("preload/manifest drift",preload_ids,ids)
+          assert "vehiclePromptPlayer.preload(VehicleVoicePolicy.promptIds());" in launcher, "voice preload must use policy catalog"
+          assert launcher.count("vehiclePromptPlayer.preload(")==1, "duplicate voice preload call"
 
           by_state={(e,v):(i,p) for e,v,i,p in expected}
           assert by_state[("DRIVE_MODE","NORMAL")]==("drive_normal","노멀")
@@ -307,7 +305,7 @@ jobs:
               resource=p["resource"]
               if not any(n.startswith("res/raw/") and ("/"+resource+".") in ("/"+n) for n in names):
                   missing.append(resource)
-          print("VOICE_CONTRACT_OK prompts=22 semantic_pairs=22 preload=22 fixed_assets_present=%d missing=%d" % (22-len(missing), len(missing)))
+          print("VOICE_CONTRACT_OK prompts=22 semantic_pairs=22 preload_source=policy_catalog fixed_assets_present=%d missing=%d" % (22-len(missing), len(missing)))
           if missing:
               print("VOICE_FIXED_ASSETS_PENDING=" + ",".join(missing))
           PY
