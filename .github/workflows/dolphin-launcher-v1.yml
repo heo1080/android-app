@@ -111,7 +111,18 @@ jobs:
               visited.add(node)
           for node in ids:
               visit(node)
-          print("FEATURE_DEPENDENCIES_OK edges=%d acyclic=true" % len(pairs))
+          # If a Registry dependency names another Feature ID explicitly, the
+          # dependency graph must contain that exact edge. Human-readable
+          # dependencies may remain as text without becoming graph nodes.
+          explicit_registry_edges=set()
+          for feature in reg.get("features", []):
+              for dependency in feature.get("dependencies", []):
+                  if dependency in ids:
+                      explicit_registry_edges.add((feature["feature_id"],dependency))
+          missing=explicit_registry_edges-pairs
+          assert not missing, ("registry dependency graph drift", sorted(missing))
+          print("FEATURE_DEPENDENCIES_OK edges=%d explicit_registry_edges=%d acyclic=true" %
+                (len(pairs),len(explicit_registry_edges)))
           PY
           unzip -p "$APK" assets/test_log_contracts.json > "$RUNNER_TEMP/test_log_contracts.json"
           python3 - "$RUNNER_TEMP/verification_registry.json" "$RUNNER_TEMP/test_log_contracts.json" <<'PY'
