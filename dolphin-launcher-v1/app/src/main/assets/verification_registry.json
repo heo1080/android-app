@@ -1712,7 +1712,10 @@
         "Evidence ZIP은 Registry/Test Contract/Dependencies/Runtime Surface/Known-Bad/Voice Manifest를 함께 포함",
         "V1 correlation evaluator는 3회 동일 raw도 VERIFIED가 아닌 candidate_not_verified로만 보고",
         "진행 중 Test ID는 monotonic start age를 보존하고 장시간 연속 raw sampling은 bounded",
-        "OPERATOR_OBSERVATION marker는 자동 PASS 신호로 사용하지 않고 correlation candidate evidence로만 사용"
+        "OPERATOR_OBSERVATION marker는 자동 PASS 신호로 사용하지 않고 correlation candidate evidence로만 사용",
+        "V1 correlation evaluator는 단일 session 3회와 교차 session 2개×각 3회를 구분",
+        "cross_session_candidate_not_verified도 자동 VERIFIED 승격 근거가 아님",
+        "evaluator는 여러 Evidence ZIP/JSONL 입력을 dedupe 후 통합 분석"
       ],
       "required_logs": [
         "registry schema/version",
@@ -1721,7 +1724,10 @@
         "OPERATOR_OBSERVATION",
         "elapsed_realtime_ms",
         "active test correlation",
-        "automatic evidence bundle/upload"
+        "automatic evidence bundle/upload",
+        "single_session_candidate_not_verified",
+        "cross_session_candidate_not_verified",
+        "matching_stable_sessions"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
@@ -1741,7 +1747,7 @@
         "evaluate_live_correlations.py CI self-test",
         "CI rejects success_any entries beginning with observation="
       ],
-      "next_action": "실차에서 AUD-DRV-002/AUD-REG-002/AUD-AVH-001/002 live marker와 raw transition을 같은 elapsed_realtime 축으로 상관하고 evaluator 입력으로 검증",
+      "next_action": "실차 Evidence ZIP을 최소 2개 session에서 수집하고 evaluator 다중 입력으로 동일 raw 반복성을 비교; cross-session 후보도 수동 검토 전 매핑 활성화 금지",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
