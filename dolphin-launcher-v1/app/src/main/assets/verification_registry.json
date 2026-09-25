@@ -331,7 +331,8 @@
         "비율 적용은 별도 실차 근거가 확보될 때까지 추정하지 않음",
         "카메라 종료 후 안전한 복원",
         "실제 2분할 화면과 카메라 복귀를 operator marker로 readback과 별도 확인",
-        "바로가기 pin 표시와 바로가기 실행 후 실제 split을 operator marker로 별도 확인"
+        "바로가기 pin 표시와 바로가기 실행 후 실제 split을 operator marker로 별도 확인",
+        "실차 operator marker는 active correlation에서 각 3회 이상 기록되어야 PASS 선택 가능"
       ],
       "required_logs": [
         "SPLIT_ADB_COMMAND",
@@ -1057,7 +1058,8 @@
         "운전석에서만 명확히 청취",
         "다른 좌석/일반 media route와 분리",
         "순정 안전경고 방해 없음",
-        "운전석 청취/타 좌석 무음/OEM 안전경고 우선권을 서로 다른 operator marker로 기록"
+        "운전석 청취/타 좌석 무음/OEM 안전경고 우선권을 서로 다른 operator marker로 기록",
+        "실차 operator marker는 active correlation에서 각 3회 이상 기록되어야 PASS 선택 가능"
       ],
       "required_logs": [
         "legacy stream",
