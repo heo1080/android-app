@@ -78,9 +78,9 @@ jobs:
           assert d.get("schema_version")==3, d.get("schema_version")
           features=d.get("features", [])
           ids={tid for f in features for tid in f.get("test_ids", [])}
-          assert len(features)==33, len(features)
-          assert len(ids)==49, len(ids)
-          print("REGISTRY_OK schema=3 features=33 test_ids=49")
+          assert len(features)==35, len(features)
+          assert len(ids)==52, len(ids)
+          print("REGISTRY_OK schema=3 features=35 test_ids=52")
           PY
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationCenterActivity"
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationEvidenceRuntime"
