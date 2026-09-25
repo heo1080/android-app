@@ -219,7 +219,9 @@ public final class VehicleReadOnlyMonitor {
         boolean avhSwitchChanged=changed("setting.avhEnable",avhSwitch);
 
         String activeTestId=VerificationEvidenceRuntime.activeTestId(app);
-        boolean liveAutoHold="AUD-AVH-001".equals(activeTestId) || "AUD-AVH-002".equals(activeTestId);
+        boolean autoHoldTest="AUD-AVH-001".equals(activeTestId) || "AUD-AVH-002".equals(activeTestId);
+        boolean liveAutoHold=autoHoldTest
+                && VerificationEvidenceRuntime.activeTestWithin(app,10L*60L*1000L);
         if(liveAutoHold || avhChanged || avhSwitchChanged){
             Integer speed=read(SPEED,"getCurrentSpeed");
             Integer brakeDepth=read(SPEED,"getBrakeDeepness");
