@@ -421,7 +421,13 @@
         "TextToSpeech",
         "Locale.KOREAN",
         "VOICE_TTS_READY",
-        "VOICE_TTS_FALLBACK_REQUESTED"
+        "VOICE_TTS_FALLBACK_REQUESTED",
+        "UtteranceProgressListener",
+        "VOICE_TTS_START",
+        "VOICE_TTS_DONE",
+        "VOICE_TTS_STOPPED",
+        "VOICE_TTS_ERROR",
+        "request_to_start_ms"
       ]
     },
     {
