@@ -26,6 +26,7 @@ import java.util.Set;
 
 public class VerificationCenterActivity extends Activity {
     private JSONObject registry;
+    private JSONObject testContracts;
     private TextView ledgerStatus;
     private TextView collectionStatus;
     private TextView pendingStatus;
@@ -47,6 +48,7 @@ public class VerificationCenterActivity extends Activity {
         getWindow().setNavigationBarColor(Color.parseColor("#03080B"));
         try {
             registry = VerificationEvidenceRuntime.loadRegistry(this);
+            testContracts = VerificationEvidenceRuntime.loadTestContracts(this);
             setContentView(buildUi());
         } catch (Exception e) {
             TextView error = text("Verification Registry 로드 실패\n" + e.getMessage(),
@@ -491,6 +493,38 @@ public class VerificationCenterActivity extends Activity {
         return true;
     }
 
+    private String[] allowedOutcomesForTest(String testId) {
+        JSONArray contracts = testContracts == null ? null : testContracts.optJSONArray("contracts");
+        if (contracts != null) {
+            for (int i = 0; i < contracts.length(); i++) {
+                JSONObject contract = contracts.optJSONObject(i);
+                if (contract == null || !testId.equals(contract.optString("test_id"))) continue;
+                JSONArray allowed = contract.optJSONArray("allowed_outcomes");
+                if (allowed == null || allowed.length() == 0) break;
+                String[] values = new String[allowed.length()];
+                for (int j = 0; j < allowed.length(); j++) values[j] = allowed.optString(j);
+                return values;
+            }
+        }
+        return new String[]{"NEED_MORE_DATA"};
+    }
+
+    private boolean containsOutcome(String[] outcomes, String value) {
+        for (String outcome : outcomes) if (value.equals(outcome)) return true;
+        return false;
+    }
+
+    private String[] removeOutcome(String[] outcomes, String value) {
+        int count = 0;
+        for (String outcome : outcomes) if (!value.equals(outcome)) count++;
+        String[] filtered = new String[count];
+        int index = 0;
+        for (String outcome : outcomes) {
+            if (!value.equals(outcome)) filtered[index++] = outcome;
+        }
+        return filtered;
+    }
+
     private void finishActiveCaptureDialog() {
         if (activeTestId == null || activeCorrelationId == null) return;
         EditText note = new EditText(this);
@@ -502,16 +536,18 @@ public class VerificationCenterActivity extends Activity {
         note.setPadding(dp(14), dp(10), dp(14), dp(10));
         note.setBackground(round("#071116", 14, "#294957"));
 
-        boolean blocked = "BLOCKED".equals(activeTestState) || "UNSUPPORTED".equals(activeTestState);
         boolean passReady = activeCorrelationReadyForPass();
         boolean markerControlled = requiredMarkersForTest(activeTestId).length > 0;
-        String[] outcomes = blocked
-                ? new String[]{"NEED_MORE_DATA"}
-                : markerControlled && !passReady
-                ? new String[]{"FAIL", "INTERMITTENT", "DELAYED", "NEED_MORE_DATA"}
-                : new String[]{"PASS", "FAIL", "INTERMITTENT", "DELAYED", "NEED_MORE_DATA"};
+        String[] outcomes = allowedOutcomesForTest(activeTestId);
+        boolean contractAllowsPass = containsOutcome(outcomes, "PASS");
+        if (markerControlled && !passReady && contractAllowsPass) {
+            outcomes = removeOutcome(outcomes, "PASS");
+        }
 
         String resultMessage = activeFeature == null ? "" : activeFeature.optString("requirement", "");
+        if (!contractAllowsPass) {
+            resultMessage += "\n\nTest Contract가 PASS를 허용하지 않습니다. 현재는 NEED_MORE_DATA/허용된 결과만 기록할 수 있습니다.";
+        }
         if (markerControlled) {
             resultMessage += "\n\n" + markerProgressText(
                     VerificationEvidenceRuntime.operatorObservationCounts(this, activeCorrelationId));
