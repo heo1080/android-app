@@ -140,9 +140,9 @@
         "MED-BG-001",
         "MED-BG-002"
       ],
-      "summary": "background media autoplay path restored; target MediaSession playback and stock safety-audio coexistence pending real-car verification",
+      "summary": "target-scoped MediaSession autoplay implemented; notification-listener access, target session discovery, audible playback, and stock safety-audio coexistence pending real-car verification",
       "state": "FIX_CANDIDATE",
-      "close_gate": "real-car configured target app launches after saved delay, audibly starts/resumes playback, non-target media is not hijacked, and stock safety warning audio remains functional"
+      "close_gate": "real-car target session package match, configured delay, audible target playback, non-target media unchanged, global fallback absent, and stock safety warning audio remains functional"
     }
   ]
 }
