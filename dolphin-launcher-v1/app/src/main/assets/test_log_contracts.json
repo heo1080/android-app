@@ -2252,7 +2252,10 @@
         "active correlation marker progress is counted without mixing prior sessions",
         "driving-required markers include passenger/safe-test-environment guidance",
         "evaluator blocks same-raw collisions across mutually exclusive vehicle states",
-        "mapping conflicts cannot produce candidate-to-mapping activation"
+        "mapping conflicts cannot produce candidate-to-mapping activation",
+        "same-boot process restart during an active test reuses the original diagnostic session",
+        "reboot/elapsed-realtime reset clears stale active tests before a new session can count",
+        "process restart alone cannot satisfy cross-session repeatability"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2267,7 +2270,9 @@
         "markerProgressText",
         "captureGuide",
         "mapping_conflicts",
-        "conflict_need_more_data"
+        "conflict_need_more_data",
+        "PROCESS_RESUME_ACTIVE_TEST",
+        "ACTIVE_TEST_STALE_CLEARED"
       ]
     },
     {
