@@ -91,19 +91,56 @@ public final class VehicleReadOnlyMonitor {
         Integer epb=read(GEARBOX,"getEPBState");
         if(changed("gear.epb",epb)) post(()->listener.onRaw("epb.candidate.unmapped",epb));
 
-        // P0 regression guard: previous numeric mappings produced missing NORMAL and
-        // STANDARD->ECO mis-announcements on the real car. Until raw transitions are
-        // re-correlated against the OEM UI, collect evidence only; never speak guesses.
+        // Real-car evidence from 2026-09-18/19 repeatedly correlates
+        // getOperationMode 1=ECO and 2=SPORT on the Korean Dolphin. NORMAL is still
+        // deliberately unmapped. Baseline is silent; only subsequent transitions speak.
         Integer drive=read(ENERGY,"getOperationMode");
-        if(changed("energy.operationMode",drive)) post(()->listener.onRaw("drive.candidate.unmapped",drive));
+        boolean driveChanged=changed("energy.operationMode",drive);
+        if(driveChanged && changedNormalized("voice.energy.operationMode",drive)){
+            final String normalizedDrive=Integer.valueOf(1).equals(drive)?"ECO"
+                    :Integer.valueOf(2).equals(drive)?"SPORT":null;
+            if(normalizedDrive!=null){
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        app,"DRIVE_MODE_EVIDENCE_MAP",
+                        "operation_raw="+drive+";normalized="+normalizedDrive
+                                +";source=real-car-20260918-20260919;normal_unmapped=true");
+                post(()->listener.onDriveMode(normalizedDrive));
+            }else{
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        app,"DRIVE_MODE_UNMAPPED",
+                        "operation_raw="+drive+";voice=suppressed;reason=normal-correlation-pending");
+                post(()->listener.onRaw("drive.candidate.unmapped",drive));
+            }
+        }
 
+        // Real-car evidence repeatedly correlates getEnergyFeedback raw 2 with HIGH.
+        // STANDARD remains unmapped so the historical STANDARD cross-label regression
+        // cannot recur. Baseline remains silent.
         Integer regen=read(SETTING,"getEnergyFeedback");
-        if(changed("setting.energyFeedback",regen)) post(()->listener.onRaw("regen.candidate.unmapped",regen));
+        boolean regenChanged=changed("setting.energyFeedback",regen);
+        if(regenChanged && changedNormalized("voice.setting.energyFeedback",regen)){
+            if(Integer.valueOf(2).equals(regen)){
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        app,"REGEN_MODE_EVIDENCE_MAP",
+                        "energy_feedback_raw="+regen
+                                +";normalized=HIGH;source=real-car-20260918-20260919"
+                                +";standard_unmapped=true");
+                post(()->listener.onRegen("HIGH"));
+            }else{
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        app,"REGEN_MODE_UNMAPPED",
+                        "energy_feedback_raw="+regen
+                                +";voice=suppressed;reason=standard-correlation-pending");
+                post(()->listener.onRaw("regen.candidate.unmapped",regen));
+            }
+        }
 
-        // Snow and ICC/TJA remain candidates until V1 real-car correlation confirms
-        // both directions. Record raw transitions without speaking guessed semantics.
+        // 2026-09-17 real-car evidence captured 1->2 snow=true and 2->1 snow=false;
+        // 2026-09-19 independently captured Snow OFF raw=1. Baseline is silent.
         Integer roadSurface=read(ENERGY,"getRoadSurfaceMode");
-        if(changed("energy.roadSurfaceMode",roadSurface)) post(()->listener.onSnowRaw(roadSurface));
+        boolean roadSurfaceChanged=changed("energy.roadSurfaceMode",roadSurface);
+        if(roadSurfaceChanged && changedNormalized("voice.energy.roadSurfaceMode",roadSurface))
+            post(()->listener.onSnowRaw(roadSurface));
         Integer tja=read(ADAS,"getTJAState");
         if(changed("adas.tja",tja)) post(()->listener.onIccCandidateRaw(tja));
 

@@ -575,36 +575,44 @@
       ],
       "state": "BETA",
       "acceptance": [
-        "ECO/NORMAL/SPORT 매핑이 raw/readback과 일치",
-        "NORMAL 포함 모든 edge에서 음성 1회",
-        "미확인 값은 말하지 않음"
+        "실차 확인값 getOperationMode 1=ECO, 2=SPORT를 정확히 안내",
+        "NORMAL raw 값은 최신 V1 실차 상관관계가 확정되기 전 음성 억제",
+        "앱 시작 baseline은 음성 억제",
+        "미확인 값은 말하지 않음",
+        "최종 VERIFIED 전 ECO/NORMAL/SPORT 왕복 실차 검증"
       ],
       "required_logs": [
-        "raw candidate signals",
-        "normalized mode",
-        "phrase",
+        "VEHICLE_BASELINE",
+        "VEHICLE_RAW",
+        "DRIVE_MODE_EVIDENCE_MAP",
+        "DRIVE_MODE_UNMAPPED",
+        "VEHICLE_VOICE",
         "timestamp"
       ],
       "known_bad": [
-        "실차에서 NORMAL 음성 누락"
+        "실차에서 NORMAL 음성 누락",
+        "과거 숫자 추정 매핑 회귀가 있어 확인된 raw 값만 부분 복원"
       ],
       "dependencies": [
-        "instrument/energy/setting candidate signals",
+        "BYDAutoEnergyDevice.getOperationMode",
         "TTS Core"
       ],
       "real_vehicle_test": [
-        "각 모드 왕복 3회",
-        "Byd audio feedback/SubAI 동시 raw 비교"
+        "ECO↔SPORT 3회에서 operation raw 1/2와 발화 일치 확인",
+        "NORMAL로 전환해 DRIVE_MODE_UNMAPPED raw 값 수집",
+        "같은 NORMAL raw 값을 OEM UI와 3회 상관 확인",
+        "앱 재실행 baseline 무음 확인"
       ],
       "evidence": [
-        "VehicleVoiceStateMonitor + live-fix candidate mapping"
+        "diagnostics 20260918/19: DRIVE_MODE ECO raw=1, SPORT raw=2 반복",
+        "VehicleReadOnlyMonitor evidence-gated partial mapping"
       ],
-      "next_action": "NORMAL edge raw correlation 확보 후 mapping 확정",
+      "next_action": "최신 V1 실차에서 NORMAL 전환 raw를 OEM UI와 3회 상관해 남은 NORMAL mapping 확정",
       "confidence": {
-        "behavior": "LOW",
-        "root_cause": "TENTATIVE",
+        "behavior": "MEDIUM",
+        "root_cause": "HIGH",
         "safety": "HIGH",
-        "compatibility": "LOW"
+        "compatibility": "MEDIUM"
       }
     },
     {
@@ -613,7 +621,8 @@
       "area": "audio",
       "requirement": "회생제동 STANDARD/HIGH를 정확히 안내한다.",
       "source_paths": [
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleVoicePolicy.java"
       ],
       "test_ids": [
         "AUD-REG-001",
@@ -621,30 +630,38 @@
       ],
       "state": "REVERIFY_REQUIRED",
       "acceptance": [
-        "STANDARD/HIGH 정확한 mapping",
-        "STANDARD를 ECO라고 말하지 않음",
-        "상태 edge당 1회"
+        "실차 확인값 getEnergyFeedback 2=HIGH를 정확히 안내",
+        "STANDARD raw 값 확정 전 STANDARD나 다른 라벨을 추정 발화하지 않음",
+        "STANDARD를 ECO라고 말하는 과거 회귀가 재발하지 않음",
+        "앱 시작 baseline은 음성 억제",
+        "최종 VERIFIED 전 STANDARD↔HIGH 실차 왕복 검증"
       ],
       "required_logs": [
-        "energyFeedback raw sources",
-        "normalized regen",
-        "phrase"
+        "VEHICLE_BASELINE",
+        "VEHICLE_RAW",
+        "REGEN_MODE_EVIDENCE_MAP",
+        "REGEN_MODE_UNMAPPED",
+        "VEHICLE_VOICE"
       ],
       "known_bad": [
-        "STANDARD 전환 시 ECO라고 잘못 안내된 과거 회귀"
+        "STANDARD 전환 시 ECO라고 잘못 안내된 과거 회귀",
+        "STANDARD raw 값은 아직 최신 실차 라벨 상관관계 미확정"
       ],
       "dependencies": [
-        "energy feedback getter",
+        "BYDAutoSettingDevice.getEnergyFeedback",
         "TTS Core"
       ],
       "real_vehicle_test": [
-        "STANDARD↔HIGH 5회",
-        "시동 재시작 후 반복"
+        "HIGH 전환 3회에서 energyFeedback raw=2와 발화 일치 확인",
+        "STANDARD 전환에서 REGEN_MODE_UNMAPPED raw 값 수집",
+        "STANDARD raw를 OEM UI와 3회 상관",
+        "앱 재실행 baseline 무음 확인"
       ],
       "evidence": [
-        "v32.2 stale key/wording fix present"
+        "diagnostics 20260918/19: REGEN HIGH raw=2 반복 및 실제 TTS 기록",
+        "VehicleReadOnlyMonitor evidence-gated partial mapping"
       ],
-      "next_action": "실차 최신 build로 Known-Bad 재검증",
+      "next_action": "최신 V1 실차에서 STANDARD 전환 raw를 OEM UI와 3회 상관해 남은 STANDARD mapping 확정",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
@@ -659,7 +676,8 @@
       "requirement": "Snow ON과 Snow OFF 모두 정확히 안내한다.",
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleVoicePolicy.java"
       ],
       "test_ids": [
         "AUD-SNOW-001",
@@ -667,38 +685,44 @@
       ],
       "state": "BETA",
       "acceptance": [
-        "Snow ON 음성",
-        "Snow OFF 음성",
-        "ON/OFF raw edge 각각 1회",
-        "다른 drive mode와 혼동 없음"
+        "getRoadSurfaceMode raw 2에서 Snow ON 음성",
+        "getRoadSurfaceMode raw 1에서 Snow OFF 음성",
+        "앱 시작 baseline은 음성 억제",
+        "ON/OFF 실제 edge 각각 1회",
+        "다른 drive/road mode raw는 추정 발화하지 않음"
       ],
       "required_logs": [
-        "roadSurface raw",
-        "drive mode raw",
-        "normalized snow state",
-        "phrase"
+        "VEHICLE_BASELINE",
+        "SNOW_RAW_TRANSITION",
+        "SNOW_EVIDENCE_MAP",
+        "SNOW_MODE_UNMAPPED",
+        "VEHICLE_VOICE"
       ],
       "known_bad": [
-        "현재 VehicleVoiceStateMonitor는 Snow 진입만 callback하고 이탈은 로그만 남김",
-        "사용자 실차에서 Snow OFF 음성 없음"
+        "과거 설치본에서 Snow OFF 음성 없음",
+        "수정 후보는 V1 최신 실차 왕복 검증 전까지 BETA 유지"
       ],
       "dependencies": [
-        "road surface/drive mode signal",
+        "BYDAutoEnergyDevice.getRoadSurfaceMode",
         "TTS Core"
       ],
       "real_vehicle_test": [
-        "Snow ON→OFF 3회",
-        "NORMAL 복귀와 raw 비교"
+        "OFF baseline에서 앱 실행 후 Snow 음성 미발화 확인",
+        "Snow ON→OFF 3회 반복",
+        "각 edge raw 2→1 및 SNOW_EVIDENCE_MAP/VEHICLE_VOICE 일치 확인",
+        "NORMAL 복귀와 Snow OFF가 중복/혼동되지 않는지 확인"
       ],
       "evidence": [
-        "source comment explicitly suppresses leaving-snow sentence"
+        "diagnostics 20260917: roadSurface 1->2 snow=true, 2->1 snow=false",
+        "diagnostics 20260919: SNOW OFF raw=1 반복",
+        "LauncherActivity bidirectional evidence mapping"
       ],
-      "next_action": "요구사항과 코드가 직접 불일치하므로 다음 수정 후보 최우선",
+      "next_action": "최신 V1 APK 실차에서 Snow ON/OFF 3회와 baseline 무음 재검증",
       "confidence": {
         "behavior": "HIGH",
-        "root_cause": "CONFIRMED",
+        "root_cause": "HIGH",
         "safety": "HIGH",
-        "compatibility": "HIGH"
+        "compatibility": "MEDIUM"
       }
     },
     {

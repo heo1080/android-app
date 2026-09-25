@@ -69,6 +69,9 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
       "tokens": [
         "getOperationMode",
+        "changedNormalized",
+        "DRIVE_MODE_EVIDENCE_MAP",
+        "DRIVE_MODE_UNMAPPED",
         "drive.candidate.unmapped"
       ]
     },
@@ -77,6 +80,9 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
       "tokens": [
         "getEnergyFeedback",
+        "changedNormalized",
+        "REGEN_MODE_EVIDENCE_MAP",
+        "REGEN_MODE_UNMAPPED",
         "regen.candidate.unmapped"
       ]
     },
@@ -85,6 +91,9 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleVoicePolicy.java",
       "tokens": [
         "driveMode",
+        "drive_eco",
+        "drive_normal",
+        "drive_sport",
         "VEHICLE_VOICE"
       ]
     },
@@ -128,6 +137,7 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
       "tokens": [
         "getRoadSurfaceMode",
+        "changedNormalized",
         "onSnowRaw",
         "captureStateConstants",
         "ENERGY_RUNTIME_CONSTANT",
@@ -693,7 +703,9 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
       "tokens": [
         "SNOW_RAW_TRANSITION",
-        "suppressed-pending-on-off-correlation"
+        "SNOW_EVIDENCE_MAP",
+        "SNOW_MODE_UNMAPPED",
+        "VehicleVoicePolicy.snow"
       ]
     },
     {
@@ -713,6 +725,26 @@
         "EXTRA_PACKAGE",
         "EXTRA_DELAY_MS",
         "EXTRA_MEDIA"
+      ]
+    },
+    {
+      "feature_id": "REGEN_MODE_VOICE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleVoicePolicy.java",
+      "tokens": [
+        "regen",
+        "regen_standard",
+        "regen_high",
+        "VEHICLE_VOICE"
+      ]
+    },
+    {
+      "feature_id": "SNOW_MODE_VOICE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleVoicePolicy.java",
+      "tokens": [
+        "snow",
+        "snow_on",
+        "snow_off",
+        "VEHICLE_VOICE"
       ]
     }
   ],

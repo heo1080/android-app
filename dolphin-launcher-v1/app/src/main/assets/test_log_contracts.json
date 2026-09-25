@@ -785,26 +785,32 @@
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
       "required_any": [
-        "driveInterface baseline raw=",
-        "driveInterface "
+        "DRIVE_MODE_EVIDENCE_MAP",
+        "DRIVE_MODE_UNMAPPED"
       ],
       "success_any": [
-        "decoded=NORMAL"
+        "operation_raw=1;normalized=ECO",
+        "operation_raw=2;normalized=SPORT"
       ],
-      "failure_any": [],
+      "failure_any": [
+        "operation_raw=1;normalized=SPORT",
+        "operation_raw=2;normalized=ECO"
+      ],
       "known_bad_ids": [
         "KB-001"
       ],
       "acceptance": [
-        "ECO/NORMAL/SPORT 매핑이 raw/readback과 일치",
-        "NORMAL 포함 모든 edge에서 음성 1회",
-        "미확인 값은 말하지 않음"
+        "ECO raw=1 and SPORT raw=2 match OEM UI on 3 transitions",
+        "only actual transitions speak",
+        "startup baseline is silent"
       ],
       "required_logs": [
-        "raw candidate signals",
-        "normalized mode",
-        "phrase",
-        "timestamp"
+        "VEHICLE_BASELINE",
+        "DRIVE_MODE_EVIDENCE_MAP",
+        "VEHICLE_VOICE",
+        "operation_raw",
+        "normalized",
+        "operator OEM mode"
       ]
     },
     {
@@ -828,19 +834,29 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
-      "success_any": [],
-      "failure_any": [],
-      "known_bad_ids": [],
+      "required_any": [
+        "DRIVE_MODE_UNMAPPED",
+        "drive.candidate.unmapped"
+      ],
+      "success_any": [
+        "NORMAL raw correlated 3 times with OEM UI before mapping"
+      ],
+      "failure_any": [
+        "NORMAL spoken from an unproven raw value",
+        "false ECO/SPORT speech on NORMAL"
+      ],
+      "known_bad_ids": [
+        "KB-001"
+      ],
       "acceptance": [
-        "ECO/NORMAL/SPORT 매핑이 raw/readback과 일치",
-        "NORMAL 포함 모든 edge에서 음성 1회",
-        "미확인 값은 말하지 않음"
+        "NORMAL transition raw is captured",
+        "no guessed NORMAL speech before correlation",
+        "3 matching OEM UI observations required before enabling NORMAL mapping"
       ],
       "required_logs": [
-        "raw candidate signals",
-        "normalized mode",
-        "phrase",
+        "DRIVE_MODE_UNMAPPED",
+        "operation_raw",
+        "operator OEM NORMAL observation",
         "timestamp"
       ]
     },
@@ -866,29 +882,31 @@
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
       "required_any": [
-        "energyFeedback",
-        "regen"
+        "REGEN_MODE_EVIDENCE_MAP",
+        "REGEN_MODE_UNMAPPED"
       ],
       "success_any": [
-        "STANDARD",
-        "HIGH"
+        "energy_feedback_raw=2;normalized=HIGH"
       ],
       "failure_any": [
         "STANDARD -> ECO",
-        "STANDARD를 ECO"
+        "STANDARD를 ECO",
+        "energy_feedback_raw=2;normalized=STANDARD"
       ],
       "known_bad_ids": [
         "KB-002"
       ],
       "acceptance": [
-        "STANDARD/HIGH 정확한 mapping",
-        "STANDARD를 ECO라고 말하지 않음",
-        "상태 edge당 1회"
+        "HIGH raw=2 matches OEM UI on 3 transitions",
+        "startup baseline silent",
+        "no cross-label speech"
       ],
       "required_logs": [
-        "energyFeedback raw sources",
-        "normalized regen",
-        "phrase"
+        "VEHICLE_BASELINE",
+        "REGEN_MODE_EVIDENCE_MAP",
+        "VEHICLE_VOICE",
+        "energy_feedback_raw",
+        "operator OEM regen mode"
       ]
     },
     {
@@ -912,19 +930,31 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
-      "success_any": [],
-      "failure_any": [],
-      "known_bad_ids": [],
+      "required_any": [
+        "REGEN_MODE_UNMAPPED",
+        "regen.candidate.unmapped"
+      ],
+      "success_any": [
+        "STANDARD raw correlated 3 times with OEM UI before mapping"
+      ],
+      "failure_any": [
+        "STANDARD spoken from an unproven raw value",
+        "STANDARD -> ECO",
+        "STANDARD를 ECO"
+      ],
+      "known_bad_ids": [
+        "KB-002"
+      ],
       "acceptance": [
-        "STANDARD/HIGH 정확한 mapping",
-        "STANDARD를 ECO라고 말하지 않음",
-        "상태 edge당 1회"
+        "STANDARD transition raw captured",
+        "unproven STANDARD remains silent",
+        "3 matching OEM UI observations required before enabling mapping"
       ],
       "required_logs": [
-        "energyFeedback raw sources",
-        "normalized regen",
-        "phrase"
+        "REGEN_MODE_UNMAPPED",
+        "energy_feedback_raw",
+        "operator OEM STANDARD observation",
+        "timestamp"
       ]
     },
     {
@@ -948,21 +978,32 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
-      "success_any": [],
-      "failure_any": [],
-      "known_bad_ids": [],
+      "required_any": [
+        "SNOW_RAW_TRANSITION",
+        "SNOW_EVIDENCE_MAP"
+      ],
+      "success_any": [
+        "road_surface_raw=2;normalized=ON",
+        "prompt=snow_on"
+      ],
+      "failure_any": [
+        "SNOW_MODE_UNMAPPED on raw 2",
+        "Snow ON missing"
+      ],
+      "known_bad_ids": [
+        "KB-003"
+      ],
       "acceptance": [
-        "Snow ON 음성",
-        "Snow OFF 음성",
-        "ON/OFF raw edge 각각 1회",
-        "다른 drive mode와 혼동 없음"
+        "baseline OFF produces no voice",
+        "OFF->ON raw 1->2 produces exactly one Snow ON prompt",
+        "repeat 3 times"
       ],
       "required_logs": [
-        "roadSurface raw",
-        "drive mode raw",
-        "normalized snow state",
-        "phrase"
+        "VEHICLE_BASELINE",
+        "SNOW_RAW_TRANSITION",
+        "SNOW_EVIDENCE_MAP",
+        "VEHICLE_VOICE",
+        "operator Snow state"
       ]
     },
     {
@@ -987,27 +1028,31 @@
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
       "required_any": [
-        "roadSurface ",
-        "snow=false"
+        "SNOW_RAW_TRANSITION",
+        "SNOW_EVIDENCE_MAP"
       ],
       "success_any": [
-        "snow=false"
+        "road_surface_raw=1;normalized=OFF",
+        "prompt=snow_off"
       ],
-      "failure_any": [],
+      "failure_any": [
+        "SNOW_MODE_UNMAPPED on raw 1",
+        "Snow OFF missing"
+      ],
       "known_bad_ids": [
         "KB-003"
       ],
       "acceptance": [
-        "Snow ON 음성",
-        "Snow OFF 음성",
-        "ON/OFF raw edge 각각 1회",
-        "다른 drive mode와 혼동 없음"
+        "ON->OFF raw 2->1 produces exactly one Snow OFF prompt",
+        "NORMAL/road-mode transition does not double-speak",
+        "repeat 3 times"
       ],
       "required_logs": [
-        "roadSurface raw",
-        "drive mode raw",
-        "normalized snow state",
-        "phrase"
+        "SNOW_RAW_TRANSITION",
+        "SNOW_EVIDENCE_MAP",
+        "VEHICLE_VOICE",
+        "road_surface_raw",
+        "operator Snow OFF observation"
       ]
     },
     {

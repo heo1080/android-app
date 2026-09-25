@@ -246,9 +246,23 @@ public class LauncherActivity extends Activity {
                                 + ";purpose=bsd-side-correlation;voice=suppressed");
             }
             @Override public void onSnowRaw(Integer raw) {
+                String normalized = Integer.valueOf(2).equals(raw) ? "ON"
+                        : Integer.valueOf(1).equals(raw) ? "OFF" : "UNMAPPED";
                 VerificationEvidenceRuntime.recordPassiveEvent(
                         LauncherActivity.this, "SNOW_RAW_TRANSITION",
-                        "road_surface_raw=" + raw + ";voice=suppressed-pending-on-off-correlation");
+                        "road_surface_raw=" + raw + ";normalized_candidate=" + normalized);
+                if ("ON".equals(normalized) || "OFF".equals(normalized)) {
+                    VerificationEvidenceRuntime.recordPassiveEvent(
+                            LauncherActivity.this, "SNOW_EVIDENCE_MAP",
+                            "road_surface_raw=" + raw + ";normalized=" + normalized
+                                    + ";source=real-car-20260917+20260919");
+                    VehicleVoicePolicy.snow(
+                            LauncherActivity.this, vehicleVoiceOutput, "ON".equals(normalized));
+                } else {
+                    VerificationEvidenceRuntime.recordPassiveEvent(
+                            LauncherActivity.this, "SNOW_MODE_UNMAPPED",
+                            "road_surface_raw=" + raw + ";voice=suppressed");
+                }
             }
             @Override public void onIccCandidateRaw(Integer raw) {
                 VerificationEvidenceRuntime.recordPassiveEvent(

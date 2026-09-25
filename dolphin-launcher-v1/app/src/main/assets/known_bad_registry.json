@@ -9,9 +9,9 @@
         "AUD-DRV-001",
         "AUD-DRV-002"
       ],
-      "summary": "NORMAL voice missing",
+      "summary": "real-car ECO raw=1 and SPORT raw=2 restored behind evidence-gated mapping; NORMAL remains deliberately unmapped pending fresh V1 correlation",
       "state": "FIX_CANDIDATE",
-      "close_gate": "real-car NORMAL transition evidence with correct prompt and no false speech"
+      "close_gate": "three repeatable V1 real-car ECO/NORMAL/SPORT cycles with exact raw mapping, correct prompt once per edge, silent baseline, and zero cross-label speech"
     },
     {
       "id": "KB-002",
@@ -21,9 +21,9 @@
         "AUD-REG-001",
         "AUD-REG-002"
       ],
-      "summary": "STANDARD was mis-announced as ECO",
+      "summary": "real-car HIGH raw=2 restored; STANDARD remains deliberately unmapped so historical STANDARD cross-label speech cannot recur",
       "state": "FIX_CANDIDATE",
-      "close_gate": "real-car STANDARD/HIGH correlation evidence with zero cross-label speech"
+      "close_gate": "three repeatable V1 real-car STANDARD/HIGH cycles with exact raw correlation, correct prompt once per edge, silent baseline, and zero cross-label speech"
     },
     {
       "id": "KB-003",
@@ -33,9 +33,9 @@
         "AUD-SNOW-001",
         "AUD-SNOW-002"
       ],
-      "summary": "Snow OFF voice missing",
+      "summary": "legacy real-car evidence proves roadSurface raw 2=Snow ON and raw 1=Snow OFF; V1 now implements both edges with silent baseline, pending fresh real-car verification",
       "state": "FIX_CANDIDATE",
-      "close_gate": "real-car Snow ON and OFF transitions correlated bidirectionally"
+      "close_gate": "three repeatable V1 real-car Snow OFF->ON->OFF cycles with raw 1/2 correlation, exactly one correct prompt per edge, silent baseline, and no drive-mode confusion"
     },
     {
       "id": "KB-004",
