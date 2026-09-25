@@ -38,6 +38,12 @@ public final class AutoStartStore {
     public static boolean add(SharedPreferences p,String pkg){
         List<String> list=read(p); if(list.contains(pkg))return false; list.add(pkg); write(p,list); return true;
     }
+    public static boolean move(SharedPreferences p,String pkg,int delta){
+        List<String> list=read(p); int from=list.indexOf(pkg); if(from<0)return false;
+        int to=from+delta; if(to<0||to>=list.size())return false;
+        Collections.swap(list,from,to); write(p,list); return true;
+    }
+
     public static boolean remove(SharedPreferences p,String pkg){
         List<String> list=read(p); boolean changed=list.remove(pkg); if(changed)write(p,list); return changed;
     }
