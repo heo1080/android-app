@@ -239,7 +239,8 @@
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootReceiver.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchRuntime.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AutoStartStore.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AutoStartStore.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BackgroundMediaRuntime.java"
       ],
       "test_ids": [
         "LCH-BOOT-001",
@@ -251,13 +252,19 @@
         "2개 이상 앱 등록 가능",
         "등록 순서를 재부팅 후에도 보존",
         "BOOT_COMPLETED에서 등록 순서대로 순차 dispatch",
-        "LauncherActivity 진입으로 동일 boot dispatch를 중복 실행하지 않음"
+        "LauncherActivity 진입으로 동일 boot dispatch를 중복 실행하지 않음",
+        "앱별 미디어 자동재생 옵션을 저장하고 부팅 시 해당 앱에 PLAY 요청",
+        "PLAY 요청을 실제 재생 성공으로 간주하지 않고 실차 증거 전 REVERIFY_REQUIRED 유지"
       ],
       "required_logs": [
         "BOOT_COMPLETED",
         "AUTOSTART_BOOT_BATCH",
         "AUTOSTART_LAUNCH_DISPATCHED",
-        "AUTOSTART_LAUNCH_FAILED"
+        "AUTOSTART_LAUNCH_FAILED",
+        "AUTOSTART_MEDIA_CHANGED",
+        "BACKGROUND_MEDIA_APP_DISPATCHED",
+        "BACKGROUND_MEDIA_PLAY_REQUESTED",
+        "BACKGROUND_MEDIA_PLAY_FAILED"
       ],
       "known_bad": [
         "과거 최신 설치본에서 여러 앱 추가 버튼이 사라졌다고 보고"
@@ -265,7 +272,8 @@
       "dependencies": [
         "BOOT_COMPLETED broadcast",
         "PackageManager launch intent",
-        "Android background activity-start policy"
+        "Android background activity-start policy",
+        "Android media key dispatch/target media-session behavior"
       ],
       "real_vehicle_test": [
         "앱 2개 등록",
