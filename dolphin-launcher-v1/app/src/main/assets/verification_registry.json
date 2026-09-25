@@ -59,7 +59,8 @@
         "launchable activity count",
         "HOME category absent",
         "minSdk 29",
-        "targetSdk 35"
+        "targetSdk 35",
+        "BUILD_IDENTITY_OK"
       ],
       "known_bad": [
         "과거 V1 설치본에서 HOME category가 BYD Korean Dolphin에서 desktop app으로 분류되어 설치 거부된 회귀"
@@ -77,7 +78,8 @@
       "evidence": [
         "CI validates packaged APK package/version/minSdk/targetSdk/launchable activity",
         "packaged Manifest must contain LAUNCHER and must not contain HOME",
-        "build identity evidence records source commit/APK SHA-256"
+        "build identity evidence records source commit/APK SHA-256",
+        "CI BUILD_IDENTITY_OK home=0 launchable=1"
       ],
       "next_action": "최신 V1 APK를 BYD Korean Dolphin에 설치해 desktop-app 오인 없이 앱서랍 노출/일반 실행을 LCH-ID-001로 재검증",
       "confidence": {
@@ -164,7 +166,8 @@
         "windowing mode",
         "dumpsys activity",
         "APP_DRAWER_ICON_VISIBLE",
-        "NORMAL_APP_LAUNCH_VISIBLE"
+        "NORMAL_APP_LAUNCH_VISIBLE",
+        "BUILD_IDENTITY_OK"
       ],
       "known_bad": [
         "과거 빌드에서 데스크탑 앱으로 인식되는 오류 우려/경험"
@@ -182,7 +185,7 @@
         "base manifest MAIN+LAUNCHER",
         "CI launcher swap patch exists"
       ],
-      "next_action": "실제 release APK manifest와 base manifest diff를 registry에 연결",
+      "next_action": "최신 V1 APK를 BYD Korean Dolphin에 설치 후 앱서랍 아이콘/일반 앱 실행을 LCH-ID-001에서 각 3회 기록; HOME 역할은 별도 호환성 근거 전 비활성 유지",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "TENTATIVE",
