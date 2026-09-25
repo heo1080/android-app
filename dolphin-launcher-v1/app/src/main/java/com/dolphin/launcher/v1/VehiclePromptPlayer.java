@@ -22,15 +22,19 @@ public final class VehiclePromptPlayer {
     private final Map<Integer,Boolean> loaded=new HashMap<>();
     private final Map<Integer,String> promptBySound=new HashMap<>();
     private TextToSpeech tts;
+    private final OwnedAudioEqualizer equalizer;
     private boolean ttsReady;
 
     public VehiclePromptPlayer(Context context) {
         app=context.getApplicationContext();
+        equalizer=new OwnedAudioEqualizer(app);
         AudioAttributes attrs=new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                 .build();
         pool=new SoundPool.Builder().setMaxStreams(2).setAudioAttributes(attrs).build();
+        VerificationEvidenceRuntime.recordPassiveEvent(app,"EQ_PROMPT_PIPELINE",
+                "backend=SoundPool;audio_session_exposed=false;eq_binding=not_available;byd_dsp_write=false");
         pool.setOnLoadCompleteListener((sp,id,status)->{
             boolean ok=status==0;
             loaded.put(id,ok);
@@ -88,6 +92,7 @@ public final class VehiclePromptPlayer {
     }
 
     public void release() {
+        equalizer.releaseEffect();
         pool.release();
         if(tts!=null) {
             tts.stop();
