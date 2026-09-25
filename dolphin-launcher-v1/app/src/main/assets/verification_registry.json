@@ -302,7 +302,8 @@
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SplitCapabilityProbe.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SplitExecutionBridge.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/ShortcutPinReceiver.java"
       ],
       "test_ids": [
         "WIN-SPLIT-001",
@@ -313,6 +314,8 @@
         "두 앱 launch shell command가 성공",
         "dumpsys/activity stack readback에서 좌 앱이 split primary(mode 3), 우 앱이 split secondary(mode 4)로 확인",
         "shell exit code만으로 성공 처리하지 않음",
+        "2분할 pinned shortcut 요청과 실제 pin-success callback을 구분해 기록",
+        "고정 바로가기 실행 시 생성 당시 좌/우 패키지 쌍을 사용",
         "비율 적용은 별도 실차 근거가 확보될 때까지 추정하지 않음",
         "카메라 종료 후 안전한 복원"
       ],
@@ -321,7 +324,9 @@
         "SPLIT_READBACK",
         "left/right package",
         "left/right windowing mode readback",
-        "dumpsys activity/am stack context"
+        "dumpsys activity/am stack context",
+        "SPLIT_SHORTCUT_REQUEST",
+        "SPLIT_SHORTCUT_PIN_CONFIRMED"
       ],
       "known_bad": [
         "사용자 실차에서 분할화면 미작동 보고",
