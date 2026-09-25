@@ -47,7 +47,11 @@
         "--windowingMode 4",
         "authorizedPathReady",
         "left-exit",
-        "right-exit"
+        "right-exit",
+        "getLaunchIntentForPackage",
+        "preflight-component-missing",
+        " -n ",
+        "shellComponent"
       ]
     },
     {
