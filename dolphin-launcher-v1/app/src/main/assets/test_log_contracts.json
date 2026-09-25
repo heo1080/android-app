@@ -238,29 +238,35 @@
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
       "required_any": [
-        "APP_DRAWER",
-        "앱서랍 슬롯 생성"
+        "APP_SHORTCUT_PIN_REQUEST",
+        "APP_SHORTCUT_PIN_CONFIRMED",
+        "APP_SHORTCUT_INVOKED"
       ],
       "success_any": [
-        "앱서랍 실행 slot=",
-        "앱서랍 슬롯 생성 slot="
+        "APP_SHORTCUT_PIN_CONFIRMED",
+        "APP_SHORTCUT_LAUNCH_DISPATCHED"
       ],
       "failure_any": [
-        "비어 있는 앱서랍 슬롯 실행"
+        "APP_SHORTCUT_BLOCKED",
+        "APP_SHORTCUT_LAUNCH_FAILED"
       ],
       "known_bad_ids": [
         "KB-005"
       ],
       "acceptance": [
-        "최대 16 슬롯 생성",
-        "활성화된 슬롯이 순정 앱서랍에 표시",
-        "선택 액션 실행",
-        "삭제/전체 초기화"
+        "selected app pin request is accepted by ShortcutManager",
+        "pin-success callback is received after launcher/user acceptance",
+        "pinned icon is visible in BYD launcher",
+        "cold-start shortcut invocation dispatches the captured target package"
       ],
       "required_logs": [
-        "slot assign",
-        "setComponentEnabledSetting result",
-        "launcher refresh evidence"
+        "APP_SHORTCUT_PIN_REQUEST",
+        "APP_SHORTCUT_PIN_CONFIRMED",
+        "APP_SHORTCUT_INVOKED",
+        "APP_SHORTCUT_LAUNCH_DISPATCHED",
+        "package",
+        "shortcut id",
+        "operator icon observation"
       ]
     },
     {
@@ -284,20 +290,30 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
-      "success_any": [],
-      "failure_any": [],
-      "known_bad_ids": [],
+      "required_any": [
+        "APP_SHORTCUT_DISABLED",
+        "APP_SHORTCUT_DISABLE_FAILED"
+      ],
+      "success_any": [
+        "APP_SHORTCUT_DISABLED"
+      ],
+      "failure_any": [
+        "APP_SHORTCUT_DISABLE_FAILED"
+      ],
+      "known_bad_ids": [
+        "KB-005"
+      ],
       "acceptance": [
-        "최대 16 슬롯 생성",
-        "활성화된 슬롯이 순정 앱서랍에 표시",
-        "선택 액션 실행",
-        "삭제/전체 초기화"
+        "user can disable an app-owned pinned shortcut",
+        "disabled shortcut no longer launches the target action",
+        "launcher-visible disabled state/removal behavior is recorded by operator because launcher behavior may vary"
       ],
       "required_logs": [
-        "slot assign",
-        "setComponentEnabledSetting result",
-        "launcher refresh evidence"
+        "APP_SHORTCUT_DISABLED",
+        "APP_SHORTCUT_DISABLE_FAILED",
+        "package",
+        "shortcut id",
+        "operator launcher state observation"
       ]
     },
     {
@@ -467,35 +483,36 @@
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
       "required_any": [
-        "SPLIT_ADB_COMMAND",
-        "SPLIT_READBACK",
-        "readback_verified"
+        "SPLIT_SHORTCUT_REQUEST",
+        "SPLIT_SHORTCUT_PIN_CONFIRMED",
+        "SPLIT_SHORTCUT_INVOKED"
       ],
       "success_any": [
-        "readback_verified=true",
-        "left_primary=true",
-        "right_secondary=true"
+        "SPLIT_SHORTCUT_PIN_CONFIRMED",
+        "captured_left=",
+        "captured_right="
       ],
       "failure_any": [
-        "readback_verified=false",
-        "SPLIT_EXECUTION_FAILED",
-        "2분할 실행에 실패"
+        "SPLIT_SHORTCUT_UNSUPPORTED",
+        "requested=false",
+        "SPLIT_PAIR_INVALID"
       ],
-      "known_bad_ids": [],
+      "known_bad_ids": [
+        "KB-004"
+      ],
       "acceptance": [
-        "두 앱 shell launch success",
-        "left package readback as split primary / windowing mode 3",
-        "right package readback as split secondary / windowing mode 4",
-        "operator visually confirms two-app split",
-        "shell exit alone is never treated as split success"
+        "split pair shortcut request reports requested=true on supported launcher",
+        "pin-success callback is received only after launcher accepts pin",
+        "shortcut invocation carries the captured left/right packages",
+        "shortcut launch proceeds through the same readback-verified split path"
       ],
       "required_logs": [
-        "SPLIT_ADB_COMMAND",
-        "SPLIT_READBACK",
-        "left/right package",
-        "left_primary/right_secondary",
-        "readback_verified",
-        "operator visual result"
+        "SPLIT_SHORTCUT_REQUEST",
+        "SPLIT_SHORTCUT_PIN_CONFIRMED",
+        "SPLIT_SHORTCUT_INVOKED",
+        "shortcut_id",
+        "captured_left/captured_right",
+        "operator launcher icon observation"
       ]
     },
     {
