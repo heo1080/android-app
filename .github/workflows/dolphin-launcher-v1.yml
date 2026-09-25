@@ -282,6 +282,24 @@ jobs:
           assert by_state[("AUTOHOLD_STATE","HELD")]==("autohold_held","오토홀드 체결")
           assert by_state[("AUTOHOLD_STATE","RELEASED")]==("autohold_released","오토홀드 해제")
 
+          monitor=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java").read_text(encoding="utf-8")
+          assert 'Integer.valueOf(1).equals(drive)?"ECO"' in monitor
+          assert ':Integer.valueOf(2).equals(drive)?"SPORT":null;' in monitor
+          assert "normal-correlation-pending" in monitor
+          assert 'listener.onDriveMode("NORMAL")' not in monitor
+          assert 'post(()->listener.onRegen("HIGH"));' in monitor
+          assert "standard-correlation-pending" in monitor
+          assert 'listener.onRegen("STANDARD")' not in monitor
+
+          assert 'Integer.valueOf(2).equals(raw) ? "ON"' in launcher
+          assert 'Integer.valueOf(1).equals(raw) ? "OFF"' in launcher
+          assert 'VehicleVoicePolicy.autoHoldSwitch' not in launcher
+          assert 'VehicleVoicePolicy.autoHoldState' not in launcher
+          assert "AUTOHOLD_RAW_TRANSITION" in launcher
+          assert "AUTOHOLD_SWITCH_RAW_TRANSITION" in launcher
+          assert "voice=suppressed-pending-correlation" in launcher
+          print("VOICE_GATE_OK drive_normal=suppressed regen_standard=suppressed snow_raw=2_ON_1_OFF autohold=suppressed")
+
           with zipfile.ZipFile(sys.argv[2]) as z:
               names=z.namelist()
           missing=[]
