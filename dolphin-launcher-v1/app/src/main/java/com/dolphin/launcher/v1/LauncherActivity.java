@@ -57,6 +57,8 @@ public class LauncherActivity extends Activity {
     private static final String KEY_SPLIT_RIGHT = "split_right";
     private static final String KEY_AUTOSTART_ENABLED = "autostart_enabled";
     private static final String KEY_AUTOSTART_SET = "autostart_set";
+    private static final String EXTRA_SPLIT_LEFT = "split_left_package";
+    private static final String EXTRA_SPLIT_RIGHT = "split_right_package";
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private SharedPreferences prefs;
@@ -132,11 +134,14 @@ public class LauncherActivity extends Activity {
 
     private void handleSplitShortcutIntent(Intent intent) {
         if (intent == null || !"com.dolphin.launcher.v1.LAUNCH_SPLIT_SHORTCUT".equals(intent.getAction())) return;
+        String left = intent.getStringExtra(EXTRA_SPLIT_LEFT);
+        String right = intent.getStringExtra(EXTRA_SPLIT_RIGHT);
         VerificationEvidenceRuntime.recordPassiveEvent(
-                this, "SPLIT_SHORTCUT_INVOKED", "pair=" + splitDescription());
-        // The shortcut is a real launcher entry, but split execution remains gated until
-        // the BYD-compatible authorized shell/windowing bridge is implemented and retested.
-        launchSplitPair();
+                this, "SPLIT_SHORTCUT_INVOKED",
+                "captured_left=" + left + ";captured_right=" + right);
+        // Execute the pair captured when this shortcut was created, not whatever pair
+        // happens to be selected in preferences later.
+        launchSplitPair(left, right);
         intent.setAction(Intent.ACTION_MAIN);
     }
 
@@ -513,10 +518,15 @@ public class LauncherActivity extends Activity {
             return;
         }
         String label = "2분할 · " + splitDescription();
+        String left = prefs.getString(KEY_SPLIT_LEFT, null);
+        String right = prefs.getString(KEY_SPLIT_RIGHT, null);
         Intent launch = new Intent(this, LauncherActivity.class)
                 .setAction("com.dolphin.launcher.v1.LAUNCH_SPLIT_SHORTCUT")
+                .putExtra(EXTRA_SPLIT_LEFT, left)
+                .putExtra(EXTRA_SPLIT_RIGHT, right)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        android.content.pm.ShortcutInfo shortcut = new android.content.pm.ShortcutInfo.Builder(this, "dolphin_split_pair")
+        android.content.pm.ShortcutInfo shortcut = new android.content.pm.ShortcutInfo.Builder(this,
+                        "dolphin_split_pair_" + Integer.toHexString((left + "|" + right).hashCode()))
                 .setShortLabel("2분할")
                 .setLongLabel(label)
                 .setIcon(android.graphics.drawable.Icon.createWithResource(this, getApplicationInfo().icon))
@@ -528,9 +538,12 @@ public class LauncherActivity extends Activity {
     }
 
     private void launchSplitPair() {
-        String left = prefs.getString(KEY_SPLIT_LEFT, null);
-        String right = prefs.getString(KEY_SPLIT_RIGHT, null);
+        launchSplitPair(
+                prefs.getString(KEY_SPLIT_LEFT, null),
+                prefs.getString(KEY_SPLIT_RIGHT, null));
+    }
 
+    private void launchSplitPair(String left, String right) {
         if (!isLaunchable(left) || !isLaunchable(right) || left.equals(right)) {
             Toast.makeText(this, "앱서랍에서 서로 다른 2분할 좌/우 앱을 먼저 지정하세요.", Toast.LENGTH_LONG).show();
             showAppDrawer();
