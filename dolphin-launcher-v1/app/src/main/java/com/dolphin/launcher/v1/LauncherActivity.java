@@ -847,6 +847,24 @@ public class LauncherActivity extends Activity {
                 label.setPadding(dp(12), 0, dp(10), 0);
                 row.addView(label, new LinearLayout.LayoutParams(0, dp(50), 1f));
 
+                Button up = button("↑");
+                up.setOnClickListener(v -> {
+                    if (AutoStartStore.move(prefs, app.packageName, -1)) {
+                        VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_ORDER_CHANGED", "package=" + app.packageName + ";direction=up");
+                        showAutoStartManager();
+                    }
+                });
+                row.addView(up, new LinearLayout.LayoutParams(dp(52), dp(38)));
+
+                Button down = button("↓");
+                down.setOnClickListener(v -> {
+                    if (AutoStartStore.move(prefs, app.packageName, 1)) {
+                        VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_ORDER_CHANGED", "package=" + app.packageName + ";direction=down");
+                        showAutoStartManager();
+                    }
+                });
+                row.addView(down, new LinearLayout.LayoutParams(dp(52), dp(38)));
+
                 Button remove = new Button(this);
                 remove.setText("삭제");
                 remove.setTextColor(Color.WHITE);
