@@ -68,7 +68,7 @@ jobs:
         run: |
           set -euo pipefail
           APK="dolphin-launcher-v1/app/build/outputs/apk/release/app-release-unsigned.apk"
-          for F in verification_registry.json test_log_contracts.json feature_dependencies.json runtime_surfaces.json; do
+          for F in verification_registry.json test_log_contracts.json feature_dependencies.json runtime_surfaces.json voice_prompt_manifest.json; do
             unzip -l "$APK" | grep -q "assets/$F"
           done
           unzip -p "$APK" assets/verification_registry.json > "$RUNNER_TEMP/verification_registry.json"
@@ -89,6 +89,26 @@ jobs:
           AAPT="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
           "$AAPT" dump permissions "$APK" | grep -q "android.permission.INTERNET"
           "$AAPT" dump permissions "$APK" | grep -q "android.permission.REQUEST_INSTALL_PACKAGES"
+          unzip -p "$APK" assets/voice_prompt_manifest.json > "$RUNNER_TEMP/voice_prompt_manifest.json"
+          python3 - "$RUNNER_TEMP/voice_prompt_manifest.json" "$APK" <<'PY'
+          import json, sys, zipfile
+          manifest=json.load(open(sys.argv[1], encoding="utf-8"))
+          assert manifest.get("schema_version")==1
+          prompts=manifest.get("prompts", [])
+          assert len(prompts)==22, len(prompts)
+          ids=[p["id"] for p in prompts]
+          assert len(ids)==len(set(ids)), "duplicate voice prompt id"
+          with zipfile.ZipFile(sys.argv[2]) as z:
+              names=z.namelist()
+          missing=[]
+          for p in prompts:
+              resource=p["resource"]
+              if not any(n.startswith("res/raw/") and ("/"+resource+".") in ("/"+n) for n in names):
+                  missing.append(resource)
+          print("VOICE_MANIFEST_OK prompts=22 fixed_assets_present=%d missing=%d" % (22-len(missing), len(missing)))
+          if missing:
+              print("VOICE_FIXED_ASSETS_PENDING=" + ",".join(missing))
+          PY
 
       - name: Restore stable signing key
         shell: bash
@@ -135,7 +155,7 @@ jobs:
           retention-days: 30
 
       - name: Publish V1 OTA prerelease
-        if: github.event_name == 'push' && github.ref == 'refs/heads/dolphin-launcher-v1'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dolphin-launcher-v1' && vars.V1_RELEASE_READY == 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
