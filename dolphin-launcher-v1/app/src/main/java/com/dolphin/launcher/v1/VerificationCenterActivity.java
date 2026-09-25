@@ -21,6 +21,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class VerificationCenterActivity extends Activity {
@@ -272,12 +273,74 @@ public class VerificationCenterActivity extends Activity {
 
         new AlertDialog.Builder(this)
                 .setTitle(testId + " · " + state)
-                .setMessage(feature.optString("requirement", "")
-                        + "\n\n실차 조작 전에 캡처를 시작하고, 실제 표시가 바뀌는 순간 아래 마커를 누르세요.")
+                .setMessage(captureGuide(testId, feature))
                 .setPositiveButton("실차 캡처 시작", (dialog, which) ->
                         startLiveCapture(testId, state, feature))
                 .setNegativeButton("취소", null)
                 .show();
+    }
+
+    private String captureGuide(String testId, JSONObject feature) {
+        StringBuilder out = new StringBuilder();
+        out.append(feature.optString("requirement", ""));
+        JSONArray steps = feature.optJSONArray("real_vehicle_test");
+        if (steps != null && steps.length() > 0) {
+            out.append("\n\n실차 절차");
+            for (int i = 0; i < steps.length(); i++) {
+                out.append("\n").append(i + 1).append(". ").append(steps.optString(i));
+            }
+        }
+        out.append("\n\n마커는 같은 상태를 최소 3회 기록하고, 가능하면 별도 시동/진단 세션에서 다시 반복하세요.");
+        out.append("\n주행 중 필요한 테스트는 운전자가 화면을 조작하지 말고 동승자 또는 안전한 시험 환경에서 기록하세요.");
+        out.append("\n마커 자체는 PASS가 아니며 raw 상관 후보만 만듭니다.");
+        return out.toString();
+    }
+
+    private String markerProgressText(Map<String,Integer> counts) {
+        StringBuilder out = new StringBuilder("마커 진행");
+        if ("AUD-GEAR-001".equals(activeTestId)) {
+            progress(out, counts, "P", "GEAR_P_VISIBLE");
+            progress(out, counts, "R", "GEAR_R_VISIBLE");
+            progress(out, counts, "N", "GEAR_N_VISIBLE");
+            progress(out, counts, "D", "GEAR_D_VISIBLE");
+        } else if ("AUD-DRV-002".equals(activeTestId)) {
+            progress(out, counts, "NORMAL", "OEM_NORMAL_VISIBLE");
+        } else if ("AUD-REG-002".equals(activeTestId)) {
+            progress(out, counts, "STANDARD", "OEM_STANDARD_VISIBLE");
+        } else if ("AUD-SNOW-001".equals(activeTestId)) {
+            progress(out, counts, "Snow ON", "SNOW_ON_VISIBLE");
+        } else if ("AUD-SNOW-002".equals(activeTestId)) {
+            progress(out, counts, "Snow OFF", "SNOW_OFF_VISIBLE");
+        } else if ("AUD-AVH-001".equals(activeTestId)) {
+            progress(out, counts, "버튼 ON", "AUTOHOLD_SWITCH_ON_VISIBLE");
+            progress(out, counts, "버튼 OFF", "AUTOHOLD_SWITCH_OFF_VISIBLE");
+        } else if ("AUD-AVH-002".equals(activeTestId)) {
+            progress(out, counts, "체결", "AUTOHOLD_HELD_VISIBLE");
+            progress(out, counts, "해제", "AUTOHOLD_RELEASE_VISIBLE");
+        } else if ("AUD-EPB-001".equals(activeTestId)) {
+            progress(out, counts, "EPB 체결", "EPB_HELD_VISIBLE");
+            progress(out, counts, "EPB 해제", "EPB_RELEASED_VISIBLE");
+        } else if ("AUD-ICC-001".equals(activeTestId)) {
+            progress(out, counts, "ICC ON", "ICC_ON_VISIBLE");
+            progress(out, counts, "ICC OFF", "ICC_OFF_VISIBLE");
+        } else if ("AUD-BSD-001".equals(activeTestId)) {
+            progress(out, counts, "좌", "BSD_LEFT_CONTEXT_VISIBLE");
+            progress(out, counts, "우", "BSD_RIGHT_CONTEXT_VISIBLE");
+        } else if ("AUD-LVDA-001".equals(activeTestId)) {
+            progress(out, counts, "전방차 출발", "LEADING_CAR_DEPARTURE_VISIBLE");
+        } else {
+            out.append(" · 시점 ").append(counts.containsKey("OPERATOR_MARK")
+                    ? counts.get("OPERATOR_MARK") : 0);
+        }
+        return out.toString();
+    }
+
+    private void progress(StringBuilder out, Map<String,Integer> counts,
+                          String label, String marker) {
+        int count = counts.containsKey(marker) ? counts.get(marker) : 0;
+        out.append(" · ").append(label).append(" ")
+                .append(Math.min(count, 3)).append("/3");
+        if (count > 3) out.append("+");
     }
 
     private void startLiveCapture(String testId, String state, JSONObject feature) {
@@ -326,8 +389,16 @@ public class VerificationCenterActivity extends Activity {
         }
 
         activeCapturePanel.setVisibility(View.VISIBLE);
+        Map<String,Integer> counts = VerificationEvidenceRuntime.operatorObservationCounts(
+                this, activeCorrelationId);
+        long ageMs = VerificationEvidenceRuntime.activeTestAgeMs(this);
+        long ageSeconds = ageMs == Long.MAX_VALUE ? -1L : ageMs / 1000L;
+        String age = ageSeconds < 0 ? "--:--"
+                : String.format(java.util.Locale.US, "%02d:%02d", ageSeconds / 60L, ageSeconds % 60L);
         activeCaptureStatus.setText("실차 캡처 진행 중 · " + activeTestId
-                + "\nraw 변화와 운전자 관찰 마커를 같은 시간축으로 기록합니다.");
+                + " · " + age
+                + "\n" + markerProgressText(counts)
+                + "\n주행 중 필요한 항목은 운전자가 화면을 누르지 말고 동승자가 기록하세요.");
         activeCaptureActions.removeAllViews();
 
         LinearLayout markerRow = new LinearLayout(this);
@@ -396,6 +467,7 @@ public class VerificationCenterActivity extends Activity {
                 this, activeTestId, activeCorrelationId, observation,
                 "Verification Center live correlation marker");
         refreshLedger();
+        refreshActiveCaptureUi();
         Toast.makeText(this, "관찰 마커 기록: " + observation,
                 Toast.LENGTH_SHORT).show();
     }
