@@ -56,6 +56,10 @@ public final class VehiclePromptPlayer {
                 VerificationEvidenceRuntime.recordPassiveEvent(app,"VOICE_TTS_INIT_FAILED","status="+status);
                 return;
             }
+            int audioAttrResult=tts.setAudioAttributes(attrs);
+            VerificationEvidenceRuntime.recordPassiveEvent(app,"VOICE_TTS_AUDIO_ATTRIBUTES",
+                    "usage=navigation_guidance;content=speech;result="+audioAttrResult
+                            +";driver_speaker_route=not_proven");
             int lang=tts.setLanguage(Locale.KOREAN);
             ttsReady=lang!=TextToSpeech.LANG_MISSING_DATA && lang!=TextToSpeech.LANG_NOT_SUPPORTED;
             VerificationEvidenceRuntime.recordPassiveEvent(app,
