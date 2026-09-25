@@ -22,10 +22,11 @@ public class BootReceiver extends BroadcastReceiver {
         Context app = context.getApplicationContext();
         app.getSharedPreferences(LauncherActivity.PREFS, Context.MODE_PRIVATE)
                 .edit()
-                .putBoolean(LauncherActivity.KEY_PENDING_AUTOSTART, true)
+                .putBoolean(LauncherActivity.KEY_PENDING_AUTOSTART, false)
                 .apply();
         VerificationEvidenceRuntime.ensureProcessSession(app, "vehicle-boot");
-        VerificationEvidenceRuntime.recordPassiveEvent(app, "BOOT_COMPLETED", action);\n        BootAutoLaunchRuntime.dispatch(app);
+        VerificationEvidenceRuntime.recordPassiveEvent(app, "BOOT_COMPLETED", action);
+        BootAutoLaunchRuntime.dispatch(app);
 
         PendingResult pending = goAsync();
         VerificationEvidenceRuntime.retryPendingUploadsAsync(app, () -> {
