@@ -64,6 +64,14 @@ public final class VerificationEvidenceRuntime {
         return registry;
     }
 
+    public static JSONObject loadTestContracts(Context context) throws Exception {
+        JSONObject contracts = new JSONObject(readAsset(context, "test_log_contracts.json"));
+        if (contracts.optInt("schema_version", -1) != 1) {
+            throw new IllegalStateException("Test contract schema must be 1");
+        }
+        return contracts;
+    }
+
     public static synchronized String beginSession(Context context, String reason) {
         String session = UUID.randomUUID().toString();
         prefs(context).edit().putString(KEY_SESSION, session).apply();
