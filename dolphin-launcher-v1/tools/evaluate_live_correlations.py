@@ -10,7 +10,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-import tempfile
 import zipfile
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -49,6 +48,10 @@ def parse_kv(text: str) -> Dict[str, str]:
             continue
         key, value = part.split("=", 1)
         out[key.strip()] = value.strip()
+    nested = out.get("latest_raw")
+    if nested and "=" in nested:
+        key, value = nested.split("=", 1)
+        out.setdefault(key.strip(), value.strip())
     return out
 
 
