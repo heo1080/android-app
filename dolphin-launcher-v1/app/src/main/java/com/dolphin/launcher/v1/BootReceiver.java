@@ -25,7 +25,7 @@ public class BootReceiver extends BroadcastReceiver {
                 .putBoolean(LauncherActivity.KEY_PENDING_AUTOSTART, true)
                 .apply();
         VerificationEvidenceRuntime.ensureProcessSession(app, "vehicle-boot");
-        VerificationEvidenceRuntime.recordPassiveEvent(app, "BOOT_COMPLETED", action);
+        VerificationEvidenceRuntime.recordPassiveEvent(app, "BOOT_COMPLETED", action);\n        BootAutoLaunchRuntime.dispatch(app);
 
         PendingResult pending = goAsync();
         VerificationEvidenceRuntime.retryPendingUploadsAsync(app, () -> {
