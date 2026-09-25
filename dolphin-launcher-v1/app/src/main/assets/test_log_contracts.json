@@ -2088,6 +2088,96 @@
         "capability source",
         "physical/audible verification"
       ]
+    },
+    {
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "known_bad_ids": [],
+      "test_id": "MED-BG-001",
+      "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
+      "required_any": [
+        "AUTOSTART_MEDIA_CHANGED",
+        "BACKGROUND_MEDIA_APP_DISPATCHED",
+        "BACKGROUND_MEDIA_PLAY_REQUESTED"
+      ],
+      "success_any": [
+        "target app audible playback verified"
+      ],
+      "failure_any": [
+        "BACKGROUND_MEDIA_PLAY_FAILED",
+        "wrong media session playback"
+      ],
+      "acceptance": [
+        "configured target media app launches after configured delay",
+        "PLAY request is not treated as playback success"
+      ],
+      "required_logs": [
+        "package",
+        "delay_ms",
+        "BACKGROUND_MEDIA_APP_DISPATCHED",
+        "BACKGROUND_MEDIA_PLAY_REQUESTED"
+      ]
+    },
+    {
+      "feature_state": "REVERIFY_REQUIRED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "known_bad_ids": [],
+      "test_id": "MED-BG-002",
+      "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
+      "required_any": [
+        "BACKGROUND_MEDIA_PLAY_REQUESTED",
+        "OPERATOR_RESULT"
+      ],
+      "success_any": [
+        "stock safety warning unaffected",
+        "non-target media unaffected"
+      ],
+      "failure_any": [
+        "safety warning suppressed",
+        "non-target session hijacked"
+      ],
+      "acceptance": [
+        "real-car audible target playback confirmed",
+        "stock safety audio remains functional"
+      ],
+      "required_logs": [
+        "target package",
+        "audible playback observation",
+        "safety warning observation",
+        "non-target media observation"
+      ]
     }
   ]
 }
