@@ -427,7 +427,11 @@
         "VOICE_TTS_DONE",
         "VOICE_TTS_STOPPED",
         "VOICE_TTS_ERROR",
-        "request_to_start_ms"
+        "request_to_start_ms",
+        "setAudioAttributes",
+        "USAGE_ASSISTANCE_NAVIGATION_GUIDANCE",
+        "VOICE_TTS_AUDIO_ATTRIBUTES",
+        "driver_speaker_route=not_proven"
       ]
     },
     {
