@@ -79,6 +79,25 @@ jobs:
           assert len(ids)==52, len(ids)
           print("REGISTRY_OK schema=3 features=35 test_ids=52")
           PY
+          unzip -p "$APK" assets/test_log_contracts.json > "$RUNNER_TEMP/test_log_contracts.json"
+          python3 - "$RUNNER_TEMP/verification_registry.json" "$RUNNER_TEMP/test_log_contracts.json" <<'PY'
+          import json, sys
+          reg=json.load(open(sys.argv[1], encoding="utf-8"))
+          contracts=json.load(open(sys.argv[2], encoding="utf-8")).get("contracts", [])
+          registry_tests={}
+          for feature in reg.get("features", []):
+              for test_id in feature.get("test_ids", []):
+                  assert test_id not in registry_tests, ("duplicate registry Test ID", test_id)
+                  registry_tests[test_id]=feature["feature_id"]
+          contract_tests={}
+          for row in contracts:
+              test_id=row["test_id"]
+              assert test_id not in contract_tests, ("duplicate evidence contract", test_id)
+              contract_tests[test_id]=row["feature_id"]
+          assert registry_tests == contract_tests, ("registry/contract drift", sorted(set(registry_tests)-set(contract_tests)), sorted(set(contract_tests)-set(registry_tests)))
+          assert all(registry_tests[t]==contract_tests[t] for t in registry_tests), "Test ID feature linkage drift"
+          print(f"EVIDENCE_CONTRACTS_OK tests={len(registry_tests)}")
+          PY
           unzip -p "$APK" assets/runtime_surfaces.json > "$RUNNER_TEMP/runtime_surfaces.json"
           python3 - "$RUNNER_TEMP/runtime_surfaces.json" <<'PY'
           import json, pathlib, sys
