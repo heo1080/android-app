@@ -166,7 +166,18 @@ jobs:
                   if str(signal).startswith("observation="):
                       marker_success.append((contract["test_id"],signal))
           assert not marker_success, ("operator marker cannot be automatic success evidence",marker_success)
-          print("TEST_CONTRACT_STATE_OK contracts=%d operator_marker_success=0" % len(seen))
+
+          by_test={c["test_id"]:c for c in contracts.get("contracts", [])}
+          for test_id in ("COMF-LIGHT-001","COMF-LIGHT-002"):
+              assert by_test[test_id]["allowed_outcomes"]==["NEED_MORE_DATA"], (
+                  "interior light must remain fail-closed until V1 runtime exists",test_id,
+                  by_test[test_id]["allowed_outcomes"]
+              )
+          activity=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java").read_text(encoding="utf-8")
+          evidence_runtime=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java").read_text(encoding="utf-8")
+          assert "allowedOutcomesForTest" in activity and "loadTestContracts" in evidence_runtime
+          assert "showP0Queue" in activity and "loadKnownBadRegistry" in evidence_runtime
+          print("TEST_CONTRACT_STATE_OK contracts=%d operator_marker_success=0 interior_light_fail_closed=true p0_queue=true" % len(seen))
           PY
           unzip -p "$APK" assets/runtime_surfaces.json > "$RUNNER_TEMP/runtime_surfaces.json"
           python3 - "$RUNNER_TEMP/verification_registry.json" "$RUNNER_TEMP/runtime_surfaces.json" <<'PY'
