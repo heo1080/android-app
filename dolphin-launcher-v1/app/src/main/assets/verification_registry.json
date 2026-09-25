@@ -238,7 +238,8 @@
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootReceiver.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchRuntime.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchRuntime.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AutoStartStore.java"
       ],
       "test_ids": [
         "LCH-BOOT-001",
@@ -248,7 +249,8 @@
       "acceptance": [
         "자동실행 관리에 + 앱 추가 버튼 존재",
         "2개 이상 앱 등록 가능",
-        "BOOT_COMPLETED에서 등록 앱 순차 dispatch",
+        "등록 순서를 재부팅 후에도 보존",
+        "BOOT_COMPLETED에서 등록 순서대로 순차 dispatch",
         "LauncherActivity 진입으로 동일 boot dispatch를 중복 실행하지 않음"
       ],
       "required_logs": [
@@ -273,6 +275,7 @@
       ],
       "evidence": [
         "LauncherActivity showAutoStartAppPicker",
+        "AutoStartStore ordered v2 persistence and legacy migration",
         "BootReceiver BootAutoLaunchRuntime.dispatch",
         "BootAutoLaunchRuntime delayed multi-app loop"
       ],
