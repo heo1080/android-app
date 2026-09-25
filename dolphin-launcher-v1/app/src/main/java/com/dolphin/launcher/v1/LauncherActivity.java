@@ -64,6 +64,12 @@ public class LauncherActivity extends Activity {
     private TextView timeView;
     private TextView splitChip;
     private List<AppEntry> apps = new ArrayList<>();
+    private VehicleReadOnlyMonitor vehicleMonitor;
+    private final VehicleVoicePolicy.Output vehicleVoiceOutput = (promptId, phrase) -> {
+        // Fixed female prompt assets/SoundPool are the target output. Until owned assets are bundled,
+        // never fall back to unreliable raw TTS or pretend playback succeeded.
+        VerificationEvidenceRuntime.recordPassiveEvent(this, "VOICE_PROMPT_PENDING_AUDIO", promptId + " phrase=" + phrase);
+    };
 
     private final Runnable clockTick = new Runnable() {
         @Override
@@ -103,6 +109,7 @@ public class LauncherActivity extends Activity {
         VerificationEvidenceRuntime.startAutomaticUploadRuntime(this);
         VerificationEvidenceRuntime.recordPassiveEvent(this, "APP_LAUNCH", "LauncherActivity created");
         VerificationEvidenceRuntime.retryPendingUploadsAsync(this);
+        startVehicleReadOnlyRuntime();
         handler.postDelayed(() -> {
             VerificationEvidenceRuntime.queueBundleAndUpload(this, "startup-snapshot");
             AppUpdateManager.checkForUpdates(this, false);
@@ -124,6 +131,38 @@ public class LauncherActivity extends Activity {
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(clockTick);
+    }
+
+    private void startVehicleReadOnlyRuntime() {
+        if (vehicleMonitor != null) return;
+        vehicleMonitor = new VehicleReadOnlyMonitor(this, new VehicleReadOnlyMonitor.Listener() {
+            @Override public void onGear(String value) {
+                VehicleVoicePolicy.gear(LauncherActivity.this, vehicleVoiceOutput, value);
+            }
+            @Override public void onDriveMode(String value) {
+                VehicleVoicePolicy.driveMode(LauncherActivity.this, vehicleVoiceOutput, value);
+            }
+            @Override public void onRegen(String value) {
+                VehicleVoicePolicy.regen(LauncherActivity.this, vehicleVoiceOutput, value);
+            }
+            @Override public void onEpb(boolean held) {
+                VehicleVoicePolicy.epb(LauncherActivity.this, vehicleVoiceOutput, held);
+            }
+            @Override public void onRaw(String signal, Integer raw) {
+                // AVH/BSD and other not-yet-normalized signals remain evidence-only.
+            }
+        });
+        vehicleMonitor.start();
+        VerificationEvidenceRuntime.recordPassiveEvent(this, "VEHICLE_MONITOR", "read-only runtime started");
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (vehicleMonitor != null) {
+            vehicleMonitor.stop();
+            vehicleMonitor = null;
+        }
+        super.onDestroy();
     }
 
     @Override
