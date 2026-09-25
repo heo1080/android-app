@@ -65,6 +65,9 @@ public final class VehicleReadOnlyMonitor {
         running=true;
         new Thread(() -> {
             captureGearboxConstants();
+            captureStateConstants(ADAS,"ADAS_RUNTIME_CONSTANT",new String[]{"AVH","AUTOHOLD","BSD"});
+            captureStateConstants(SETTING,"SETTING_RUNTIME_CONSTANT",new String[]{"AVH","AUTOHOLD"});
+            captureStateConstants(ENERGY,"ENERGY_RUNTIME_CONSTANT",new String[]{"SNOW","ROAD","SURFACE"});
             loop();
         },"V1-VehicleRead").start();
     }
@@ -198,6 +201,30 @@ public final class VehicleReadOnlyMonitor {
             return false;
         }
         return !old.equals(value);
+    }
+
+    private void captureStateConstants(String className,String event,String[] filters){
+        try {
+            Class<?> clazz=Class.forName(className);
+            int count=0;
+            for(Field field:clazz.getFields()){
+                int mods=field.getModifiers();
+                if(!Modifier.isStatic(mods) || field.getType()!=int.class) continue;
+                String name=field.getName();
+                String upper=name.toUpperCase();
+                boolean matched=false;
+                for(String filter:filters) if(upper.contains(filter)){matched=true;break;}
+                if(!matched) continue;
+                int value=field.getInt(null);
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        app,event,"name="+name+";value="+value+";source=reflection;voice=suppressed");
+                count++;
+            }
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    app,event+"_SCAN","count="+count+";class="+className+";voice=suppressed");
+        } catch(Throwable t){
+            once("constant.scan:"+className,t);
+        }
     }
 
     private void captureGearboxConstants(){
