@@ -32,6 +32,7 @@ public final class VehicleReadOnlyMonitor {
         void onRegen(String value);
         void onEpb(boolean held);
         void onAvhRaw(Integer raw);
+        void onAvhSwitchRaw(Integer raw);
         void onBsdRaw(Integer raw);
         void onTurnRaw(Integer leftRaw, Integer rightRaw);
         void onSnowRaw(Integer raw);
@@ -142,8 +143,13 @@ public final class VehicleReadOnlyMonitor {
 
         // Semantics still require physical-control correlation. Expose transitions to
         // the listener as raw evidence only; do not map them to spoken ON/OFF/side yet.
+        // Keep the AVH hold state and the user-facing AutoHold switch candidate
+        // separate. The real car previously produced delayed/paired speech when these
+        // concepts were conflated; collect both timelines before mapping semantics.
         Integer avh=read(ADAS,"getAVHState");
         if(changed("adas.avh",avh)) post(()->listener.onAvhRaw(avh));
+        Integer avhSwitch=read(SETTING,"getAVHEnable");
+        if(changed("setting.avhEnable",avhSwitch)) post(()->listener.onAvhSwitchRaw(avhSwitch));
         Integer bsd=read(ADAS,"getBSDState");
         if(changed("adas.bsd",bsd)) post(()->listener.onBsdRaw(bsd));
 
