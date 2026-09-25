@@ -79,6 +79,24 @@ jobs:
           assert len(ids)==52, len(ids)
           print("REGISTRY_OK schema=3 features=35 test_ids=52")
           PY
+          unzip -p "$APK" assets/feature_dependencies.json > "$RUNNER_TEMP/feature_dependencies.json"
+          python3 - "$RUNNER_TEMP/verification_registry.json" "$RUNNER_TEMP/feature_dependencies.json" <<'PY'
+          import json, sys
+          reg=json.load(open(sys.argv[1], encoding="utf-8"))
+          dep=json.load(open(sys.argv[2], encoding="utf-8"))
+          assert dep.get("schema_version")==1
+          ids={f["feature_id"] for f in reg.get("features", [])}
+          edges=dep.get("edges", [])
+          pairs=set()
+          for e in edges:
+              pair=(e["feature_id"],e["depends_on"])
+              assert pair not in pairs, ("duplicate dependency", pair)
+              pairs.add(pair)
+              assert e["feature_id"] in ids, ("unknown dependent feature", e["feature_id"])
+              assert e["depends_on"] in ids, ("unknown dependency feature", e["depends_on"])
+              assert e["feature_id"] != e["depends_on"], ("self dependency", e["feature_id"])
+          print(f"FEATURE_DEPENDENCIES_OK edges={len(edges)}")
+          PY
           unzip -p "$APK" assets/test_log_contracts.json > "$RUNNER_TEMP/test_log_contracts.json"
           python3 - "$RUNNER_TEMP/verification_registry.json" "$RUNNER_TEMP/test_log_contracts.json" <<'PY'
           import json, sys
