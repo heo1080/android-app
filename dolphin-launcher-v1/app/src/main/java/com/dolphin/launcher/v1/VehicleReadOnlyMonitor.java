@@ -65,9 +65,10 @@ public final class VehicleReadOnlyMonitor {
         running=true;
         new Thread(() -> {
             captureGearboxConstants();
-            captureStateConstants(ADAS,"ADAS_RUNTIME_CONSTANT",new String[]{"AVH","AUTOHOLD","BSD","TJA","ICC","ACC"});
+            captureStateConstants(ADAS,"ADAS_RUNTIME_CONSTANT",new String[]{"AVH","AUTOHOLD","BSD","TJA","ICC","ACC","LEAD","FRONT","VEHICLE","OBJECT"});
             captureStateConstants(SETTING,"SETTING_RUNTIME_CONSTANT",new String[]{"AVH","AUTOHOLD"});
             captureStateConstants(ENERGY,"ENERGY_RUNTIME_CONSTANT",new String[]{"SNOW","ROAD","SURFACE"});
+            captureStateConstants(RADAR,"RADAR_RUNTIME_CONSTANT",new String[]{"FRONT","AREA","OBJECT","DISTANCE","VEHICLE"});
             loop();
         },"V1-VehicleRead").start();
     }
