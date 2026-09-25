@@ -478,6 +478,8 @@
       "state": "REVERIFY_REQUIRED",
       "acceptance": [
         "voice_prompt_manifest의 모든 고정 음성 자산 존재 및 preload 성공",
+        "22개 event/value/id/phrase semantic contract가 VehicleVoicePolicy와 1:1 일치",
+        "Launcher preload는 VehicleVoicePolicy prompt catalog를 단일 원천으로 사용",
         "고정 자산 재생은 SoundPool 요청과 실차 가청 결과를 구분 기록",
         "자산 누락 시 TTS fallback 사용 가능하지만 여성 음성 보장 표시 금지",
         "과거 지연 TTS가 후속 비프/오디오 뒤 늦게 재생되지 않음"
@@ -508,9 +510,10 @@
       ],
       "evidence": [
         "VehiclePromptPlayer fixed-asset-first source",
-        "voice_prompt_manifest schema 1"
+        "voice_prompt_manifest schema 1 with 22 semantic pairs",
+        "CI VOICE_CONTRACT_OK validates policy/manifest/preload drift"
       ],
-      "next_action": "manifest의 22개 한국어 여성 고정 음성 자산 공급 후 APK asset presence CI와 실차 latency 검증",
+      "next_action": "22개 한국어 여성 고정 음성 자산 공급 전까지 fallback 상태를 명시하고, 자산 공급 후 APK asset presence·실차 audible latency·queue 회귀를 AUD-TTS-001/002로 재검증",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
