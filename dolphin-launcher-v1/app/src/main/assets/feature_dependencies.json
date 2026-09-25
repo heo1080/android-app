@@ -73,6 +73,10 @@
     {
       "feature_id": "AUDIO_SOUND_POSITION",
       "depends_on": "PER_APP_DRIVER_SPEAKER_ROUTING"
+    },
+    {
+      "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
+      "depends_on": "BOOT_MULTI_APP_AUTOLAUNCH"
     }
   ]
 }
