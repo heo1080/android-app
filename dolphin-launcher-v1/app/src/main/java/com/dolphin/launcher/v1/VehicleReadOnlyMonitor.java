@@ -5,7 +5,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -61,7 +63,10 @@ public final class VehicleReadOnlyMonitor {
     public synchronized void start() {
         if(running)return;
         running=true;
-        new Thread(this::loop,"V1-VehicleRead").start();
+        new Thread(() -> {
+            captureGearboxConstants();
+            loop();
+        },"V1-VehicleRead").start();
     }
 
     public synchronized void stop(){running=false;}
@@ -193,6 +198,30 @@ public final class VehicleReadOnlyMonitor {
             return false;
         }
         return !old.equals(value);
+    }
+
+    private void captureGearboxConstants(){
+        try {
+            Class<?> clazz=Class.forName(GEARBOX);
+            int count=0;
+            for(Field field:clazz.getFields()){
+                int mods=field.getModifiers();
+                if(!Modifier.isStatic(mods) || field.getType()!=int.class) continue;
+                String name=field.getName();
+                String upper=name.toUpperCase();
+                if(!(upper.contains("GEAR") || upper.contains("EPB") || upper.contains("PARK"))) continue;
+                int value=field.getInt(null);
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        app,"GEARBOX_RUNTIME_CONSTANT",
+                        "name="+name+";value="+value+";source=reflection;voice=suppressed");
+                count++;
+            }
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    app,"GEARBOX_RUNTIME_CONSTANT_SCAN",
+                    "count="+count+";class="+GEARBOX+";voice=suppressed");
+        } catch(Throwable t){
+            once("gearbox.constant.scan",t);
+        }
     }
 
     private int staticInt(String className,String fieldName,int fallback){
