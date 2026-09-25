@@ -16,6 +16,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: dolphin-launcher-v1-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-launcher:
     runs-on: ubuntu-latest
@@ -23,6 +27,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Validate V1 CI policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q '^concurrency:' .github/workflows/dolphin-launcher-v1.yml
+          grep -q 'cancel-in-progress: true' .github/workflows/dolphin-launcher-v1.yml
+          grep -q 'group: dolphin-launcher-v1-' .github/workflows/dolphin-launcher-v1.yml
+          echo "V1_CI_POLICY_OK stale_runs_cancelled=true"
 
       - name: JDK 17
         uses: actions/setup-java@v4
