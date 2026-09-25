@@ -70,11 +70,23 @@ jobs:
           set -euo pipefail
           APK="dolphin-launcher-v1/app/build/outputs/apk/release/app-release-unsigned.apk"
           AAPT="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
-          BADGING="$("$AAPT" dump badging "$APK" | head -n 1)"
+          BADGING_ALL="$("$AAPT" dump badging "$APK")"
+          BADGING="$(printf '%s\n' "$BADGING_ALL" | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -q "package: name='com.dolphin.launcher.v1'"
           echo "$BADGING" | grep -q "versionCode='5'"
           echo "$BADGING" | grep -q "versionName='1.2.2-v1-auto-evidence-beta'"
+          printf '%s\n' "$BADGING_ALL" | grep -q "^sdkVersion:'29'$"
+          printf '%s\n' "$BADGING_ALL" | grep -q "^targetSdkVersion:'35'$"
+          test "$(printf '%s\n' "$BADGING_ALL" | grep -c "^launchable-activity:")" -eq 1
+          printf '%s\n' "$BADGING_ALL" | grep -q "^launchable-activity: name='com.dolphin.launcher.v1.LauncherActivity'"
+          MANIFEST_TREE="$("$AAPT" dump xmltree "$APK" AndroidManifest.xml)"
+          printf '%s\n' "$MANIFEST_TREE" | grep -q "android.intent.category.LAUNCHER"
+          if printf '%s\n' "$MANIFEST_TREE" | grep -q "android.intent.category.HOME"; then
+            echo "HOME category must remain disabled until BYD real-car compatibility is proven" >&2
+            exit 1
+          fi
+          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=5 minSdk=29 targetSdk=35 launchable=1 home=0"
 
       - name: Validate Registry v3 payload
         shell: bash
