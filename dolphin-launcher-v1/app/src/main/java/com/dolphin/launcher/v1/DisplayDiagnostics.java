@@ -66,6 +66,20 @@ public final class DisplayDiagnostics {
         }
     }
 
+    public static void captureNotificationAccess(Activity activity){
+        try{
+            String enabled=Settings.Secure.getString(activity.getContentResolver(),"enabled_notification_listeners");
+            boolean granted=enabled!=null && enabled.contains(activity.getPackageName());
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    activity,"NAV_NOTIFICATION_ACCESS",
+                    "granted="+granted+";mode=read-only");
+        }catch(Throwable t){
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    activity,"NAV_NOTIFICATION_ACCESS_ERROR",
+                    "type="+t.getClass().getSimpleName()+";mode=read-only");
+        }
+    }
+
     public static void captureDisplayInventory(Activity activity){
         try{
             DisplayManager dm=(DisplayManager)activity.getSystemService(Context.DISPLAY_SERVICE);
