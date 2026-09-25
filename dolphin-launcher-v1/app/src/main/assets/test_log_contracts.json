@@ -1951,6 +1951,135 @@
         "source commit",
         "diagnostic session id"
       ]
+    },
+    {
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "known_bad_ids": [],
+      "test_id": "AUD-EQ-001",
+      "feature_id": "AUDIO_EQUALIZER",
+      "required_any": [
+        "bass",
+        "mid",
+        "treble",
+        "target"
+      ],
+      "success_any": [
+        "app-owned audio EQ change"
+      ],
+      "failure_any": [
+        "no audible change",
+        "unexpected vehicle DSP write"
+      ],
+      "acceptance": [
+        "3-band app-owned EQ operates without unverified BYD DSP write"
+      ],
+      "required_logs": [
+        "band values",
+        "target",
+        "write attempted"
+      ]
+    },
+    {
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "known_bad_ids": [],
+      "test_id": "AUD-EQ-002",
+      "feature_id": "AUDIO_EQUALIZER",
+      "required_any": [
+        "reset",
+        "bass",
+        "mid",
+        "treble"
+      ],
+      "success_any": [
+        "neutral reset"
+      ],
+      "failure_any": [
+        "stale band value"
+      ],
+      "acceptance": [
+        "reset returns all app-owned bands to neutral"
+      ],
+      "required_logs": [
+        "before values",
+        "after values",
+        "reset"
+      ]
+    },
+    {
+      "feature_state": "BETA",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "PASS",
+        "FAIL",
+        "INTERMITTENT",
+        "DELAYED",
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 2,
+      "known_bad_ids": [],
+      "test_id": "AUD-POS-001",
+      "feature_id": "AUDIO_SOUND_POSITION",
+      "required_any": [
+        "requested position",
+        "target",
+        "write attempted"
+      ],
+      "success_any": [
+        "audible position verified"
+      ],
+      "failure_any": [
+        "unverified vehicle routing write"
+      ],
+      "acceptance": [
+        "sound-position UX never implies verified BYD routing without audible evidence"
+      ],
+      "required_logs": [
+        "requested position",
+        "capability source",
+        "physical/audible verification"
+      ]
     }
   ]
 }
