@@ -836,18 +836,38 @@ public class LauncherActivity extends Activity {
                 final int appOrderIndex = order - 1;
                 final long delayMs = AutoStartStore.delayMs(prefs, app.packageName, appOrderIndex);
                 final int delay = (int) Math.round(delayMs / 1000.0);
-                LinearLayout row = new LinearLayout(this);
-                row.setOrientation(LinearLayout.HORIZONTAL);
-                row.setGravity(Gravity.CENTER_VERTICAL);
+                LinearLayout card = new LinearLayout(this);
+                card.setOrientation(LinearLayout.VERTICAL);
+                card.setPadding(dp(12), dp(8), dp(12), dp(8));
+                card.setBackground(round("#101D24", 16, "#294451"));
+
+                LinearLayout infoRow = new LinearLayout(this);
+                infoRow.setOrientation(LinearLayout.HORIZONTAL);
+                infoRow.setGravity(Gravity.CENTER_VERTICAL);
 
                 ImageView icon = new ImageView(this);
                 icon.setImageDrawable(app.icon);
-                row.addView(icon, new LinearLayout.LayoutParams(dp(40), dp(40)));
+                infoRow.addView(icon, new LinearLayout.LayoutParams(dp(40), dp(40)));
 
-                TextView label = text(app.label + "   +" + delay + "초",
-                        14f, Color.WHITE, false);
-                label.setPadding(dp(12), 0, dp(10), 0);
-                row.addView(label, new LinearLayout.LayoutParams(0, dp(50), 1f));
+                TextView label = text(order + ". " + app.label + "   ·   지연 " + delay + "초",
+                        14f, Color.WHITE, true);
+                label.setPadding(dp(12), 0, dp(8), 0);
+                infoRow.addView(label, new LinearLayout.LayoutParams(0, dp(48), 1f));
+
+                Switch media = new Switch(this);
+                media.setText("미디어 재생");
+                media.setTextColor(Color.WHITE);
+                media.setChecked(AutoStartStore.mediaEnabled(prefs, app.packageName));
+                media.setOnCheckedChangeListener((b, checked) -> {
+                    AutoStartStore.setMediaEnabled(prefs, app.packageName, checked);
+                    VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_MEDIA_CHANGED", "package=" + app.packageName + ";enabled=" + checked);
+                });
+                infoRow.addView(media, new LinearLayout.LayoutParams(dp(132), dp(44)));
+                card.addView(infoRow);
+
+                LinearLayout controls = new LinearLayout(this);
+                controls.setOrientation(LinearLayout.HORIZONTAL);
+                controls.setGravity(Gravity.CENTER_VERTICAL);
 
                 Button delayMinus = button("-1초");
                 delayMinus.setOnClickListener(v -> {
@@ -856,7 +876,7 @@ public class LauncherActivity extends Activity {
                     VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_DELAY_CHANGED", "package=" + app.packageName + ";delay_ms=" + next);
                     showAutoStartManager();
                 });
-                row.addView(delayMinus, new LinearLayout.LayoutParams(dp(66), dp(38)));
+                controls.addView(delayMinus, new LinearLayout.LayoutParams(0, dp(38), 1f));
 
                 Button delayPlus = button("+1초");
                 delayPlus.setOnClickListener(v -> {
@@ -865,35 +885,25 @@ public class LauncherActivity extends Activity {
                     VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_DELAY_CHANGED", "package=" + app.packageName + ";delay_ms=" + next);
                     showAutoStartManager();
                 });
-                row.addView(delayPlus, new LinearLayout.LayoutParams(dp(66), dp(38)));
+                controls.addView(delayPlus, new LinearLayout.LayoutParams(0, dp(38), 1f));
 
-                Switch media = new Switch(this);
-                media.setText("미디어");
-                media.setTextColor(Color.WHITE);
-                media.setChecked(AutoStartStore.mediaEnabled(prefs, app.packageName));
-                media.setOnCheckedChangeListener((b, checked) -> {
-                    AutoStartStore.setMediaEnabled(prefs, app.packageName, checked);
-                    VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_MEDIA_CHANGED", "package=" + app.packageName + ";enabled=" + checked);
-                });
-                row.addView(media, new LinearLayout.LayoutParams(dp(92), dp(44)));
-
-                Button up = button("↑");
+                Button up = button("↑ 위로");
                 up.setOnClickListener(v -> {
                     if (AutoStartStore.move(prefs, app.packageName, -1)) {
                         VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_ORDER_CHANGED", "package=" + app.packageName + ";direction=up");
                         showAutoStartManager();
                     }
                 });
-                row.addView(up, new LinearLayout.LayoutParams(dp(52), dp(38)));
+                controls.addView(up, new LinearLayout.LayoutParams(0, dp(38), 1f));
 
-                Button down = button("↓");
+                Button down = button("↓ 아래로");
                 down.setOnClickListener(v -> {
                     if (AutoStartStore.move(prefs, app.packageName, 1)) {
                         VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_ORDER_CHANGED", "package=" + app.packageName + ";direction=down");
                         showAutoStartManager();
                     }
                 });
-                row.addView(down, new LinearLayout.LayoutParams(dp(52), dp(38)));
+                controls.addView(down, new LinearLayout.LayoutParams(0, dp(38), 1f));
 
                 Button remove = new Button(this);
                 remove.setText("삭제");
@@ -904,9 +914,16 @@ public class LauncherActivity extends Activity {
                     toggleAutoStart(app.packageName);
                     Toast.makeText(this, app.label + " 제거", Toast.LENGTH_SHORT).show();
                 });
-                row.addView(remove, new LinearLayout.LayoutParams(dp(76), dp(38)));
+                controls.addView(remove, new LinearLayout.LayoutParams(0, dp(38), 1f));
+                LinearLayout.LayoutParams controlsLp = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, dp(42));
+                controlsLp.topMargin = dp(4);
+                card.addView(controls, controlsLp);
 
-                panel.addView(row);
+                LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                cardLp.bottomMargin = dp(8);
+                panel.addView(card, cardLp);
                 order++;
             }
         }
