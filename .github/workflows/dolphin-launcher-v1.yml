@@ -135,7 +135,7 @@ jobs:
           retention-days: 30
 
       - name: Publish V1 OTA prerelease
-        if: github.event_name == 'push' && github.ref == 'refs/heads/dolphin-launcher-v1'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dolphin-launcher-v1' && vars.V1_RELEASE_READY == 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
