@@ -2108,7 +2108,9 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "known_bad_ids": [],
+      "known_bad_ids": [
+        "KB-012"
+      ],
       "test_id": "MED-BG-001",
       "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
       "required_any": [
@@ -2153,7 +2155,9 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "known_bad_ids": [],
+      "known_bad_ids": [
+        "KB-012"
+      ],
       "test_id": "MED-BG-002",
       "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
       "required_any": [
