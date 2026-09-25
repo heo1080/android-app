@@ -875,7 +875,8 @@
         "drive.candidate.unmapped"
       ],
       "success_any": [
-        "NORMAL raw correlated 3 times with OEM UI before mapping"
+        "NORMAL raw correlated 3 times with OEM UI before mapping",
+        "observation=OEM_NORMAL_VISIBLE"
       ],
       "failure_any": [
         "NORMAL spoken from an unproven raw value",
@@ -887,13 +888,16 @@
       "acceptance": [
         "NORMAL transition raw is captured",
         "no guessed NORMAL speech before correlation",
-        "3 matching OEM UI observations required before enabling NORMAL mapping"
+        "3 matching OEM UI observations required before enabling NORMAL mapping",
+        "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech"
       ],
       "required_logs": [
         "DRIVE_MODE_UNMAPPED",
         "operation_raw",
         "operator OEM NORMAL observation",
-        "timestamp"
+        "timestamp",
+        "OPERATOR_OBSERVATION",
+        "elapsed_realtime_ms"
       ]
     },
     {
@@ -971,7 +975,8 @@
         "regen.candidate.unmapped"
       ],
       "success_any": [
-        "STANDARD raw correlated 3 times with OEM UI before mapping"
+        "STANDARD raw correlated 3 times with OEM UI before mapping",
+        "observation=OEM_STANDARD_VISIBLE"
       ],
       "failure_any": [
         "STANDARD spoken from an unproven raw value",
@@ -984,13 +989,16 @@
       "acceptance": [
         "STANDARD transition raw captured",
         "unproven STANDARD remains silent",
-        "3 matching OEM UI observations required before enabling mapping"
+        "3 matching OEM UI observations required before enabling mapping",
+        "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech"
       ],
       "required_logs": [
         "REGEN_MODE_UNMAPPED",
         "energy_feedback_raw",
         "operator OEM STANDARD observation",
-        "timestamp"
+        "timestamp",
+        "OPERATOR_OBSERVATION",
+        "elapsed_realtime_ms"
       ]
     },
     {
@@ -1118,7 +1126,8 @@
         "AUTOHOLD_CORRELATION_SNAPSHOT"
       ],
       "success_any": [
-        "button ON/OFF operator state correlated to stable raw edge in 3 repetitions"
+        "button ON/OFF operator state correlated to stable raw edge in 3 repetitions",
+        "observation=AUTOHOLD_SWITCH_ON_VISIBLE"
       ],
       "failure_any": [
         "button state inferred from brake release",
@@ -1128,7 +1137,8 @@
       "acceptance": [
         "button OFF->ON->OFF is captured separately from physical hold/release",
         "operator AVH switch indication and raw edge match on 3 repetitions",
-        "no automatic speech until mapping is proven"
+        "no automatic speech until mapping is proven",
+        "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech"
       ],
       "required_logs": [
         "AUTOHOLD_RAW_TRANSITION",
@@ -1136,7 +1146,9 @@
         "AUTOHOLD_CORRELATION_SNAPSHOT",
         "avh_raw",
         "avh_enable_raw",
-        "operator switch state"
+        "operator switch state",
+        "OPERATOR_OBSERVATION",
+        "elapsed_realtime_ms"
       ]
     },
     {
@@ -1165,7 +1177,8 @@
       ],
       "success_any": [
         "physical HOLD indicator change correlated while brake_depth_raw remains >0",
-        "unique direct hold-state raw edge found"
+        "unique direct hold-state raw edge found",
+        "observation=AUTOHOLD_HELD_VISIBLE"
       ],
       "failure_any": [
         "HOLD only inferred after brake_depth_raw becomes 0",
@@ -1176,7 +1189,8 @@
         "capture physical HOLD indicator timestamp while brake remains pressed",
         "capture release/start timestamp separately",
         "identify a direct raw/state correlation before enabling hold/release speech",
-        "legacy brake-release inference is prohibited"
+        "legacy brake-release inference is prohibited",
+        "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech"
       ],
       "required_logs": [
         "AUTOHOLD_CORRELATION_SNAPSHOT",
@@ -1185,7 +1199,9 @@
         "brake_pedal_raw",
         "brake_depth_raw",
         "accel_depth_raw",
-        "operator physical HOLD/RELEASE timestamps"
+        "operator physical HOLD/RELEASE timestamps",
+        "OPERATOR_OBSERVATION",
+        "elapsed_realtime_ms"
       ]
     },
     {
