@@ -23,9 +23,14 @@ public final class BootAutoLaunchRuntime {
         VerificationEvidenceRuntime.recordPassiveEvent(app,"AUTOSTART_BOOT_BATCH","registered="+packages.size());
         Handler h=new Handler(Looper.getMainLooper());
         for(int i=0;i<packages.size();i++){
-            String pkg=packages.get(i); long delay=1800L+i*3000L;
+            String pkg=packages.get(i);
+            long delay=AutoStartStore.delayMs(p,pkg,i);
+            boolean media=AutoStartStore.mediaEnabled(p,pkg);
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    app,"AUTOSTART_SCHEDULED",
+                    "package="+pkg+";delay_ms="+delay+";media="+media+";index="+i);
             h.postDelayed(()->{
-                if(AutoStartStore.mediaEnabled(p,pkg)) BackgroundMediaRuntime.requestPlay(app,pkg);
+                if(media) BackgroundMediaRuntime.requestPlay(app,pkg);
                 else launch(app,pkg,delay);
             },delay);
         }
