@@ -835,7 +835,12 @@
         "EPB_HELD_VISIBLE",
         "ICC_ON_VISIBLE",
         "BSD_LEFT_CONTEXT_VISIBLE",
-        "LEADING_CAR_DEPARTURE_VISIBLE"
+        "LEADING_CAR_DEPARTURE_VISIBLE",
+        "MIN_SESSIONS",
+        "load_many",
+        "single_session_candidate_not_verified",
+        "cross_session_candidate_not_verified",
+        "matching_stable_sessions"
       ]
     }
   ],
