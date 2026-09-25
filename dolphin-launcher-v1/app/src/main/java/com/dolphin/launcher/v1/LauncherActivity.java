@@ -125,6 +125,7 @@ public class LauncherActivity extends Activity {
         if (!splitShortcutLaunch) runPendingAutostart();
         VerificationEvidenceRuntime.startAutomaticUploadRuntime(this);
         VerificationEvidenceRuntime.recordPassiveEvent(this, "APP_LAUNCH", "LauncherActivity created");
+        DisplayDiagnostics.capture(this);
         VerificationEvidenceRuntime.retryPendingUploadsAsync(this);
         startVehicleReadOnlyRuntime();
         handler.postDelayed(() -> {
