@@ -146,7 +146,10 @@
         "getRoadSurfaceMode",
         "onSnowRaw",
         "SNOW_RAW_TRANSITION",
-        "suppressed-pending-on-off-correlation"
+        "suppressed-pending-on-off-correlation",
+        "captureStateConstants",
+        "ENERGY_RUNTIME_CONSTANT",
+        "ENERGY_RUNTIME_CONSTANT_SCAN"
       ]
     },
     {
@@ -197,6 +200,28 @@
         "captureGearboxConstants",
         "GEARBOX_RUNTIME_CONSTANT",
         "GEARBOX_RUNTIME_CONSTANT_SCAN"
+      ]
+    },
+    {
+      "feature_id": "AUTOHOLD_VOICE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
+      "tokens": [
+        "getAVHState",
+        "getAVHEnable",
+        "captureStateConstants",
+        "ADAS_RUNTIME_CONSTANT",
+        "SETTING_RUNTIME_CONSTANT"
+      ]
+    },
+    {
+      "feature_id": "BSD_TURN_WARNING",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
+      "tokens": [
+        "getBSDState",
+        "getLeftTurnLightState",
+        "getRightTurnLightState",
+        "captureStateConstants",
+        "ADAS_RUNTIME_CONSTANT"
       ]
     }
   ],
