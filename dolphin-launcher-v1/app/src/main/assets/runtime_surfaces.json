@@ -246,7 +246,9 @@
         "AUTOHOLD_LIVE_SAMPLE",
         "activeTestId",
         "brake_depth_raw",
-        "speed_raw"
+        "speed_raw",
+        "10L*60L*1000L",
+        "activeTestWithin"
       ]
     },
     {
@@ -812,7 +814,10 @@
         "LIVE_CORRELATION_STATE",
         "liveCorrelationSnapshot",
         "known_bad_registry.json",
-        "voice_prompt_manifest.json"
+        "voice_prompt_manifest.json",
+        "activeTestAgeMs",
+        "activeTestWithin",
+        "KEY_ACTIVE_TEST_STARTED_ELAPSED"
       ]
     },
     {
