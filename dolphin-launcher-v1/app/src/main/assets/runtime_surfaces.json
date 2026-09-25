@@ -38,7 +38,10 @@
         "left_primary",
         "right_secondary",
         "getLaunchIntentForPackage",
-        "preflight-component-missing"
+        "preflight-component-missing",
+        "inspectCurrentPair",
+        "SPLIT_READBACK_PASSIVE",
+        "actuation=false"
       ]
     },
     {
@@ -50,7 +53,13 @@
         "SPLIT_EXECUTION_SUCCESS",
         "SPLIT_EXECUTION_FAILED",
         "SPLIT_SHORTCUT_REQUEST",
-        "requested="
+        "requested=",
+        "startSplitCameraEvidenceRuntime",
+        "SPLIT_CAMERA_EVENT",
+        "SPLIT_POST_CAMERA_READBACK",
+        "AUTO_EXIT_PANO",
+        "restore_attempted=false",
+        "actuation=false"
       ]
     },
     {
