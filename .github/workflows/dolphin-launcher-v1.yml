@@ -182,6 +182,20 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Enforce release Known-Bad gate
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dolphin-launcher-v1' && vars.V1_RELEASE_READY == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          kb=json.load(open("dolphin-launcher-v1/app/src/main/assets/known_bad_registry.json", encoding="utf-8"))
+          open_p0=[r["id"] for r in kb["known_bad"] if r["severity"]=="P0" and r["state"]!="CLOSED"]
+          if open_p0:
+              raise SystemExit("RELEASE_BLOCKED_OPEN_P0="+",".join(open_p0))
+          print("RELEASE_KNOWN_BAD_GATE_OK")
+          PY
+
       - name: Publish V1 OTA prerelease
         if: github.event_name == 'push' && github.ref == 'refs/heads/dolphin-launcher-v1' && vars.V1_RELEASE_READY == 'true'
         shell: bash
