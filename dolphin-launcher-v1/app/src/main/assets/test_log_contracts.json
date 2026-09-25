@@ -483,7 +483,8 @@
       "failure_any": [
         "readback_verified=false",
         "SPLIT_EXECUTION_FAILED",
-        "2분할 실행에 실패"
+        "2분할 실행에 실패",
+        "automatic split restore attempted before camera lifecycle correlation"
       ],
       "known_bad_ids": [
         "KB-004"
@@ -497,7 +498,10 @@
         "operator marker SPLIT_TWO_APP_VISIBLE is required in addition to readback",
         "operator marker SPLIT_CAMERA_RETURN_OK is required for safe camera return",
         "each required operator marker must reach at least 3 observations in the active correlation before PASS is exposed",
-        "single-session marker completion is not sufficient for VERIFIED"
+        "single-session marker completion is not sufficient for VERIFIED",
+        "camera lifecycle evidence is passive until real-car exit signal correlation is proven",
+        "post-camera readback records whether the configured pair remains split without attempting restore",
+        "automatic restore is prohibited while restore_attempted=false policy is active"
       ],
       "required_logs": [
         "SPLIT_ADB_COMMAND",
@@ -509,7 +513,12 @@
         "OPERATOR_OBSERVATION",
         "SPLIT_TWO_APP_VISIBLE",
         "SPLIT_CAMERA_RETURN_OK",
-        "elapsed_realtime_ms"
+        "elapsed_realtime_ms",
+        "SPLIT_CAMERA_EVENT",
+        "SPLIT_POST_CAMERA_READBACK",
+        "SPLIT_READBACK_PASSIVE",
+        "restore_attempted=false",
+        "actuation=false"
       ]
     },
     {
