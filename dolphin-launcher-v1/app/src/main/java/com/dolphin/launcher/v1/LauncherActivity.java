@@ -105,6 +105,7 @@ public class LauncherActivity extends Activity {
         seedFavorites();
         buildShell();
         runPendingAutostart();
+        handleSplitShortcutIntent(getIntent());
         VerificationEvidenceRuntime.ensureProcessSession(this, "launcher-process-start");
         VerificationEvidenceRuntime.startAutomaticUploadRuntime(this);
         VerificationEvidenceRuntime.recordPassiveEvent(this, "APP_LAUNCH", "LauncherActivity created");
@@ -114,6 +115,23 @@ public class LauncherActivity extends Activity {
             VerificationEvidenceRuntime.queueBundleAndUpload(this, "startup-snapshot");
             AppUpdateManager.checkForUpdates(this, false);
         }, 1800L);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleSplitShortcutIntent(intent);
+    }
+
+    private void handleSplitShortcutIntent(Intent intent) {
+        if (intent == null || !"com.dolphin.launcher.v1.LAUNCH_SPLIT_SHORTCUT".equals(intent.getAction())) return;
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this, "SPLIT_SHORTCUT_INVOKED", "pair=" + splitDescription());
+        // The shortcut is a real launcher entry, but split execution remains gated until
+        // the BYD-compatible authorized shell/windowing bridge is implemented and retested.
+        launchSplitPair();
+        intent.setAction(Intent.ACTION_MAIN);
     }
 
     @Override
