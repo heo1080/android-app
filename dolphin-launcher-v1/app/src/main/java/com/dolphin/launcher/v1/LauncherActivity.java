@@ -129,6 +129,7 @@ public class LauncherActivity extends Activity {
         DisplayDiagnostics.captureNotificationAccess(this);
         DisplayDiagnostics.captureDisplayInventory(this);
         InstrumentCapabilityProbe.capture(this);
+        SurroundingVisionCapabilityProbe.capture(this);
         DisplayDiagnostics.captureLaunchableAppOrientations(this);
         VerificationEvidenceRuntime.retryPendingUploadsAsync(this);
         startVehicleReadOnlyRuntime();
