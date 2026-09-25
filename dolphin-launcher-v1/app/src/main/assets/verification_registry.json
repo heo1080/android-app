@@ -1773,7 +1773,10 @@
         "active Test 진행 중에는 session rollover를 차단",
         "명시적 새 검증 세션으로 cross-session repeatability를 앱 강제 종료 없이 수집 가능",
         "Verification Center 결과 선택지는 test_log_contracts.allowed_outcomes를 직접 사용",
-        "contract가 PASS를 제외하면 Feature state와 무관하게 PASS UI를 노출하지 않음"
+        "contract가 PASS를 제외하면 Feature state와 무관하게 PASS UI를 노출하지 않음",
+        "Verification Center 상단 P0 실차 검증 큐는 known_bad_registry의 severity=P0 항목에서 동적 생성",
+        "P0 큐에서 Known-Bad close_gate와 연결 Test ID를 확인하고 해당 실차 Test를 바로 시작 가능",
+        "실내등처럼 V1 actuation runtime이 없는 Test는 allowed_outcomes=NEED_MORE_DATA로 fail-closed"
       ],
       "required_logs": [
         "registry schema/version",
@@ -1803,7 +1806,10 @@
         "stale_runs_cancelled=true",
         "SESSION_ROLLOVER_REQUESTED",
         "SESSION_ROLLOVER_COMPLETED",
-        "previous_bundle"
+        "previous_bundle",
+        "loadKnownBadRegistry",
+        "P0 실차 검증 큐",
+        "known_bad_registry severity=P0"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
@@ -1827,7 +1833,8 @@
         "correlation evaluator blocks cross-label raw collisions",
         "active-test process resume reuses diagnostic_session_id",
         "workflow concurrency keeps latest V1 validation authoritative",
-        "Verification Center manual session rollover preserves previous bundle"
+        "Verification Center manual session rollover preserves previous bundle",
+        "Verification Center P0 queue is sourced from known_bad_registry.json"
       ],
       "next_action": "실차 Evidence ZIP을 최소 2개 session에서 수집하고 evaluator 다중 입력으로 동일 raw 반복성을 비교; cross-session 후보도 수동 검토 전 매핑 활성화 금지",
       "confidence": {
