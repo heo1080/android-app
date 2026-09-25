@@ -1664,7 +1664,8 @@
       "requirement": "모든 사용자 요구사항과 실제 코드/실차 검증을 이 레지스트리에서 추적한다.",
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java",
+        "dolphin-launcher-v1/tools/evaluate_live_correlations.py"
       ],
       "test_ids": [
         "GOV-REG-001"
@@ -1689,7 +1690,8 @@
         "evidence row는 wall-clock timestamp와 elapsed_realtime_ms를 함께 기록",
         "진행 중 Test ID/correlation은 process 재생성 후 Verification Center에서 복원",
         "Test 완료/중단 시 Evidence ZIP을 자동 queue/upload",
-        "Evidence ZIP은 Registry/Test Contract/Dependencies/Runtime Surface/Known-Bad/Voice Manifest를 함께 포함"
+        "Evidence ZIP은 Registry/Test Contract/Dependencies/Runtime Surface/Known-Bad/Voice Manifest를 함께 포함",
+        "V1 correlation evaluator는 3회 동일 raw도 VERIFIED가 아닌 candidate_not_verified로만 보고"
       ],
       "required_logs": [
         "registry schema/version",
@@ -1714,7 +1716,8 @@
         "VerificationCenterActivity live Test ID capture session",
         "VerificationEvidenceRuntime append-only schema 3 ledger",
         "operator observation markers share the active Test ID correlation",
-        "monotonic elapsed_realtime_ms added to every evidence row"
+        "monotonic elapsed_realtime_ms added to every evidence row",
+        "evaluate_live_correlations.py CI self-test"
       ],
       "next_action": "실차에서 AUD-DRV-002/AUD-REG-002/AUD-AVH-001/002 live marker와 raw transition을 같은 elapsed_realtime 축으로 상관하고 evaluator 입력으로 검증",
       "confidence": {
