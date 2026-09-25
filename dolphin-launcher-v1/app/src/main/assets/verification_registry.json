@@ -445,7 +445,7 @@
       "req_id": "REQ-TTS-001",
       "feature_id": "IN_APP_TTS_CORE",
       "area": "audio",
-      "requirement": "시스템 TTS queue 문제를 피하고 인앱 TTS를 낮은 지연으로 재생한다.",
+      "requirement": "차량 음성 안내는 패키지 내 사전 생성 한국어 여성 고정 음성을 우선 재생하고, 자산 누락 시 Android TTS fallback을 사용하되 이를 고정 여성 음성으로 간주하지 않는다.",
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehiclePromptPlayer.java"
       ],
@@ -453,24 +453,31 @@
         "AUD-TTS-001",
         "AUD-TTS-002"
       ],
-      "state": "BETA",
+      "state": "REVERIFY_REQUIRED",
       "acceptance": [
-        "미리듣기 즉시 재생",
-        "이전 utterance가 비프 뒤 늦게 재생되지 않음",
-        "vehicle event→audio start latency 기록"
+        "voice_prompt_manifest의 모든 고정 음성 자산 존재 및 preload 성공",
+        "고정 자산 재생은 SoundPool 요청과 실차 가청 결과를 구분 기록",
+        "자산 누락 시 TTS fallback 사용 가능하지만 여성 음성 보장 표시 금지",
+        "과거 지연 TTS가 후속 비프/오디오 뒤 늦게 재생되지 않음"
       ],
       "required_logs": [
-        "event timestamp",
-        "TTS generation/cache",
-        "AudioTrack start",
-        "stream/device"
+        "VOICE_ASSET_READY",
+        "VOICE_ASSET_MISSING",
+        "VOICE_PLAY_REQUESTED",
+        "VOICE_TTS_FALLBACK_REQUESTED",
+        "VOICE_TTS_INIT_FAILED",
+        "audible/operator result"
       ],
       "known_bad": [
+        "현재 고정 voice_* raw 자산이 아직 공급되지 않아 Android TTS fallback에 의존",
+        "Android TTS fallback voice gender는 보장되지 않음",
         "과거 시스템 TTS 미리듣기가 비프 후 뒤늦게 재생"
       ],
       "dependencies": [
-        "Supertonic/sherpa runtime",
-        "Audio Core"
+        "voice_prompt_manifest.json",
+        "fixed ko-KR female prompt assets",
+        "SoundPool",
+        "Android TTS fallback"
       ],
       "real_vehicle_test": [
         "연속 미리듣기 10회",
@@ -478,9 +485,10 @@
         "시동 직후 cold test"
       ],
       "evidence": [
-        "InAppSupertonicTtsManager source"
+        "VehiclePromptPlayer fixed-asset-first source",
+        "voice_prompt_manifest schema 1"
       ],
-      "next_action": "최신 release 실차 latency/queue 검증",
+      "next_action": "manifest의 22개 한국어 여성 고정 음성 자산 공급 후 APK asset presence CI와 실차 latency 검증",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
