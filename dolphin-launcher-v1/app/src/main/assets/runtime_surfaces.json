@@ -143,7 +143,10 @@
         "PASS 잠금",
         "count < 3",
         "markerPlanForTest",
-        "for (String[] markerSpec : markerPlanForTest(activeTestId))"
+        "for (String[] markerSpec : markerPlanForTest(activeTestId))",
+        "새 검증 세션",
+        "rolloverSession",
+        "manual cross-session repeat"
       ]
     },
     {
@@ -839,7 +842,11 @@
         "PROCESS_RESUME_ACTIVE_TEST",
         "ACTIVE_TEST_STALE_CLEARED",
         "clearActiveTestState",
-        "sameBootActive"
+        "sameBootActive",
+        "rolloverSession",
+        "SESSION_ROLLOVER_REQUESTED",
+        "SESSION_ROLLOVER_COMPLETED",
+        "active test must finish before session rollover"
       ]
     },
     {
