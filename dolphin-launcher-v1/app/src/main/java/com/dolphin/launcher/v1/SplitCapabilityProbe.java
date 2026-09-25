@@ -29,6 +29,15 @@ public final class SplitCapabilityProbe {
     }
     private SplitCapabilityProbe() {}
 
+    static File privateKeyFile(Context context) { return new File(new File(context.getFilesDir(),"adb"),"adbkey"); }
+    static File publicKeyFile(Context context) { return new File(new File(context.getFilesDir(),"adb"),"adbkey.pub"); }
+
+    public static Dadb connectAuthorized(Context context) throws Exception {
+        File privateKey=privateKeyFile(context), publicKey=publicKeyFile(context);
+        if (!privateKey.isFile() || !publicKey.isFile()) AdbKeyPair.generate(privateKey, publicKey);
+        return Dadb.create("localhost",5555,AdbKeyPair.read(privateKey, publicKey),1500,2500);
+    }
+
     public static Result inspect(Context context) {
         boolean shell = new File("/system/bin/sh").canExecute()
                 || new File("/system/bin/toybox").canExecute();
@@ -38,17 +47,12 @@ public final class SplitCapabilityProbe {
             debug=(ai.flags & ApplicationInfo.FLAG_DEBUGGABLE)!=0;
         } catch (PackageManager.NameNotFoundException ignored) {}
 
-        File keyDir=new File(context.getFilesDir(),"adb");
-        File privateKey=new File(keyDir,"adbkey");
-        File publicKey=new File(keyDir,"adbkey.pub");
+        File privateKey=privateKeyFile(context);
+        File publicKey=publicKeyFile(context);
         boolean authorized=false;
         String detail="not-probed";
         try {
-            if (!privateKey.isFile() || !publicKey.isFile()) {
-                AdbKeyPair.generate(privateKey, publicKey);
-            }
-            AdbKeyPair pair=AdbKeyPair.read(privateKey, publicKey);
-            try (Dadb adb=Dadb.create("localhost",5555,pair,1500,2500)) {
+            try (Dadb adb=connectAuthorized(context)) {
                 dadb.AdbShellResponse response=adb.shell("echo DOLPHIN_SPLIT_PROBE");
                 authorized=response.getExitCode()==0 &&
                         response.getOutput().contains("DOLPHIN_SPLIT_PROBE");
