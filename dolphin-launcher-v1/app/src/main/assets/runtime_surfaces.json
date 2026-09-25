@@ -10,7 +10,8 @@
         "AppDrawerShortcutManager.pin",
         "AppDrawerShortcutManager.disable",
         "handleAppShortcutIntent",
-        "APP_SHORTCUT_INVOKED"
+        "APP_SHORTCUT_INVOKED",
+        "APP_SHORTCUT_LAUNCH_DISPATCHED"
       ]
     },
     {
