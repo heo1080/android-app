@@ -943,16 +943,28 @@ public class LauncherActivity extends Activity {
     }
 
     private void launchPackage(String pkg) {
-        if (pkg == null) return;
+        if (pkg == null) {
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "APP_LAUNCH_FAILED", "reason=null-package");
+            return;
+        }
         Intent intent = getPackageManager().getLaunchIntentForPackage(pkg);
         if (intent == null) {
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "APP_LAUNCH_FAILED", "package="+pkg+";reason=no-launch-intent");
             Toast.makeText(this, "앱을 실행할 수 없습니다.", Toast.LENGTH_SHORT).show();
             return;
         }
         try {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
             startActivity(intent);
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "APP_LAUNCH_DISPATCHED",
+                    "package="+pkg+";component="+String.valueOf(intent.getComponent()));
         } catch (Exception e) {
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "APP_LAUNCH_FAILED",
+                    "package="+pkg+";reason="+e.getClass().getSimpleName());
             Toast.makeText(this, "앱 실행 실패", Toast.LENGTH_SHORT).show();
         }
     }
