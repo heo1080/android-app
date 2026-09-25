@@ -72,7 +72,9 @@
         "changedNormalized",
         "DRIVE_MODE_EVIDENCE_MAP",
         "DRIVE_MODE_UNMAPPED",
-        "drive.candidate.unmapped"
+        "drive.candidate.unmapped",
+        "updateLiveCorrelationValue",
+        "operation_raw"
       ]
     },
     {
@@ -83,7 +85,9 @@
         "changedNormalized",
         "REGEN_MODE_EVIDENCE_MAP",
         "REGEN_MODE_UNMAPPED",
-        "regen.candidate.unmapped"
+        "regen.candidate.unmapped",
+        "updateLiveCorrelationValue",
+        "energy_feedback_raw"
       ]
     },
     {
@@ -222,7 +226,11 @@
         "direct-hold-correlation",
         "captureStateConstants",
         "ADAS_RUNTIME_CONSTANT",
-        "SETTING_RUNTIME_CONSTANT"
+        "SETTING_RUNTIME_CONSTANT",
+        "AUTOHOLD_LIVE_SAMPLE",
+        "activeTestId",
+        "brake_depth_raw",
+        "speed_raw"
       ]
     },
     {
@@ -778,7 +786,11 @@
         "elapsed_realtime_ms",
         "activeTestCorrelation",
         "KEY_ACTIVE_TEST_CORRELATION",
-        "OPERATOR_OBSERVATION"
+        "OPERATOR_OBSERVATION",
+        "LIVE_CORRELATION_STATE",
+        "liveCorrelationSnapshot",
+        "known_bad_registry.json",
+        "voice_prompt_manifest.json"
       ]
     }
   ],
