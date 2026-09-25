@@ -162,7 +162,9 @@
         "showP0Queue",
         "showP0Item",
         "P0 실차 검증 큐",
-        "knownBadRegistry"
+        "knownBadRegistry",
+        "APP_DRAWER_ICON_VISIBLE",
+        "NORMAL_APP_LAUNCH_VISIBLE"
       ]
     },
     {
@@ -892,6 +894,26 @@
         "DISTINCT_GROUPS",
         "mapping_conflicts",
         "conflict_need_more_data"
+      ]
+    },
+    {
+      "feature_id": "BUILD_IDENTITY",
+      "path": "dolphin-launcher-v1/app/src/main/AndroidManifest.xml",
+      "tokens": [
+        ".LauncherActivity",
+        "android.intent.category.LAUNCHER",
+        "Dolphin Launcher V1"
+      ]
+    },
+    {
+      "feature_id": "BUILD_IDENTITY",
+      "path": "dolphin-launcher-v1/app/build.gradle.kts",
+      "tokens": [
+        "applicationId = \"com.dolphin.launcher.v1\"",
+        "minSdk = 29",
+        "targetSdk = 35",
+        "versionCode = 5",
+        "versionName = \"1.2.2-v1-auto-evidence-beta\""
       ]
     }
   ],
