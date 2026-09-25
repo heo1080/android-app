@@ -66,6 +66,14 @@ CANDIDATE_KEY = {
     "ICC_OFF_VISIBLE": "tja_raw",
 }
 
+DISTINCT_GROUPS = {
+    "gear_positions": ["GEAR_P_VISIBLE", "GEAR_R_VISIBLE", "GEAR_N_VISIBLE", "GEAR_D_VISIBLE"],
+    "snow_states": ["SNOW_ON_VISIBLE", "SNOW_OFF_VISIBLE"],
+    "autohold_switch_states": ["AUTOHOLD_SWITCH_ON_VISIBLE", "AUTOHOLD_SWITCH_OFF_VISIBLE"],
+    "epb_states": ["EPB_HELD_VISIBLE", "EPB_RELEASED_VISIBLE"],
+    "icc_states": ["ICC_ON_VISIBLE", "ICC_OFF_VISIBLE"],
+}
+
 
 def parse_kv(text: str) -> Dict[str, str]:
     out: Dict[str, str] = {}
@@ -247,6 +255,30 @@ def evaluate(rows: List[Dict[str, Any]], identities: Optional[List[Dict[str, Any
                 "verified": False,
             })
 
+    candidate_by_marker = {c["observation"]: c for c in candidates}
+    conflicts: List[Dict[str, Any]] = []
+    for group, markers in DISTINCT_GROUPS.items():
+        raw_to_markers: Dict[str, List[str]] = defaultdict(list)
+        for marker in markers:
+            candidate = candidate_by_marker.get(marker)
+            if not candidate or candidate.get("matching_stable_sessions", 0) < 1:
+                continue
+            raw_to_markers[str(candidate.get("raw_value"))].append(marker)
+        for raw_value, collision_markers in raw_to_markers.items():
+            if len(collision_markers) < 2:
+                continue
+            conflict = {
+                "group": group,
+                "raw_value": raw_value,
+                "observations": sorted(collision_markers),
+                "status": "conflict_need_more_data",
+            }
+            conflicts.append(conflict)
+            for marker in collision_markers:
+                candidate = candidate_by_marker[marker]
+                candidate["status"] = "conflict_need_more_data"
+                candidate.setdefault("conflicts", []).append(conflict)
+
     sessions = sorted({
         str(row.get("diagnostic_session_id"))
         for row in rows if row.get("diagnostic_session_id") not in (None, "")
@@ -262,6 +294,7 @@ def evaluate(rows: List[Dict[str, Any]], identities: Optional[List[Dict[str, Any
         "diagnostic_sessions": sessions,
         "operator_observations": observations,
         "mapping_candidates": candidates,
+        "mapping_conflicts": conflicts,
         "summary": {
             "ledger_rows": len(rows),
             "operator_observations": len(observations),
@@ -271,6 +304,7 @@ def evaluate(rows: List[Dict[str, Any]], identities: Optional[List[Dict[str, Any
             "cross_session_candidate_not_verified": sum(
                 c["status"] == "cross_session_candidate_not_verified" for c in candidates
             ),
+            "mapping_conflicts": len(conflicts),
         },
     }
 
@@ -313,7 +347,27 @@ def self_test() -> None:
     assert candidate["status"] == "single_session_candidate_not_verified", candidate
     assert candidate["matching_stable_sessions"] == 1, candidate
     assert candidate["verified"] is False, candidate
-    print("V1_CORRELATION_EVALUATOR_OK sessions=2 auto_verified=false")
+
+    conflict_rows = []
+    for marker in ("EPB_HELD_VISIBLE", "EPB_RELEASED_VISIBLE"):
+        for i in range(3):
+            conflict_rows.append({
+                "schema_version": 3,
+                "timestamp_ms": 10000 + i,
+                "elapsed_realtime_ms": 20000 + i,
+                "event": "OPERATOR_OBSERVATION",
+                "test_id": "AUD-EPB-001",
+                "correlation_id": marker + str(i),
+                "diagnostic_session_id": "S3",
+                "note": "observation=" + marker + ";latest_raw=epb_raw=1",
+            })
+    conflict_result = evaluate(conflict_rows)
+    assert conflict_result["summary"]["mapping_conflicts"] == 1, conflict_result
+    assert all(
+        c["status"] == "conflict_need_more_data"
+        for c in conflict_result["mapping_candidates"]
+    ), conflict_result
+    print("V1_CORRELATION_EVALUATOR_OK sessions=2 conflicts=blocked auto_verified=false")
 
 
 def main() -> None:
