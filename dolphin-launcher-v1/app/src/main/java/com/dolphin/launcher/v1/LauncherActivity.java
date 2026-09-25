@@ -215,11 +215,17 @@ public class LauncherActivity extends Activity {
                         "area7=" + leftMid + ";area8=" + rightMid
                                 + ";voice=suppressed;classification=unknown-object");
             }
-            @Override public void onTpmsRaw(Integer fl, Integer fr, Integer rl, Integer rr) {
+            @Override public void onTpmsRaw(
+                    Integer fl, Integer fr, Integer rl, Integer rr,
+                    Integer flState, Integer frState, Integer rlState, Integer rrState,
+                    Integer flSignal, Integer frSignal, Integer rlSignal, Integer rrSignal) {
                 VerificationEvidenceRuntime.recordPassiveEvent(
                         LauncherActivity.this, "TPMS_RAW",
                         "fl=" + fl + ";fr=" + fr + ";rl=" + rl + ";rr=" + rr
-                                + ";unit=UNVERIFIED");
+                                + ";unit=kPa-api-contract"
+                                + ";pressure_state=" + flState + "," + frState + "," + rlState + "," + rrState
+                                + ";signal_state=" + flSignal + "," + frSignal + "," + rlSignal + "," + rrSignal
+                                + ";vehicle_unit_reverify=true");
             }
             @Override public void onRaw(String signal, Integer raw) {
                 // AVH/BSD and other not-yet-normalized signals remain evidence-only.
