@@ -27,6 +27,7 @@ import java.util.Set;
 public class VerificationCenterActivity extends Activity {
     private JSONObject registry;
     private JSONObject testContracts;
+    private JSONObject knownBadRegistry;
     private TextView ledgerStatus;
     private TextView collectionStatus;
     private TextView pendingStatus;
@@ -49,6 +50,7 @@ public class VerificationCenterActivity extends Activity {
         try {
             registry = VerificationEvidenceRuntime.loadRegistry(this);
             testContracts = VerificationEvidenceRuntime.loadTestContracts(this);
+            knownBadRegistry = VerificationEvidenceRuntime.loadKnownBadRegistry(this);
             setContentView(buildUi());
         } catch (Exception e) {
             TextView error = text("Verification Registry 로드 실패\n" + e.getMessage(),
@@ -122,6 +124,11 @@ public class VerificationCenterActivity extends Activity {
                 String.valueOf(VerificationEvidenceRuntime.ledgerLineCount(this)));
         summary.addView(ledgerStatus, weighted());
         root.addView(summary);
+
+        Button p0Queue = button("P0 실차 검증 큐 · " + p0Count() + "건");
+        p0Queue.setOnClickListener(v -> showP0Queue());
+        root.addView(p0Queue,
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
 
         LinearLayout autoStatus = new LinearLayout(this);
         autoStatus.setOrientation(LinearLayout.HORIZONTAL);
@@ -234,6 +241,66 @@ public class VerificationCenterActivity extends Activity {
         root.addView(scroll,
                 new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         return root;
+    }
+
+    private int p0Count() {
+        JSONArray rows = knownBadRegistry == null ? null : knownBadRegistry.optJSONArray("known_bad");
+        if (rows == null) return 0;
+        int count = 0;
+        for (int i = 0; i < rows.length(); i++) {
+            JSONObject row = rows.optJSONObject(i);
+            if (row != null && "P0".equals(row.optString("severity"))) count++;
+        }
+        return count;
+    }
+
+    private void showP0Queue() {
+        JSONArray rows = knownBadRegistry == null ? null : knownBadRegistry.optJSONArray("known_bad");
+        if (rows == null) return;
+        java.util.ArrayList<JSONObject> p0Rows = new java.util.ArrayList<>();
+        java.util.ArrayList<String> labels = new java.util.ArrayList<>();
+        for (int i = 0; i < rows.length(); i++) {
+            JSONObject row = rows.optJSONObject(i);
+            if (row == null || !"P0".equals(row.optString("severity"))) continue;
+            p0Rows.add(row);
+            labels.add(row.optString("id") + " · " + row.optString("feature_id")
+                    + " · " + row.optString("state"));
+        }
+        if (p0Rows.isEmpty()) {
+            Toast.makeText(this, "현재 P0 Known-Bad 없음", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        new AlertDialog.Builder(this)
+                .setTitle("P0 실차 검증 큐")
+                .setItems(labels.toArray(new String[0]), (dialog, which) ->
+                        showP0Item(p0Rows.get(which)))
+                .setNegativeButton("닫기", null)
+                .show();
+    }
+
+    private void showP0Item(JSONObject row) {
+        JSONArray ids = row.optJSONArray("test_ids");
+        String[] labels = new String[ids == null ? 0 : ids.length()];
+        for (int i = 0; i < labels.length; i++) labels[i] = "시작 · " + ids.optString(i);
+        String message = row.optString("summary", "")
+                + "\n\nClose gate\n" + row.optString("close_gate", "");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(row.optString("id") + " · " + row.optString("feature_id"))
+                .setMessage(message)
+                .setNegativeButton("닫기", null);
+        if (labels.length > 0) {
+            builder.setItems(labels, (dialog, which) -> {
+                String testId = ids.optString(which);
+                JSONObject feature = findFeatureForTest(testId);
+                if (feature == null) {
+                    Toast.makeText(this, "Registry에서 " + testId + "를 찾지 못했습니다.",
+                            Toast.LENGTH_LONG).show();
+                    return;
+                }
+                openTestDialog(testId, feature.optString("state", "UNKNOWN"), feature);
+            });
+        }
+        builder.show();
     }
 
     private View featureCard(JSONObject feature) {
