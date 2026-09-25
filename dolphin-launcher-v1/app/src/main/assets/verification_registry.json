@@ -484,7 +484,8 @@
         "자산 누락 시 TTS fallback 사용 가능하지만 여성 음성 보장 표시 금지",
         "과거 지연 TTS가 후속 비프/오디오 뒤 늦게 재생되지 않음",
         "fallback TTS는 고유 utterance ID별 request→start 지연과 QUEUE_FLUSH 중단을 추적",
-        "fallback TTS는 navigation-guidance AudioAttributes를 사용하되 BYD 운전석 전용 라우팅 성공으로 간주하지 않음"
+        "fallback TTS는 navigation-guidance AudioAttributes를 사용하되 BYD 운전석 전용 라우팅 성공으로 간주하지 않음",
+        "Android 11+ package visibility를 위해 TTS_SERVICE query가 Manifest에 존재"
       ],
       "required_logs": [
         "VOICE_ASSET_READY",
@@ -511,7 +512,8 @@
         "voice_prompt_manifest.json",
         "fixed ko-KR female prompt assets",
         "SoundPool",
-        "Android TTS fallback"
+        "Android TTS fallback",
+        "AndroidManifest TTS service visibility query"
       ],
       "real_vehicle_test": [
         "연속 미리듣기 10회",
@@ -523,7 +525,8 @@
         "voice_prompt_manifest schema 1 with 22 semantic pairs",
         "CI VOICE_CONTRACT_OK validates policy/manifest/preload drift",
         "UtteranceProgressListener captures fallback request/start/done/stop/error timing",
-        "Android TTS fallback explicitly applies USAGE_ASSISTANCE_NAVIGATION_GUIDANCE; driver-speaker routing remains unproven"
+        "Android TTS fallback explicitly applies USAGE_ASSISTANCE_NAVIGATION_GUIDANCE; driver-speaker routing remains unproven",
+        "CI verifies AndroidManifest TTS_SERVICE query"
       ],
       "next_action": "22개 한국어 여성 고정 음성 자산 공급 전까지 fallback 상태를 명시하고, 자산 공급 후 APK asset presence·실차 audible latency·queue 회귀를 AUD-TTS-001/002로 재검증",
       "confidence": {
