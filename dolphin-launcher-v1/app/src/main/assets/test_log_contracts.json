@@ -2229,7 +2229,10 @@
         "every evidence row carries elapsed_realtime_ms",
         "V1 correlation evaluator self-test passes and cannot auto-verify mappings",
         "evaluator supports multiple ZIP/JSONL inputs with duplicate-row suppression",
-        "single-session and cross-session candidates remain non-VERIFIED"
+        "single-session and cross-session candidates remain non-VERIFIED",
+        "Verification Center displays Registry real_vehicle_test instructions before capture",
+        "active correlation marker progress is counted without mixing prior sessions",
+        "driving-required markers include passenger/safe-test-environment guidance"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2239,7 +2242,10 @@
         "elapsed_realtime_ms",
         "V1_CORRELATION_EVALUATOR_OK",
         "single_session_candidate_not_verified",
-        "cross_session_candidate_not_verified"
+        "cross_session_candidate_not_verified",
+        "operatorObservationCounts",
+        "markerProgressText",
+        "captureGuide"
       ]
     },
     {
