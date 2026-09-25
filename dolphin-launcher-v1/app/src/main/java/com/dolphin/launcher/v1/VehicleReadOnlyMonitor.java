@@ -102,7 +102,12 @@ public final class VehicleReadOnlyMonitor {
 
     private boolean changedNormalized(String key,Integer value){
         Integer old=lastRaw.put(key,value);
-        return old==null||!old.equals(value);
+        if(old==null){
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    app,"VEHICLE_BASELINE",key+" raw="+value+";voice=suppressed");
+            return false;
+        }
+        return !old.equals(value);
     }
 
     private Integer read(String className,String methodName){
