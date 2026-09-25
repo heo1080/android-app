@@ -2114,26 +2114,37 @@
       "test_id": "MED-BG-001",
       "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
       "required_any": [
-        "AUTOSTART_MEDIA_CHANGED",
-        "BACKGROUND_MEDIA_APP_DISPATCHED",
-        "BACKGROUND_MEDIA_PLAY_REQUESTED"
+        "BACKGROUND_MEDIA_SESSION_SCAN",
+        "BACKGROUND_MEDIA_TARGET_SESSION_FOUND",
+        "BACKGROUND_MEDIA_PLAY_REQUESTED",
+        "BACKGROUND_MEDIA_PLAY_FAILED"
       ],
       "success_any": [
-        "target app audible playback verified"
+        "target app audible playback verified",
+        "session_package matches target package"
       ],
       "failure_any": [
         "BACKGROUND_MEDIA_PLAY_FAILED",
-        "wrong media session playback"
+        "BACKGROUND_MEDIA_SESSION_ACCESS_REQUIRED",
+        "wrong media session playback",
+        "non-target session hijacked"
       ],
       "acceptance": [
         "configured target media app launches after configured delay",
-        "PLAY request is not treated as playback success"
+        "target package matching active MediaSession receives play()",
+        "no global media-key fallback is used",
+        "PLAY request/readback is not treated as audible playback success"
       ],
       "required_logs": [
-        "package",
+        "target package",
         "delay_ms",
-        "BACKGROUND_MEDIA_APP_DISPATCHED",
-        "BACKGROUND_MEDIA_PLAY_REQUESTED"
+        "BACKGROUND_MEDIA_SESSION_SCAN",
+        "session_package",
+        "BACKGROUND_MEDIA_PLAY_REQUESTED",
+        "BACKGROUND_MEDIA_PLAYBACK_READBACK",
+        "audible playback observation",
+        "non-target media observation",
+        "safety warning observation"
       ]
     },
     {
@@ -2161,26 +2172,38 @@
       "test_id": "MED-BG-002",
       "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
       "required_any": [
+        "BACKGROUND_MEDIA_SESSION_SCAN",
+        "BACKGROUND_MEDIA_TARGET_SESSION_FOUND",
         "BACKGROUND_MEDIA_PLAY_REQUESTED",
-        "OPERATOR_RESULT"
+        "BACKGROUND_MEDIA_PLAY_FAILED"
       ],
       "success_any": [
         "stock safety warning unaffected",
-        "non-target media unaffected"
+        "non-target media unaffected",
+        "global_media_key=false"
       ],
       "failure_any": [
-        "safety warning suppressed",
+        "BACKGROUND_MEDIA_PLAY_FAILED",
+        "BACKGROUND_MEDIA_SESSION_ACCESS_REQUIRED",
+        "wrong media session playback",
         "non-target session hijacked"
       ],
       "acceptance": [
         "real-car audible target playback confirmed",
-        "stock safety audio remains functional"
+        "non-target media session remains unaffected",
+        "stock safety audio remains functional",
+        "session access failure produces fail-closed evidence instead of global key dispatch"
       ],
       "required_logs": [
         "target package",
+        "delay_ms",
+        "BACKGROUND_MEDIA_SESSION_SCAN",
+        "session_package",
+        "BACKGROUND_MEDIA_PLAY_REQUESTED",
+        "BACKGROUND_MEDIA_PLAYBACK_READBACK",
         "audible playback observation",
-        "safety warning observation",
-        "non-target media observation"
+        "non-target media observation",
+        "safety warning observation"
       ]
     }
   ]
