@@ -57,9 +57,9 @@
         "LCH-DRW-001",
         "LCH-DRW-002"
       ],
-      "summary": "per-app pinned shortcut implementation restored; real-car BYD launcher behavior pending",
+      "summary": "pinned app shortcut request/callback/invocation/disable path restored; BYD launcher icon visibility and disabled-state behavior pending real-car verification",
       "state": "FIX_CANDIDATE",
-      "close_gate": "real-car per-app pinned shortcut creation, icon visibility, cold-start target launch, and removal/disable evidence"
+      "close_gate": "two repeatable real-car sessions with APP_SHORTCUT_PIN_CONFIRMED, visible pinned icon, cold-start target launch, and disable/remove behavior observed"
     },
     {
       "id": "KB-006",
