@@ -110,13 +110,7 @@ public class LauncherActivity extends Activity {
         vehiclePromptPlayer = new VehiclePromptPlayer(this);
         ownedAudioEqualizer = new OwnedAudioEqualizer(this);
         ownedSoundPosition = new OwnedSoundPosition(this);
-        vehiclePromptPlayer.preload(
-                "gear_p","gear_r","gear_n","gear_d",
-                "drive_eco","drive_normal","drive_sport",
-                "regen_standard","regen_high","snow_on","snow_off",
-                "autohold_on","autohold_off","autohold_held","autohold_released",
-                "epb_held","epb_released","icc_on","icc_off",
-                "leading_car_departure","bsd_left","bsd_right");
+        vehiclePromptPlayer.preload(VehicleVoicePolicy.promptIds());
         getWindow().setStatusBarColor(Color.parseColor("#03080B"));
         getWindow().setNavigationBarColor(Color.parseColor("#03080B"));
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
