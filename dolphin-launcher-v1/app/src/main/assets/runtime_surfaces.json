@@ -588,9 +588,9 @@
     {
       "feature_id": "AUDIO_EQUALIZER",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java",
-      "required_tokens": [
+      "tokens": [
         "FEATURE_FAIL_CLOSED",
-        "feature=AUDIO_EQUALIZER",
+        "AUDIO_EQUALIZER",
         "state=BETA",
         "actuation=false"
       ]
@@ -598,9 +598,9 @@
     {
       "feature_id": "AUDIO_SOUND_POSITION",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java",
-      "required_tokens": [
+      "tokens": [
         "FEATURE_FAIL_CLOSED",
-        "feature=AUDIO_SOUND_POSITION",
+        "AUDIO_SOUND_POSITION",
         "state=BETA",
         "actuation=false"
       ]
@@ -608,7 +608,7 @@
     {
       "feature_id": "AUDIO_EQUALIZER",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AudioCapabilityProbe.java",
-      "required_tokens": [
+      "tokens": [
         "AUDIO_CAPABILITY",
         "AUDIO_CAPABILITY_CONSTANT",
         "AUDIO_CAPABILITY_SCAN",
@@ -618,7 +618,7 @@
     {
       "feature_id": "AUDIO_EQUALIZER",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/OwnedAudioEqualizer.java",
-      "required_tokens": [
+      "tokens": [
         "MIN_DB=-6",
         "MAX_DB=6",
         "EQ_BANDS_CHANGED",
@@ -630,7 +630,7 @@
     {
       "feature_id": "AUDIO_SOUND_POSITION",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AudioCapabilityProbe.java",
-      "required_tokens": [
+      "tokens": [
         "balance",
         "fader",
         "AUDIO_CAPABILITY_SCAN",
@@ -640,7 +640,7 @@
     {
       "feature_id": "AUDIO_EQUALIZER",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/EqualizerAudibleTest.java",
-      "required_tokens": [
+      "tokens": [
         "EQ_AUDIBLE_TEST",
         "100.0,1000.0,8000.0",
         "target=app-owned",
@@ -650,7 +650,7 @@
     {
       "feature_id": "AUDIO_SOUND_POSITION",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/OwnedSoundPosition.java",
-      "required_tokens": [
+      "tokens": [
         "SOUND_POSITION_REQUEST",
         "SOUND_POSITION_PRESET",
         "vehicle_route_write=false",
@@ -660,7 +660,7 @@
     {
       "feature_id": "AUDIO_SOUND_POSITION",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
-      "required_tokens": [
+      "tokens": [
         "SOUND POSITION",
         "좌  BALANCE  우",
         "뒤  FADER  앞",
@@ -671,21 +671,34 @@
     {
       "feature_id": "DRIVER_ONLY_APP_OWNED_AUDIO",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DriverAudioCapabilityProbe.java",
-      "required_tokens": [
+      "tokens": [
         "AUDIO_OUTPUT_DEVICE",
         "DRIVER_AUDIO_CAPABILITY",
         "routing_write=false",
-        "byd_dsp_write=false"
+        "byd_dsp_write=false",
+        "DRIVER_AUDIO_PERMISSION",
+        "DRIVER_AUDIO_DEFAULTS",
+        "DRIVER_AUDIO_DEVICE_CANDIDATE",
+        "isPhysicalDriverRouteCandidate",
+        "candidate_only=true",
+        "physical_driver_only=unproven"
       ]
     },
     {
       "feature_id": "PER_APP_DRIVER_SPEAKER_ROUTING",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DriverAudioCapabilityProbe.java",
-      "required_tokens": [
+      "tokens": [
         "AUDIO_OUTPUT_DEVICE",
         "uid_affinity_write=false",
         "audio_policy_write=false",
-        "byd_dsp_write=false"
+        "byd_dsp_write=false",
+        "DRIVER_AUDIO_PERMISSION",
+        "DRIVER_AUDIO_DEFAULTS",
+        "DRIVER_AUDIO_DEVICE_CANDIDATE",
+        "isPhysicalDriverRouteCandidate",
+        "candidate_only=true",
+        "physical_driver_only=unproven",
+        "routing_write=false"
       ]
     },
     {
