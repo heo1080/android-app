@@ -72,11 +72,16 @@ public final class DisplayDiagnostics {
             for(ResolveInfo ri:apps){
                 ActivityInfo ai=ri.activityInfo;
                 if(ai==null) continue;
+                String resizeMode="unavailable";
+                try {
+                    Object rm=ActivityInfo.class.getField("resizeMode").get(ai);
+                    resizeMode=String.valueOf(rm);
+                } catch(Throwable ignored) { }
                 VerificationEvidenceRuntime.recordPassiveEvent(
                         activity,"APP_ORIENTATION_METADATA",
                         "package="+ai.packageName+";activity="+ai.name
                                 +";screenOrientation="+ai.screenOrientation
-                                +";resizeMode="+ai.resizeMode+";source=manifest;mode=read-only");
+                                +";resizeMode="+resizeMode+";source=manifest;mode=read-only");
                 count++;
             }
             VerificationEvidenceRuntime.recordPassiveEvent(
