@@ -3,6 +3,10 @@ package com.dolphin.launcher.v1;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.audiofx.Equalizer;
+import android.media.AudioAttributes;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 
 /**
  * Persistent three-band EQ settings for V1-owned audio.
@@ -37,6 +41,20 @@ public final class OwnedAudioEqualizer {
         prefs.edit().putInt("bass_db",0).putInt("mid_db",0).putInt("treble_db",0).apply();
         evidence("EQ_RESET","bass=0;mid=0;treble=0");
         applyStoredBands();
+    }
+
+    public AudioTrack createOwnedPcmTrack(int sampleRate){
+        try{
+            int min=AudioTrack.getMinBufferSize(sampleRate,AudioFormat.CHANNEL_OUT_STEREO,AudioFormat.ENCODING_PCM_16BIT);
+            if(min<=0){ evidence("EQ_TRACK_CREATE_FAILED","min_buffer="+min); return null; }
+            AudioAttributes attrs=new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build();
+            AudioFormat format=new AudioFormat.Builder().setSampleRate(sampleRate).setEncoding(AudioFormat.ENCODING_PCM_16BIT).setChannelMask(AudioFormat.CHANNEL_OUT_STEREO).build();
+            AudioTrack track=new AudioTrack(attrs,format,min,AudioTrack.MODE_STREAM,AudioManager.AUDIO_SESSION_ID_GENERATE);
+            if(track.getState()!=AudioTrack.STATE_INITIALIZED){ track.release(); evidence("EQ_TRACK_CREATE_FAILED","state=uninitialized"); return null; }
+            boolean bound=bindToAudioSession(track.getAudioSessionId());
+            evidence(bound?"EQ_TRACK_READY":"EQ_TRACK_EQ_UNAVAILABLE","session="+track.getAudioSessionId()+";sample_rate="+sampleRate);
+            return track;
+        }catch(Throwable t){ evidence("EQ_TRACK_CREATE_FAILED","error="+t.getClass().getSimpleName()); return null; }
     }
 
     public boolean bindToAudioSession(int audioSessionId){
