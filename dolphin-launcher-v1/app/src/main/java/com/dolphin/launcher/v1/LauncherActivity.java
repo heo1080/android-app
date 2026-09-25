@@ -68,6 +68,7 @@ public class LauncherActivity extends Activity {
     private List<AppEntry> apps = new ArrayList<>();
     private VehicleReadOnlyMonitor vehicleMonitor;
     private VehiclePromptPlayer vehiclePromptPlayer;
+    private volatile Integer tpmsFlKpa, tpmsFrKpa, tpmsRlKpa, tpmsRrKpa;
     private final VehicleVoicePolicy.Output vehicleVoiceOutput = (promptId, phrase) -> {
         if (vehiclePromptPlayer == null) {
             VerificationEvidenceRuntime.recordPassiveEvent(
@@ -226,6 +227,8 @@ public class LauncherActivity extends Activity {
                                 + ";pressure_state=" + flState + "," + frState + "," + rlState + "," + rrState
                                 + ";signal_state=" + flSignal + "," + frSignal + "," + rlSignal + "," + rrSignal
                                 + ";vehicle_unit_reverify=true");
+                tpmsFlKpa = validTpmsKpa(fl); tpmsFrKpa = validTpmsKpa(fr);
+                tpmsRlKpa = validTpmsKpa(rl); tpmsRrKpa = validTpmsKpa(rr);
             }
             @Override public void onRaw(String signal, Integer raw) {
                 // AVH/BSD and other not-yet-normalized signals remain evidence-only.
@@ -1042,6 +1045,16 @@ public class LauncherActivity extends Activity {
         lp.height = dp(126);
         lp.setMargins(dp(5), dp(5), dp(5), dp(5));
         return lp;
+    }
+
+
+    private Integer validTpmsKpa(Integer value) {
+        return value != null && value >= 0 && value <= 4094 ? value : null;
+    }
+
+    private String tpmsPsi(Integer kpa) {
+        if (kpa == null) return "-- psi";
+        return String.format(java.util.Locale.US, "%.1f psi", kpa * 0.1450377377d);
     }
 
     private View actionCard(String title, String subtitle, String symbol, Runnable action) {
