@@ -2,6 +2,12 @@ package com.dolphin.launcher.v1;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+
+import java.util.List;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.provider.Settings;
@@ -55,6 +61,31 @@ public final class DisplayDiagnostics {
         }catch(Throwable t){
             VerificationEvidenceRuntime.recordPassiveEvent(
                     activity,"DISPLAY_PROFILE_ERROR","type="+t.getClass().getSimpleName()+";mode=read-only");
+        }
+    }
+
+    public static void captureLaunchableAppOrientations(Activity activity){
+        try{
+            Intent intent=new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
+            List<ResolveInfo> apps=activity.getPackageManager().queryIntentActivities(intent,0);
+            int count=0;
+            for(ResolveInfo ri:apps){
+                ActivityInfo ai=ri.activityInfo;
+                if(ai==null) continue;
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        activity,"APP_ORIENTATION_METADATA",
+                        "package="+ai.packageName+";activity="+ai.name
+                                +";screenOrientation="+ai.screenOrientation
+                                +";resizeMode="+ai.resizeMode+";source=manifest;mode=read-only");
+                count++;
+            }
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    activity,"APP_ORIENTATION_METADATA_SCAN",
+                    "launchableCount="+count+";mode=read-only");
+        }catch(Throwable t){
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    activity,"APP_ORIENTATION_METADATA_ERROR",
+                    "type="+t.getClass().getSimpleName()+";mode=read-only");
         }
     }
 
