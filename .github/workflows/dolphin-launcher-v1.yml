@@ -5,6 +5,9 @@ on:
     branches:
       - dolphin-launcher-v1
       - codex/v1-1.2.2-auto-evidence-upload
+  pull_request:
+    branches:
+      - dolphin-launcher-v1
     paths:
       - "dolphin-launcher-v1/**"
       - ".github/workflows/dolphin-launcher-v1.yml"
