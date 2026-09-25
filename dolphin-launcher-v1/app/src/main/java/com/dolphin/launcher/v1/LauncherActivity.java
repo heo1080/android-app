@@ -505,6 +505,13 @@ public class LauncherActivity extends Activity {
         panel.addView(master, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(54)));
 
+        Button addApp = button("+ 앱 추가");
+        addApp.setOnClickListener(v -> showAutoStartAppPicker());
+        LinearLayout.LayoutParams addLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(48));
+        addLp.bottomMargin = dp(10);
+        panel.addView(addApp, addLp);
+
         List<AppEntry> selected = autoStartApps();
         if (selected.isEmpty()) {
             TextView empty = text("등록된 앱이 없습니다.\n앱서랍에서 앱을 길게 눌러 추가하세요.",
@@ -553,6 +560,69 @@ public class LauncherActivity extends Activity {
                 .setPositiveButton("앱서랍에서 추가", (d, w) -> showAppDrawer())
                 .setNegativeButton("닫기", null)
                 .show();
+    }
+
+    private void showAutoStartAppPicker() {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(14), dp(10), dp(14), dp(10));
+
+        Set<String> selected = autoStartPackages();
+        boolean hasCandidate = false;
+        for (AppEntry app : apps) {
+            if (selected.contains(app.packageName)) continue;
+            hasCandidate = true;
+
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            row.setPadding(dp(8), dp(5), dp(8), dp(5));
+
+            ImageView icon = new ImageView(this);
+            icon.setImageDrawable(app.icon);
+            row.addView(icon, new LinearLayout.LayoutParams(dp(40), dp(40)));
+
+            TextView label = text(app.label, 14f, Color.WHITE, false);
+            label.setPadding(dp(12), 0, dp(8), 0);
+            row.addView(label, new LinearLayout.LayoutParams(0, dp(50), 1f));
+
+            Button add = button("추가");
+            add.setOnClickListener(v -> {
+                LinkedHashSet<String> next = new LinkedHashSet<>(autoStartPackages());
+                if (next.add(app.packageName)) {
+                    prefs.edit().putStringSet(KEY_AUTOSTART_SET, next).apply();
+                    VerificationEvidenceRuntime.recordPassiveEvent(
+                            this, "AUTOSTART_APP_ADDED", "package=" + app.packageName);
+                    Toast.makeText(this, app.label + " · 시동 자동실행 추가", Toast.LENGTH_SHORT).show();
+                }
+            });
+            row.addView(add, new LinearLayout.LayoutParams(dp(76), dp(40)));
+            panel.addView(row);
+        }
+
+        if (!hasCandidate) {
+            TextView empty = text("추가할 앱이 없습니다.", 14f,
+                    Color.parseColor("#8AA0AA"), false);
+            empty.setPadding(0, dp(18), 0, dp(18));
+            panel.addView(empty);
+        }
+
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(panel);
+        AlertDialog picker = new AlertDialog.Builder(this)
+                .setTitle("시동 자동실행 · 앱 추가")
+                .setView(scroll)
+                .setPositiveButton("완료", (d, w) -> showAutoStartManager())
+                .setNegativeButton("닫기", null)
+                .create();
+        picker.setOnShowListener(d -> {
+            Window w = picker.getWindow();
+            if (w != null) {
+                w.setLayout((int) (getResources().getDisplayMetrics().widthPixels * 0.72f),
+                        (int) (getResources().getDisplayMetrics().heightPixels * 0.86f));
+            }
+        });
+        picker.show();
     }
 
     private void openVerificationCenter() {
