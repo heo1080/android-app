@@ -313,6 +313,12 @@ jobs:
               print("VOICE_FIXED_ASSETS_PENDING=" + ",".join(missing))
           PY
 
+      - name: Validate V1 correlation evaluator
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 dolphin-launcher-v1/tools/evaluate_live_correlations.py --self-test
+
       - name: Restore stable signing key
         shell: bash
         env:
