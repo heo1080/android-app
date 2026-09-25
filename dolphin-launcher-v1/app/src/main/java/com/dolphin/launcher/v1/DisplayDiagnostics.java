@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.hardware.display.DisplayManager;
+import android.view.Display;
 
 import java.util.List;
 import android.content.res.Configuration;
@@ -61,6 +63,31 @@ public final class DisplayDiagnostics {
         }catch(Throwable t){
             VerificationEvidenceRuntime.recordPassiveEvent(
                     activity,"DISPLAY_PROFILE_ERROR","type="+t.getClass().getSimpleName()+";mode=read-only");
+        }
+    }
+
+    public static void captureDisplayInventory(Activity activity){
+        try{
+            DisplayManager dm=(DisplayManager)activity.getSystemService(Context.DISPLAY_SERVICE);
+            Display[] displays=dm==null?new Display[0]:dm.getDisplays();
+            int count=0;
+            for(Display d:displays){
+                Display.Mode mode=d.getMode();
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        activity,"DISPLAY_INVENTORY",
+                        "id="+d.getDisplayId()+";name="+safe(d.getName())
+                                +";state="+d.getState()+";rotation="+d.getRotation()
+                                +";mode="+mode.getPhysicalWidth()+"x"+mode.getPhysicalHeight()
+                                +"@"+mode.getRefreshRate()+";flags="+d.getFlags()
+                                +";source=android-display-manager;mode=read-only");
+                count++;
+            }
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    activity,"DISPLAY_INVENTORY_SCAN","count="+count+";mode=read-only");
+        }catch(Throwable t){
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    activity,"DISPLAY_INVENTORY_ERROR",
+                    "type="+t.getClass().getSimpleName()+";mode=read-only");
         }
     }
 
