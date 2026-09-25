@@ -32,3 +32,5 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
+
+// CI trigger: default-branch workflow registration
