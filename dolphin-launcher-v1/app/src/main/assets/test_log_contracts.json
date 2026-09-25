@@ -2325,7 +2325,10 @@
         "previous-session Evidence ZIP is created before rollover",
         "manual session rollover enables independent repeatability without killing the app",
         "Verification Center result choices are sourced from test_log_contracts.allowed_outcomes",
-        "tests whose contracts exclude PASS can never expose PASS in the UI"
+        "tests whose contracts exclude PASS can never expose PASS in the UI",
+        "Verification Center P0 queue is generated from severity=P0 Known-Bad records",
+        "P0 queue exposes each Known-Bad close gate and linked Test IDs",
+        "result UI follows allowed_outcomes even when feature state is REVERIFY_REQUIRED"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2348,7 +2351,9 @@
         "SESSION_ROLLOVER_REQUESTED",
         "SESSION_ROLLOVER_COMPLETED",
         "loadTestContracts",
-        "allowedOutcomesForTest"
+        "allowedOutcomesForTest",
+        "loadKnownBadRegistry",
+        "showP0Queue"
       ]
     },
     {
