@@ -824,7 +824,11 @@
         "activeTestWithin",
         "KEY_ACTIVE_TEST_STARTED_ELAPSED",
         "operatorObservationCounts",
-        "observationFromNote"
+        "observationFromNote",
+        "PROCESS_RESUME_ACTIVE_TEST",
+        "ACTIVE_TEST_STALE_CLEARED",
+        "clearActiveTestState",
+        "sameBootActive"
       ]
     },
     {
