@@ -833,7 +833,8 @@ public class LauncherActivity extends Activity {
         } else {
             int order = 1;
             for (AppEntry app : selected) {
-                final int delay = 2 + (order - 1) * 3;
+                final long delayMs = AutoStartStore.delayMs(prefs, app.packageName, order - 1);
+                final int delay = (int) Math.round(delayMs / 1000.0);
                 LinearLayout row = new LinearLayout(this);
                 row.setOrientation(LinearLayout.HORIZONTAL);
                 row.setGravity(Gravity.CENTER_VERTICAL);
@@ -846,6 +847,24 @@ public class LauncherActivity extends Activity {
                         14f, Color.WHITE, false);
                 label.setPadding(dp(12), 0, dp(10), 0);
                 row.addView(label, new LinearLayout.LayoutParams(0, dp(50), 1f));
+
+                Button delayMinus = button("-1초");
+                delayMinus.setOnClickListener(v -> {
+                    long next = Math.max(0L, AutoStartStore.delayMs(prefs, app.packageName, order - 1) - 1000L);
+                    AutoStartStore.setDelayMs(prefs, app.packageName, next);
+                    VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_DELAY_CHANGED", "package=" + app.packageName + ";delay_ms=" + next);
+                    showAutoStartManager();
+                });
+                row.addView(delayMinus, new LinearLayout.LayoutParams(dp(66), dp(38)));
+
+                Button delayPlus = button("+1초");
+                delayPlus.setOnClickListener(v -> {
+                    long next = Math.min(30000L, AutoStartStore.delayMs(prefs, app.packageName, order - 1) + 1000L);
+                    AutoStartStore.setDelayMs(prefs, app.packageName, next);
+                    VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_DELAY_CHANGED", "package=" + app.packageName + ";delay_ms=" + next);
+                    showAutoStartManager();
+                });
+                row.addView(delayPlus, new LinearLayout.LayoutParams(dp(66), dp(38)));
 
                 Switch media = new Switch(this);
                 media.setText("미디어");
