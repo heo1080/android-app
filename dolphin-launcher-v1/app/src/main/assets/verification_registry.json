@@ -329,7 +329,9 @@
         "2분할 pinned shortcut 요청과 실제 pin-success callback을 구분해 기록",
         "고정 바로가기 실행 시 생성 당시 좌/우 패키지 쌍을 사용",
         "비율 적용은 별도 실차 근거가 확보될 때까지 추정하지 않음",
-        "카메라 종료 후 안전한 복원"
+        "카메라 종료 후 안전한 복원",
+        "실제 2분할 화면과 카메라 복귀를 operator marker로 readback과 별도 확인",
+        "바로가기 pin 표시와 바로가기 실행 후 실제 split을 operator marker로 별도 확인"
       ],
       "required_logs": [
         "SPLIT_ADB_COMMAND",
@@ -338,7 +340,12 @@
         "left/right windowing mode readback",
         "dumpsys activity/am stack context",
         "SPLIT_SHORTCUT_REQUEST",
-        "SPLIT_SHORTCUT_PIN_CONFIRMED"
+        "SPLIT_SHORTCUT_PIN_CONFIRMED",
+        "OPERATOR_OBSERVATION",
+        "SPLIT_TWO_APP_VISIBLE",
+        "SPLIT_CAMERA_RETURN_OK",
+        "SPLIT_SHORTCUT_ICON_VISIBLE",
+        "SPLIT_SHORTCUT_LAUNCH_VISIBLE"
       ],
       "known_bad": [
         "사용자 실차에서 분할화면 미작동 보고",
@@ -1049,14 +1056,18 @@
       "acceptance": [
         "운전석에서만 명확히 청취",
         "다른 좌석/일반 media route와 분리",
-        "순정 안전경고 방해 없음"
+        "순정 안전경고 방해 없음",
+        "운전석 청취/타 좌석 무음/OEM 안전경고 우선권을 서로 다른 operator marker로 기록"
       ],
       "required_logs": [
         "legacy stream",
         "AudioAttributes",
         "output devices",
         "focus",
-        "actual audible result"
+        "actual audible result",
+        "DRIVER_SEAT_AUDIBLE",
+        "OTHER_SEATS_SILENT",
+        "OEM_WARNING_PREEMPT_OK"
       ],
       "known_bad": [
         "과거 route probe에서 AudioTrack 성공인데 실제 소리 안 들린 사례",
@@ -1555,14 +1566,17 @@
       "acceptance": [
         "command success가 물리 반응과 일치",
         "ON/OFF readback 또는 독립 관찰",
-        "raw fallback은 calibration 모드에서만"
+        "raw fallback은 calibration 모드에서만",
+        "V1 runtime actuation/readback 미구현 상태에서는 Test Contract가 PASS를 허용하지 않음"
       ],
       "required_logs": [
         "method overload",
         "raw param",
         "return",
         "getter/readback",
-        "operator observed result"
+        "operator observed result",
+        "FEATURE_FAIL_CLOSED",
+        "actuation=false"
       ],
       "known_bad": [
         "실차에서 return success인데 물리 실내등이 작동하지 않은 사례"
@@ -1578,7 +1592,7 @@
         "InsideLightManager + raw calibration patch",
         "V1 runtime implementation not present; legacy source is research evidence only"
       ],
-      "next_action": "V1 runtime 구현 전까지 기능 제공으로 간주하지 않음; 실차 API evidence 선행",
+      "next_action": "V1 runtime actuation/readback 구현 전 COMF-LIGHT-001/002는 NEED_MORE_DATA만 허용; legacy return success로 PASS 금지",
       "confidence": {
         "behavior": "LOW",
         "root_cause": "MEDIUM",
@@ -1755,7 +1769,9 @@
         "Verification Center에서 active Test가 없을 때 새 검증 세션을 명시적으로 시작 가능",
         "세션 rollover 전 현재 session Evidence ZIP을 먼저 보존",
         "active Test 진행 중에는 session rollover를 차단",
-        "명시적 새 검증 세션으로 cross-session repeatability를 앱 강제 종료 없이 수집 가능"
+        "명시적 새 검증 세션으로 cross-session repeatability를 앱 강제 종료 없이 수집 가능",
+        "Verification Center 결과 선택지는 test_log_contracts.allowed_outcomes를 직접 사용",
+        "contract가 PASS를 제외하면 Feature state와 무관하게 PASS UI를 노출하지 않음"
       ],
       "required_logs": [
         "registry schema/version",
