@@ -75,7 +75,7 @@ public final class VehicleVoicePolicy {
     public static synchronized void icc(Context c, Output out, boolean on) {
         String v=on?"ON":"OFF";
         lastIcc=emitChanged(c,out,"ICC",lastIcc,v,on?"icc_on":"icc_off",
-                on?"자율주행 켜짐":"자율주행 꺼짐");
+                on?"ICC 켜짐":"ICC 꺼짐");
     }
 
     public static synchronized void leadingCarDeparture(Context c, Output out, boolean detected) {
