@@ -395,6 +395,57 @@
       "tokens": [
         "SurroundingVisionCapabilityProbe.capture(this)"
       ]
+    },
+    {
+      "feature_id": "BUILD_IDENTITY",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java",
+      "tokens": [
+        "version_name",
+        "version_code",
+        "source_commit",
+        "apk_sha256",
+        "BuildConfig.SOURCE_COMMIT"
+      ]
+    },
+    {
+      "feature_id": "LAUNCHER_ENTRY_IDENTITY",
+      "path": "dolphin-launcher-v1/app/src/main/AndroidManifest.xml",
+      "tokens": [
+        ".LauncherActivity",
+        "android.intent.action.MAIN",
+        "android.intent.category.LAUNCHER"
+      ]
+    },
+    {
+      "feature_id": "IN_APP_TTS_CORE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehiclePromptPlayer.java",
+      "tokens": [
+        "TextToSpeech",
+        "Locale.KOREAN",
+        "VOICE_TTS_READY",
+        "VOICE_TTS_FALLBACK_REQUESTED"
+      ]
+    },
+    {
+      "feature_id": "DRIVER_ONLY_APP_OWNED_AUDIO",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehiclePromptPlayer.java",
+      "tokens": [
+        "SoundPool",
+        "USAGE_ASSISTANCE_NAVIGATION_GUIDANCE",
+        "voice_",
+        "VOICE_ASSET_MISSING",
+        "VOICE_PLAY_REQUESTED"
+      ]
+    },
+    {
+      "feature_id": "LIVE_VEHICLE_INFO",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
+      "tokens": [
+        "PERIOD_MS=500L",
+        "VEHICLE_RAW",
+        "VEHICLE_BASELINE",
+        "TPMS_AREA_UNRESOLVED"
+      ]
     }
   ],
   "notes": [
