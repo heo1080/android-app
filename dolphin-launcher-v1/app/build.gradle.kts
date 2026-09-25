@@ -35,3 +35,5 @@ android {
 
 
 // CI trigger: runtime surface drift enforcement
+
+// CI trigger: vehicle prompt runtime validation
