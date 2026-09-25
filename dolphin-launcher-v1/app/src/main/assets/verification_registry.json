@@ -605,7 +605,10 @@
         "DRIVE_MODE_EVIDENCE_MAP",
         "DRIVE_MODE_UNMAPPED",
         "VEHICLE_VOICE",
-        "timestamp"
+        "timestamp",
+        "OPERATOR_OBSERVATION",
+        "elapsed_realtime_ms",
+        "latest_raw snapshot"
       ],
       "known_bad": [
         "실차에서 NORMAL 음성 누락",
@@ -659,7 +662,10 @@
         "VEHICLE_RAW",
         "REGEN_MODE_EVIDENCE_MAP",
         "REGEN_MODE_UNMAPPED",
-        "VEHICLE_VOICE"
+        "VEHICLE_VOICE",
+        "OPERATOR_OBSERVATION",
+        "elapsed_realtime_ms",
+        "latest_raw snapshot"
       ],
       "known_bad": [
         "STANDARD 전환 시 ECO라고 잘못 안내된 과거 회귀",
@@ -761,7 +767,8 @@
         "브레이크를 계속 밟는 동안 실제 체결 순간을 포착할 수 있는 직접 raw/상태 근거 확보",
         "브레이크를 떼는 순간을 HOLD 체결로 추론하지 않음",
         "체결/해제 동일 시점 이중 발화 금지",
-        "확정 전 모든 AutoHold 음성은 fail-closed"
+        "확정 전 모든 AutoHold 음성은 fail-closed",
+        "AUD-AVH active test 동안 500ms live sample로 brake 유지 중 체결 전후 raw를 연속 보존"
       ],
       "required_logs": [
         "AUTOHOLD_RAW_TRANSITION",
@@ -775,7 +782,11 @@
         "brake_pedal_raw",
         "brake_depth_raw",
         "accel_depth_raw",
-        "operator AVH indicator state"
+        "operator AVH indicator state",
+        "OPERATOR_OBSERVATION",
+        "elapsed_realtime_ms",
+        "latest_raw snapshot",
+        "AUTOHOLD_LIVE_SAMPLE"
       ],
       "known_bad": [
         "과거 추론 로직은 brakeDepth>0을 기억한 뒤 brakeDepth=0이 될 때 HOLD로 판정해 브레이크를 떼야 체결 음성이 나는 구조였음",
@@ -798,7 +809,8 @@
       "evidence": [
         "20260917 real-car: adas.avh raw 0↔1 transitions captured",
         "legacy v30.6.3 inference source waited for brakeDepth to return to 0 before HOLD",
-        "V1 AUTOHOLD_CORRELATION_SNAPSHOT evidence-only capture"
+        "V1 AUTOHOLD_CORRELATION_SNAPSHOT evidence-only capture",
+        "active AUD-AVH test enables 500ms AUTOHOLD_LIVE_SAMPLE"
       ],
       "next_action": "최신 V1 실차에서 브레이크 유지 중 physical hold indicator 시점과 snapshot을 상관해 직접 신호를 확정; 추론식 재사용 금지",
       "confidence": {
@@ -1676,7 +1688,8 @@
         "실차 Test ID는 TEST_START 후 조작 중 OPERATOR_OBSERVATION을 여러 번 기록하고 최종 OPERATOR_RESULT/TEST_END로 종료",
         "evidence row는 wall-clock timestamp와 elapsed_realtime_ms를 함께 기록",
         "진행 중 Test ID/correlation은 process 재생성 후 Verification Center에서 복원",
-        "Test 완료/중단 시 Evidence ZIP을 자동 queue/upload"
+        "Test 완료/중단 시 Evidence ZIP을 자동 queue/upload",
+        "Evidence ZIP은 Registry/Test Contract/Dependencies/Runtime Surface/Known-Bad/Voice Manifest를 함께 포함"
       ],
       "required_logs": [
         "registry schema/version",
