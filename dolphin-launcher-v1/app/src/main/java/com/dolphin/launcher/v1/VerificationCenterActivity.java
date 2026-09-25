@@ -30,6 +30,13 @@ public class VerificationCenterActivity extends Activity {
     private TextView pendingStatus;
     private TextView lastUploadStatus;
     private LinearLayout detailList;
+    private LinearLayout activeCapturePanel;
+    private LinearLayout activeCaptureActions;
+    private TextView activeCaptureStatus;
+    private String activeTestId;
+    private String activeCorrelationId;
+    private String activeTestState;
+    private JSONObject activeFeature;
     private boolean detailsVisible = false;
 
     @Override
@@ -54,6 +61,7 @@ public class VerificationCenterActivity extends Activity {
         super.onResume();
         refreshLedger();
         refreshRuntimeStatus();
+        restoreActiveCapture();
     }
 
     private void refreshRuntimeStatus() {
@@ -124,11 +132,12 @@ public class VerificationCenterActivity extends Activity {
         refreshRuntimeStatus();
         root.addView(autoStatus);
 
-        Button details = button("개발자 상세 · 33 Feature / 49 Test ID");
+        final String detailLabel = "개발자 상세 · " + featureCount + " Feature / " + testIds.size() + " Test ID";
+        Button details = button(detailLabel);
         details.setOnClickListener(v -> {
             detailsVisible = !detailsVisible;
             if (detailList != null) detailList.setVisibility(detailsVisible ? View.VISIBLE : View.GONE);
-            details.setText(detailsVisible ? "개발자 상세 닫기" : "개발자 상세 · 33 Feature / 49 Test ID");
+            details.setText(detailsVisible ? "개발자 상세 닫기" : detailLabel);
         });
         root.addView(details, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
 
@@ -160,6 +169,27 @@ public class VerificationCenterActivity extends Activity {
         actions.addView(export, weighted());
         root.addView(actions,
                 new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(60)));
+
+        activeCapturePanel = new LinearLayout(this);
+        activeCapturePanel.setOrientation(LinearLayout.VERTICAL);
+        activeCapturePanel.setPadding(dp(14), dp(12), dp(14), dp(12));
+        activeCapturePanel.setBackground(round("#101B10", 16, "#4A7A58"));
+        activeCapturePanel.setVisibility(View.GONE);
+
+        activeCaptureStatus = text("실차 캡처 세션 없음", 13f, Color.WHITE, true);
+        activeCapturePanel.addView(activeCaptureStatus);
+
+        activeCaptureActions = new LinearLayout(this);
+        activeCaptureActions.setOrientation(LinearLayout.VERTICAL);
+        activeCaptureActions.setPadding(0, dp(8), 0, 0);
+        activeCapturePanel.addView(activeCaptureActions,
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout.LayoutParams captureLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        captureLp.setMargins(0, dp(4), 0, dp(10));
+        root.addView(activeCapturePanel, captureLp);
 
         ScrollView scroll = new ScrollView(this);
         scroll.setFillViewport(true);
@@ -228,6 +258,130 @@ public class VerificationCenterActivity extends Activity {
     }
 
     private void openTestDialog(String testId, String state, JSONObject feature) {
+        if (activeTestId != null) {
+            if (activeTestId.equals(testId)) {
+                Toast.makeText(this, testId + " 캡처 세션이 이미 진행 중입니다.",
+                        Toast.LENGTH_SHORT).show();
+                refreshActiveCaptureUi();
+            } else {
+                Toast.makeText(this, "먼저 진행 중인 " + activeTestId + " 세션을 종료하세요.",
+                        Toast.LENGTH_LONG).show();
+            }
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle(testId + " · " + state)
+                .setMessage(feature.optString("requirement", "")
+                        + "\n\n실차 조작 전에 캡처를 시작하고, 실제 표시가 바뀌는 순간 아래 마커를 누르세요.")
+                .setPositiveButton("실차 캡처 시작", (dialog, which) ->
+                        startLiveCapture(testId, state, feature))
+                .setNegativeButton("취소", null)
+                .show();
+    }
+
+    private void startLiveCapture(String testId, String state, JSONObject feature) {
+        activeTestId = testId;
+        activeTestState = state;
+        activeFeature = feature;
+        activeCorrelationId = VerificationEvidenceRuntime.startTest(this, testId);
+        refreshActiveCaptureUi();
+        Toast.makeText(this, testId + " 캡처 시작", Toast.LENGTH_SHORT).show();
+    }
+
+    private void restoreActiveCapture() {
+        if (registry == null || activeCapturePanel == null) return;
+        String testId = VerificationEvidenceRuntime.activeTestId(this);
+        String correlation = VerificationEvidenceRuntime.activeTestCorrelation(this);
+        if (testId == null || correlation == null) return;
+        JSONObject feature = findFeatureForTest(testId);
+        if (feature == null) return;
+        activeTestId = testId;
+        activeCorrelationId = correlation;
+        activeFeature = feature;
+        activeTestState = feature.optString("state", "UNKNOWN");
+        refreshActiveCaptureUi();
+    }
+
+    private JSONObject findFeatureForTest(String testId) {
+        JSONArray features = registry == null ? null : registry.optJSONArray("features");
+        if (features == null) return null;
+        for (int i = 0; i < features.length(); i++) {
+            JSONObject feature = features.optJSONObject(i);
+            JSONArray ids = feature == null ? null : feature.optJSONArray("test_ids");
+            if (ids == null) continue;
+            for (int j = 0; j < ids.length(); j++) {
+                if (testId.equals(ids.optString(j))) return feature;
+            }
+        }
+        return null;
+    }
+
+    private void refreshActiveCaptureUi() {
+        if (activeCapturePanel == null || activeCaptureActions == null || activeCaptureStatus == null) return;
+        if (activeTestId == null || activeCorrelationId == null) {
+            activeCapturePanel.setVisibility(View.GONE);
+            activeCaptureActions.removeAllViews();
+            return;
+        }
+
+        activeCapturePanel.setVisibility(View.VISIBLE);
+        activeCaptureStatus.setText("실차 캡처 진행 중 · " + activeTestId
+                + "\nraw 변화와 운전자 관찰 마커를 같은 시간축으로 기록합니다.");
+        activeCaptureActions.removeAllViews();
+
+        LinearLayout markerRow = new LinearLayout(this);
+        markerRow.setOrientation(LinearLayout.HORIZONTAL);
+        addMarkerButton(markerRow, "시점 기록", "OPERATOR_MARK");
+
+        if ("AUD-DRV-002".equals(activeTestId)) {
+            addMarkerButton(markerRow, "OEM NORMAL", "OEM_NORMAL_VISIBLE");
+        } else if ("AUD-REG-002".equals(activeTestId)) {
+            addMarkerButton(markerRow, "OEM STANDARD", "OEM_STANDARD_VISIBLE");
+        } else if ("AUD-AVH-001".equals(activeTestId)) {
+            addMarkerButton(markerRow, "버튼 ON", "AUTOHOLD_SWITCH_ON_VISIBLE");
+            addMarkerButton(markerRow, "버튼 OFF", "AUTOHOLD_SWITCH_OFF_VISIBLE");
+        } else if ("AUD-AVH-002".equals(activeTestId)) {
+            addMarkerButton(markerRow, "체결 표시", "AUTOHOLD_HELD_VISIBLE");
+            addMarkerButton(markerRow, "해제/출발", "AUTOHOLD_RELEASE_VISIBLE");
+        }
+        activeCaptureActions.addView(markerRow,
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
+
+        LinearLayout controlRow = new LinearLayout(this);
+        controlRow.setOrientation(LinearLayout.HORIZONTAL);
+
+        Button finish = button("결과 종료");
+        finish.setOnClickListener(v -> finishActiveCaptureDialog());
+        controlRow.addView(finish, weighted());
+
+        Button abort = button("중단 · 데이터 유지");
+        abort.setOnClickListener(v -> abortActiveCapture());
+        controlRow.addView(abort, weighted());
+
+        activeCaptureActions.addView(controlRow,
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
+    }
+
+    private void addMarkerButton(LinearLayout row, String label, String observation) {
+        Button marker = button(label);
+        marker.setTextSize(11f);
+        marker.setOnClickListener(v -> recordActiveObservation(observation));
+        row.addView(marker, weighted());
+    }
+
+    private void recordActiveObservation(String observation) {
+        if (activeTestId == null || activeCorrelationId == null) return;
+        VerificationEvidenceRuntime.operatorObservation(
+                this, activeTestId, activeCorrelationId, observation,
+                "Verification Center live correlation marker");
+        refreshLedger();
+        Toast.makeText(this, "관찰 마커 기록: " + observation,
+                Toast.LENGTH_SHORT).show();
+    }
+
+    private void finishActiveCaptureDialog() {
+        if (activeTestId == null || activeCorrelationId == null) return;
         EditText note = new EditText(this);
         note.setHint("실차 관찰/재현 메모");
         note.setTextColor(Color.WHITE);
@@ -237,30 +391,43 @@ public class VerificationCenterActivity extends Activity {
         note.setPadding(dp(14), dp(10), dp(14), dp(10));
         note.setBackground(round("#071116", 14, "#294957"));
 
-        boolean blocked = "BLOCKED".equals(state) || "UNSUPPORTED".equals(state);
+        boolean blocked = "BLOCKED".equals(activeTestState) || "UNSUPPORTED".equals(activeTestState);
         String[] outcomes = blocked
                 ? new String[]{"NEED_MORE_DATA"}
                 : new String[]{"PASS", "FAIL", "INTERMITTENT", "DELAYED", "NEED_MORE_DATA"};
 
         new AlertDialog.Builder(this)
-                .setTitle(testId + " · " + state)
-                .setMessage(feature.optString("requirement", ""))
+                .setTitle(activeTestId + " 결과")
+                .setMessage(activeFeature == null ? "" : activeFeature.optString("requirement", ""))
                 .setView(note)
-                .setItems(outcomes, (dialog, which) -> {
-                    String outcome = outcomes[which];
-                    String correlation = VerificationEvidenceRuntime.startTest(this, testId);
-                    VerificationEvidenceRuntime.operatorResult(
-                            this, testId, correlation, outcome,
-                            note.getText().toString().trim());
-                    VerificationEvidenceRuntime.endTest(
-                            this, testId, correlation, outcome,
-                            "Verification Center completed");
-                    refreshLedger();
-                    Toast.makeText(this, testId + " → " + outcome,
-                            Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("취소", null)
+                .setItems(outcomes, (dialog, which) ->
+                        completeActiveCapture(outcomes[which], note.getText().toString().trim(),
+                                "Verification Center live capture completed"))
+                .setNegativeButton("계속 캡처", null)
                 .show();
+    }
+
+    private void abortActiveCapture() {
+        if (activeTestId == null || activeCorrelationId == null) return;
+        completeActiveCapture("NEED_MORE_DATA", "operator aborted live capture",
+                "Verification Center live capture aborted");
+    }
+
+    private void completeActiveCapture(String outcome, String note, String endNote) {
+        String testId = activeTestId;
+        String correlation = activeCorrelationId;
+        VerificationEvidenceRuntime.operatorResult(this, testId, correlation, outcome, note);
+        VerificationEvidenceRuntime.endTest(this, testId, correlation, outcome, endNote);
+        VerificationEvidenceRuntime.queueBundleAndUpload(this, "test-complete-" + testId);
+
+        activeTestId = null;
+        activeCorrelationId = null;
+        activeTestState = null;
+        activeFeature = null;
+        refreshLedger();
+        refreshRuntimeStatus();
+        refreshActiveCaptureUi();
+        Toast.makeText(this, testId + " → " + outcome, Toast.LENGTH_SHORT).show();
     }
 
     private void refreshLedger() {
