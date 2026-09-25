@@ -319,6 +319,12 @@ jobs:
           assert "VOICE_TTS_FALLBACK_DROPPED_NOT_READY" in player, "TTS not-ready fallback must be explicitly dropped"
           assert "queued=false;delayed_replay=false" in player, "no delayed fallback replay contract missing"
           assert "TextToSpeech.QUEUE_FLUSH" in player, "fallback TTS must flush stale utterances"
+          split_launcher=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java").read_text(encoding="utf-8")
+          split_bridge=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SplitExecutionBridge.java").read_text(encoding="utf-8")
+          assert "SPLIT_CAMERA_EVIDENCE_RUNTIME" in split_launcher
+          assert "restore_enabled=false;actuation=false" in split_launcher
+          assert "restore_attempted=false;actuation=false" in split_launcher
+          assert "inspectCurrentPair" in split_bridge and "SPLIT_READBACK_PASSIVE" in split_bridge
           android_manifest=pathlib.Path("dolphin-launcher-v1/app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
           assert 'android.intent.action.TTS_SERVICE' in android_manifest, "Android 11+ TTS service visibility query missing"
           assert r'\\n    <uses-permission' not in android_manifest, "literal \\n drift in AndroidManifest permissions"
