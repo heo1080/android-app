@@ -126,6 +126,7 @@ public class LauncherActivity extends Activity {
         VerificationEvidenceRuntime.startAutomaticUploadRuntime(this);
         VerificationEvidenceRuntime.recordPassiveEvent(this, "APP_LAUNCH", "LauncherActivity created");
         DisplayDiagnostics.capture(this);
+        DisplayDiagnostics.captureNotificationAccess(this);
         DisplayDiagnostics.captureDisplayInventory(this);
         InstrumentCapabilityProbe.capture(this);
         DisplayDiagnostics.captureLaunchableAppOrientations(this);
