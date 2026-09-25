@@ -157,7 +157,12 @@
         "SPLIT_SHORTCUT_LAUNCH_VISIBLE",
         "DRIVER_SEAT_AUDIBLE",
         "OTHER_SEATS_SILENT",
-        "OEM_WARNING_PREEMPT_OK"
+        "OEM_WARNING_PREEMPT_OK",
+        "p0Count",
+        "showP0Queue",
+        "showP0Item",
+        "P0 실차 검증 큐",
+        "knownBadRegistry"
       ]
     },
     {
@@ -859,7 +864,8 @@
         "SESSION_ROLLOVER_COMPLETED",
         "active test must finish before session rollover",
         "loadTestContracts",
-        "test_log_contracts.json"
+        "test_log_contracts.json",
+        "loadKnownBadRegistry"
       ]
     },
     {
