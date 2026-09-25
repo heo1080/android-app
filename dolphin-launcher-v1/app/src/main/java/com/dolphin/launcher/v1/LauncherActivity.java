@@ -375,7 +375,7 @@ public class LauncherActivity extends Activity {
             }
             shortcutHost.removeAllViews();
             if (splitReady()) {
-                TextView split = text("◫   2분할 바로가기   " + splitDescription(),
+                TextView split = text("◫   2분할 실행   " + splitDescription(),
                         14f, Color.WHITE, true);
                 split.setGravity(Gravity.CENTER_VERTICAL);
                 split.setPadding(dp(18), 0, dp(18), 0);
@@ -388,6 +388,13 @@ public class LauncherActivity extends Activity {
                         ViewGroup.LayoutParams.MATCH_PARENT, dp(54));
                 lp.bottomMargin = dp(10);
                 shortcutHost.addView(split, lp);
+
+                Button pin = button("순정 앱서랍에 2분할 바로가기 만들기");
+                pin.setOnClickListener(v -> createPinnedSplitShortcut());
+                LinearLayout.LayoutParams pinLp = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, dp(48));
+                pinLp.bottomMargin = dp(10);
+                shortcutHost.addView(pin, pinLp);
             }
         };
 
@@ -463,6 +470,37 @@ public class LauncherActivity extends Activity {
                     if (which == 4) openAppInfo(app.packageName);
                 })
                 .show();
+    }
+
+    private void createPinnedSplitShortcut() {
+        if (!splitReady()) {
+            Toast.makeText(this, "서로 다른 좌/우 앱을 먼저 지정하세요.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (android.os.Build.VERSION.SDK_INT < 26) {
+            Toast.makeText(this, "이 Android 버전은 고정 바로가기를 지원하지 않습니다.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        android.content.pm.ShortcutManager manager = getSystemService(android.content.pm.ShortcutManager.class);
+        if (manager == null || !manager.isRequestPinShortcutSupported()) {
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "SPLIT_SHORTCUT_UNSUPPORTED", "launcher does not support requestPinShortcut");
+            Toast.makeText(this, "현재 차량 런처가 고정 바로가기 생성을 지원하지 않습니다.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        String label = "2분할 · " + splitDescription();
+        Intent launch = new Intent(this, LauncherActivity.class)
+                .setAction("com.dolphin.launcher.v1.LAUNCH_SPLIT_SHORTCUT")
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        android.content.pm.ShortcutInfo shortcut = new android.content.pm.ShortcutInfo.Builder(this, "dolphin_split_pair")
+                .setShortLabel("2분할")
+                .setLongLabel(label)
+                .setIcon(android.graphics.drawable.Icon.createWithResource(this, getApplicationInfo().icon))
+                .setIntent(launch)
+                .build();
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this, "SPLIT_SHORTCUT_REQUEST", "pair=" + splitDescription());
+        manager.requestPinShortcut(shortcut, null);
     }
 
     private void launchSplitPair() {
