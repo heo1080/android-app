@@ -99,7 +99,7 @@
       "tokens": [
         "refreshRuntimeStatus",
         "pendingUploadCount",
-        "lastUploadSuccess"
+        "lastUploadStatus"
       ]
     },
     {
@@ -127,7 +127,7 @@
         "onSnowRaw",
         "captureStateConstants",
         "ENERGY_RUNTIME_CONSTANT",
-        "ENERGY_RUNTIME_CONSTANT_SCAN"
+        "event+\"_SCAN\""
       ]
     },
     {
@@ -138,7 +138,7 @@
         "onIccCandidateRaw",
         "captureStateConstants",
         "ADAS_RUNTIME_CONSTANT",
-        "ADAS_RUNTIME_CONSTANT_SCAN"
+        "event+\"_SCAN\""
       ]
     },
     {
@@ -151,7 +151,7 @@
         "captureStateConstants",
         "ADAS_RUNTIME_CONSTANT",
         "RADAR_RUNTIME_CONSTANT",
-        "RADAR_RUNTIME_CONSTANT_SCAN"
+        "event+\"_SCAN\""
       ]
     },
     {
@@ -430,7 +430,7 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java",
       "tokens": [
         "FEATURE_FAIL_CLOSED",
-        "feature=PER_APP_DRIVER_SPEAKER_ROUTING",
+        "PER_APP_DRIVER_SPEAKER_ROUTING",
         "actuation=false"
       ]
     },
@@ -439,7 +439,7 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java",
       "tokens": [
         "FEATURE_FAIL_CLOSED",
-        "feature=FSD_OBJECT_LANE_MODEL",
+        "FSD_OBJECT_LANE_MODEL",
         "actuation=false"
       ]
     },
@@ -448,7 +448,7 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java",
       "tokens": [
         "FEATURE_FAIL_CLOSED",
-        "feature=REVERSE_DOWN_MIRROR",
+        "REVERSE_DOWN_MIRROR",
         "actuation=false"
       ]
     },
@@ -457,7 +457,7 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java",
       "tokens": [
         "FEATURE_FAIL_CLOSED",
-        "feature=SEAT_MEMORY_M1_M3",
+        "SEAT_MEMORY_M1_M3",
         "actuation=false"
       ]
     },
@@ -466,7 +466,7 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java",
       "tokens": [
         "FEATURE_FAIL_CLOSED",
-        "feature=INTERIOR_LIGHT",
+        "INTERIOR_LIGHT",
         "actuation=false"
       ]
     },
@@ -618,7 +618,8 @@
         "AUTOSTART_LAUNCH_DISPATCHED",
         "AUTOSTART_LAUNCH_FAILED",
         "AutoStartStore.delayMs",
-        "AutoStartStore.mediaEnabled"
+        "AutoStartStore.mediaEnabled",
+        "AUTOSTART_SCHEDULED"
       ]
     },
     {
