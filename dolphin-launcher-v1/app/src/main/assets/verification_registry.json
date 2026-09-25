@@ -1751,7 +1751,11 @@
         "Verification Center의 marker 버튼·진행률·PASS gate는 markerPlanForTest 단일 카탈로그를 사용",
         "Test ID marker ID를 여러 UI 로직에 중복 선언하지 않음",
         "V1 branch 연속 커밋 시 이전 in-progress CI는 취소하고 최신 HEAD만 끝까지 검증",
-        "CI concurrency/cancel-in-progress 정책 누락 시 workflow 자체 검증 단계 실패"
+        "CI concurrency/cancel-in-progress 정책 누락 시 workflow 자체 검증 단계 실패",
+        "Verification Center에서 active Test가 없을 때 새 검증 세션을 명시적으로 시작 가능",
+        "세션 rollover 전 현재 session Evidence ZIP을 먼저 보존",
+        "active Test 진행 중에는 session rollover를 차단",
+        "명시적 새 검증 세션으로 cross-session repeatability를 앱 강제 종료 없이 수집 가능"
       ],
       "required_logs": [
         "registry schema/version",
@@ -1778,7 +1782,10 @@
         "PASS 잠금",
         "markerPlanForTest",
         "V1_CI_POLICY_OK",
-        "stale_runs_cancelled=true"
+        "stale_runs_cancelled=true",
+        "SESSION_ROLLOVER_REQUESTED",
+        "SESSION_ROLLOVER_COMPLETED",
+        "previous_bundle"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
@@ -1801,7 +1808,8 @@
         "marker progress is counted from the active correlation only",
         "correlation evaluator blocks cross-label raw collisions",
         "active-test process resume reuses diagnostic_session_id",
-        "workflow concurrency keeps latest V1 validation authoritative"
+        "workflow concurrency keeps latest V1 validation authoritative",
+        "Verification Center manual session rollover preserves previous bundle"
       ],
       "next_action": "실차 Evidence ZIP을 최소 2개 session에서 수집하고 evaluator 다중 입력으로 동일 raw 반복성을 비교; cross-session 후보도 수동 검토 전 매핑 활성화 금지",
       "confidence": {
