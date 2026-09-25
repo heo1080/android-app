@@ -207,6 +207,8 @@ jobs:
           )
           surface_paths={}
           for s in surfaces:
+              assert "required_tokens" not in s, ("legacy required_tokens schema forbidden",s["feature_id"],s["path"])
+              assert isinstance(s.get("tokens"),list) and s.get("tokens"), ("surface tokens missing",s["feature_id"],s["path"])
               surface_paths.setdefault(s["feature_id"],set()).add(s["path"])
           missing=[]
           for feature in reg.get("features", []):
@@ -325,6 +327,12 @@ jobs:
           assert "restore_enabled=false;actuation=false" in split_launcher
           assert "restore_attempted=false;actuation=false" in split_launcher
           assert "inspectCurrentPair" in split_bridge and "SPLIT_READBACK_PASSIVE" in split_bridge
+          driver_audio=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DriverAudioCapabilityProbe.java").read_text(encoding="utf-8")
+          assert "DRIVER_AUDIO_DEVICE_CANDIDATE" in driver_audio
+          assert "candidate_only=true" in driver_audio and "physical_driver_only=unproven" in driver_audio
+          assert "uid_affinity_write=false" in driver_audio
+          assert "audio_policy_write=false" in driver_audio
+          assert "routing_write=false" in driver_audio
           android_manifest=pathlib.Path("dolphin-launcher-v1/app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
           assert 'android.intent.action.TTS_SERVICE' in android_manifest, "Android 11+ TTS service visibility query missing"
           assert r'\\n    <uses-permission' not in android_manifest, "literal \\n drift in AndroidManifest permissions"
