@@ -1749,7 +1749,9 @@
         "현재 session marker 3회 충족은 PASS 입력 조건일 뿐 VERIFIED 승격 조건이 아님",
         "별도 diagnostic session 반복성과 evaluator conflict-free 검토가 최종 검증에 계속 필요",
         "Verification Center의 marker 버튼·진행률·PASS gate는 markerPlanForTest 단일 카탈로그를 사용",
-        "Test ID marker ID를 여러 UI 로직에 중복 선언하지 않음"
+        "Test ID marker ID를 여러 UI 로직에 중복 선언하지 않음",
+        "V1 branch 연속 커밋 시 이전 in-progress CI는 취소하고 최신 HEAD만 끝까지 검증",
+        "CI concurrency/cancel-in-progress 정책 누락 시 workflow 자체 검증 단계 실패"
       ],
       "required_logs": [
         "registry schema/version",
@@ -1774,7 +1776,9 @@
         "requiredMarkersForTest",
         "activeCorrelationReadyForPass",
         "PASS 잠금",
-        "markerPlanForTest"
+        "markerPlanForTest",
+        "V1_CI_POLICY_OK",
+        "stale_runs_cancelled=true"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
@@ -1796,7 +1800,8 @@
         "Verification Center renders Registry real_vehicle_test steps",
         "marker progress is counted from the active correlation only",
         "correlation evaluator blocks cross-label raw collisions",
-        "active-test process resume reuses diagnostic_session_id"
+        "active-test process resume reuses diagnostic_session_id",
+        "workflow concurrency keeps latest V1 validation authoritative"
       ],
       "next_action": "실차 Evidence ZIP을 최소 2개 session에서 수집하고 evaluator 다중 입력으로 동일 raw 반복성을 비교; cross-session 후보도 수동 검토 전 매핑 활성화 금지",
       "confidence": {
