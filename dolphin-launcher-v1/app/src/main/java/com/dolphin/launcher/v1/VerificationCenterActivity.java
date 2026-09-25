@@ -26,6 +26,9 @@ import java.util.Set;
 public class VerificationCenterActivity extends Activity {
     private JSONObject registry;
     private TextView ledgerStatus;
+    private TextView collectionStatus;
+    private TextView pendingStatus;
+    private TextView lastUploadStatus;
     private LinearLayout detailList;
     private boolean detailsVisible = false;
 
@@ -44,6 +47,21 @@ public class VerificationCenterActivity extends Activity {
             error.setBackgroundColor(Color.parseColor("#17090C"));
             setContentView(error);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshLedger();
+        refreshRuntimeStatus();
+    }
+
+    private void refreshRuntimeStatus() {
+        if (collectionStatus != null) collectionStatus.setText("자동 수집\n활성");
+        if (pendingStatus != null) pendingStatus.setText(
+                "업로드 대기\n" + VerificationEvidenceRuntime.pendingUploadCount(this) + "건");
+        if (lastUploadStatus != null) lastUploadStatus.setText(
+                "마지막 업로드\n" + VerificationEvidenceRuntime.lastUploadStatus(this));
     }
 
     private View buildUi() {
@@ -97,9 +115,13 @@ public class VerificationCenterActivity extends Activity {
         LinearLayout autoStatus = new LinearLayout(this);
         autoStatus.setOrientation(LinearLayout.HORIZONTAL);
         autoStatus.setPadding(0, dp(4), 0, dp(12));
-        autoStatus.addView(statusCard("자동 수집", "수집 중"), weighted());
-        autoStatus.addView(statusCard("업로드 대기", VerificationEvidenceRuntime.pendingUploadCount(this) + "건"), weighted());
-        autoStatus.addView(statusCard("마지막 업로드", VerificationEvidenceRuntime.lastUploadStatus(this)), weighted());
+        collectionStatus = statusCard("자동 수집", "활성");
+        pendingStatus = statusCard("업로드 대기", "확인 중");
+        lastUploadStatus = statusCard("마지막 업로드", "확인 중");
+        autoStatus.addView(collectionStatus, weighted());
+        autoStatus.addView(pendingStatus, weighted());
+        autoStatus.addView(lastUploadStatus, weighted());
+        refreshRuntimeStatus();
         root.addView(autoStatus);
 
         Button details = button("개발자 상세 · 33 Feature / 49 Test ID");
@@ -117,6 +139,7 @@ public class VerificationCenterActivity extends Activity {
         problem.setOnClickListener(v -> {
             VerificationEvidenceRuntime.markProblem(this, "Verification Center manual marker");
             refreshLedger();
+            refreshRuntimeStatus();
             Toast.makeText(this, "문제 순간을 evidence ledger에 기록했습니다.",
                     Toast.LENGTH_SHORT).show();
         });
@@ -126,6 +149,7 @@ public class VerificationCenterActivity extends Activity {
         export.setOnClickListener(v -> {
             try {
                 File file = VerificationEvidenceRuntime.createEvidenceBundle(this);
+                refreshRuntimeStatus();
                 Toast.makeText(this, "생성: " + file.getAbsolutePath(),
                         Toast.LENGTH_LONG).show();
             } catch (Exception e) {
