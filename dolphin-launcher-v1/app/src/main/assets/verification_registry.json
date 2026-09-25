@@ -310,18 +310,22 @@
       ],
       "state": "BETA",
       "acceptance": [
-        "두 앱이 mode 3/4로 실제 배치",
-        "dumpsys readback 일치",
-        "비율 적용 또는 명확한 실패",
+        "두 앱 launch shell command가 성공",
+        "dumpsys/activity stack readback에서 좌 앱이 split primary(mode 3), 우 앱이 split secondary(mode 4)로 확인",
+        "shell exit code만으로 성공 처리하지 않음",
+        "비율 적용은 별도 실차 근거가 확보될 때까지 추정하지 않음",
         "카메라 종료 후 안전한 복원"
       ],
       "required_logs": [
-        "ADB command",
-        "task/stack/windowing mode",
-        "ratio result"
+        "SPLIT_ADB_COMMAND",
+        "SPLIT_READBACK",
+        "left/right package",
+        "left/right windowing mode readback",
+        "dumpsys activity/am stack context"
       ],
       "known_bad": [
-        "사용자 실차에서 분할화면 미작동 보고"
+        "사용자 실차에서 분할화면 미작동 보고",
+        "과거 구현은 am start exit code만 성공 기준으로 사용해 fullscreen fallback을 성공으로 오판할 수 있었음"
       ],
       "dependencies": [
         "NativeAdbClient",
@@ -329,8 +333,9 @@
       ],
       "real_vehicle_test": [
         "지원 앱 2개 선택",
-        "50:50",
-        "70:30",
+        "2분할 실행",
+        "SPLIT_READBACK에서 left_primary=true/right_secondary=true 확인",
+        "실제 화면이 좌/우로 분할되었는지 OPERATOR_RESULT 기록",
         "카메라 진입/복귀",
         "재부팅 후 재시험"
       ],
@@ -338,10 +343,10 @@
         "SplitScreenManager readback implementation",
         "v32.2 regression guard"
       ],
-      "next_action": "실패 세션의 dumpsys activity/am stack list 확보",
+      "next_action": "실차에서 SPLIT_READBACK과 실제 화면을 함께 대조해 BYD DiLink window manager의 primary/secondary 수용 여부 확정",
       "confidence": {
-        "behavior": "LOW",
-        "root_cause": "TENTATIVE",
+        "behavior": "MEDIUM",
+        "root_cause": "MEDIUM",
         "safety": "HIGH",
         "compatibility": "LOW"
       }
