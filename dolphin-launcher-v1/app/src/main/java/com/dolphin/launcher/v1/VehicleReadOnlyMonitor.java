@@ -33,6 +33,7 @@ public final class VehicleReadOnlyMonitor {
         void onEpb(boolean held);
         void onAvhRaw(Integer raw);
         void onBsdRaw(Integer raw);
+        void onTurnRaw(Integer leftRaw, Integer rightRaw);
         void onSnowRaw(Integer raw);
         void onIccCandidateRaw(Integer raw);
         void onFrontRadarRaw(Integer leftMid, Integer rightMid);
@@ -145,6 +146,14 @@ public final class VehicleReadOnlyMonitor {
         if(changed("adas.avh",avh)) post(()->listener.onAvhRaw(avh));
         Integer bsd=read(ADAS,"getBSDState");
         if(changed("adas.bsd",bsd)) post(()->listener.onBsdRaw(bsd));
+
+        // Capture turn-signal candidates separately so BSD side correlation can be
+        // established from real-car evidence before any left/right warning is spoken.
+        Integer turnLeft=read(GEARBOX,"getLeftTurnLightState");
+        Integer turnRight=read(GEARBOX,"getRightTurnLightState");
+        boolean turnChanged=changed("gear.turn.left",turnLeft);
+        turnChanged=changed("gear.turn.right",turnRight)||turnChanged;
+        if(turnChanged) post(()->listener.onTurnRaw(turnLeft,turnRight));
     }
 
     private boolean changed(String signal,Integer value){
