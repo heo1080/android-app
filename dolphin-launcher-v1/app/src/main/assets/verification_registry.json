@@ -182,7 +182,9 @@
       "area": "launcher",
       "requirement": "사용자가 선택한 앱/액션의 앱서랍 바로가기를 생성·삭제할 수 있어야 한다.",
       "source_paths": [
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AppDrawerShortcutManager.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/ShortcutPinReceiver.java"
       ],
       "test_ids": [
         "LCH-DRW-001",
@@ -190,34 +192,37 @@
       ],
       "state": "REVERIFY_REQUIRED",
       "acceptance": [
-        "최대 16 슬롯 생성",
-        "활성화된 슬롯이 순정 앱서랍에 표시",
-        "선택 액션 실행",
-        "삭제/전체 초기화"
+        "선택 앱의 pinned shortcut 생성 요청",
+        "런처 callback으로 생성 요청 수락 evidence 기록",
+        "바로가기 실행 시 선택 앱 dispatch",
+        "사용자 요청 시 app-owned shortcut 비활성화"
       ],
       "required_logs": [
-        "slot assign",
-        "setComponentEnabledSetting result",
-        "launcher refresh evidence"
+        "APP_SHORTCUT_PIN_REQUEST",
+        "APP_SHORTCUT_PIN_CONFIRMED",
+        "APP_SHORTCUT_INVOKED",
+        "APP_SHORTCUT_DISABLED",
+        "APP_SHORTCUT_LAUNCH_FAILED"
       ],
       "known_bad": [
         "과거 설치본에서 앱서랍 바로가기 생성 기능 누락 보고"
       ],
       "dependencies": [
-        "PackageManager",
-        "16 launcher activities"
+        "Android ShortcutManager",
+        "PackageManager launch intent"
       ],
       "real_vehicle_test": [
-        "바로가기 1개 생성",
-        "앱서랍 새로고침/재부팅",
-        "실행",
-        "삭제"
+        "앱서랍에서 앱 1개 길게 눌러 바로가기 생성",
+        "BYD launcher에서 아이콘 표시 확인",
+        "아이콘으로 대상 앱 실행",
+        "제거/비활성화 동작과 launcher 표시 상태 확인"
       ],
       "evidence": [
-        "AppDrawerShortcutManager SLOT_COUNT=16",
-        "v32.2 regression guard"
+        "AppDrawerShortcutManager requestPinShortcut",
+        "ShortcutPinReceiver callback",
+        "LauncherActivity OPEN_PACKAGE cold-start handler"
       ],
-      "next_action": "최신 APK에서 실제 BYD launcher refresh 동작 재검증",
+      "next_action": "최신 APK 실차에서 pinned shortcut 표시·실행·제거 동작 재검증",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
