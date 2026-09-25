@@ -200,6 +200,12 @@ public class LauncherActivity extends Activity {
                         LauncherActivity.this, "BSD_RAW_TRANSITION",
                         "bsd_raw=" + raw + ";voice=suppressed-pending-side-correlation");
             }
+            @Override public void onTurnRaw(Integer leftRaw, Integer rightRaw) {
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        LauncherActivity.this, "TURN_SIGNAL_RAW_TRANSITION",
+                        "left_raw=" + leftRaw + ";right_raw=" + rightRaw
+                                + ";purpose=bsd-side-correlation;voice=suppressed");
+            }
             @Override public void onSnowRaw(Integer raw) {
                 VerificationEvidenceRuntime.recordPassiveEvent(
                         LauncherActivity.this, "SNOW_RAW_TRANSITION",
