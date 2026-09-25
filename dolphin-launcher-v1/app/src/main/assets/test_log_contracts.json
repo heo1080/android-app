@@ -1592,7 +1592,10 @@
         "operator markers separately confirm driver-seat audible output, other-seat silence, and OEM warning preemption",
         "all required seat/safety markers must be repeated before PASS is available",
         "each required operator marker must reach at least 3 observations in the active correlation before PASS is exposed",
-        "single-session marker completion is not sufficient for VERIFIED"
+        "single-session marker completion is not sufficient for VERIFIED",
+        "device candidate discovery alone is not success evidence",
+        "physical driver-only route remains unproven until seat-by-seat audible evidence exists",
+        "probe performs no routing write"
       ],
       "required_logs": [
         "AUDIO_OUTPUT_DEVICE inventory",
@@ -1605,7 +1608,13 @@
         "DRIVER_SEAT_AUDIBLE",
         "OTHER_SEATS_SILENT",
         "OEM_WARNING_PREEMPT_OK",
-        "elapsed_realtime_ms"
+        "elapsed_realtime_ms",
+        "DRIVER_AUDIO_PERMISSION",
+        "DRIVER_AUDIO_DEFAULTS",
+        "DRIVER_AUDIO_DEVICE_CANDIDATE",
+        "candidate_only=true",
+        "physical_driver_only=unproven",
+        "routing_write=false"
       ]
     },
     {
@@ -1631,7 +1640,9 @@
         "MODIFY_AUDIO_ROUTING"
       ],
       "success_any": [],
-      "failure_any": [],
+      "failure_any": [
+        "routing write occurs before physical driver-only route is proven"
+      ],
       "known_bad_ids": [
         "KB-009"
       ],
@@ -1639,7 +1650,10 @@
         "target UID/package만 driver output",
         "non-target media unchanged",
         "OEM safety audio preempts correctly",
-        "remove target restores stock"
+        "remove target restores stock",
+        "device candidate discovery alone is not success evidence",
+        "physical driver-only route remains unproven until seat-by-seat audible evidence exists",
+        "probe performs no routing write"
       ],
       "required_logs": [
         "DRIVER_AUDIO_CAPABILITY",
@@ -1647,7 +1661,13 @@
         "MODIFY_AUDIO_ROUTING grant/effective",
         "output device id",
         "UID affinity/policy mix",
-        "OEM warning concurrency"
+        "OEM warning concurrency",
+        "DRIVER_AUDIO_PERMISSION",
+        "DRIVER_AUDIO_DEFAULTS",
+        "DRIVER_AUDIO_DEVICE_CANDIDATE",
+        "candidate_only=true",
+        "physical_driver_only=unproven",
+        "routing_write=false"
       ]
     },
     {
