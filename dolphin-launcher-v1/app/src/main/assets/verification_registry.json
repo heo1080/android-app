@@ -33,10 +33,7 @@
       "area": "release",
       "requirement": "소스 commit, 실제 생성 APK, package/version/signature/build workflow를 1:1로 추적한다.",
       "source_paths": [
-        "app/build.gradle.kts",
-        ".github/workflows/build.yml",
-        "ci/",
-        "verification/release_gate.py"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java"
       ],
       "test_ids": [
         "BLD-ID-001",
@@ -86,10 +83,7 @@
       "area": "diagnostics",
       "requirement": "앱 내부에서 진단 세션을 생성하고 민감정보를 최소화해 private diagnostic repository로 업로드/공유 가능해야 한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/DiagnosticCaptureManager.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/DiagnosticUploadManager.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/util/DolphinLogger.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VerificationEvidenceLogger.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java"
       ],
       "test_ids": [
         "DIA-CAP-001",
@@ -141,10 +135,7 @@
       "area": "launcher",
       "requirement": "차량에서 일반 Android 앱/정상 Launcher 진입으로 인식되고 desktop/freeform 앱으로 오인되지 않아야 한다.",
       "source_paths": [
-        "app/src/main/AndroidManifest.xml",
-        "app/src/main/java/com/byd/dolphin/autoassistant/MainActivity.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/CommandCenterActivity.kt",
-        "ci/apply_v32_command_center.py"
+        "dolphin-launcher-v1/app/src/main/AndroidManifest.xml"
       ],
       "test_ids": [
         "LCH-ID-001"
@@ -191,9 +182,7 @@
       "area": "launcher",
       "requirement": "사용자가 선택한 앱/액션의 앱서랍 바로가기를 생성·삭제할 수 있어야 한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/AppDrawerShortcutManager.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/activity/DrawerSlotActivities.kt",
-        "app/src/main/AndroidManifest.xml"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
       ],
       "test_ids": [
         "LCH-DRW-001",
@@ -242,9 +231,8 @@
       "area": "launcher",
       "requirement": "시동 시 여러 앱을 등록하고 각 지연시간/미디어 재생 옵션에 따라 한 시동 주기당 한 번 실행한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/BootAutomationController.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/MainActivity.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/SettingsManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootReceiver.java"
       ],
       "test_ids": [
         "LCH-BOOT-001",
@@ -296,7 +284,9 @@
       "area": "display",
       "requirement": "DiLink 3에서 선택한 두 앱을 primary/secondary split으로 실행하고 상태를 readback한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/split/SplitScreenManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SplitCapabilityProbe.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SplitExecutionBridge.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
       ],
       "test_ids": [
         "WIN-SPLIT-001",
@@ -346,8 +336,8 @@
       "area": "display",
       "requirement": "10인치 차량의 실제 display profile을 수집하고 DPI/fontScale 변경 영향과 OEM UI clipping을 추적한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/DpiManager.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/DisplayDiagnosticsManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DisplayDiagnostics.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
       ],
       "test_ids": [
         "DSP-DPI-001",
@@ -396,7 +386,10 @@
       "feature_id": "FORCED_APP_ORIENTATION",
       "area": "display",
       "requirement": "지정 앱을 현재 차량 화면 방향을 유지한 채 실행할 수 있어야 한다.",
-      "source_paths": [],
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DisplayDiagnostics.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
+      ],
       "test_ids": [
         "DSP-ORI-001"
       ],
@@ -438,8 +431,7 @@
       "area": "audio",
       "requirement": "시스템 TTS queue 문제를 피하고 인앱 TTS를 낮은 지연으로 재생한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/InAppSupertonicTtsManager.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehiclePromptPlayer.java"
       ],
       "test_ids": [
         "AUD-TTS-001",
@@ -486,8 +478,7 @@
       "area": "audio",
       "requirement": "P/R/N/D 전환을 정확히 한 번 안내한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleTelemetryMonitor.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java"
       ],
       "test_ids": [
         "AUD-GEAR-001"
@@ -529,8 +520,8 @@
       "area": "audio",
       "requirement": "ECO/NORMAL/SPORT를 실제 차량 상태에 맞게 안내한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleVoicePolicy.java"
       ],
       "test_ids": [
         "AUD-DRV-001",
@@ -576,9 +567,7 @@
       "area": "audio",
       "requirement": "회생제동 STANDARD/HIGH를 정확히 안내한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/SettingsManager.kt",
-        "ci/apply_v32_2_regression_recovery.py"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java"
       ],
       "test_ids": [
         "AUD-REG-001",
@@ -623,8 +612,7 @@
       "area": "audio",
       "requirement": "Snow ON과 Snow OFF 모두 정확히 안내한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/SettingsManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java"
       ],
       "test_ids": [
         "AUD-SNOW-001",
@@ -672,8 +660,7 @@
       "area": "audio",
       "requirement": "오토홀드 버튼 ON/OFF와 실제 정차 체결/출발 해제를 구분해 안내한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java"
       ],
       "test_ids": [
         "AUD-AVH-001",
@@ -721,8 +708,7 @@
       "area": "audio",
       "requirement": "전자식 주차브레이크 체결/해제를 정확히 안내한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleTelemetryMonitor.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java"
       ],
       "test_ids": [
         "AUD-EPB-001"
@@ -762,8 +748,7 @@
       "area": "audio",
       "requirement": "ICC ON/OFF를 정확히 안내한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/SettingsManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java"
       ],
       "test_ids": [
         "AUD-ICC-001"
@@ -806,8 +791,7 @@
       "area": "audio",
       "requirement": "BSD 감지 상태에서 해당 방향 깜박이 사용 시 추가 경고음을 출력한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java"
       ],
       "test_ids": [
         "AUD-BSD-001"
@@ -851,8 +835,8 @@
       "area": "audio",
       "requirement": "전방 차량 출발 이벤트가 확인됐을 때 안내한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/hud/NavGuidanceParser.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/service/DolphinService.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
       ],
       "test_ids": [
         "AUD-LVDA-001"
@@ -897,8 +881,8 @@
       "area": "audio",
       "requirement": "DolphinAssistant 자체 안내음을 운전석 전용 경로로 재생한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/InAppSupertonicTtsManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehiclePromptPlayer.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DriverAudioCapabilityProbe.java"
       ],
       "test_ids": [
         "AUD-DRVSPK-001"
@@ -945,8 +929,8 @@
       "area": "audio",
       "requirement": "지정한 외부 앱만 운전석 전용 스피커로 라우팅하고 순정 안전경고를 방해하지 않는다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/DriverAudioPolicyLab.kt",
-        "app/src/main/AndroidManifest.xml"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DriverAudioCapabilityProbe.java"
       ],
       "test_ids": [
         "AUD-APPROUTE-001"
@@ -993,10 +977,9 @@
       "area": "cluster",
       "requirement": "지원 내비 안내를 검증된 compact TBT 경로로 계기판에 보내고 정상 복원한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/hud/ClusterMirrorManager.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/hud/NavGuidanceParser.kt",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/InstrumentCapabilityProbe.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DisplayDiagnostics.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DisplayDiagnostics.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/InstrumentCapabilityProbe.java"
       ],
       "test_ids": [
         "HUD-TBT-001"
@@ -1045,8 +1028,7 @@
       "area": "cluster",
       "requirement": "특정 앱 미러링/커스텀 테마는 실제 display target·복원 경로 확인 후에만 허용한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleFeatureLabManager.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/IntegratedBetaUi.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DisplayDiagnostics.java"
       ],
       "test_ids": [
         "HUD-MIRROR-001"
@@ -1090,10 +1072,8 @@
       "area": "fsd",
       "requirement": "실제 확인된 속도/기어/방향지시등/내비 안전정보만 시각화하고 미확인 ADAS/radar는 RAW/LAB로 분리한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/drive/DriveRuntime.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/drive/DriveVisionActivity.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/ui/HomeHmiView.kt",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SurroundingVisionCapabilityProbe.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SurroundingVisionCapabilityProbe.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
       ],
       "test_ids": [
         "FSD-VIS-001",
@@ -1139,7 +1119,9 @@
       "feature_id": "FSD_OBJECT_LANE_MODEL",
       "area": "fsd",
       "requirement": "실제 사람/차량/차선/도로 객체는 접근 가능한 센서 또는 검증된 비전 모델에서만 생성한다.",
-      "source_paths": [],
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
       "test_ids": [
         "FSD-OBJ-001"
       ],
@@ -1184,11 +1166,10 @@
       "area": "navigation",
       "requirement": "TMAP/Naver/Kakao/iNavi 등 지원 내비 notification/accessibility에서 과속/카메라 등 안전정보를 provenance와 함께 수집한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/hud/NavGuidanceParser.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/hud/MultiNavNotificationListener.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/drive/DriveRuntime.kt",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/NavNotificationEvidenceService.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DisplayDiagnostics.java"
+        "dolphin-launcher-v1/app/src/main/AndroidManifest.xml",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DisplayDiagnostics.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
       ],
       "test_ids": [
         "NAV-SAFE-001"
@@ -1233,8 +1214,7 @@
       "area": "vehicle_read",
       "requirement": "배터리 등 HOME의 LIVE 값은 실제 vehicle getter에서만 표시한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleInfoReader.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/ui/HomeHmiView.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java"
       ],
       "test_ids": [
         "VEH-INFO-001"
@@ -1274,8 +1254,7 @@
       "area": "vehicle_read",
       "requirement": "TPMS 값을 단위 추정 없이 읽고 실제 차량 값과 비교한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/TpmsReader.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/ui/HomeHmiView.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java"
       ],
       "test_ids": [
         "VEH-TPMS-001"
@@ -1317,7 +1296,7 @@
       "area": "comfort",
       "requirement": "R단 저속에서 저장된 좌/우 미러 단계로 이동하고 D/P 복귀 시 원상복구한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/MirrorMemoryManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
       ],
       "test_ids": [
         "COMF-MIR-001",
@@ -1365,8 +1344,7 @@
       "area": "comfort",
       "requirement": "시트 위치 getter/setter pair가 실차에서 검증된 경우에만 M1/M2/M3 모터 구동을 허용한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/SeatMemoryCapabilityManager.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleFeatureLabManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
       ],
       "test_ids": [
         "COMF-SEAT-001"
@@ -1409,7 +1387,7 @@
       "area": "comfort",
       "requirement": "실내등 ON/OFF/도어연동이 실제 램프 상태와 일치해야 한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/InsideLightManager.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
       ],
       "test_ids": [
         "COMF-LIGHT-001",
@@ -1456,8 +1434,7 @@
       "area": "update",
       "requirement": "새 릴리스 확인/다운로드 후 Android installer 확인을 거치며 잘못된 downgrade/서명 불일치를 차단한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/AppUpdateManager.kt",
-        ".github/workflows/build.yml"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AppUpdateManager.java"
       ],
       "test_ids": [
         "UPD-001",
@@ -1519,8 +1496,7 @@
       "area": "ui",
       "requirement": "10인치에서 고해상도 HOME이 live vehicle/media/TPMS를 명확히 보여주고 clipping/desktop 오인 없이 동작한다.",
       "source_paths": [
-        "app/src/main/java/com/byd/dolphin/autoassistant/ui/HomeHmiView.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/CommandCenterActivity.kt"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
       ],
       "test_ids": [
         "UI-HOME-001",
@@ -1569,19 +1545,7 @@
       "area": "governance",
       "requirement": "모든 사용자 요구사항과 실제 코드/실차 검증을 이 레지스트리에서 추적한다.",
       "source_paths": [
-        "verification/master_registry.json",
-        "verification/MASTER_VERIFICATION_REGISTRY.md",
-        "verification/validate_registry.py",
-        "verification/test_log_contracts.json",
-        "verification/feature_dependencies.json",
-        "verification/runtime_surfaces.json",
-        "verification/evaluate_diagnostic.py",
-        "verification/build_registry_asset.py",
-        "app/src/main/java/com/byd/dolphin/autoassistant/VerificationCenterActivity.kt",
-        "app/src/main/java/com/byd/dolphin/autoassistant/manager/VerificationEvidenceLogger.kt",
-        "verification/check_registry_change_sync.py",
-        "verification/release_gate.py",
-        "verification/known_bad_lifecycle.py"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java"
       ],
       "test_ids": [
         "GOV-REG-001"
@@ -1635,7 +1599,10 @@
       "area": "audio",
       "requirement": "현대·기아 순정 오디오와 유사한 단순 3밴드 저음/중음/고음 EQ와 초기화를 제공하되 BYD DSP write는 검증 전 수행하지 않는다.",
       "source_paths": [
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AudioCapabilityProbe.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/OwnedAudioEqualizer.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/EqualizerAudibleTest.java"
       ],
       "test_ids": [
         "AUD-EQ-001",
@@ -1681,7 +1648,10 @@
       "area": "audio",
       "requirement": "전후/좌우 음장 위치와 운전석 중심 UX를 제공하되 실제 BYD speaker routing write는 검증된 readback 없이는 수행하지 않는다.",
       "source_paths": [
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AudioCapabilityProbe.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/OwnedSoundPosition.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
       ],
       "test_ids": [
         "AUD-POS-001"
