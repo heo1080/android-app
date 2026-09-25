@@ -2290,7 +2290,9 @@
         "reboot/elapsed-realtime reset clears stale active tests before a new session can count",
         "process restart alone cannot satisfy cross-session repeatability",
         "marker-controlled tests cannot record PASS before active-correlation marker minimums are complete",
-        "PASS UI gating is separate from cross-session VERIFIED eligibility"
+        "PASS UI gating is separate from cross-session VERIFIED eligibility",
+        "marker buttons, progress counting, and PASS gating derive from one markerPlanForTest catalog",
+        "marker catalog drift must fail runtime-surface validation"
       ],
       "required_logs": [
         "registry schema/version",
