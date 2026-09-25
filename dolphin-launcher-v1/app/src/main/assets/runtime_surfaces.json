@@ -1,126 +1,108 @@
 {
-  "schema_version": 1,
-  "note": "Critical runtime/UI sentinels. Missing tokens are regression failures; all surfaces must point to an existing Master Registry feature.",
+  "schema_version": 2,
+  "note": "Dolphin Launcher V1 runtime/UI sentinels only. A listed surface must exist in the V1 project; unimplemented/BLOCKED features stay in the Master Registry and must not be represented here as working runtime.",
   "surfaces": [
     {
       "feature_id": "APP_DRAWER_SHORTCUTS",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/AppDrawerShortcutManager.kt",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
       "tokens": [
-        "const val SLOT_COUNT = 16",
-        "setComponentEnabledSetting"
-      ]
-    },
-    {
-      "feature_id": "APP_DRAWER_SHORTCUTS",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/MainActivity.kt",
-      "tokens": [
-        "createAppDrawerShortcut",
-        "showDualCreationOptionDialog"
+        "createPinnedSplitShortcut",
+        "requestPinShortcut",
+        "SPLIT_SHORTCUT_REQUEST"
       ]
     },
     {
       "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/MainActivity.kt",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
       "tokens": [
-        "btnAddBootApp"
+        "showAutoStartManager",
+        "showAutoStartAppPicker",
+        "KEY_AUTOSTART_SET"
       ]
     },
     {
       "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/BootAutomationController.kt",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootReceiver.java",
       "tokens": [
-        "SettingsManager.getBootAppList",
-        "items.forEach"
+        "KEY_PENDING_AUTOSTART",
+        "goAsync",
+        "BOOT_UPLOAD_RETRY_FINISHED"
       ]
     },
     {
       "feature_id": "SPLIT_SCREEN_TWO_APP",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/split/SplitScreenManager.kt",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
       "tokens": [
-        "launchSplitScreen",
-        "MODE_PRIMARY",
-        "MODE_SECONDARY"
+        "launchSplitPair",
+        "SPLIT_REFERENCE_PATH_IDENTIFIED",
+        "windowingMode=3,4"
       ]
     },
     {
-      "feature_id": "IN_APP_TTS_CORE",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/InAppSupertonicTtsManager.kt",
+      "feature_id": "GEAR_VOICE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
       "tokens": [
-        "stream14 voice played"
+        "decodeGear",
+        "VEHICLE_BASELINE"
       ]
     },
     {
       "feature_id": "DRIVE_MODE_VOICE",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
       "tokens": [
-        "decodeDriveMode",
-        "onDriveModeChanged"
+        "getOperationMode",
+        "decodeDrive"
       ]
     },
     {
       "feature_id": "REGEN_MODE_VOICE",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
       "tokens": [
-        "sampleRegen"
+        "getEnergyFeedback",
+        "decodeRegen"
       ]
     },
     {
-      "feature_id": "SNOW_MODE_VOICE",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/VehicleVoiceStateMonitor.kt",
+      "feature_id": "DRIVE_MODE_VOICE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleVoicePolicy.java",
       "tokens": [
-        "sampleSnow",
-        "roadSurface"
+        "driveMode",
+        "VEHICLE_VOICE"
       ]
     },
     {
-      "feature_id": "INTERIOR_LIGHT",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/InsideLightManager.kt",
+      "feature_id": "DIAGNOSTIC_CAPTURE_UPLOAD",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java",
       "tokens": [
-        "turnOn",
-        "turnOff"
-      ]
-    },
-    {
-      "feature_id": "DRIVER_ONLY_APP_OWNED_AUDIO",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/VoiceAndSoundManager.kt",
-      "tokens": [
-        "AUDIO_PROBE"
-      ]
-    },
-    {
-      "feature_id": "PER_APP_DRIVER_SPEAKER_ROUTING",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/DriverAudioPolicyLab.kt",
-      "tokens": [
-        "APP_AUDIO_LAB",
-        "activePerAppInterception=false"
+        "startAutomaticUploadRuntime",
+        "retryPendingUploadsAsync",
+        "diagnostic_session_id"
       ]
     },
     {
       "feature_id": "MASTER_VERIFICATION_REGISTRY",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/VerificationCenterActivity.kt",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java",
       "tokens": [
-        "VerificationEvidenceLogger.recordObservation",
-        "NEED_MORE_DATA",
-        "result_$testId"
+        "refreshRuntimeStatus",
+        "pendingUploadCount",
+        "lastUploadSuccess"
       ]
     },
     {
-      "feature_id": "MASTER_VERIFICATION_REGISTRY",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/CommandCenterActivity.kt",
+      "feature_id": "APP_UPDATE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AppUpdateManager.java",
       "tokens": [
-        "실차 검증 센터",
-        "VerificationCenterActivity"
+        "checkForUpdates",
+        "resumePendingInstallPermission"
       ]
     },
     {
-      "feature_id": "MASTER_VERIFICATION_REGISTRY",
-      "path": "app/src/main/java/com/byd/dolphin/autoassistant/manager/VerificationEvidenceLogger.kt",
+      "feature_id": "PREMIUM_HMI_HOME",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
       "tokens": [
-        "VERIFY_EVENT",
-        "verification_evidence.jsonl",
-        "diagnostic_session_id",
-        "apk_sha256",
-        "preconditions"
+        "buildShell",
+        "buildTopBar",
+        "buildDock"
       ]
     }
   ]
