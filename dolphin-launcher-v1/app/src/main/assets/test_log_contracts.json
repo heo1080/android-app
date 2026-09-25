@@ -741,7 +741,8 @@
         "QUEUE_FLUSH prevents stale utterance from playing after a later audio action",
         "10 repeated prompts and beep-to-voice crossings show no delayed prior utterance",
         "cold-start fallback readiness and audible latency are recorded",
-        "each fallback request uses a unique utterance id so QUEUE_FLUSH stop/start ordering is attributable"
+        "each fallback request uses a unique utterance id so QUEUE_FLUSH stop/start ordering is attributable",
+        "fallback TTS uses navigation-guidance audio attributes without claiming BYD driver-speaker routing"
       ],
       "required_logs": [
         "VOICE_TTS_READY",
@@ -755,7 +756,10 @@
         "VOICE_TTS_DONE",
         "VOICE_TTS_STOPPED",
         "VOICE_TTS_ERROR",
-        "request_to_start_ms"
+        "request_to_start_ms",
+        "VOICE_TTS_AUDIO_ATTRIBUTES",
+        "usage=navigation_guidance",
+        "driver_speaker_route=not_proven"
       ]
     },
     {
