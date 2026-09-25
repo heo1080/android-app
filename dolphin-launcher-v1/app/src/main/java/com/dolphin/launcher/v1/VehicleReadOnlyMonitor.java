@@ -110,22 +110,22 @@ public final class VehicleReadOnlyMonitor {
         // Public DiLink 3 OpenAPI exposes per-wheel TPMS pressure values.
         // Preserve the raw integers until the Korean Dolphin's pressure unit is
         // confirmed by real-car evidence; no guessed psi/bar conversion here.
-        Integer tyreFl=readIntArg(TYRE,"getTyrePressureValue",1);
-        Integer tyreFr=readIntArg(TYRE,"getTyrePressureValue",2);
-        Integer tyreRl=readIntArg(TYRE,"getTyrePressureValue",3);
-        Integer tyreRr=readIntArg(TYRE,"getTyrePressureValue",4);
+        Integer tyreFl=readIntArg(TYRE,"getTyrePressureValue",staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_FRONT",-1));
+        Integer tyreFr=readIntArg(TYRE,"getTyrePressureValue",staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_FRONT",-1));
+        Integer tyreRl=readIntArg(TYRE,"getTyrePressureValue",staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_REAR",-1));
+        Integer tyreRr=readIntArg(TYRE,"getTyrePressureValue",staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_REAR",-1));
         boolean tyreChanged=changed("tyre.fl.raw",tyreFl);
         tyreChanged=changed("tyre.fr.raw",tyreFr) || tyreChanged;
         tyreChanged=changed("tyre.rl.raw",tyreRl) || tyreChanged;
         tyreChanged=changed("tyre.rr.raw",tyreRr) || tyreChanged;
-        Integer tyreFlState=readIntArg(TYRE,"getTyrePressureState",1);
-        Integer tyreFrState=readIntArg(TYRE,"getTyrePressureState",2);
-        Integer tyreRlState=readIntArg(TYRE,"getTyrePressureState",3);
-        Integer tyreRrState=readIntArg(TYRE,"getTyrePressureState",4);
-        Integer tyreFlSignal=readIntArg(TYRE,"getTyreSignalState",1);
-        Integer tyreFrSignal=readIntArg(TYRE,"getTyreSignalState",2);
-        Integer tyreRlSignal=readIntArg(TYRE,"getTyreSignalState",3);
-        Integer tyreRrSignal=readIntArg(TYRE,"getTyreSignalState",4);
+        Integer tyreFlState=readIntArg(TYRE,"getTyrePressureState",staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_FRONT",-1));
+        Integer tyreFrState=readIntArg(TYRE,"getTyrePressureState",staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_FRONT",-1));
+        Integer tyreRlState=readIntArg(TYRE,"getTyrePressureState",staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_REAR",-1));
+        Integer tyreRrState=readIntArg(TYRE,"getTyrePressureState",staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_REAR",-1));
+        Integer tyreFlSignal=readIntArg(TYRE,"getTyreSignalState",staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_FRONT",-1));
+        Integer tyreFrSignal=readIntArg(TYRE,"getTyreSignalState",staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_FRONT",-1));
+        Integer tyreRlSignal=readIntArg(TYRE,"getTyreSignalState",staticInt(TYRE,"TYRE_COMMAND_AREA_LEFT_REAR",-1));
+        Integer tyreRrSignal=readIntArg(TYRE,"getTyreSignalState",staticInt(TYRE,"TYRE_COMMAND_AREA_RIGHT_REAR",-1));
         tyreChanged=changed("tyre.fl.pressureState",tyreFlState)||tyreChanged;
         tyreChanged=changed("tyre.fr.pressureState",tyreFrState)||tyreChanged;
         tyreChanged=changed("tyre.rl.pressureState",tyreRlState)||tyreChanged;
@@ -168,6 +168,11 @@ public final class VehicleReadOnlyMonitor {
             return false;
         }
         return !old.equals(value);
+    }
+
+    private int staticInt(String className,String fieldName,int fallback){
+        try { return Class.forName(className).getField(fieldName).getInt(null); }
+        catch(Throwable t){ once("field:"+className+"#"+fieldName,t); return fallback; }
     }
 
     private Integer readIntArg(String className,String methodName,int arg){
