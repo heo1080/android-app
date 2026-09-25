@@ -537,6 +537,10 @@ public class LauncherActivity extends Activity {
             return;
         }
 
+        SplitCapabilityProbe.Result capability = SplitCapabilityProbe.inspect(this);
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this, "SPLIT_CAPABILITY_PROBE", capability.evidence());
+
         // Static analysis of the known-working BYD Auto Split 1.2.0 reference shows
         // Android shell launches with --windowingMode 3 (split-primary) and 4
         // (split-secondary). V1 does not assume ordinary launchBounds are equivalent.
@@ -545,7 +549,8 @@ public class LauncherActivity extends Activity {
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this, "SPLIT_REFERENCE_PATH_IDENTIFIED",
                 "left=" + left + ";right=" + right +
-                        ";reference=BydAutoSplit-1.2.0;windowingMode=3,4;execution=blocked-until-authorized-shell");
+                        ";reference=BydAutoSplit-1.2.0;windowingMode=3,4;execution=blocked-until-authorized-shell;" +
+                        capability.evidence());
         VerificationEvidenceRuntime.queueBundleAndUpload(this, "split-reference-path-identified");
 
         new AlertDialog.Builder(this)
