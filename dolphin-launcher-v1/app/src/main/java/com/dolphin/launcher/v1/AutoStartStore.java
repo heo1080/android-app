@@ -11,6 +11,7 @@ public final class AutoStartStore {
     private static final String KEY_SET="autostart_set";
     private static final String KEY_ORDERED="autostart_ordered_v2";
     private static final String SEP="\n";
+    private static final String MEDIA_PREFIX="autostart_media_";
     private AutoStartStore(){}
 
     public static List<String> read(SharedPreferences p){
@@ -43,6 +44,9 @@ public final class AutoStartStore {
         int to=from+delta; if(to<0||to>=list.size())return false;
         Collections.swap(list,from,to); write(p,list); return true;
     }
+
+    public static boolean mediaEnabled(SharedPreferences p,String pkg){ return p.getBoolean(MEDIA_PREFIX+pkg,false); }
+    public static void setMediaEnabled(SharedPreferences p,String pkg,boolean enabled){ p.edit().putBoolean(MEDIA_PREFIX+pkg,enabled).apply(); }
 
     public static boolean remove(SharedPreferences p,String pkg){
         List<String> list=read(p); boolean changed=list.remove(pkg); if(changed)write(p,list); return changed;
