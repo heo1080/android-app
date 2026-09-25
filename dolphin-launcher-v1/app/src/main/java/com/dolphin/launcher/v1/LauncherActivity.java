@@ -624,8 +624,7 @@ public class LauncherActivity extends Activity {
         new AlertDialog.Builder(this)
                 .setTitle("시동 자동실행")
                 .setView(scroll)
-                .setPositiveButton("앱서랍에서 추가", (d, w) -> showAppDrawer())
-                .setNegativeButton("닫기", null)
+                .setPositiveButton("닫기", null)
                 .show();
     }
 
@@ -661,6 +660,7 @@ public class LauncherActivity extends Activity {
                     VerificationEvidenceRuntime.recordPassiveEvent(
                             this, "AUTOSTART_APP_ADDED", "package=" + app.packageName);
                     Toast.makeText(this, app.label + " · 시동 자동실행 추가", Toast.LENGTH_SHORT).show();
+                    row.setVisibility(View.GONE);
                 }
             });
             row.addView(add, new LinearLayout.LayoutParams(dp(76), dp(40)));
