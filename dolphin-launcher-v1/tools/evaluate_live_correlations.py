@@ -228,9 +228,9 @@ def evaluate(rows: List[Dict[str, Any]], identities: Optional[List[Dict[str, Any
                     "stable": session_stable,
                 })
 
-            if stable and matching_sessions >= MIN_SESSIONS:
+            if matching_sessions >= MIN_SESSIONS:
                 status = "cross_session_candidate_not_verified"
-            elif stable:
+            elif matching_sessions >= 1:
                 status = "single_session_candidate_not_verified"
             else:
                 status = "need_more_data"
