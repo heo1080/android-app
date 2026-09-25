@@ -223,13 +223,65 @@ jobs:
           "$AAPT" dump permissions "$APK" | grep -q "android.permission.REQUEST_INSTALL_PACKAGES"
           unzip -p "$APK" assets/voice_prompt_manifest.json > "$RUNNER_TEMP/voice_prompt_manifest.json"
           python3 - "$RUNNER_TEMP/voice_prompt_manifest.json" "$APK" <<'PY'
-          import json, sys, zipfile
+          import json, pathlib, re, sys, zipfile
           manifest=json.load(open(sys.argv[1], encoding="utf-8"))
           assert manifest.get("schema_version")==1
+          assert manifest.get("verification_policy",{}).get("semantic_contract_must_match_runtime") is True
+
           prompts=manifest.get("prompts", [])
-          assert len(prompts)==22, len(prompts)
+          expected=[
+              ("GEAR","P","gear_p","P"),
+              ("GEAR","R","gear_r","R"),
+              ("GEAR","N","gear_n","N"),
+              ("GEAR","D","gear_d","D"),
+              ("DRIVE_MODE","ECO","drive_eco","에코"),
+              ("DRIVE_MODE","NORMAL","drive_normal","노멀"),
+              ("DRIVE_MODE","SPORT","drive_sport","스포츠"),
+              ("REGEN","STANDARD","regen_standard","회생제동 스탠다드"),
+              ("REGEN","HIGH","regen_high","회생제동 하이"),
+              ("SNOW","ON","snow_on","스노우 모드 켜짐"),
+              ("SNOW","OFF","snow_off","스노우 모드 꺼짐"),
+              ("AUTOHOLD_SWITCH","ON","autohold_on","오토홀드 켜짐"),
+              ("AUTOHOLD_SWITCH","OFF","autohold_off","오토홀드 꺼짐"),
+              ("AUTOHOLD_STATE","HELD","autohold_held","오토홀드 체결"),
+              ("AUTOHOLD_STATE","RELEASED","autohold_released","오토홀드 해제"),
+              ("EPB","HELD","epb_held","사이드 브레이크 체결"),
+              ("EPB","RELEASED","epb_released","사이드 브레이크 해제"),
+              ("ICC","ON","icc_on","ICC 켜짐"),
+              ("ICC","OFF","icc_off","ICC 꺼짐"),
+              ("LEADING_CAR","DEPARTED","leading_car_departure","전방 차량 출발"),
+              ("BSD","LEFT","bsd_left","왼쪽 주의"),
+              ("BSD","RIGHT","bsd_right","오른쪽 주의"),
+          ]
+          contract=[(p["event"],p["value"],p["id"],p["phrase"]) for p in prompts]
+          assert contract==expected, ("voice semantic contract drift", contract)
           ids=[p["id"] for p in prompts]
-          assert len(ids)==len(set(ids)), "duplicate voice prompt id"
+          assert len(ids)==22 and len(ids)==len(set(ids)), "voice prompt id drift"
+          states=[(p["event"],p["value"]) for p in prompts]
+          assert len(states)==len(set(states)), "duplicate voice event/value state"
+          for p in prompts:
+              assert p["resource"]=="voice_"+p["id"], ("voice resource/id drift",p)
+              assert p.get("state")=="ASSET_REQUIRED", ("unexpected asset state",p)
+
+          policy=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleVoicePolicy.java").read_text(encoding="utf-8")
+          policy_contract=re.findall(r'register\("([^"]+)","([^"]+)","([^"]+)","([^"]*)"\);',policy)
+          assert policy_contract==expected, ("VehicleVoicePolicy contract drift", policy_contract)
+          for prompt_id in ids:
+              assert policy.count('"'+prompt_id+'"')==1, ("prompt id duplicated outside catalog",prompt_id)
+
+          launcher=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java").read_text(encoding="utf-8")
+          preload=re.search(r'vehiclePromptPlayer\.preload\((.*?)\);',launcher,re.S)
+          assert preload, "vehicle prompt preload call missing"
+          preload_ids=re.findall(r'"([^"]+)"',preload.group(1))
+          assert preload_ids==ids, ("preload/manifest drift",preload_ids,ids)
+
+          by_state={(e,v):(i,p) for e,v,i,p in expected}
+          assert by_state[("DRIVE_MODE","NORMAL")]==("drive_normal","노멀")
+          assert by_state[("REGEN","STANDARD")]==("regen_standard","회생제동 스탠다드")
+          assert by_state[("SNOW","OFF")]==("snow_off","스노우 모드 꺼짐")
+          assert by_state[("AUTOHOLD_STATE","HELD")]==("autohold_held","오토홀드 체결")
+          assert by_state[("AUTOHOLD_STATE","RELEASED")]==("autohold_released","오토홀드 해제")
+
           with zipfile.ZipFile(sys.argv[2]) as z:
               names=z.namelist()
           missing=[]
@@ -237,7 +289,7 @@ jobs:
               resource=p["resource"]
               if not any(n.startswith("res/raw/") and ("/"+resource+".") in ("/"+n) for n in names):
                   missing.append(resource)
-          print("VOICE_MANIFEST_OK prompts=22 fixed_assets_present=%d missing=%d" % (22-len(missing), len(missing)))
+          print("VOICE_CONTRACT_OK prompts=22 semantic_pairs=22 preload=22 fixed_assets_present=%d missing=%d" % (22-len(missing), len(missing)))
           if missing:
               print("VOICE_FIXED_ASSETS_PENDING=" + ",".join(missing))
           PY
