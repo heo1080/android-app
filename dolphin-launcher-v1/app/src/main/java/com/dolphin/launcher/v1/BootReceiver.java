@@ -14,6 +14,9 @@ public class BootReceiver extends BroadcastReceiver {
                     .edit()
                     .putBoolean(LauncherActivity.KEY_PENDING_AUTOSTART, true)
                     .apply();
+            VerificationEvidenceRuntime.ensureProcessSession(context, "vehicle-boot");
+            VerificationEvidenceRuntime.recordPassiveEvent(context, "BOOT_COMPLETED", action);
+            VerificationEvidenceRuntime.retryPendingUploadsAsync(context);
         }
     }
 }
