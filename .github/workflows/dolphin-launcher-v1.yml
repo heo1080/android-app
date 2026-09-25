@@ -8,9 +8,6 @@ on:
   pull_request:
     branches:
       - dolphin-launcher-v1
-    paths:
-      - "dolphin-launcher-v1/**"
-      - ".github/workflows/dolphin-launcher-v1.yml"
   workflow_dispatch:
 
 permissions:
@@ -86,8 +83,11 @@ jobs:
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationEvidenceRuntime"
           unzip -p "$APK" classes.dex | strings | grep -q "AppUpdateManager"
           unzip -p "$APK" classes.dex | strings | grep -q "UpdateInstallReceiver"
+          unzip -p "$APK" classes.dex | strings | grep -q "VehicleReadOnlyMonitor"
+          unzip -p "$APK" classes.dex | strings | grep -q "VehicleVoicePolicy"
           AAPT="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
           "$AAPT" dump permissions "$APK" | grep -q "android.permission.INTERNET"
+          "$AAPT" dump permissions "$APK" | grep -q "android.permission.ACCESS_NETWORK_STATE"
           "$AAPT" dump permissions "$APK" | grep -q "android.permission.REQUEST_INSTALL_PACKAGES"
 
       - name: Restore stable signing key
