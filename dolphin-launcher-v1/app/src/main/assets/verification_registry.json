@@ -1651,7 +1651,8 @@
       "area": "governance",
       "requirement": "모든 사용자 요구사항과 실제 코드/실차 검증을 이 레지스트리에서 추적한다.",
       "source_paths": [
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java"
       ],
       "test_ids": [
         "GOV-REG-001"
@@ -1665,18 +1666,26 @@
         "Known-Bad required Test ID가 log contract와 연결",
         "핵심 Runtime Surface token 누락 시 CI 실패",
         "차량 Verification Center에서 Test ID별 operator result를 VERIFY_RESULT 로그로 기록",
-        "49개 모든 Test ID가 test_log_contracts에 1:1로 존재",
+        "54개 모든 Test ID가 test_log_contracts에 1:1로 존재",
         "Test ID별 결과가 append-only evidence ledger에 correlation/build/precondition/session과 함께 기록",
         "BLOCKED/UNSUPPORTED Test ID는 PASS/FAIL 기록 불가",
         "repeatability와 Known-Bad lifecycle을 자동 평가",
         "runtime/build 변경 시 Registry 근거를 함께 갱신하지 않으면 CI 실패",
         "P0 Known-Bad 또는 REVERIFY_REQUIRED가 남으면 stable 서명 전 Release Gate 실패",
-        "Known-Bad lifecycle은 새로운 evidence hash마다 최대 한 단계만 전환"
+        "Known-Bad lifecycle은 새로운 evidence hash마다 최대 한 단계만 전환",
+        "실차 Test ID는 TEST_START 후 조작 중 OPERATOR_OBSERVATION을 여러 번 기록하고 최종 OPERATOR_RESULT/TEST_END로 종료",
+        "evidence row는 wall-clock timestamp와 elapsed_realtime_ms를 함께 기록",
+        "진행 중 Test ID/correlation은 process 재생성 후 Verification Center에서 복원",
+        "Test 완료/중단 시 Evidence ZIP을 자동 queue/upload"
       ],
       "required_logs": [
         "registry schema/version",
         "source commit",
-        "diagnostic session id"
+        "diagnostic session id",
+        "OPERATOR_OBSERVATION",
+        "elapsed_realtime_ms",
+        "active test correlation",
+        "automatic evidence bundle/upload"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
@@ -1689,9 +1698,12 @@
         "각 현장 Test Checklist 결과를 registry에 반영"
       ],
       "evidence": [
-        "created from source commit 1c60bec and diagnostics 2026-09-19"
+        "VerificationCenterActivity live Test ID capture session",
+        "VerificationEvidenceRuntime append-only schema 3 ledger",
+        "operator observation markers share the active Test ID correlation",
+        "monotonic elapsed_realtime_ms added to every evidence row"
       ],
-      "next_action": "자동화가 build/report 시 registry를 authoritative source로 읽도록 연결",
+      "next_action": "실차에서 AUD-DRV-002/AUD-REG-002/AUD-AVH-001/002 live marker와 raw transition을 같은 elapsed_realtime 축으로 상관하고 evaluator 입력으로 검증",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
@@ -2040,6 +2052,7 @@
   "evidence_policy": {
     "structured_events": [
       "TEST_START",
+      "OPERATOR_OBSERVATION",
       "OPERATOR_RESULT",
       "TEST_END",
       "FIELD_PROBLEM_MARKER"
