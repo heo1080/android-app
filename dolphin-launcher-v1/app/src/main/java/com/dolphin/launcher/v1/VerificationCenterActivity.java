@@ -26,6 +26,8 @@ import java.util.Set;
 public class VerificationCenterActivity extends Activity {
     private JSONObject registry;
     private TextView ledgerStatus;
+    private LinearLayout detailList;
+    private boolean detailsVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +94,22 @@ public class VerificationCenterActivity extends Activity {
         summary.addView(ledgerStatus, weighted());
         root.addView(summary);
 
+        LinearLayout autoStatus = new LinearLayout(this);
+        autoStatus.setOrientation(LinearLayout.HORIZONTAL);
+        autoStatus.setPadding(0, dp(4), 0, dp(12));
+        autoStatus.addView(statusCard("자동 수집", "수집 중"), weighted());
+        autoStatus.addView(statusCard("업로드 대기", VerificationEvidenceRuntime.pendingUploadCount(this) + "건"), weighted());
+        autoStatus.addView(statusCard("마지막 업로드", VerificationEvidenceRuntime.lastUploadStatus(this)), weighted());
+        root.addView(autoStatus);
+
+        Button details = button("개발자 상세 · 33 Feature / 49 Test ID");
+        details.setOnClickListener(v -> {
+            detailsVisible = !detailsVisible;
+            if (detailList != null) detailList.setVisibility(detailsVisible ? View.VISIBLE : View.GONE);
+            details.setText(detailsVisible ? "개발자 상세 닫기" : "개발자 상세 · 33 Feature / 49 Test ID");
+        });
+        root.addView(details, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
+
         LinearLayout actions = new LinearLayout(this);
         actions.setOrientation(LinearLayout.HORIZONTAL);
 
@@ -121,15 +139,16 @@ public class VerificationCenterActivity extends Activity {
 
         ScrollView scroll = new ScrollView(this);
         scroll.setFillViewport(true);
-        LinearLayout list = new LinearLayout(this);
-        list.setOrientation(LinearLayout.VERTICAL);
-        list.setPadding(0, dp(8), 0, dp(20));
-        scroll.addView(list);
+        detailList = new LinearLayout(this);
+        detailList.setOrientation(LinearLayout.VERTICAL);
+        detailList.setPadding(0, dp(8), 0, dp(20));
+        detailList.setVisibility(View.GONE);
+        scroll.addView(detailList);
 
         if (features != null) {
             for (int i = 0; i < features.length(); i++) {
                 JSONObject feature = features.optJSONObject(i);
-                if (feature != null) list.addView(featureCard(feature));
+                if (feature != null) detailList.addView(featureCard(feature));
             }
         }
 
@@ -225,6 +244,14 @@ public class VerificationCenterActivity extends Activity {
             ledgerStatus.setText("LEDGER\n" +
                     VerificationEvidenceRuntime.ledgerLineCount(this));
         }
+    }
+
+    private TextView statusCard(String label, String value) {
+        TextView card = text(label + "\n" + value, 14f, Color.WHITE, true);
+        card.setGravity(Gravity.CENTER);
+        card.setPadding(dp(8), dp(12), dp(8), dp(12));
+        card.setBackground(round("#0B1A21", 16, "#2A5362"));
+        return card;
     }
 
     private TextView summaryChip(String label, String value) {
