@@ -1628,6 +1628,95 @@
         "safety": "HIGH",
         "compatibility": "HIGH"
       }
+    },
+    {
+      "req_id": "REQ-AUDIO-011",
+      "feature_id": "AUDIO_EQUALIZER",
+      "area": "audio",
+      "requirement": "현대·기아 순정 오디오와 유사한 단순 3밴드 저음/중음/고음 EQ와 초기화를 제공하되 BYD DSP write는 검증 전 수행하지 않는다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "AUD-EQ-001",
+        "AUD-EQ-002"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "저음/중음/고음 3밴드 UI와 초기화 동작",
+        "앱 소유 오디오 EQ와 차량 DSP EQ를 명확히 구분",
+        "BYD DSP capability/readback 미검증 상태에서 차량 DSP write 없음"
+      ],
+      "required_logs": [
+        "EQ capability source",
+        "band values",
+        "target=app-owned-or-vehicle-dsp",
+        "write attempted true/false",
+        "readback if available"
+      ],
+      "known_bad": [
+        "BYD Dolphin DSP EQ API/readback mapping 미확정"
+      ],
+      "dependencies": [
+        "owned audio pipeline",
+        "BYD audio capability evidence"
+      ],
+      "real_vehicle_test": [
+        "EQ 조절 전/후 앱 소유 오디오 변화 확인",
+        "차량 DSP 제어 후보 발견 시 read-only 값 상관관계부터 검증",
+        "순정 안전 경고음 영향 없음 확인"
+      ],
+      "evidence": [],
+      "next_action": "read-only BYD audio/DSP capability probe 후 앱 소유 오디오 3밴드 UI 구현",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "LOW",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-AUDIO-012",
+      "feature_id": "AUDIO_SOUND_POSITION",
+      "area": "audio",
+      "requirement": "전후/좌우 음장 위치와 운전석 중심 UX를 제공하되 실제 BYD speaker routing write는 검증된 readback 없이는 수행하지 않는다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "AUD-POS-001"
+      ],
+      "state": "BETA",
+      "acceptance": [
+        "차량 좌석 기반 음장 위치 UI",
+        "운전석 중심 선택은 실제 지원 여부를 구분 표시",
+        "검증되지 않은 BYD routing write 없음"
+      ],
+      "required_logs": [
+        "sound-position capability source",
+        "requested position",
+        "write attempted true/false",
+        "physical/audible verification"
+      ],
+      "known_bad": [
+        "driver-only physical output device identification incomplete"
+      ],
+      "dependencies": [
+        "DRIVER_ONLY_APP_OWNED_AUDIO",
+        "PER_APP_DRIVER_SPEAKER_ROUTING"
+      ],
+      "real_vehicle_test": [
+        "운전석/중앙 위치별 실제 가청 위치 비교",
+        "순정 경고음 arbitration 확인"
+      ],
+      "evidence": [],
+      "next_action": "read-only audio routing/DSP capability evidence 확보",
+      "confidence": {
+        "behavior": "MEDIUM",
+        "root_cause": "LOW",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
     }
   ],
   "known_bad_library": [
