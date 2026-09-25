@@ -1823,7 +1823,9 @@
         "contract가 PASS를 제외하면 Feature state와 무관하게 PASS UI를 노출하지 않음",
         "Verification Center 상단 P0 실차 검증 큐는 known_bad_registry의 severity=P0 항목에서 동적 생성",
         "P0 큐에서 Known-Bad close_gate와 연결 Test ID를 확인하고 해당 실차 Test를 바로 시작 가능",
-        "실내등처럼 V1 actuation runtime이 없는 Test는 allowed_outcomes=NEED_MORE_DATA로 fail-closed"
+        "실내등처럼 V1 actuation runtime이 없는 Test는 allowed_outcomes=NEED_MORE_DATA로 fail-closed",
+        "runtime_surfaces는 tokens 필드 하나만 사용하고 legacy required_tokens를 허용하지 않음",
+        "모든 runtime surface는 비어있지 않은 tokens를 가지며 CI에서 실제 소스 문자열 존재를 검사"
       ],
       "required_logs": [
         "registry schema/version",
@@ -1856,7 +1858,9 @@
         "previous_bundle",
         "loadKnownBadRegistry",
         "P0 실차 검증 큐",
-        "known_bad_registry severity=P0"
+        "known_bad_registry severity=P0",
+        "legacy required_tokens schema forbidden",
+        "surface tokens missing"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
@@ -1881,7 +1885,8 @@
         "active-test process resume reuses diagnostic_session_id",
         "workflow concurrency keeps latest V1 validation authoritative",
         "Verification Center manual session rollover preserves previous bundle",
-        "Verification Center P0 queue is sourced from known_bad_registry.json"
+        "Verification Center P0 queue is sourced from known_bad_registry.json",
+        "CI validates canonical tokens-only runtime surface schema"
       ],
       "next_action": "실차 Evidence ZIP을 최소 2개 session에서 수집하고 evaluator 다중 입력으로 동일 raw 반복성을 비교; cross-session 후보도 수동 검토 전 매핑 활성화 금지",
       "confidence": {
