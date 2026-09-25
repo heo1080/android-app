@@ -18,6 +18,7 @@ public final class VehiclePromptPlayer {
     private final SoundPool pool;
     private final Map<String,Integer> sounds=new HashMap<>();
     private final Map<Integer,Boolean> loaded=new HashMap<>();
+    private final Map<Integer,String> promptBySound=new HashMap<>();
 
     public VehiclePromptPlayer(Context context) {
         app=context.getApplicationContext();
@@ -26,7 +27,14 @@ public final class VehiclePromptPlayer {
                 .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                 .build();
         pool=new SoundPool.Builder().setMaxStreams(2).setAudioAttributes(attrs).build();
-        pool.setOnLoadCompleteListener((sp,id,status)->loaded.put(id,status==0));
+        pool.setOnLoadCompleteListener((sp,id,status)->{
+            boolean ok=status==0;
+            loaded.put(id,ok);
+            String prompt=promptBySound.get(id);
+            VerificationEvidenceRuntime.recordPassiveEvent(app,
+                    ok?"VOICE_ASSET_READY":"VOICE_ASSET_LOAD_FAILED",
+                    String.valueOf(prompt)+" status="+status);
+        });
     }
 
     public void preload(String... promptIds) {
@@ -36,7 +44,9 @@ public final class VehiclePromptPlayer {
                 VerificationEvidenceRuntime.recordPassiveEvent(app,"VOICE_ASSET_MISSING",id);
                 continue;
             }
-            sounds.put(id,pool.load(app,res,1));
+            int soundId=pool.load(app,res,1);
+            sounds.put(id,soundId);
+            promptBySound.put(soundId,id);
         }
     }
 
@@ -56,5 +66,10 @@ public final class VehiclePromptPlayer {
         }
     }
 
-    public void release() { pool.release(); sounds.clear(); loaded.clear(); }
+    public void release() {
+        pool.release();
+        sounds.clear();
+        loaded.clear();
+        promptBySound.clear();
+    }
 }
