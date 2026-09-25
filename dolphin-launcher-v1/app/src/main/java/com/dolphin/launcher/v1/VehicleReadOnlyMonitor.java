@@ -82,17 +82,14 @@ public final class VehicleReadOnlyMonitor {
         if(epb!=null && (epb==1||epb==3) && changedNormalized("epb.normalized",epb))
             post(()->listener.onEpb(epb==3));
 
-        // Real-car live-fix evidence: Energy operation mode candidate 0=NORMAL,1=ECO,2=SPORT.
+        // P0 regression guard: previous numeric mappings produced missing NORMAL and
+        // STANDARD->ECO mis-announcements on the real car. Until raw transitions are
+        // re-correlated against the OEM UI, collect evidence only; never speak guesses.
         Integer drive=read(ENERGY,"getOperationMode");
-        changed("energy.operationMode",drive);
-        String dm=decodeDrive(drive);
-        if(dm!=null && changedNormalized("drive.normalized",drive)) post(()->listener.onDriveMode(dm));
+        if(changed("energy.operationMode",drive)) post(()->listener.onRaw("drive.candidate.unmapped",drive));
 
-        // Real-car live-fix evidence: Setting energy feedback candidate 2=STANDARD,3=HIGH.
         Integer regen=read(SETTING,"getEnergyFeedback");
-        changed("setting.energyFeedback",regen);
-        String rm=decodeRegen(regen);
-        if(rm!=null && changedNormalized("regen.normalized",regen)) post(()->listener.onRegen(rm));
+        if(changed("setting.energyFeedback",regen)) post(()->listener.onRaw("regen.candidate.unmapped",regen));
 
         // Snow and ICC/TJA remain candidates until V1 real-car correlation confirms
         // both directions. Record raw transitions without speaking guessed semantics.
@@ -227,13 +224,5 @@ public final class VehicleReadOnlyMonitor {
     private static String decodeGear(Integer r){
         if(r==null)return null;
         switch(r){case 0:return "N";case 1:return "R";case 2:return "D";case 3:return "P";default:return null;}
-    }
-    private static String decodeDrive(Integer r){
-        if(r==null)return null;
-        switch(r){case 0:return "NORMAL";case 1:return "ECO";case 2:return "SPORT";default:return null;}
-    }
-    private static String decodeRegen(Integer r){
-        if(r==null)return null;
-        switch(r){case 2:return "STANDARD";case 3:return "HIGH";default:return null;}
     }
 }
