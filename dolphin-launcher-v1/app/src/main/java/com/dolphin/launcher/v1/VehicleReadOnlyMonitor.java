@@ -29,6 +29,8 @@ public final class VehicleReadOnlyMonitor {
         void onDriveMode(String value);
         void onRegen(String value);
         void onEpb(boolean held);
+        void onAvhRaw(Integer raw);
+        void onBsdRaw(Integer raw);
         void onRaw(String signal, Integer raw);
     }
 
@@ -84,20 +86,25 @@ public final class VehicleReadOnlyMonitor {
         String rm=decodeRegen(regen);
         if(rm!=null && changedNormalized("regen.normalized",regen)) post(()->listener.onRegen(rm));
 
-        // Semantics still require physical-control correlation; evidence only.
-        changed("adas.avh",read(ADAS,"getAVHState"));
-        changed("adas.bsd",read(ADAS,"getBSDState"));
+        // Semantics still require physical-control correlation. Expose transitions to
+        // the listener as raw evidence only; do not map them to spoken ON/OFF/side yet.
+        Integer avh=read(ADAS,"getAVHState");
+        if(changed("adas.avh",avh)) post(()->listener.onAvhRaw(avh));
+        Integer bsd=read(ADAS,"getBSDState");
+        if(changed("adas.bsd",bsd)) post(()->listener.onBsdRaw(bsd));
     }
 
-    private void changed(String signal,Integer value){
-        if(value==null)return;
+    private boolean changed(String signal,Integer value){
+        if(value==null)return false;
         Integer old=lastRaw.put(signal,value);
         if(old==null||!old.equals(value)){
             String d=signal+" raw="+value+" previous="+String.valueOf(old);
             Log.i(TAG,d);
             VerificationEvidenceRuntime.recordPassiveEvent(app,"VEHICLE_RAW",d);
             if(listener!=null)post(()->listener.onRaw(signal,value));
+            return true;
         }
+        return false;
     }
 
     private boolean changedNormalized(String key,Integer value){
