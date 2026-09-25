@@ -234,10 +234,11 @@
       "req_id": "REQ-LAUNCH-003",
       "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
       "area": "launcher",
-      "requirement": "시동 시 여러 앱을 등록하고 각 지연시간/미디어 재생 옵션에 따라 한 시동 주기당 한 번 실행한다.",
+      "requirement": "시동 완료 시 등록된 여러 앱을 LauncherActivity 실행 여부와 독립적으로 순차 실행한다.",
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootReceiver.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootReceiver.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchRuntime.java"
       ],
       "test_ids": [
         "LCH-BOOT-001",
@@ -245,25 +246,24 @@
       ],
       "state": "REVERIFY_REQUIRED",
       "acceptance": [
-        "추가 버튼 존재",
-        "2개 이상 앱 등록",
-        "지연 순서 실행",
-        "시동 OFF 시 예약 취소",
-        "동일 ignition cycle 중 중복 실행 없음"
+        "자동실행 관리에 + 앱 추가 버튼 존재",
+        "2개 이상 앱 등록 가능",
+        "BOOT_COMPLETED에서 등록 앱 순차 dispatch",
+        "LauncherActivity 진입으로 동일 boot dispatch를 중복 실행하지 않음"
       ],
       "required_logs": [
-        "ignition cycle id",
-        "registered list",
-        "launch result",
-        "media result"
+        "BOOT_COMPLETED",
+        "AUTOSTART_BOOT_BATCH",
+        "AUTOSTART_LAUNCH_DISPATCHED",
+        "AUTOSTART_LAUNCH_FAILED"
       ],
       "known_bad": [
         "과거 최신 설치본에서 여러 앱 추가 버튼이 사라졌다고 보고"
       ],
       "dependencies": [
-        "IgnitionMonitor",
-        "NativeAdbClient/PackageManager",
-        "MediaSessionManager"
+        "BOOT_COMPLETED broadcast",
+        "PackageManager launch intent",
+        "Android background activity-start policy"
       ],
       "real_vehicle_test": [
         "앱 2개 등록",
@@ -272,10 +272,11 @@
         "두 번째 cycle 반복"
       ],
       "evidence": [
-        "BootAutomationController multi-app loop",
-        "v32.2 regression guard btnAddBootApp"
+        "LauncherActivity showAutoStartAppPicker",
+        "BootReceiver BootAutoLaunchRuntime.dispatch",
+        "BootAutoLaunchRuntime delayed multi-app loop"
       ],
-      "next_action": "최신 release UI에서 Add 버튼과 실제 ignition edge 재검증",
+      "next_action": "BYD Android 10 실차 재부팅에서 background activity dispatch 허용 여부와 2개 이상 앱 순차 실행 재검증",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
