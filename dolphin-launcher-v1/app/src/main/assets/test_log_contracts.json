@@ -1162,7 +1162,8 @@
         "operator AVH switch indication and raw edge match on 3 repetitions",
         "no automatic speech until mapping is proven",
         "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech",
-        "500ms live samples preserve AVH/speed/brake context around operator marker"
+        "500ms live samples preserve AVH/speed/brake context around operator marker",
+        "continuous AUTOHOLD_LIVE_SAMPLE capture is bounded to the first 10 minutes of an active test"
       ],
       "required_logs": [
         "AUTOHOLD_RAW_TRANSITION",
@@ -1217,7 +1218,8 @@
         "identify a direct raw/state correlation before enabling hold/release speech",
         "legacy brake-release inference is prohibited",
         "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech",
-        "500ms live samples preserve AVH/speed/brake context around operator marker"
+        "500ms live samples preserve AVH/speed/brake context around operator marker",
+        "continuous AUTOHOLD_LIVE_SAMPLE capture is bounded to the first 10 minutes of an active test"
       ],
       "required_logs": [
         "AUTOHOLD_CORRELATION_SNAPSHOT",
