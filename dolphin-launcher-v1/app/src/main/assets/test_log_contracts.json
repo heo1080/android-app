@@ -725,20 +725,23 @@
         "VOICE_TTS_INIT_FAILED"
       ],
       "success_any": [
-        "TTS fallback audible immediately with no delayed previous utterance"
+        "TTS fallback audible immediately with no delayed previous utterance",
+        "VOICE_TTS_START request_to_start_ms recorded for repeated fallback prompts"
       ],
       "failure_any": [
         "VOICE_TTS_INIT_FAILED",
         "VOICE_TTS_FALLBACK_FAILED",
         "previous utterance plays after a later beep or prompt",
-        "fallback reported as guaranteed female fixed voice"
+        "fallback reported as guaranteed female fixed voice",
+        "stale utterance starts after a newer QUEUE_FLUSH request"
       ],
       "known_bad_ids": [],
       "acceptance": [
         "missing fixed asset may use Android TTS fallback without claiming fixed female voice",
         "QUEUE_FLUSH prevents stale utterance from playing after a later audio action",
         "10 repeated prompts and beep-to-voice crossings show no delayed prior utterance",
-        "cold-start fallback readiness and audible latency are recorded"
+        "cold-start fallback readiness and audible latency are recorded",
+        "each fallback request uses a unique utterance id so QUEUE_FLUSH stop/start ordering is attributable"
       ],
       "required_logs": [
         "VOICE_TTS_READY",
@@ -747,7 +750,12 @@
         "VOICE_TTS_FALLBACK_FAILED",
         "VOICE_PROMPT_NOT_READY",
         "audible/operator result",
-        "event timestamp"
+        "event timestamp",
+        "VOICE_TTS_START",
+        "VOICE_TTS_DONE",
+        "VOICE_TTS_STOPPED",
+        "VOICE_TTS_ERROR",
+        "request_to_start_ms"
       ]
     },
     {
