@@ -125,9 +125,10 @@ public class LauncherActivity extends Activity {
         seedFavorites();
         buildShell();
         VerificationEvidenceRuntime.ensureProcessSession(this, "launcher-process-start");
-        boolean splitShortcutLaunch = isSplitShortcutIntent(getIntent());
+        boolean shortcutLaunch = isSplitShortcutIntent(getIntent()) || isAppShortcutIntent(getIntent());
         handleSplitShortcutIntent(getIntent());
-        if (!splitShortcutLaunch) runPendingAutostart();
+        handleAppShortcutIntent(getIntent());
+        if (!shortcutLaunch) runPendingAutostart();
         VerificationEvidenceRuntime.startAutomaticUploadRuntime(this);
         VerificationEvidenceRuntime.recordPassiveEvent(this, "APP_LAUNCH", "LauncherActivity created");
         DisplayDiagnostics.capture(this);
@@ -152,6 +153,23 @@ public class LauncherActivity extends Activity {
         super.onNewIntent(intent);
         setIntent(intent);
         handleSplitShortcutIntent(intent);
+        handleAppShortcutIntent(intent);
+    }
+
+    private boolean isAppShortcutIntent(Intent intent) {
+        return intent != null && "com.dolphin.launcher.v1.OPEN_PACKAGE".equals(intent.getAction());
+    }
+
+    private void handleAppShortcutIntent(Intent intent) {
+        if (!isAppShortcutIntent(intent)) return;
+        String pkg = intent.getStringExtra("package");
+        VerificationEvidenceRuntime.recordPassiveEvent(this, "APP_SHORTCUT_INVOKED", "package=" + pkg);
+        if (pkg == null || pkg.trim().isEmpty()) {
+            VerificationEvidenceRuntime.recordPassiveEvent(this, "APP_SHORTCUT_LAUNCH_FAILED", "reason=missing-package");
+        } else {
+            launchPackage(pkg);
+        }
+        intent.setAction(Intent.ACTION_MAIN);
     }
 
     private boolean isSplitShortcutIntent(Intent intent) {
@@ -179,7 +197,7 @@ public class LauncherActivity extends Activity {
         if (bodyHost != null) showHome();
         handler.removeCallbacks(clockTick);
         handler.post(clockTick);
-        if (!isSplitShortcutIntent(getIntent())) runPendingAutostart();
+        if (!isSplitShortcutIntent(getIntent()) && !isAppShortcutIntent(getIntent())) runPendingAutostart();
         AppUpdateManager.resumePendingInstallPermission(this);
     }
 
