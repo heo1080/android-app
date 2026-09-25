@@ -99,7 +99,13 @@ public class LauncherActivity extends Activity {
         seedFavorites();
         buildShell();
         runPendingAutostart();
-        handler.postDelayed(() -> AppUpdateManager.checkForUpdates(this, false), 1800L);
+        VerificationEvidenceRuntime.beginSession(this, "launcher-create");
+        VerificationEvidenceRuntime.recordPassiveEvent(this, "APP_LAUNCH", "LauncherActivity created");
+        VerificationEvidenceRuntime.retryPendingUploadsAsync(this);
+        handler.postDelayed(() -> {
+            VerificationEvidenceRuntime.queueBundleAndUpload(this, "startup-snapshot");
+            AppUpdateManager.checkForUpdates(this, false);
+        }, 1800L);
     }
 
     @Override
@@ -574,7 +580,7 @@ public class LauncherActivity extends Activity {
                         new AlertDialog.Builder(this)
                                 .setTitle("Dolphin Launcher V1 OTA")
                                 .setMessage("독립 패키지: com.dolphin.launcher.v1\n" +
-                                        "버전: 1.2.0-v1-ota\n\n" +
+                                        "버전: " + BuildConfig.VERSION_NAME + "\n\n" +
                                         "Registry v3 + 앱내 서명검증 OTA 업데이트 통합 빌드입니다.")
                                 .setPositiveButton("확인", null)
                                 .show();
