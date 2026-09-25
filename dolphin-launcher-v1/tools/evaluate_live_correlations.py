@@ -19,8 +19,14 @@ LEDGER_NAME = "verification_evidence.jsonl"
 MIN_REPEAT = 3
 
 MARKER_KEYS = {
+    "GEAR_P_VISIBLE": ["gear_raw"],
+    "GEAR_R_VISIBLE": ["gear_raw"],
+    "GEAR_N_VISIBLE": ["gear_raw"],
+    "GEAR_D_VISIBLE": ["gear_raw"],
     "OEM_NORMAL_VISIBLE": ["operation_raw"],
     "OEM_STANDARD_VISIBLE": ["energy_feedback_raw"],
+    "SNOW_ON_VISIBLE": ["road_surface_raw"],
+    "SNOW_OFF_VISIBLE": ["road_surface_raw"],
     "AUTOHOLD_SWITCH_ON_VISIBLE": ["avh_enable_raw", "avh_raw"],
     "AUTOHOLD_SWITCH_OFF_VISIBLE": ["avh_enable_raw", "avh_raw"],
     "AUTOHOLD_HELD_VISIBLE": [
@@ -31,13 +37,30 @@ MARKER_KEYS = {
         "avh_raw", "avh_enable_raw", "speed_raw", "brake_pedal_raw",
         "brake_depth_raw", "accel_depth_raw",
     ],
+    "EPB_HELD_VISIBLE": ["epb_raw"],
+    "EPB_RELEASED_VISIBLE": ["epb_raw"],
+    "ICC_ON_VISIBLE": ["tja_raw"],
+    "ICC_OFF_VISIBLE": ["tja_raw"],
+    "BSD_LEFT_CONTEXT_VISIBLE": ["bsd_raw", "turn_left_raw", "turn_right_raw"],
+    "BSD_RIGHT_CONTEXT_VISIBLE": ["bsd_raw", "turn_left_raw", "turn_right_raw"],
+    "LEADING_CAR_DEPARTURE_VISIBLE": ["radar_area7_raw", "radar_area8_raw"],
 }
 
 CANDIDATE_KEY = {
+    "GEAR_P_VISIBLE": "gear_raw",
+    "GEAR_R_VISIBLE": "gear_raw",
+    "GEAR_N_VISIBLE": "gear_raw",
+    "GEAR_D_VISIBLE": "gear_raw",
     "OEM_NORMAL_VISIBLE": "operation_raw",
     "OEM_STANDARD_VISIBLE": "energy_feedback_raw",
+    "SNOW_ON_VISIBLE": "road_surface_raw",
+    "SNOW_OFF_VISIBLE": "road_surface_raw",
     "AUTOHOLD_SWITCH_ON_VISIBLE": "avh_enable_raw",
     "AUTOHOLD_SWITCH_OFF_VISIBLE": "avh_enable_raw",
+    "EPB_HELD_VISIBLE": "epb_raw",
+    "EPB_RELEASED_VISIBLE": "epb_raw",
+    "ICC_ON_VISIBLE": "tja_raw",
+    "ICC_OFF_VISIBLE": "tja_raw",
 }
 
 
