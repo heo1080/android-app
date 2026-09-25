@@ -113,6 +113,7 @@ public final class VerificationEvidenceRuntime {
     public static String liveCorrelationSnapshot() {
         String[] keys = new String[]{
                 "gear_raw","epb_raw","operation_raw","energy_feedback_raw","road_surface_raw",
+                "tja_raw","bsd_raw","turn_left_raw","turn_right_raw","radar_area7_raw","radar_area8_raw",
                 "avh_raw","avh_enable_raw","speed_raw","brake_pedal_raw","brake_depth_raw","accel_depth_raw"
         };
         StringBuilder out = new StringBuilder();
