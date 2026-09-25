@@ -199,6 +199,16 @@ public class LauncherActivity extends Activity {
                         LauncherActivity.this, "BSD_RAW_TRANSITION",
                         "bsd_raw=" + raw + ";voice=suppressed-pending-side-correlation");
             }
+            @Override public void onSnowRaw(Integer raw) {
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        LauncherActivity.this, "SNOW_RAW_TRANSITION",
+                        "road_surface_raw=" + raw + ";voice=suppressed-pending-on-off-correlation");
+            }
+            @Override public void onIccCandidateRaw(Integer raw) {
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        LauncherActivity.this, "ICC_TJA_RAW_TRANSITION",
+                        "tja_raw=" + raw + ";voice=suppressed-pending-icc-correlation");
+            }
             @Override public void onRaw(String signal, Integer raw) {
                 // AVH/BSD and other not-yet-normalized signals remain evidence-only.
             }
