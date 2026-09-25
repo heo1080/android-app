@@ -25,6 +25,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.ZipEntry;
@@ -45,6 +46,7 @@ public final class VerificationEvidenceRuntime {
     private static final String UPLOAD_URL = "https://dolphin-v1-evidence.heo1080.workers.dev/upload";
     private static final long MAX_UPLOAD_BYTES = 20L * 1024L * 1024L;
     private static final ExecutorService IO = Executors.newSingleThreadExecutor();
+    private static final ConcurrentHashMap<String,String> LIVE_CORRELATION_STATE = new ConcurrentHashMap<>();
     private static boolean PROCESS_SESSION_STARTED = false;
     private static boolean NETWORK_CALLBACK_REGISTERED = false;
     private static ConnectivityManager.NetworkCallback NETWORK_CALLBACK;
@@ -103,10 +105,32 @@ public final class VerificationEvidenceRuntime {
         return prefs(context).getString(KEY_ACTIVE_TEST_CORRELATION, null);
     }
 
+    public static void updateLiveCorrelationValue(String key, Object value) {
+        if (key == null || key.isEmpty()) return;
+        LIVE_CORRELATION_STATE.put(key, String.valueOf(value));
+    }
+
+    public static String liveCorrelationSnapshot() {
+        String[] keys = new String[]{
+                "gear_raw","epb_raw","operation_raw","energy_feedback_raw","road_surface_raw",
+                "avh_raw","avh_enable_raw","speed_raw","brake_pedal_raw","brake_depth_raw","accel_depth_raw"
+        };
+        StringBuilder out = new StringBuilder();
+        for (String key : keys) {
+            String value = LIVE_CORRELATION_STATE.get(key);
+            if (value == null) continue;
+            if (out.length() > 0) out.append(";");
+            out.append(key).append("=").append(value);
+        }
+        return out.toString();
+    }
+
     public static void operatorObservation(Context context, String testId, String correlationId,
                                            String observation, String note) {
         String detail = "observation=" + observation;
         if (note != null && !note.trim().isEmpty()) detail += ";" + note.trim();
+        String snapshot = liveCorrelationSnapshot();
+        if (!snapshot.isEmpty()) detail += ";latest_raw=" + snapshot;
         append(context, "OPERATOR_OBSERVATION", testId, correlationId, "OBSERVED", detail);
     }
 
@@ -228,6 +252,8 @@ public final class VerificationEvidenceRuntime {
             addAsset(context, out, "test_log_contracts.json");
             addAsset(context, out, "feature_dependencies.json");
             addAsset(context, out, "runtime_surfaces.json");
+            addAsset(context, out, "known_bad_registry.json");
+            addAsset(context, out, "voice_prompt_manifest.json");
             addSessionLedger(context, out, sessionId);
 
             JSONObject identity = new JSONObject();
