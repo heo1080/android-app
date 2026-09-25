@@ -1040,10 +1040,13 @@ public class LauncherActivity extends Activity {
     }
 
     private void toggleAutoStart(String pkg) {
-        LinkedHashSet<String> set = new LinkedHashSet<>(autoStartPackages());
-        boolean added = set.add(pkg);
-        if (!added) set.remove(pkg);
-        prefs.edit().putStringSet(KEY_AUTOSTART_SET, set).apply();
+        boolean added;
+        if (autoStartPackages().contains(pkg)) {
+            AutoStartStore.remove(prefs, pkg);
+            added = false;
+        } else {
+            added = AutoStartStore.add(prefs, pkg);
+        }
         Toast.makeText(this, appLabel(pkg) + (added ? " · 시동 자동실행 추가" : " · 시동 자동실행 제거"),
                 Toast.LENGTH_SHORT).show();
         showHome();
@@ -1184,8 +1187,7 @@ public class LauncherActivity extends Activity {
     }
 
     private Set<String> autoStartPackages() {
-        Set<String> raw = prefs.getStringSet(KEY_AUTOSTART_SET, Collections.emptySet());
-        return raw == null ? Collections.emptySet() : new LinkedHashSet<>(raw);
+        return new LinkedHashSet<>(AutoStartStore.read(prefs));
     }
 
     private List<AppEntry> favoriteApps() {
