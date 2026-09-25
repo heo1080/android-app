@@ -57,9 +57,9 @@
         "LCH-DRW-001",
         "LCH-DRW-002"
       ],
-      "summary": "app drawer shortcut creation missing",
-      "state": "OPEN",
-      "close_gate": "real-car pinned pair shortcut creation and cold-start launch evidence"
+      "summary": "per-app pinned shortcut implementation restored; real-car BYD launcher behavior pending",
+      "state": "FIX_CANDIDATE",
+      "close_gate": "real-car per-app pinned shortcut creation, icon visibility, cold-start target launch, and removal/disable evidence"
     },
     {
       "id": "KB-006",
