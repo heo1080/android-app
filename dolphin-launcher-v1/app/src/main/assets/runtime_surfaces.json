@@ -176,7 +176,13 @@
         "TYRE_COMMAND_AREA_RIGHT_FRONT",
         "TYRE_COMMAND_AREA_LEFT_REAR",
         "TYRE_COMMAND_AREA_RIGHT_REAR",
-        "staticInt"
+        "staticInt",
+        "tpmsAreasReady",
+        "TPMS_AREA_UNRESOLVED",
+        "areaFl>=0",
+        "areaFr>=0",
+        "areaRl>=0",
+        "areaRr>=0"
       ]
     }
   ],
