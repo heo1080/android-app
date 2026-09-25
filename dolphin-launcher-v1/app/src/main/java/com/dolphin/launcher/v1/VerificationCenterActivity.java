@@ -638,12 +638,13 @@ public class VerificationCenterActivity extends Activity {
             }
         }
 
+        final String[] finalOutcomes = outcomes;
         new AlertDialog.Builder(this)
                 .setTitle(activeTestId + " 결과")
                 .setMessage(resultMessage)
                 .setView(note)
-                .setItems(outcomes, (dialog, which) ->
-                        completeActiveCapture(outcomes[which], note.getText().toString().trim(),
+                .setItems(finalOutcomes, (dialog, which) ->
+                        completeActiveCapture(finalOutcomes[which], note.getText().toString().trim(),
                                 "Verification Center live capture completed"))
                 .setNegativeButton("계속 캡처", null)
                 .show();
