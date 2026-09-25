@@ -2197,16 +2197,22 @@
         "Registry/asset drift CI가 통과",
         "Known-Bad required Test ID가 log contract와 연결",
         "핵심 Runtime Surface token 누락 시 CI 실패",
-        "차량 Verification Center에서 Test ID별 operator result를 VERIFY_RESULT 로그로 기록",
-        "49개 모든 Test ID가 test_log_contracts에 1:1로 존재",
+        "차량 Verification Center에서 Test ID별 operator result를 OPERATOR_RESULT 로그로 기록",
+        "54개 모든 Test ID가 test_log_contracts에 1:1로 존재",
         "Test ID별 결과가 append-only evidence ledger에 correlation/build/precondition/session과 함께 기록",
         "BLOCKED/UNSUPPORTED Test ID는 PASS/FAIL 기록 불가",
-        "repeatability와 Known-Bad lifecycle을 자동 평가"
+        "repeatability와 Known-Bad lifecycle을 자동 평가",
+        "live Test ID capture supports OPERATOR_OBSERVATION before final OPERATOR_RESULT",
+        "every evidence row carries elapsed_realtime_ms",
+        "V1 correlation evaluator self-test passes and cannot auto-verify mappings"
       ],
       "required_logs": [
         "registry schema/version",
         "source commit",
-        "diagnostic session id"
+        "diagnostic session id",
+        "OPERATOR_OBSERVATION",
+        "elapsed_realtime_ms",
+        "V1_CORRELATION_EVALUATOR_OK"
       ]
     },
     {
