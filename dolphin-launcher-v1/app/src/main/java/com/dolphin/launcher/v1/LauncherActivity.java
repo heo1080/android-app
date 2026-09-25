@@ -544,8 +544,20 @@ public class LauncherActivity extends Activity {
     }
 
     private void launchSplitPair(String left, String right) {
-        if (!isLaunchable(left) || !isLaunchable(right) || left.equals(right)) {
-            Toast.makeText(this, "앱서랍에서 서로 다른 2분할 좌/우 앱을 먼저 지정하세요.", Toast.LENGTH_LONG).show();
+        boolean leftLaunchable = isLaunchable(left);
+        boolean rightLaunchable = isLaunchable(right);
+        boolean samePackage = left != null && left.equals(right);
+        if (!leftLaunchable || !rightLaunchable || samePackage) {
+            String reason = samePackage ? "same-package"
+                    : (!leftLaunchable && !rightLaunchable) ? "both-unlaunchable"
+                    : !leftLaunchable ? "left-unlaunchable" : "right-unlaunchable";
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "SPLIT_PAIR_INVALID",
+                    "reason=" + reason + ";left=" + left + ";right=" + right);
+            VerificationEvidenceRuntime.queueBundleAndUpload(this, "split-pair-invalid");
+            Toast.makeText(this,
+                    "2분할 바로가기의 앱이 삭제되었거나 실행할 수 없습니다. 좌/우 앱을 다시 지정하세요.",
+                    Toast.LENGTH_LONG).show();
             showAppDrawer();
             return;
         }
