@@ -23,6 +23,7 @@ public final class VehicleReadOnlyMonitor {
     private static final String SETTING="android.hardware.bydauto.setting.BYDAutoSettingDevice";
     private static final String ADAS="android.hardware.bydauto.adas.BYDAutoADASDevice";
     private static final String RADAR="android.hardware.bydauto.radar.BYDAutoRadarDevice";
+    private static final String TYRE="android.hardware.bydauto.tyre.BYDAutoTyreDevice";
     private static final long PERIOD_MS=500L;
 
     public interface Listener {
@@ -35,6 +36,7 @@ public final class VehicleReadOnlyMonitor {
         void onSnowRaw(Integer raw);
         void onIccCandidateRaw(Integer raw);
         void onFrontRadarRaw(Integer leftMid, Integer rightMid);
+        void onTpmsRaw(Integer fl, Integer fr, Integer rl, Integer rr);
         void onRaw(String signal, Integer raw);
     }
 
@@ -105,6 +107,19 @@ public final class VehicleReadOnlyMonitor {
         boolean radarChanged=changed("radar.frontLeftMid",radarLeft);
         radarChanged=changed("radar.frontRightMid",radarRight) || radarChanged;
         if(radarChanged) post(()->listener.onFrontRadarRaw(radarLeft,radarRight));
+
+        // Public DiLink 3 OpenAPI exposes per-wheel TPMS pressure values.
+        // Preserve the raw integers until the Korean Dolphin's pressure unit is
+        // confirmed by real-car evidence; no guessed psi/bar conversion here.
+        Integer tyreFl=readIntArg(TYRE,"getTyrePressureValue",1);
+        Integer tyreFr=readIntArg(TYRE,"getTyrePressureValue",2);
+        Integer tyreRl=readIntArg(TYRE,"getTyrePressureValue",3);
+        Integer tyreRr=readIntArg(TYRE,"getTyrePressureValue",4);
+        boolean tyreChanged=changed("tyre.fl.raw",tyreFl);
+        tyreChanged=changed("tyre.fr.raw",tyreFr) || tyreChanged;
+        tyreChanged=changed("tyre.rl.raw",tyreRl) || tyreChanged;
+        tyreChanged=changed("tyre.rr.raw",tyreRr) || tyreChanged;
+        if(tyreChanged) post(()->listener.onTpmsRaw(tyreFl,tyreFr,tyreRl,tyreRr));
 
         // Semantics still require physical-control correlation. Expose transitions to
         // the listener as raw evidence only; do not map them to spoken ON/OFF/side yet.
