@@ -1197,14 +1197,18 @@
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
       "required_any": [
-        "stream14",
-        "AUDIO_PROBE"
+        "DRIVER_AUDIO_CAPABILITY",
+        "AUDIO_OUTPUT_DEVICE",
+        "stream14"
       ],
       "success_any": [
-        "stream14 voice played",
-        "ROUTE_"
+        "operator confirms driver-only audible output",
+        "verified output device route"
       ],
-      "failure_any": [],
+      "failure_any": [
+        "AudioTrack success but no audible driver output",
+        "OEM safety audio interference"
+      ],
       "known_bad_ids": [
         "KB-009"
       ],
@@ -1214,11 +1218,12 @@
         "순정 안전경고 방해 없음"
       ],
       "required_logs": [
-        "legacy stream",
+        "AUDIO_OUTPUT_DEVICE inventory",
+        "DRIVER_AUDIO_CAPABILITY",
         "AudioAttributes",
-        "output devices",
+        "output device id/type/product",
         "focus",
-        "actual audible result"
+        "actual seat-by-seat audible result"
       ]
     },
     {
@@ -1239,8 +1244,9 @@
       "manual_observation_required": true,
       "repeatability_required_sessions": 0,
       "required_any": [
-        "MODIFY_AUDIO_ROUTING",
-        "APP_AUDIO_LAB"
+        "DRIVER_AUDIO_CAPABILITY",
+        "AUDIO_OUTPUT_DEVICE",
+        "MODIFY_AUDIO_ROUTING"
       ],
       "success_any": [],
       "failure_any": [],
@@ -1254,6 +1260,8 @@
         "remove target restores stock"
       ],
       "required_logs": [
+        "DRIVER_AUDIO_CAPABILITY",
+        "AUDIO_OUTPUT_DEVICE inventory",
         "MODIFY_AUDIO_ROUTING grant/effective",
         "output device id",
         "UID affinity/policy mix",
