@@ -472,6 +472,41 @@ public class VerificationCenterActivity extends Activity {
                 Toast.LENGTH_SHORT).show();
     }
 
+    private String[] requiredMarkersForTest(String testId) {
+        if ("AUD-GEAR-001".equals(testId)) return new String[]{
+                "GEAR_P_VISIBLE","GEAR_R_VISIBLE","GEAR_N_VISIBLE","GEAR_D_VISIBLE"};
+        if ("AUD-DRV-002".equals(testId)) return new String[]{"OEM_NORMAL_VISIBLE"};
+        if ("AUD-REG-002".equals(testId)) return new String[]{"OEM_STANDARD_VISIBLE"};
+        if ("AUD-SNOW-001".equals(testId)) return new String[]{"SNOW_ON_VISIBLE"};
+        if ("AUD-SNOW-002".equals(testId)) return new String[]{"SNOW_OFF_VISIBLE"};
+        if ("AUD-AVH-001".equals(testId)) return new String[]{
+                "AUTOHOLD_SWITCH_ON_VISIBLE","AUTOHOLD_SWITCH_OFF_VISIBLE"};
+        if ("AUD-AVH-002".equals(testId)) return new String[]{
+                "AUTOHOLD_HELD_VISIBLE","AUTOHOLD_RELEASE_VISIBLE"};
+        if ("AUD-EPB-001".equals(testId)) return new String[]{
+                "EPB_HELD_VISIBLE","EPB_RELEASED_VISIBLE"};
+        if ("AUD-ICC-001".equals(testId)) return new String[]{
+                "ICC_ON_VISIBLE","ICC_OFF_VISIBLE"};
+        if ("AUD-BSD-001".equals(testId)) return new String[]{
+                "BSD_LEFT_CONTEXT_VISIBLE","BSD_RIGHT_CONTEXT_VISIBLE"};
+        if ("AUD-LVDA-001".equals(testId)) return new String[]{
+                "LEADING_CAR_DEPARTURE_VISIBLE"};
+        return new String[0];
+    }
+
+    private boolean activeCorrelationReadyForPass() {
+        if (activeCorrelationId == null) return false;
+        String[] required = requiredMarkersForTest(activeTestId);
+        if (required.length == 0) return true;
+        Map<String,Integer> counts = VerificationEvidenceRuntime.operatorObservationCounts(
+                this, activeCorrelationId);
+        for (String marker : required) {
+            Integer count = counts.get(marker);
+            if (count == null || count < 3) return false;
+        }
+        return true;
+    }
+
     private void finishActiveCaptureDialog() {
         if (activeTestId == null || activeCorrelationId == null) return;
         EditText note = new EditText(this);
@@ -484,13 +519,28 @@ public class VerificationCenterActivity extends Activity {
         note.setBackground(round("#071116", 14, "#294957"));
 
         boolean blocked = "BLOCKED".equals(activeTestState) || "UNSUPPORTED".equals(activeTestState);
+        boolean passReady = activeCorrelationReadyForPass();
+        boolean markerControlled = requiredMarkersForTest(activeTestId).length > 0;
         String[] outcomes = blocked
                 ? new String[]{"NEED_MORE_DATA"}
+                : markerControlled && !passReady
+                ? new String[]{"FAIL", "INTERMITTENT", "DELAYED", "NEED_MORE_DATA"}
                 : new String[]{"PASS", "FAIL", "INTERMITTENT", "DELAYED", "NEED_MORE_DATA"};
+
+        String resultMessage = activeFeature == null ? "" : activeFeature.optString("requirement", "");
+        if (markerControlled) {
+            resultMessage += "\n\n" + markerProgressText(
+                    VerificationEvidenceRuntime.operatorObservationCounts(this, activeCorrelationId));
+            if (!passReady) {
+                resultMessage += "\nPASS 잠금: 필요한 마커를 각각 3회 기록해야 합니다.";
+            } else {
+                resultMessage += "\n현재 세션의 마커 최소 반복 수는 충족했습니다. 전체 VERIFIED에는 별도 세션/실차 검토가 더 필요합니다.";
+            }
+        }
 
         new AlertDialog.Builder(this)
                 .setTitle(activeTestId + " 결과")
-                .setMessage(activeFeature == null ? "" : activeFeature.optString("requirement", ""))
+                .setMessage(resultMessage)
                 .setView(note)
                 .setItems(outcomes, (dialog, which) ->
                         completeActiveCapture(outcomes[which], note.getText().toString().trim(),
