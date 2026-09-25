@@ -2382,7 +2382,9 @@
         "tests whose contracts exclude PASS can never expose PASS in the UI",
         "Verification Center P0 queue is generated from severity=P0 Known-Bad records",
         "P0 queue exposes each Known-Bad close gate and linked Test IDs",
-        "result UI follows allowed_outcomes even when feature state is REVERIFY_REQUIRED"
+        "result UI follows allowed_outcomes even when feature state is REVERIFY_REQUIRED",
+        "runtime_surfaces uses tokens only; legacy required_tokens is rejected",
+        "every runtime surface has non-empty tokens verified against source"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2407,7 +2409,9 @@
         "loadTestContracts",
         "allowedOutcomesForTest",
         "loadKnownBadRegistry",
-        "showP0Queue"
+        "showP0Queue",
+        "legacy required_tokens schema forbidden",
+        "surface tokens missing"
       ]
     },
     {
