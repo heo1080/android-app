@@ -100,6 +100,7 @@ public class LauncherActivity extends Activity {
         buildShell();
         runPendingAutostart();
         VerificationEvidenceRuntime.ensureProcessSession(this, "launcher-process-start");
+        VerificationEvidenceRuntime.startAutomaticUploadRuntime(this);
         VerificationEvidenceRuntime.recordPassiveEvent(this, "APP_LAUNCH", "LauncherActivity created");
         VerificationEvidenceRuntime.retryPendingUploadsAsync(this);
         handler.postDelayed(() -> {
