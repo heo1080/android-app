@@ -553,6 +553,27 @@
         "target=app-owned",
         "byd_dsp_write=false"
       ]
+    },
+    {
+      "feature_id": "AUDIO_SOUND_POSITION",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/OwnedSoundPosition.java",
+      "required_tokens": [
+        "SOUND_POSITION_REQUEST",
+        "SOUND_POSITION_PRESET",
+        "vehicle_route_write=false",
+        "state=BETA"
+      ]
+    },
+    {
+      "feature_id": "AUDIO_SOUND_POSITION",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+      "required_tokens": [
+        "SOUND POSITION",
+        "좌  BALANCE  우",
+        "뒤  FADER  앞",
+        "운전석 중심 프리셋",
+        "차량 DSP 쓰기 차단"
+      ]
     }
   ],
   "notes": [
