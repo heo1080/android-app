@@ -167,6 +167,7 @@ public class LauncherActivity extends Activity {
         if (pkg == null || pkg.trim().isEmpty()) {
             VerificationEvidenceRuntime.recordPassiveEvent(this, "APP_SHORTCUT_LAUNCH_FAILED", "reason=missing-package");
         } else {
+            VerificationEvidenceRuntime.recordPassiveEvent(this, "APP_SHORTCUT_LAUNCH_DISPATCHED", "package=" + pkg + ";verification=required");
             launchPackage(pkg);
         }
         intent.setAction(Intent.ACTION_MAIN);
@@ -683,7 +684,7 @@ public class LauncherActivity extends Activity {
         String[] actions = new String[] {
                 favorite ? "홈 고정 해제" : "홈에 고정",
                 "순정 앱서랍에 바로가기 만들기",
-                "순정 앱서랍 바로가기 제거",
+                "순정 앱서랍 바로가기 비활성화",
                 "2분할 왼쪽 앱으로 지정",
                 "2분할 오른쪽 앱으로 지정",
                 auto ? "시동 자동실행에서 제거" : "시동 자동실행에 추가",
@@ -700,7 +701,7 @@ public class LauncherActivity extends Activity {
                     }
                     if (which == 2) {
                         boolean ok = AppDrawerShortcutManager.disable(this, app.packageName);
-                        Toast.makeText(this, ok ? "바로가기를 비활성화했습니다." : "바로가기를 제거할 수 없습니다.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, ok ? "바로가기를 비활성화했습니다." : "바로가기를 비활성화할 수 없습니다.", Toast.LENGTH_LONG).show();
                     }
                     if (which == 3) setSplit(KEY_SPLIT_LEFT, app.packageName, "왼쪽");
                     if (which == 4) setSplit(KEY_SPLIT_RIGHT, app.packageName, "오른쪽");
