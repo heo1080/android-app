@@ -33,4 +33,3 @@ android {
     }
 }
 
-// CI trigger: default-branch workflow registration
