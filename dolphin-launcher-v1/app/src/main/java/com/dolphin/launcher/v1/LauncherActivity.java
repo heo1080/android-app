@@ -104,9 +104,10 @@ public class LauncherActivity extends Activity {
         reloadApps();
         seedFavorites();
         buildShell();
-        runPendingAutostart();
-        handleSplitShortcutIntent(getIntent());
         VerificationEvidenceRuntime.ensureProcessSession(this, "launcher-process-start");
+        boolean splitShortcutLaunch = isSplitShortcutIntent(getIntent());
+        handleSplitShortcutIntent(getIntent());
+        if (!splitShortcutLaunch) runPendingAutostart();
         VerificationEvidenceRuntime.startAutomaticUploadRuntime(this);
         VerificationEvidenceRuntime.recordPassiveEvent(this, "APP_LAUNCH", "LauncherActivity created");
         VerificationEvidenceRuntime.retryPendingUploadsAsync(this);
@@ -122,6 +123,11 @@ public class LauncherActivity extends Activity {
         super.onNewIntent(intent);
         setIntent(intent);
         handleSplitShortcutIntent(intent);
+    }
+
+    private boolean isSplitShortcutIntent(Intent intent) {
+        return intent != null
+                && "com.dolphin.launcher.v1.LAUNCH_SPLIT_SHORTCUT".equals(intent.getAction());
     }
 
     private void handleSplitShortcutIntent(Intent intent) {
@@ -141,7 +147,7 @@ public class LauncherActivity extends Activity {
         if (bodyHost != null) showHome();
         handler.removeCallbacks(clockTick);
         handler.post(clockTick);
-        runPendingAutostart();
+        if (!isSplitShortcutIntent(getIntent())) runPendingAutostart();
         AppUpdateManager.resumePendingInstallPermission(this);
     }
 
