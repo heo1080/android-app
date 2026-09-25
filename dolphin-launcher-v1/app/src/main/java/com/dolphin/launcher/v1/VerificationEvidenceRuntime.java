@@ -73,8 +73,40 @@ public final class VerificationEvidenceRuntime {
     }
 
     public static synchronized String ensureProcessSession(Context context, String reason) {
-        if (!PROCESS_SESSION_STARTED) return beginSession(context, reason);
-        return currentSessionId(context);
+        if (PROCESS_SESSION_STARTED) return currentSessionId(context);
+
+        SharedPreferences p = prefs(context);
+        String activeId = p.getString(KEY_ACTIVE_TEST_ID, null);
+        String activeCorrelation = p.getString(KEY_ACTIVE_TEST_CORRELATION, null);
+        String existingSession = p.getString(KEY_SESSION, null);
+        long activeStarted = p.getLong(KEY_ACTIVE_TEST_STARTED_ELAPSED, -1L);
+        long now = SystemClock.elapsedRealtime();
+        boolean activePresent = activeId != null && !activeId.isEmpty()
+                && activeCorrelation != null && !activeCorrelation.isEmpty();
+        boolean sameBootActive = activePresent
+                && activeStarted >= 0L
+                && now >= activeStarted
+                && existingSession != null
+                && !existingSession.isEmpty();
+
+        if (sameBootActive) {
+            PROCESS_SESSION_STARTED = true;
+            append(context, "PROCESS_RESUME_ACTIVE_TEST", activeId, activeCorrelation,
+                    "RESUMED", "reason=" + reason + ";session_reused=true");
+            return existingSession;
+        }
+
+        String staleId = activeId;
+        String staleCorrelation = activeCorrelation;
+        if (activePresent) clearActiveTestState(context);
+
+        String session = beginSession(context, reason);
+        if (activePresent) {
+            append(context, "ACTIVE_TEST_STALE_CLEARED", staleId, staleCorrelation,
+                    "NEED_MORE_DATA",
+                    "elapsed_realtime_reset_or_start_missing;cross_session_counting_blocked");
+        }
+        return session;
     }
 
     public static synchronized String currentSessionId(Context context) {
@@ -161,12 +193,16 @@ public final class VerificationEvidenceRuntime {
         String activeId = activeTestId(context);
         String activeCorrelation = activeTestCorrelation(context);
         if (testId.equals(activeId) && correlationId.equals(activeCorrelation)) {
-            prefs(context).edit()
-                    .remove(KEY_ACTIVE_TEST_ID)
-                    .remove(KEY_ACTIVE_TEST_CORRELATION)
-                    .remove(KEY_ACTIVE_TEST_STARTED_ELAPSED)
-                    .apply();
+            clearActiveTestState(context);
         }
+    }
+
+    private static void clearActiveTestState(Context context) {
+        prefs(context).edit()
+                .remove(KEY_ACTIVE_TEST_ID)
+                .remove(KEY_ACTIVE_TEST_CORRELATION)
+                .remove(KEY_ACTIVE_TEST_STARTED_ELAPSED)
+                .apply();
     }
 
     public static void markProblem(Context context, String note) {
