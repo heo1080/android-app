@@ -120,6 +120,17 @@
       "summary": "build/install identity and desktop-app rejection regression",
       "state": "REAL_CAR_RETEST",
       "close_gate": "current candidate installs on BYD and build identity matches package/version/source/APK hash"
+    },
+    {
+      "id": "KB-011",
+      "severity": "P0",
+      "feature_id": "PER_APP_DRIVER_SPEAKER_ROUTING",
+      "test_ids": [
+        "AUD-APPROUTE-001"
+      ],
+      "summary": "third-party per-app driver-speaker routing is not yet proven safe or effective",
+      "state": "OPEN",
+      "close_gate": "real-car target-app-only driver output, non-target media unchanged, stock safety warning preemption, and stock routing restored after target removal"
     }
   ]
 }
