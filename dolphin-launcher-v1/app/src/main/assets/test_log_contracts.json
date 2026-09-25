@@ -812,7 +812,9 @@
         "repeat each position at least 3 times and repeat in a second diagnostic session",
         "startup baseline and unproven raw values remain silent",
         "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
-        "mutually exclusive state markers must not converge on the same stable raw value"
+        "mutually exclusive state markers must not converge on the same stable raw value",
+        "Verification Center PASS is unavailable until every required marker reaches at least 3 observations in the active correlation",
+        "single-session marker completion does not equal VERIFIED"
       ],
       "required_logs": [
         "VEHICLE_RAW",
@@ -916,7 +918,9 @@
         "no guessed NORMAL speech before correlation",
         "3 matching OEM UI observations required before enabling NORMAL mapping",
         "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech",
-        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
+        "Verification Center PASS is unavailable until every required marker reaches at least 3 observations in the active correlation",
+        "single-session marker completion does not equal VERIFIED"
       ],
       "required_logs": [
         "DRIVE_MODE_UNMAPPED",
@@ -1020,7 +1024,9 @@
         "unproven STANDARD remains silent",
         "3 matching OEM UI observations required before enabling mapping",
         "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech",
-        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
+        "Verification Center PASS is unavailable until every required marker reaches at least 3 observations in the active correlation",
+        "single-session marker completion does not equal VERIFIED"
       ],
       "required_logs": [
         "REGEN_MODE_UNMAPPED",
@@ -1076,7 +1082,9 @@
         "OFF->ON raw 1->2 produces exactly one Snow ON prompt",
         "repeat 3 times",
         "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
-        "mutually exclusive state markers must not converge on the same stable raw value"
+        "mutually exclusive state markers must not converge on the same stable raw value",
+        "Verification Center PASS is unavailable until every required marker reaches at least 3 observations in the active correlation",
+        "single-session marker completion does not equal VERIFIED"
       ],
       "required_logs": [
         "VEHICLE_BASELINE",
@@ -1134,7 +1142,9 @@
         "NORMAL/road-mode transition does not double-speak",
         "repeat 3 times",
         "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
-        "mutually exclusive state markers must not converge on the same stable raw value"
+        "mutually exclusive state markers must not converge on the same stable raw value",
+        "Verification Center PASS is unavailable until every required marker reaches at least 3 observations in the active correlation",
+        "single-session marker completion does not equal VERIFIED"
       ],
       "required_logs": [
         "SNOW_RAW_TRANSITION",
@@ -1193,7 +1203,9 @@
         "500ms live samples preserve AVH/speed/brake context around operator marker",
         "continuous AUTOHOLD_LIVE_SAMPLE capture is bounded to the first 10 minutes of an active test",
         "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
-        "mutually exclusive state markers must not converge on the same stable raw value"
+        "mutually exclusive state markers must not converge on the same stable raw value",
+        "Verification Center PASS is unavailable until every required marker reaches at least 3 observations in the active correlation",
+        "single-session marker completion does not equal VERIFIED"
       ],
       "required_logs": [
         "AUTOHOLD_RAW_TRANSITION",
@@ -1252,7 +1264,9 @@
         "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech",
         "500ms live samples preserve AVH/speed/brake context around operator marker",
         "continuous AUTOHOLD_LIVE_SAMPLE capture is bounded to the first 10 minutes of an active test",
-        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
+        "Verification Center PASS is unavailable until every required marker reaches at least 3 observations in the active correlation",
+        "single-session marker completion does not equal VERIFIED"
       ],
       "required_logs": [
         "AUTOHOLD_CORRELATION_SNAPSHOT",
@@ -1309,7 +1323,9 @@
         "repeat held/released at least 3 times and repeat in a second diagnostic session",
         "startup baseline remains silent",
         "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
-        "mutually exclusive state markers must not converge on the same stable raw value"
+        "mutually exclusive state markers must not converge on the same stable raw value",
+        "Verification Center PASS is unavailable until every required marker reaches at least 3 observations in the active correlation",
+        "single-session marker completion does not equal VERIFIED"
       ],
       "required_logs": [
         "VEHICLE_RAW",
@@ -1361,7 +1377,9 @@
         "repeat ON/OFF at least 3 times and repeat in a second diagnostic session",
         "unproven TJA/ICC states remain silent",
         "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
-        "mutually exclusive state markers must not converge on the same stable raw value"
+        "mutually exclusive state markers must not converge on the same stable raw value",
+        "Verification Center PASS is unavailable until every required marker reaches at least 3 observations in the active correlation",
+        "single-session marker completion does not equal VERIFIED"
       ],
       "required_logs": [
         "ICC_TJA_RAW_TRANSITION",
@@ -1411,7 +1429,9 @@
         "left/right operator context markers preserve bsd_raw plus both turn raw values",
         "prove side correlation independently before any additional warning sound is enabled",
         "opposite direction and no-BSD conditions remain silent",
-        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
+        "Verification Center PASS is unavailable until every required marker reaches at least 3 observations in the active correlation",
+        "single-session marker completion does not equal VERIFIED"
       ],
       "required_logs": [
         "BSD_RAW_TRANSITION",
@@ -1462,7 +1482,9 @@
         "operator departure marker preserves radar area7/area8 raw context",
         "radar-only evidence remains classification=unknown-object until repeated vehicle correlation proves provenance",
         "no departure speech from an unproven radar pattern",
-        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
+        "Verification Center PASS is unavailable until every required marker reaches at least 3 observations in the active correlation",
+        "single-session marker completion does not equal VERIFIED"
       ],
       "required_logs": [
         "LEADING_OBJECT_RADAR_RAW",
@@ -2266,7 +2288,9 @@
         "mapping conflicts cannot produce candidate-to-mapping activation",
         "same-boot process restart during an active test reuses the original diagnostic session",
         "reboot/elapsed-realtime reset clears stale active tests before a new session can count",
-        "process restart alone cannot satisfy cross-session repeatability"
+        "process restart alone cannot satisfy cross-session repeatability",
+        "marker-controlled tests cannot record PASS before active-correlation marker minimums are complete",
+        "PASS UI gating is separate from cross-session VERIFIED eligibility"
       ],
       "required_logs": [
         "registry schema/version",
