@@ -14,9 +14,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Owned fixed-prompt playback core. It intentionally does not use raw TTS.
- * Prompt audio is loaded only from V1 package resources; missing assets remain
- * explicit evidence instead of silently substituting another sound.
+ * Owned fixed-prompt playback core. Packaged fixed prompts are always preferred.
+ * Android TTS is fallback-only when a fixed asset is missing or failed to load.
+ * A fixed asset that is merely still loading is never replaced with TTS, and
+ * prompts received before TTS readiness are dropped instead of queued for later.
  */
 public final class VehiclePromptPlayer {
     private static final String TAG="V1_PROMPT_AUDIO";
@@ -134,33 +135,51 @@ public final class VehiclePromptPlayer {
 
     public void play(String promptId,String phrase) {
         Integer sound=sounds.get(promptId);
-        if(sound==null || !Boolean.TRUE.equals(loaded.get(sound))) {
-            if(ttsReady && phrase!=null && !phrase.isEmpty()) {
-                String utteranceId="v1_"+promptId+"_"+utteranceSequence.incrementAndGet();
-                long requestedAt=SystemClock.elapsedRealtime();
-                ttsRequestedAtMs.put(utteranceId,requestedAt);
-                ttsPromptByUtterance.put(utteranceId,promptId);
-                int result=tts.speak(phrase,TextToSpeech.QUEUE_FLUSH,null,utteranceId);
-                if(result!=TextToSpeech.SUCCESS) {
-                    ttsRequestedAtMs.remove(utteranceId);
-                    ttsPromptByUtterance.remove(utteranceId);
-                }
-                VerificationEvidenceRuntime.recordPassiveEvent(app,
-                        result==TextToSpeech.SUCCESS?"VOICE_TTS_FALLBACK_REQUESTED":"VOICE_TTS_FALLBACK_FAILED",
-                        promptId+" phrase="+phrase+" result="+result+" utterance="+utteranceId);
-            } else {
-                VerificationEvidenceRuntime.recordPassiveEvent(app,"VOICE_PROMPT_NOT_READY",
-                        promptId+" phrase="+phrase);
+        if(sound!=null) {
+            Boolean loadState=loaded.get(sound);
+            if(loadState==null) {
+                VerificationEvidenceRuntime.recordPassiveEvent(app,"VOICE_FIXED_ASSET_LOADING_DROP",
+                        promptId+";queued=false;tts_fallback=false;delayed_replay=false");
+                return;
             }
+            if(Boolean.TRUE.equals(loadState)) {
+                int stream=pool.play(sound,1f,1f,1,0,1f);
+                if(stream==0) {
+                    VerificationEvidenceRuntime.recordPassiveEvent(app,"VOICE_PLAY_FAILED",promptId);
+                } else {
+                    Log.i(TAG,"played "+promptId);
+                    VerificationEvidenceRuntime.recordPassiveEvent(app,"VOICE_PLAY_REQUESTED",promptId);
+                }
+                return;
+            }
+            playTtsFallback(promptId,phrase,"fixed_asset_load_failed");
             return;
         }
-        int stream=pool.play(sound,1f,1f,1,0,1f);
-        if(stream==0) {
-            VerificationEvidenceRuntime.recordPassiveEvent(app,"VOICE_PLAY_FAILED",promptId);
-        } else {
-            Log.i(TAG,"played "+promptId);
-            VerificationEvidenceRuntime.recordPassiveEvent(app,"VOICE_PLAY_REQUESTED",promptId);
+        playTtsFallback(promptId,phrase,"fixed_asset_missing");
+    }
+
+    private void playTtsFallback(String promptId,String phrase,String reason) {
+        if(ttsReady && phrase!=null && !phrase.isEmpty()) {
+            String utteranceId="v1_"+promptId+"_"+utteranceSequence.incrementAndGet();
+            long requestedAt=SystemClock.elapsedRealtime();
+            ttsRequestedAtMs.put(utteranceId,requestedAt);
+            ttsPromptByUtterance.put(utteranceId,promptId);
+            int result=tts.speak(phrase,TextToSpeech.QUEUE_FLUSH,null,utteranceId);
+            if(result!=TextToSpeech.SUCCESS) {
+                ttsRequestedAtMs.remove(utteranceId);
+                ttsPromptByUtterance.remove(utteranceId);
+            }
+            VerificationEvidenceRuntime.recordPassiveEvent(app,
+                    result==TextToSpeech.SUCCESS?"VOICE_TTS_FALLBACK_REQUESTED":"VOICE_TTS_FALLBACK_FAILED",
+                    promptId+" phrase="+phrase+" result="+result+" utterance="+utteranceId
+                            +";reason="+reason+";queue=flush");
+            return;
         }
+        VerificationEvidenceRuntime.recordPassiveEvent(app,"VOICE_PROMPT_NOT_READY",
+                promptId+" phrase="+phrase+";reason="+reason
+                        +";queued=false;delayed_replay=false");
+        VerificationEvidenceRuntime.recordPassiveEvent(app,"VOICE_TTS_FALLBACK_DROPPED_NOT_READY",
+                promptId+";reason="+reason+";queued=false;delayed_replay=false");
     }
 
     public void release() {
