@@ -297,6 +297,17 @@
       "tokens": [
         "DisplayDiagnostics.captureLaunchableAppOrientations(this)"
       ]
+    },
+    {
+      "feature_id": "CLUSTER_TBT",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DisplayDiagnostics.java",
+      "tokens": [
+        "captureDisplayInventory",
+        "DISPLAY_INVENTORY",
+        "DISPLAY_INVENTORY_SCAN",
+        "getDisplays",
+        "mode=read-only"
+      ]
     }
   ],
   "notes": [
