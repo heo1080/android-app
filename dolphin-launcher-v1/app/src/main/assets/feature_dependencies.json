@@ -61,6 +61,18 @@
     {
       "feature_id": "MASTER_VERIFICATION_REGISTRY",
       "depends_on": "DIAGNOSTIC_CAPTURE_UPLOAD"
+    },
+    {
+      "feature_id": "AUDIO_EQUALIZER",
+      "depends_on": "DRIVER_ONLY_APP_OWNED_AUDIO"
+    },
+    {
+      "feature_id": "AUDIO_SOUND_POSITION",
+      "depends_on": "DRIVER_ONLY_APP_OWNED_AUDIO"
+    },
+    {
+      "feature_id": "AUDIO_SOUND_POSITION",
+      "depends_on": "PER_APP_DRIVER_SPEAKER_ROUTING"
     }
   ]
 }
