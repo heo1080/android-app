@@ -792,14 +792,16 @@
         "P/R/N/D raw mappings correlated at least 3 times each and repeated in a second diagnostic session"
       ],
       "failure_any": [
-        "gear voice emitted from unproven raw mapping"
+        "gear voice emitted from unproven raw mapping",
+        "conflict_need_more_data"
       ],
       "known_bad_ids": [],
       "acceptance": [
         "P/R/N/D operator markers each correlate to a stable distinct gear_raw value before speech is enabled",
         "repeat each position at least 3 times and repeat in a second diagnostic session",
         "startup baseline and unproven raw values remain silent",
-        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
+        "mutually exclusive state markers must not converge on the same stable raw value"
       ],
       "required_logs": [
         "VEHICLE_RAW",
@@ -809,7 +811,8 @@
         "latest_raw",
         "elapsed_realtime_ms",
         "diagnostic_session_id",
-        "matching_stable_sessions"
+        "matching_stable_sessions",
+        "mapping_conflicts"
       ]
     },
     {
@@ -1051,7 +1054,8 @@
       ],
       "failure_any": [
         "SNOW_MODE_UNMAPPED on raw 2",
-        "Snow ON missing"
+        "Snow ON missing",
+        "conflict_need_more_data"
       ],
       "known_bad_ids": [
         "KB-003"
@@ -1060,7 +1064,8 @@
         "baseline OFF produces no voice",
         "OFF->ON raw 1->2 produces exactly one Snow ON prompt",
         "repeat 3 times",
-        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
+        "mutually exclusive state markers must not converge on the same stable raw value"
       ],
       "required_logs": [
         "VEHICLE_BASELINE",
@@ -1072,7 +1077,8 @@
         "latest_raw",
         "elapsed_realtime_ms",
         "diagnostic_session_id",
-        "matching_stable_sessions"
+        "matching_stable_sessions",
+        "mapping_conflicts"
       ]
     },
     {
@@ -1106,7 +1112,8 @@
       ],
       "failure_any": [
         "SNOW_MODE_UNMAPPED on raw 1",
-        "Snow OFF missing"
+        "Snow OFF missing",
+        "conflict_need_more_data"
       ],
       "known_bad_ids": [
         "KB-003"
@@ -1115,7 +1122,8 @@
         "ON->OFF raw 2->1 produces exactly one Snow OFF prompt",
         "NORMAL/road-mode transition does not double-speak",
         "repeat 3 times",
-        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
+        "mutually exclusive state markers must not converge on the same stable raw value"
       ],
       "required_logs": [
         "SNOW_RAW_TRANSITION",
@@ -1127,7 +1135,8 @@
         "latest_raw",
         "elapsed_realtime_ms",
         "diagnostic_session_id",
-        "matching_stable_sessions"
+        "matching_stable_sessions",
+        "mapping_conflicts"
       ]
     },
     {
@@ -1161,7 +1170,8 @@
       ],
       "failure_any": [
         "button state inferred from brake release",
-        "duplicate ON/OFF speech"
+        "duplicate ON/OFF speech",
+        "conflict_need_more_data"
       ],
       "known_bad_ids": [],
       "acceptance": [
@@ -1171,7 +1181,8 @@
         "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech",
         "500ms live samples preserve AVH/speed/brake context around operator marker",
         "continuous AUTOHOLD_LIVE_SAMPLE capture is bounded to the first 10 minutes of an active test",
-        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
+        "mutually exclusive state markers must not converge on the same stable raw value"
       ],
       "required_logs": [
         "AUTOHOLD_RAW_TRANSITION",
@@ -1185,7 +1196,8 @@
         "latest_raw",
         "AUTOHOLD_LIVE_SAMPLE",
         "diagnostic_session_id",
-        "matching_stable_sessions"
+        "matching_stable_sessions",
+        "mapping_conflicts"
       ]
     },
     {
@@ -1277,14 +1289,16 @@
         "EPB held/released raw mappings correlated at least 3 times each and repeated in a second diagnostic session"
       ],
       "failure_any": [
-        "EPB voice emitted from unproven raw mapping"
+        "EPB voice emitted from unproven raw mapping",
+        "conflict_need_more_data"
       ],
       "known_bad_ids": [],
       "acceptance": [
         "EPB held/released operator markers correlate to stable distinct epb_raw values before speech is enabled",
         "repeat held/released at least 3 times and repeat in a second diagnostic session",
         "startup baseline remains silent",
-        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
+        "mutually exclusive state markers must not converge on the same stable raw value"
       ],
       "required_logs": [
         "VEHICLE_RAW",
@@ -1294,7 +1308,8 @@
         "latest_raw",
         "elapsed_realtime_ms",
         "diagnostic_session_id",
-        "matching_stable_sessions"
+        "matching_stable_sessions",
+        "mapping_conflicts"
       ]
     },
     {
@@ -1326,14 +1341,16 @@
         "ICC ON/OFF raw mappings correlated at least 3 times each and repeated in a second diagnostic session"
       ],
       "failure_any": [
-        "ICC voice emitted from unproven tja_raw mapping"
+        "ICC voice emitted from unproven tja_raw mapping",
+        "conflict_need_more_data"
       ],
       "known_bad_ids": [],
       "acceptance": [
         "ICC ON/OFF operator markers correlate to stable distinct tja_raw values before speech is enabled",
         "repeat ON/OFF at least 3 times and repeat in a second diagnostic session",
         "unproven TJA/ICC states remain silent",
-        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
+        "mutually exclusive state markers must not converge on the same stable raw value"
       ],
       "required_logs": [
         "ICC_TJA_RAW_TRANSITION",
@@ -1342,7 +1359,8 @@
         "latest_raw",
         "elapsed_realtime_ms",
         "diagnostic_session_id",
-        "matching_stable_sessions"
+        "matching_stable_sessions",
+        "mapping_conflicts"
       ]
     },
     {
@@ -2232,7 +2250,9 @@
         "single-session and cross-session candidates remain non-VERIFIED",
         "Verification Center displays Registry real_vehicle_test instructions before capture",
         "active correlation marker progress is counted without mixing prior sessions",
-        "driving-required markers include passenger/safe-test-environment guidance"
+        "driving-required markers include passenger/safe-test-environment guidance",
+        "evaluator blocks same-raw collisions across mutually exclusive vehicle states",
+        "mapping conflicts cannot produce candidate-to-mapping activation"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2245,7 +2265,9 @@
         "cross_session_candidate_not_verified",
         "operatorObservationCounts",
         "markerProgressText",
-        "captureGuide"
+        "captureGuide",
+        "mapping_conflicts",
+        "conflict_need_more_data"
       ]
     },
     {
