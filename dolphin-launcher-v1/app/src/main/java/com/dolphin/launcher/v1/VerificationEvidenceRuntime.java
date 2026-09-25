@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.os.Build;
+import android.os.SystemClock;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -39,6 +40,8 @@ public final class VerificationEvidenceRuntime {
     private static final String PREFS = "verification_runtime";
     private static final String KEY_SESSION = "active_session_id";
     private static final String KEY_LAST_UPLOAD = "last_upload_receipt";
+    private static final String KEY_ACTIVE_TEST_ID = "active_test_id";
+    private static final String KEY_ACTIVE_TEST_CORRELATION = "active_test_correlation";
     private static final String UPLOAD_URL = "https://dolphin-v1-evidence.heo1080.workers.dev/upload";
     private static final long MAX_UPLOAD_BYTES = 20L * 1024L * 1024L;
     private static final ExecutorService IO = Executors.newSingleThreadExecutor();
@@ -82,10 +85,29 @@ public final class VerificationEvidenceRuntime {
         append(context, event, null, UUID.randomUUID().toString(), "OBSERVED", note);
     }
 
-    public static String startTest(Context context, String testId) {
+    public static synchronized String startTest(Context context, String testId) {
         String correlationId = UUID.randomUUID().toString();
+        prefs(context).edit()
+                .putString(KEY_ACTIVE_TEST_ID, testId)
+                .putString(KEY_ACTIVE_TEST_CORRELATION, correlationId)
+                .apply();
         append(context, "TEST_START", testId, correlationId, "STARTED", null);
         return correlationId;
+    }
+
+    public static String activeTestId(Context context) {
+        return prefs(context).getString(KEY_ACTIVE_TEST_ID, null);
+    }
+
+    public static String activeTestCorrelation(Context context) {
+        return prefs(context).getString(KEY_ACTIVE_TEST_CORRELATION, null);
+    }
+
+    public static void operatorObservation(Context context, String testId, String correlationId,
+                                           String observation, String note) {
+        String detail = "observation=" + observation;
+        if (note != null && !note.trim().isEmpty()) detail += ";" + note.trim();
+        append(context, "OPERATOR_OBSERVATION", testId, correlationId, "OBSERVED", detail);
     }
 
     public static void operatorResult(Context context, String testId, String correlationId,
@@ -93,9 +115,17 @@ public final class VerificationEvidenceRuntime {
         append(context, "OPERATOR_RESULT", testId, correlationId, result, note);
     }
 
-    public static void endTest(Context context, String testId, String correlationId,
-                               String result, String note) {
+    public static synchronized void endTest(Context context, String testId, String correlationId,
+                                            String result, String note) {
         append(context, "TEST_END", testId, correlationId, result, note);
+        String activeId = activeTestId(context);
+        String activeCorrelation = activeTestCorrelation(context);
+        if (testId.equals(activeId) && correlationId.equals(activeCorrelation)) {
+            prefs(context).edit()
+                    .remove(KEY_ACTIVE_TEST_ID)
+                    .remove(KEY_ACTIVE_TEST_CORRELATION)
+                    .apply();
+        }
     }
 
     public static void markProblem(Context context, String note) {
@@ -110,6 +140,7 @@ public final class VerificationEvidenceRuntime {
             JSONObject row = new JSONObject();
             row.put("schema_version", 3);
             row.put("timestamp_ms", System.currentTimeMillis());
+            row.put("elapsed_realtime_ms", SystemClock.elapsedRealtime());
             row.put("event", event);
             row.put("test_id", testId == null ? JSONObject.NULL : testId);
             row.put("correlation_id", correlationId);
