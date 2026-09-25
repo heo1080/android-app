@@ -106,7 +106,7 @@
     {
       "test_id": "DIA-CAP-001",
       "feature_id": "DIAGNOSTIC_CAPTURE_UPLOAD",
-      "feature_state": "VERIFIED",
+      "feature_state": "REVERIFY_REQUIRED",
       "required_events": [
         "TEST_START",
         "OPERATOR_RESULT",
@@ -144,7 +144,7 @@
     {
       "test_id": "DIA-UP-001",
       "feature_id": "DIAGNOSTIC_CAPTURE_UPLOAD",
-      "feature_state": "VERIFIED",
+      "feature_state": "REVERIFY_REQUIRED",
       "required_events": [
         "TEST_START",
         "OPERATOR_RESULT",
@@ -589,7 +589,7 @@
     {
       "test_id": "AUD-TTS-001",
       "feature_id": "IN_APP_TTS_CORE",
-      "feature_state": "BETA",
+      "feature_state": "REVERIFY_REQUIRED",
       "required_events": [
         "TEST_START",
         "OPERATOR_RESULT",
@@ -636,7 +636,7 @@
     {
       "test_id": "AUD-TTS-002",
       "feature_id": "IN_APP_TTS_CORE",
-      "feature_state": "BETA",
+      "feature_state": "REVERIFY_REQUIRED",
       "required_events": [
         "TEST_START",
         "OPERATOR_RESULT",
@@ -1562,7 +1562,7 @@
     {
       "test_id": "COMF-MIR-001",
       "feature_id": "REVERSE_DOWN_MIRROR",
-      "feature_state": "BETA",
+      "feature_state": "REVERIFY_REQUIRED",
       "required_events": [
         "TEST_START",
         "OPERATOR_RESULT",
@@ -1600,7 +1600,7 @@
     {
       "test_id": "COMF-MIR-002",
       "feature_id": "REVERSE_DOWN_MIRROR",
-      "feature_state": "BETA",
+      "feature_state": "REVERIFY_REQUIRED",
       "required_events": [
         "TEST_START",
         "OPERATOR_RESULT",
@@ -1671,7 +1671,7 @@
     {
       "test_id": "COMF-LIGHT-001",
       "feature_id": "INTERIOR_LIGHT",
-      "feature_state": "BETA",
+      "feature_state": "REVERIFY_REQUIRED",
       "required_events": [
         "TEST_START",
         "OPERATOR_RESULT",
@@ -1717,7 +1717,7 @@
     {
       "test_id": "COMF-LIGHT-002",
       "feature_id": "INTERIOR_LIGHT",
-      "feature_state": "BETA",
+      "feature_state": "REVERIFY_REQUIRED",
       "required_events": [
         "TEST_START",
         "OPERATOR_RESULT",
