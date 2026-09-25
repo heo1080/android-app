@@ -147,7 +147,13 @@ jobs:
               "test contract coverage drift missing=%s extra=%s" %
               (sorted(registered_test_ids-seen), sorted(seen-registered_test_ids))
           )
-          print("TEST_CONTRACT_STATE_OK contracts=%d" % len(seen))
+          marker_success=[]
+          for contract in contracts.get("contracts", []):
+              for signal in contract.get("success_any", []):
+                  if str(signal).startswith("observation="):
+                      marker_success.append((contract["test_id"],signal))
+          assert not marker_success, ("operator marker cannot be automatic success evidence",marker_success)
+          print("TEST_CONTRACT_STATE_OK contracts=%d operator_marker_success=0" % len(seen))
           PY
           unzip -p "$APK" assets/runtime_surfaces.json > "$RUNNER_TEMP/runtime_surfaces.json"
           python3 - "$RUNNER_TEMP/verification_registry.json" "$RUNNER_TEMP/runtime_surfaces.json" <<'PY'
