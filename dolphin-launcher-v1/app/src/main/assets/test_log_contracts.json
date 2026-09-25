@@ -798,7 +798,8 @@
       "acceptance": [
         "P/R/N/D operator markers each correlate to a stable distinct gear_raw value before speech is enabled",
         "repeat each position at least 3 times and repeat in a second diagnostic session",
-        "startup baseline and unproven raw values remain silent"
+        "startup baseline and unproven raw values remain silent",
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
       ],
       "required_logs": [
         "VEHICLE_RAW",
@@ -806,7 +807,9 @@
         "OPERATOR_OBSERVATION",
         "gear_raw",
         "latest_raw",
-        "elapsed_realtime_ms"
+        "elapsed_realtime_ms",
+        "diagnostic_session_id",
+        "matching_stable_sessions"
       ]
     },
     {
@@ -898,7 +901,8 @@
         "NORMAL transition raw is captured",
         "no guessed NORMAL speech before correlation",
         "3 matching OEM UI observations required before enabling NORMAL mapping",
-        "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech"
+        "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech",
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
       ],
       "required_logs": [
         "DRIVE_MODE_UNMAPPED",
@@ -907,7 +911,9 @@
         "timestamp",
         "OPERATOR_OBSERVATION",
         "elapsed_realtime_ms",
-        "latest_raw"
+        "latest_raw",
+        "diagnostic_session_id",
+        "matching_stable_sessions"
       ]
     },
     {
@@ -999,7 +1005,8 @@
         "STANDARD transition raw captured",
         "unproven STANDARD remains silent",
         "3 matching OEM UI observations required before enabling mapping",
-        "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech"
+        "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech",
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
       ],
       "required_logs": [
         "REGEN_MODE_UNMAPPED",
@@ -1008,7 +1015,9 @@
         "timestamp",
         "OPERATOR_OBSERVATION",
         "elapsed_realtime_ms",
-        "latest_raw"
+        "latest_raw",
+        "diagnostic_session_id",
+        "matching_stable_sessions"
       ]
     },
     {
@@ -1050,7 +1059,8 @@
       "acceptance": [
         "baseline OFF produces no voice",
         "OFF->ON raw 1->2 produces exactly one Snow ON prompt",
-        "repeat 3 times"
+        "repeat 3 times",
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
       ],
       "required_logs": [
         "VEHICLE_BASELINE",
@@ -1060,7 +1070,9 @@
         "operator Snow state",
         "OPERATOR_OBSERVATION",
         "latest_raw",
-        "elapsed_realtime_ms"
+        "elapsed_realtime_ms",
+        "diagnostic_session_id",
+        "matching_stable_sessions"
       ]
     },
     {
@@ -1102,7 +1114,8 @@
       "acceptance": [
         "ON->OFF raw 2->1 produces exactly one Snow OFF prompt",
         "NORMAL/road-mode transition does not double-speak",
-        "repeat 3 times"
+        "repeat 3 times",
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
       ],
       "required_logs": [
         "SNOW_RAW_TRANSITION",
@@ -1112,7 +1125,9 @@
         "operator Snow OFF observation",
         "OPERATOR_OBSERVATION",
         "latest_raw",
-        "elapsed_realtime_ms"
+        "elapsed_realtime_ms",
+        "diagnostic_session_id",
+        "matching_stable_sessions"
       ]
     },
     {
@@ -1155,7 +1170,8 @@
         "no automatic speech until mapping is proven",
         "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech",
         "500ms live samples preserve AVH/speed/brake context around operator marker",
-        "continuous AUTOHOLD_LIVE_SAMPLE capture is bounded to the first 10 minutes of an active test"
+        "continuous AUTOHOLD_LIVE_SAMPLE capture is bounded to the first 10 minutes of an active test",
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
       ],
       "required_logs": [
         "AUTOHOLD_RAW_TRANSITION",
@@ -1167,7 +1183,9 @@
         "OPERATOR_OBSERVATION",
         "elapsed_realtime_ms",
         "latest_raw",
-        "AUTOHOLD_LIVE_SAMPLE"
+        "AUTOHOLD_LIVE_SAMPLE",
+        "diagnostic_session_id",
+        "matching_stable_sessions"
       ]
     },
     {
@@ -1210,7 +1228,8 @@
         "legacy brake-release inference is prohibited",
         "operator marker and candidate raw transition are correlated on elapsed_realtime_ms before enabling speech",
         "500ms live samples preserve AVH/speed/brake context around operator marker",
-        "continuous AUTOHOLD_LIVE_SAMPLE capture is bounded to the first 10 minutes of an active test"
+        "continuous AUTOHOLD_LIVE_SAMPLE capture is bounded to the first 10 minutes of an active test",
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
       ],
       "required_logs": [
         "AUTOHOLD_CORRELATION_SNAPSHOT",
@@ -1223,7 +1242,9 @@
         "OPERATOR_OBSERVATION",
         "elapsed_realtime_ms",
         "latest_raw",
-        "AUTOHOLD_LIVE_SAMPLE"
+        "AUTOHOLD_LIVE_SAMPLE",
+        "diagnostic_session_id",
+        "matching_stable_sessions"
       ]
     },
     {
@@ -1262,7 +1283,8 @@
       "acceptance": [
         "EPB held/released operator markers correlate to stable distinct epb_raw values before speech is enabled",
         "repeat held/released at least 3 times and repeat in a second diagnostic session",
-        "startup baseline remains silent"
+        "startup baseline remains silent",
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
       ],
       "required_logs": [
         "VEHICLE_RAW",
@@ -1270,7 +1292,9 @@
         "OPERATOR_OBSERVATION",
         "epb_raw",
         "latest_raw",
-        "elapsed_realtime_ms"
+        "elapsed_realtime_ms",
+        "diagnostic_session_id",
+        "matching_stable_sessions"
       ]
     },
     {
@@ -1308,14 +1332,17 @@
       "acceptance": [
         "ICC ON/OFF operator markers correlate to stable distinct tja_raw values before speech is enabled",
         "repeat ON/OFF at least 3 times and repeat in a second diagnostic session",
-        "unproven TJA/ICC states remain silent"
+        "unproven TJA/ICC states remain silent",
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
       ],
       "required_logs": [
         "ICC_TJA_RAW_TRANSITION",
         "OPERATOR_OBSERVATION",
         "tja_raw",
         "latest_raw",
-        "elapsed_realtime_ms"
+        "elapsed_realtime_ms",
+        "diagnostic_session_id",
+        "matching_stable_sessions"
       ]
     },
     {
@@ -1354,7 +1381,8 @@
       "acceptance": [
         "left/right operator context markers preserve bsd_raw plus both turn raw values",
         "prove side correlation independently before any additional warning sound is enabled",
-        "opposite direction and no-BSD conditions remain silent"
+        "opposite direction and no-BSD conditions remain silent",
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
       ],
       "required_logs": [
         "BSD_RAW_TRANSITION",
@@ -1364,7 +1392,9 @@
         "turn_left_raw",
         "turn_right_raw",
         "latest_raw",
-        "elapsed_realtime_ms"
+        "elapsed_realtime_ms",
+        "diagnostic_session_id",
+        "matching_stable_sessions"
       ]
     },
     {
@@ -1402,7 +1432,8 @@
       "acceptance": [
         "operator departure marker preserves radar area7/area8 raw context",
         "radar-only evidence remains classification=unknown-object until repeated vehicle correlation proves provenance",
-        "no departure speech from an unproven radar pattern"
+        "no departure speech from an unproven radar pattern",
+        "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech"
       ],
       "required_logs": [
         "LEADING_OBJECT_RADAR_RAW",
@@ -1411,7 +1442,9 @@
         "radar_area8_raw",
         "latest_raw",
         "elapsed_realtime_ms",
-        "classification=unknown-object"
+        "classification=unknown-object",
+        "diagnostic_session_id",
+        "matching_stable_sessions"
       ]
     },
     {
@@ -2194,7 +2227,9 @@
         "repeatability와 Known-Bad lifecycle을 자동 평가",
         "live Test ID capture supports OPERATOR_OBSERVATION before final OPERATOR_RESULT",
         "every evidence row carries elapsed_realtime_ms",
-        "V1 correlation evaluator self-test passes and cannot auto-verify mappings"
+        "V1 correlation evaluator self-test passes and cannot auto-verify mappings",
+        "evaluator supports multiple ZIP/JSONL inputs with duplicate-row suppression",
+        "single-session and cross-session candidates remain non-VERIFIED"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2202,7 +2237,9 @@
         "diagnostic session id",
         "OPERATOR_OBSERVATION",
         "elapsed_realtime_ms",
-        "V1_CORRELATION_EVALUATOR_OK"
+        "V1_CORRELATION_EVALUATOR_OK",
+        "single_session_candidate_not_verified",
+        "cross_session_candidate_not_verified"
       ]
     },
     {
