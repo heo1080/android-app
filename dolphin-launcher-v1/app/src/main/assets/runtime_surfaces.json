@@ -146,7 +146,11 @@
         "for (String[] markerSpec : markerPlanForTest(activeTestId))",
         "새 검증 세션",
         "rolloverSession",
-        "manual cross-session repeat"
+        "manual cross-session repeat",
+        "allowedOutcomesForTest",
+        "removeOutcome",
+        "containsOutcome",
+        "testContracts"
       ]
     },
     {
@@ -846,7 +850,9 @@
         "rolloverSession",
         "SESSION_ROLLOVER_REQUESTED",
         "SESSION_ROLLOVER_COMPLETED",
-        "active test must finish before session rollover"
+        "active test must finish before session rollover",
+        "loadTestContracts",
+        "test_log_contracts.json"
       ]
     },
     {
