@@ -26,6 +26,7 @@ public final class VehicleReadOnlyMonitor {
     private static final String ADAS="android.hardware.bydauto.adas.BYDAutoADASDevice";
     private static final String RADAR="android.hardware.bydauto.radar.BYDAutoRadarDevice";
     private static final String TYRE="android.hardware.bydauto.tyre.BYDAutoTyreDevice";
+    private static final String SPEED="android.hardware.bydauto.speed.BYDAutoSpeedDevice";
     private static final long PERIOD_MS=500L;
 
     public interface Listener {
@@ -203,9 +204,28 @@ public final class VehicleReadOnlyMonitor {
         // separate. The real car previously produced delayed/paired speech when these
         // concepts were conflated; collect both timelines before mapping semantics.
         Integer avh=read(ADAS,"getAVHState");
-        if(changed("adas.avh",avh)) post(()->listener.onAvhRaw(avh));
+        boolean avhChanged=changed("adas.avh",avh);
         Integer avhSwitch=read(SETTING,"getAVHEnable");
-        if(changed("setting.avhEnable",avhSwitch)) post(()->listener.onAvhSwitchRaw(avhSwitch));
+        boolean avhSwitchChanged=changed("setting.avhEnable",avhSwitch);
+        if(avhChanged || avhSwitchChanged){
+            Integer speed=read(SPEED,"getCurrentSpeed");
+            Integer brakeDepth=read(SPEED,"getBrakeDeepness");
+            Integer accelDepth=read(SPEED,"getAccelerateDeepness");
+            Integer brakePedal=read(GEARBOX,"getBrakePedalState");
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    app,"AUTOHOLD_CORRELATION_SNAPSHOT",
+                    "avh_raw="+avh
+                            +";avh_enable_raw="+avhSwitch
+                            +";gear_raw="+gear
+                            +";epb_raw="+epb
+                            +";speed_raw="+speed
+                            +";brake_pedal_raw="+brakePedal
+                            +";brake_depth_raw="+brakeDepth
+                            +";accel_depth_raw="+accelDepth
+                            +";voice=suppressed;purpose=direct-hold-correlation");
+        }
+        if(avhChanged) post(()->listener.onAvhRaw(avh));
+        if(avhSwitchChanged) post(()->listener.onAvhSwitchRaw(avhSwitch));
         Integer bsd=read(ADAS,"getBSDState");
         if(changed("adas.bsd",bsd)) post(()->listener.onBsdRaw(bsd));
 

@@ -1076,21 +1076,31 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
-      "success_any": [],
-      "failure_any": [],
+      "required_any": [
+        "AUTOHOLD_RAW_TRANSITION",
+        "AUTOHOLD_SWITCH_RAW_TRANSITION",
+        "AUTOHOLD_CORRELATION_SNAPSHOT"
+      ],
+      "success_any": [
+        "button ON/OFF operator state correlated to stable raw edge in 3 repetitions"
+      ],
+      "failure_any": [
+        "button state inferred from brake release",
+        "duplicate ON/OFF speech"
+      ],
       "known_bad_ids": [],
       "acceptance": [
-        "switch ON/OFF 정확",
-        "physical hold/release 정확",
-        "동일 raw 반복 억제"
+        "button OFF->ON->OFF is captured separately from physical hold/release",
+        "operator AVH switch indication and raw edge match on 3 repetitions",
+        "no automatic speech until mapping is proven"
       ],
       "required_logs": [
-        "getAVHState raw",
-        "gear",
-        "speed",
-        "pedal candidates",
-        "normalized event"
+        "AUTOHOLD_RAW_TRANSITION",
+        "AUTOHOLD_SWITCH_RAW_TRANSITION",
+        "AUTOHOLD_CORRELATION_SNAPSHOT",
+        "avh_raw",
+        "avh_enable_raw",
+        "operator switch state"
       ]
     },
     {
@@ -1114,21 +1124,32 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
-      "success_any": [],
-      "failure_any": [],
+      "required_any": [
+        "AUTOHOLD_CORRELATION_SNAPSHOT"
+      ],
+      "success_any": [
+        "physical HOLD indicator change correlated while brake_depth_raw remains >0",
+        "unique direct hold-state raw edge found"
+      ],
+      "failure_any": [
+        "HOLD only inferred after brake_depth_raw becomes 0",
+        "hold and release emitted together"
+      ],
       "known_bad_ids": [],
       "acceptance": [
-        "switch ON/OFF 정확",
-        "physical hold/release 정확",
-        "동일 raw 반복 억제"
+        "capture physical HOLD indicator timestamp while brake remains pressed",
+        "capture release/start timestamp separately",
+        "identify a direct raw/state correlation before enabling hold/release speech",
+        "legacy brake-release inference is prohibited"
       ],
       "required_logs": [
-        "getAVHState raw",
-        "gear",
-        "speed",
-        "pedal candidates",
-        "normalized event"
+        "AUTOHOLD_CORRELATION_SNAPSHOT",
+        "gear_raw",
+        "speed_raw",
+        "brake_pedal_raw",
+        "brake_depth_raw",
+        "accel_depth_raw",
+        "operator physical HOLD/RELEASE timestamps"
       ]
     },
     {

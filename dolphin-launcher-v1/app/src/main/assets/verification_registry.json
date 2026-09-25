@@ -739,37 +739,54 @@
       ],
       "state": "BETA",
       "acceptance": [
-        "switch ON/OFF 정확",
-        "physical hold/release 정확",
-        "동일 raw 반복 억제"
+        "버튼 ON/OFF raw와 실제 physical hold/release를 서로 다른 신호로 검증",
+        "브레이크를 계속 밟는 동안 실제 체결 순간을 포착할 수 있는 직접 raw/상태 근거 확보",
+        "브레이크를 떼는 순간을 HOLD 체결로 추론하지 않음",
+        "체결/해제 동일 시점 이중 발화 금지",
+        "확정 전 모든 AutoHold 음성은 fail-closed"
       ],
       "required_logs": [
-        "getAVHState raw",
-        "gear",
-        "speed",
-        "pedal candidates",
-        "normalized event"
+        "AUTOHOLD_RAW_TRANSITION",
+        "AUTOHOLD_SWITCH_RAW_TRANSITION",
+        "AUTOHOLD_CORRELATION_SNAPSHOT",
+        "avh_raw",
+        "avh_enable_raw",
+        "gear_raw",
+        "epb_raw",
+        "speed_raw",
+        "brake_pedal_raw",
+        "brake_depth_raw",
+        "accel_depth_raw",
+        "operator AVH indicator state"
       ],
       "known_bad": [
-        "physical hold/release는 추론 로직이므로 실차 검증 필요"
+        "과거 추론 로직은 brakeDepth>0을 기억한 뒤 brakeDepth=0이 될 때 HOLD로 판정해 브레이크를 떼야 체결 음성이 나는 구조였음",
+        "출발 시 체결/해제가 함께 들린 사용자 실차 회귀가 있었음",
+        "V1은 직접 상관관계가 확정될 때까지 AutoHold 음성을 억제"
       ],
       "dependencies": [
-        "AVH getter",
-        "gear/speed/pedal",
+        "BYDAutoADASDevice.getAVHState",
+        "BYDAutoSettingDevice.getAVHEnable candidate",
+        "gear/speed/brake/accelerator correlation",
         "TTS Core"
       ],
       "real_vehicle_test": [
-        "버튼 ON/OFF",
-        "D 정차→체결→출발 해제 각 5회"
+        "정차 상태에서 AutoHold 버튼 OFF→ON→OFF를 각 3회, 계기판 상태와 raw 기록",
+        "D에서 AutoHold ON 후 브레이크를 계속 밟은 채 실제 체결 표시가 켜지는 순간 OPERATOR_RESULT 타임스탬프 기록",
+        "브레이크를 떼지 않은 상태의 AUTOHOLD_CORRELATION_SNAPSHOT을 최소 3회 확보",
+        "브레이크 해제/가속 출발 시 physical release 표시와 snapshot 비교",
+        "동일 ignition cycle 5회 반복"
       ],
       "evidence": [
-        "source distinguishes switch state and inferred physical hold"
+        "20260917 real-car: adas.avh raw 0↔1 transitions captured",
+        "legacy v30.6.3 inference source waited for brakeDepth to return to 0 before HOLD",
+        "V1 AUTOHOLD_CORRELATION_SNAPSHOT evidence-only capture"
       ],
-      "next_action": "inference acceptance threshold 실차 확정",
+      "next_action": "최신 V1 실차에서 브레이크 유지 중 physical hold indicator 시점과 snapshot을 상관해 직접 신호를 확정; 추론식 재사용 금지",
       "confidence": {
         "behavior": "LOW",
-        "root_cause": "MEDIUM",
-        "safety": "MEDIUM",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
         "compatibility": "LOW"
       }
     },

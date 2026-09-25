@@ -207,6 +207,12 @@
       "tokens": [
         "getAVHState",
         "getAVHEnable",
+        "getCurrentSpeed",
+        "getBrakeDeepness",
+        "getAccelerateDeepness",
+        "getBrakePedalState",
+        "AUTOHOLD_CORRELATION_SNAPSHOT",
+        "direct-hold-correlation",
         "captureStateConstants",
         "ADAS_RUNTIME_CONSTANT",
         "SETTING_RUNTIME_CONSTANT"
