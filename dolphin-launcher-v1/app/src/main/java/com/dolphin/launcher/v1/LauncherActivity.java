@@ -3,8 +3,10 @@ package com.dolphin.launcher.v1;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -71,6 +73,9 @@ public class LauncherActivity extends Activity {
     private VehiclePromptPlayer vehiclePromptPlayer;
     private OwnedAudioEqualizer ownedAudioEqualizer;
     private OwnedSoundPosition ownedSoundPosition;
+    private BroadcastReceiver splitCameraEvidenceReceiver;
+    private boolean splitCameraEvidenceReceiverRegistered;
+    private final Runnable splitPostCameraReadback = this::captureSplitPostCameraReadback;
     private volatile Integer tpmsFlKpa, tpmsFrKpa, tpmsRlKpa, tpmsRrKpa;
     private final VehicleVoicePolicy.Output vehicleVoiceOutput = (promptId, phrase) -> {
         if (vehiclePromptPlayer == null) {
@@ -136,6 +141,7 @@ public class LauncherActivity extends Activity {
         DisplayDiagnostics.captureLaunchableAppOrientations(this);
         VerificationEvidenceRuntime.retryPendingUploadsAsync(this);
         startVehicleReadOnlyRuntime();
+        startSplitCameraEvidenceRuntime();
         handler.postDelayed(() -> {
             VerificationEvidenceRuntime.queueBundleAndUpload(this, "startup-snapshot");
             AppUpdateManager.checkForUpdates(this, false);
@@ -293,6 +299,14 @@ public class LauncherActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        handler.removeCallbacks(splitPostCameraReadback);
+        if (splitCameraEvidenceReceiverRegistered && splitCameraEvidenceReceiver != null) {
+            try {
+                unregisterReceiver(splitCameraEvidenceReceiver);
+            } catch (Throwable ignored) {}
+            splitCameraEvidenceReceiverRegistered = false;
+            splitCameraEvidenceReceiver = null;
+        }
         if (vehicleMonitor != null) {
             vehicleMonitor.stop();
             vehicleMonitor = null;
@@ -307,6 +321,87 @@ public class LauncherActivity extends Activity {
     @Override
     public void onBackPressed() {
         showHome();
+    }
+
+    private void startSplitCameraEvidenceRuntime() {
+        if (splitCameraEvidenceReceiverRegistered) return;
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("byd.intent.action.AUTO_VIDEO_ON");
+        filter.addAction("byd.intent.action.pano");
+        filter.addAction("byd.intent.action.AUTO_EXIT_PANO");
+
+        splitCameraEvidenceReceiver = new BroadcastReceiver() {
+            @Override public void onReceive(Context context, Intent intent) {
+                if (intent == null) return;
+                String action = intent.getAction();
+                int autoVideo = intent.getIntExtra("autovideo_on", Integer.MIN_VALUE);
+                int panoState = intent.getIntExtra("panoState", Integer.MIN_VALUE);
+                boolean explicitExit = "byd.intent.action.AUTO_EXIT_PANO".equals(action);
+                boolean stateExit = ("byd.intent.action.AUTO_VIDEO_ON".equals(action)
+                        || "byd.intent.action.pano".equals(action))
+                        && (autoVideo == 0 || panoState == 0);
+                boolean exit = explicitExit || stateExit;
+
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        LauncherActivity.this, "SPLIT_CAMERA_EVENT",
+                        "action=" + action
+                                + ";autovideo_on=" + autoVideo
+                                + ";panoState=" + panoState
+                                + ";exit_candidate=" + exit
+                                + ";actuation=false");
+
+                if (exit) {
+                    handler.removeCallbacks(splitPostCameraReadback);
+                    handler.postDelayed(splitPostCameraReadback, 700L);
+                }
+            }
+        };
+
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= 33) {
+                registerReceiver(splitCameraEvidenceReceiver, filter, Context.RECEIVER_EXPORTED);
+            } else {
+                registerReceiver(splitCameraEvidenceReceiver, filter);
+            }
+            splitCameraEvidenceReceiverRegistered = true;
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "SPLIT_CAMERA_EVIDENCE_RUNTIME",
+                    "registered=true;actions=3;restore_enabled=false;actuation=false");
+        } catch (Throwable t) {
+            splitCameraEvidenceReceiverRegistered = false;
+            splitCameraEvidenceReceiver = null;
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "SPLIT_CAMERA_EVIDENCE_RUNTIME_FAILED",
+                    "error=" + t.getClass().getSimpleName()
+                            + ";restore_enabled=false;actuation=false");
+        }
+    }
+
+    private void captureSplitPostCameraReadback() {
+        String left = prefs == null ? null : prefs.getString(KEY_SPLIT_LEFT, null);
+        String right = prefs == null ? null : prefs.getString(KEY_SPLIT_RIGHT, null);
+        if (!isLaunchable(left) || !isLaunchable(right) || left.equals(right)) {
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "SPLIT_POST_CAMERA_READBACK",
+                    "configured_pair=false;readback_verified=false;restore_attempted=false;actuation=false");
+            return;
+        }
+
+        SplitExecutionBridge.Result result =
+                SplitExecutionBridge.inspectCurrentPair(this, left, right);
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this, "SPLIT_POST_CAMERA_READBACK",
+                "left=" + left + ";right=" + right
+                        + ";readback_verified=" + result.success
+                        + ";" + result.detail
+                        + ";restore_attempted=false;actuation=false");
+
+        if ("WIN-SPLIT-001".equals(VerificationEvidenceRuntime.activeTestId(this))) {
+            VerificationEvidenceRuntime.queueBundleAndUpload(
+                    this, result.success
+                            ? "split-post-camera-readback-preserved"
+                            : "split-post-camera-readback-lost");
+        }
     }
 
     private void buildShell() {
