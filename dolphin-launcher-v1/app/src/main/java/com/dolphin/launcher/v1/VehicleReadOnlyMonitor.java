@@ -74,15 +74,13 @@ public final class VehicleReadOnlyMonitor {
     }
 
     private void sample(){
+        // Gear and EPB numeric meanings are not yet proven against Korean Dolphin
+        // runtime constants. Capture transitions only; guessed speech is fail-closed.
         Integer gear=read(GEARBOX,"getCurrentGear");
-        changed("gear.current",gear);
-        String g=decodeGear(gear);
-        if(g!=null && changedNormalized("gear.normalized",gear)) post(()->listener.onGear(g));
+        if(changed("gear.current",gear)) post(()->listener.onRaw("gear.candidate.unmapped",gear));
 
         Integer epb=read(GEARBOX,"getEPBState");
-        changed("gear.epb",epb);
-        if(epb!=null && (epb==1||epb==3) && changedNormalized("epb.normalized",epb))
-            post(()->listener.onEpb(epb==3));
+        if(changed("gear.epb",epb)) post(()->listener.onRaw("epb.candidate.unmapped",epb));
 
         // P0 regression guard: previous numeric mappings produced missing NORMAL and
         // STANDARD->ECO mis-announcements on the real car. Until raw transitions are
@@ -253,8 +251,4 @@ public final class VehicleReadOnlyMonitor {
 
     private void post(Runnable r){if(listener!=null)main.post(r);}
 
-    private static String decodeGear(Integer r){
-        if(r==null)return null;
-        switch(r){case 0:return "N";case 1:return "R";case 2:return "D";case 3:return "P";default:return null;}
-    }
 }
