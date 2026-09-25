@@ -1711,7 +1711,8 @@
         "Test 완료/중단 시 Evidence ZIP을 자동 queue/upload",
         "Evidence ZIP은 Registry/Test Contract/Dependencies/Runtime Surface/Known-Bad/Voice Manifest를 함께 포함",
         "V1 correlation evaluator는 3회 동일 raw도 VERIFIED가 아닌 candidate_not_verified로만 보고",
-        "진행 중 Test ID는 monotonic start age를 보존하고 장시간 연속 raw sampling은 bounded"
+        "진행 중 Test ID는 monotonic start age를 보존하고 장시간 연속 raw sampling은 bounded",
+        "OPERATOR_OBSERVATION marker는 자동 PASS 신호로 사용하지 않고 correlation candidate evidence로만 사용"
       ],
       "required_logs": [
         "registry schema/version",
@@ -1737,7 +1738,8 @@
         "VerificationEvidenceRuntime append-only schema 3 ledger",
         "operator observation markers share the active Test ID correlation",
         "monotonic elapsed_realtime_ms added to every evidence row",
-        "evaluate_live_correlations.py CI self-test"
+        "evaluate_live_correlations.py CI self-test",
+        "CI rejects success_any entries beginning with observation="
       ],
       "next_action": "실차에서 AUD-DRV-002/AUD-REG-002/AUD-AVH-001/002 live marker와 raw transition을 같은 elapsed_realtime 축으로 상관하고 evaluator 입력으로 검증",
       "confidence": {
