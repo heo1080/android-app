@@ -27,6 +27,11 @@ android {
         }
     }
 
+    dependencies {
+        // In-process ADB client; V1 generates/owns its auth key. No reference APK keys are copied.
+        implementation("dev.mobile:dadb:1.2.9")
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
