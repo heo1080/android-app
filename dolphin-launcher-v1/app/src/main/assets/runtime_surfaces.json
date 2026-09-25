@@ -157,7 +157,10 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
       "tokens": [
         "getTJAState",
-        "onIccCandidateRaw"
+        "onIccCandidateRaw",
+        "captureStateConstants",
+        "ADAS_RUNTIME_CONSTANT",
+        "ADAS_RUNTIME_CONSTANT_SCAN"
       ]
     },
     {
@@ -222,6 +225,23 @@
         "getRightTurnLightState",
         "captureStateConstants",
         "ADAS_RUNTIME_CONSTANT"
+      ]
+    },
+    {
+      "feature_id": "LEADING_CAR_DEPARTURE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
+      "tokens": [
+        "getRadarObstacleDistance",
+        "onFrontRadarRaw"
+      ]
+    },
+    {
+      "feature_id": "LEADING_CAR_DEPARTURE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+      "tokens": [
+        "LEADING_OBJECT_RADAR_RAW",
+        "voice=suppressed",
+        "classification=unknown-object"
       ]
     }
   ],
