@@ -833,7 +833,8 @@ public class LauncherActivity extends Activity {
         } else {
             int order = 1;
             for (AppEntry app : selected) {
-                final long delayMs = AutoStartStore.delayMs(prefs, app.packageName, order - 1);
+                final int appOrderIndex = order - 1;
+                final long delayMs = AutoStartStore.delayMs(prefs, app.packageName, appOrderIndex);
                 final int delay = (int) Math.round(delayMs / 1000.0);
                 LinearLayout row = new LinearLayout(this);
                 row.setOrientation(LinearLayout.HORIZONTAL);
