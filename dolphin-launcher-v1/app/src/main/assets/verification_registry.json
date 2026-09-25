@@ -482,7 +482,8 @@
         "Launcher preload는 VehicleVoicePolicy prompt catalog를 단일 원천으로 사용",
         "고정 자산 재생은 SoundPool 요청과 실차 가청 결과를 구분 기록",
         "자산 누락 시 TTS fallback 사용 가능하지만 여성 음성 보장 표시 금지",
-        "과거 지연 TTS가 후속 비프/오디오 뒤 늦게 재생되지 않음"
+        "과거 지연 TTS가 후속 비프/오디오 뒤 늦게 재생되지 않음",
+        "fallback TTS는 고유 utterance ID별 request→start 지연과 QUEUE_FLUSH 중단을 추적"
       ],
       "required_logs": [
         "VOICE_ASSET_READY",
@@ -490,7 +491,12 @@
         "VOICE_PLAY_REQUESTED",
         "VOICE_TTS_FALLBACK_REQUESTED",
         "VOICE_TTS_INIT_FAILED",
-        "audible/operator result"
+        "audible/operator result",
+        "VOICE_TTS_START",
+        "VOICE_TTS_DONE",
+        "VOICE_TTS_STOPPED",
+        "VOICE_TTS_ERROR",
+        "request_to_start_ms"
       ],
       "known_bad": [
         "현재 고정 voice_* raw 자산이 아직 공급되지 않아 Android TTS fallback에 의존",
@@ -511,7 +517,8 @@
       "evidence": [
         "VehiclePromptPlayer fixed-asset-first source",
         "voice_prompt_manifest schema 1 with 22 semantic pairs",
-        "CI VOICE_CONTRACT_OK validates policy/manifest/preload drift"
+        "CI VOICE_CONTRACT_OK validates policy/manifest/preload drift",
+        "UtteranceProgressListener captures fallback request/start/done/stop/error timing"
       ],
       "next_action": "22개 한국어 여성 고정 음성 자산 공급 전까지 fallback 상태를 명시하고, 자산 공급 후 APK asset presence·실차 audible latency·queue 회귀를 AUD-TTS-001/002로 재검증",
       "confidence": {
