@@ -28,15 +28,17 @@
       "feature_id": "SPLIT_SCREEN_TWO_APP",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SplitExecutionBridge.java",
       "tokens": [
-        "--windowingMode 3",
-        "--windowingMode 4",
-        "authorizedPathReady",
-        "left-exit",
-        "right-exit",
+        "am start --windowingMode 3",
+        "am start --windowingMode 4",
+        "SPLIT_ADB_COMMAND",
+        "dumpsys activity activities",
+        "am stack list",
+        "SPLIT_READBACK",
+        "readback_verified",
+        "left_primary",
+        "right_secondary",
         "getLaunchIntentForPackage",
-        "preflight-component-missing",
-        " -n ",
-        "shellComponent"
+        "preflight-component-missing"
       ]
     },
     {
