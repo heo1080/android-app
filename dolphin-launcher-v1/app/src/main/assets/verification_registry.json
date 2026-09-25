@@ -234,12 +234,13 @@
       "req_id": "REQ-LAUNCH-003",
       "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
       "area": "launcher",
-      "requirement": "시동 완료 시 등록된 여러 앱을 LauncherActivity 실행 여부와 독립적으로 순차 실행한다.",
+      "requirement": "시동 완료 시 등록된 여러 앱을 LauncherActivity 실행 여부 및 BOOT BroadcastReceiver 프로세스 수명과 독립적으로 저장된 순서/지연에 따라 실행한다.",
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootReceiver.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchRuntime.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AutoStartStore.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AutoStartStore.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchReceiver.java"
       ],
       "test_ids": [
         "LCH-BOOT-001",
@@ -249,15 +250,19 @@
       "acceptance": [
         "자동실행 관리에 + 앱 추가 버튼 존재",
         "2개 이상 앱 등록 가능",
-        "등록 순서를 재부팅 후에도 보존",
-        "BOOT_COMPLETED에서 등록 순서대로 순차 dispatch",
+        "등록 순서와 앱별 0~30초 지연을 재부팅 후에도 보존",
+        "BOOT_COMPLETED에서 각 항목을 process-independent AlarmManager exact alarm으로 예약",
+        "예약 alarm이 앱별 package/media/index를 보존해 실행",
         "LauncherActivity 진입으로 동일 boot dispatch를 중복 실행하지 않음",
-        "앱별 미디어 자동재생 옵션을 저장하고 부팅 시 해당 앱에 PLAY 요청",
-        "PLAY 요청을 실제 재생 성공으로 간주하지 않고 실차 증거 전 REVERIFY_REQUIRED 유지"
+        "앱별 미디어 자동재생은 대상 MediaSession 경로로 넘기며 PLAY 요청 자체를 실제 재생 성공으로 간주하지 않음",
+        "Android 12+ exact-alarm access가 없으면 불확실한 inexact fallback 대신 명시적으로 실패 기록"
       ],
       "required_logs": [
         "BOOT_COMPLETED",
         "AUTOSTART_BOOT_BATCH",
+        "AUTOSTART_SCHEDULED",
+        "AUTOSTART_SCHEDULE_FAILED",
+        "AUTOSTART_ALARM_FIRED",
         "AUTOSTART_LAUNCH_DISPATCHED",
         "AUTOSTART_LAUNCH_FAILED",
         "AUTOSTART_MEDIA_CHANGED",
@@ -266,27 +271,34 @@
         "BACKGROUND_MEDIA_PLAY_FAILED"
       ],
       "known_bad": [
-        "과거 최신 설치본에서 여러 앱 추가 버튼이 사라졌다고 보고"
+        "과거 최신 설치본에서 여러 앱 추가 버튼이 사라졌다고 보고",
+        "기존 Handler.postDelayed 부팅 예약은 BroadcastReceiver 종료 후 프로세스 생존에 의존했음",
+        "BYD Android 10에서 background activity start 허용 여부는 실차 재검증 필요"
       ],
       "dependencies": [
         "BOOT_COMPLETED broadcast",
+        "AlarmManager exact alarm delivery",
         "PackageManager launch intent",
         "Android background activity-start policy",
-        "Android media key dispatch/target media-session behavior"
+        "BACKGROUND_MEDIA_AUTOPLAY behavior for media-enabled entries"
       ],
       "real_vehicle_test": [
-        "앱 2개 등록",
+        "앱 2개 이상 등록하고 서로 다른 지연시간 저장",
         "시동 OFF/ON",
-        "각 지연 확인",
-        "두 번째 cycle 반복"
+        "BOOT_COMPLETED 후 각 AUTOSTART_SCHEDULED의 delay_ms/순서 확인",
+        "각 AUTOSTART_ALARM_FIRED가 저장한 지연 이후 발생하는지 확인",
+        "일반 앱과 미디어 앱이 각각 대상 경로로 실행되는지 확인",
+        "LauncherActivity를 중간에 열어도 중복 실행되지 않는지 확인",
+        "두 번째 ignition cycle 반복"
       ],
       "evidence": [
         "LauncherActivity showAutoStartAppPicker",
-        "AutoStartStore ordered v2 persistence and legacy migration",
+        "AutoStartStore ordered v2 persistence and delay/media settings",
         "BootReceiver BootAutoLaunchRuntime.dispatch",
-        "BootAutoLaunchRuntime delayed multi-app loop"
+        "BootAutoLaunchRuntime AlarmManager exact scheduling",
+        "BootAutoLaunchReceiver process-independent execution"
       ],
-      "next_action": "BYD Android 10 실차 재부팅에서 background activity dispatch 허용 여부와 2개 이상 앱 순차 실행 재검증",
+      "next_action": "BYD Android 10 실차 재부팅 2회에서 AlarmManager delivery, background activity dispatch, 2개 이상 앱 순차 실행 및 중복 방지 evidence 수집",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
@@ -1985,4 +1997,4 @@
     ],
     "promotion_requires_distinct_sessions": true
   }
-}
+}\n

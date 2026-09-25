@@ -338,33 +338,35 @@
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
       "required_any": [
-        "BOOT_AUTOMATION",
-        "시동 자동 실행"
+        "BOOT_COMPLETED",
+        "AUTOSTART_BOOT_BATCH",
+        "AUTOSTART_SCHEDULED"
       ],
       "success_any": [
-        "시동 자동 실행 시작:",
-        "ADB 앱 실행 성공:",
-        "Android API 앱 실행 요청:"
+        "scheduler=AlarmManager",
+        "process_independent=true"
       ],
       "failure_any": [
-        "실행 인텐트 없음:",
-        "앱 실행 실패:"
+        "AUTOSTART_SCHEDULE_FAILED"
       ],
       "known_bad_ids": [
         "KB-006"
       ],
       "acceptance": [
-        "추가 버튼 존재",
-        "2개 이상 앱 등록",
-        "지연 순서 실행",
-        "시동 OFF 시 예약 취소",
-        "동일 ignition cycle 중 중복 실행 없음"
+        "+ app button exists and 2+ packages persist in order",
+        "saved per-app delay_ms is preserved after reboot",
+        "BOOT_COMPLETED schedules each item through AlarmManager rather than Handler-only delayed work",
+        "Android 12+ missing exact-alarm access fails explicitly instead of silently using an hour-scale inexact fallback"
       ],
       "required_logs": [
-        "ignition cycle id",
+        "BOOT_COMPLETED",
+        "AUTOSTART_BOOT_BATCH",
+        "AUTOSTART_SCHEDULED",
+        "AUTOSTART_SCHEDULE_FAILED",
         "registered list",
-        "launch result",
-        "media result"
+        "package",
+        "delay_ms",
+        "index"
       ]
     },
     {
@@ -388,22 +390,38 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
-      "success_any": [],
-      "failure_any": [],
-      "known_bad_ids": [],
+      "required_any": [
+        "AUTOSTART_ALARM_FIRED",
+        "AUTOSTART_LAUNCH_DISPATCHED",
+        "BACKGROUND_MEDIA_APP_DISPATCHED"
+      ],
+      "success_any": [
+        "AUTOSTART_LAUNCH_DISPATCHED",
+        "BACKGROUND_MEDIA_PLAY_REQUESTED"
+      ],
+      "failure_any": [
+        "AUTOSTART_LAUNCH_FAILED",
+        "BACKGROUND_MEDIA_PLAY_FAILED"
+      ],
+      "known_bad_ids": [
+        "KB-006"
+      ],
       "acceptance": [
-        "추가 버튼 존재",
-        "2개 이상 앱 등록",
-        "지연 순서 실행",
-        "시동 OFF 시 예약 취소",
-        "동일 ignition cycle 중 중복 실행 없음"
+        "two or more scheduled items fire in saved order/delay across a real ignition cycle",
+        "normal entries dispatch their exact target package",
+        "media-enabled entries use BACKGROUND_MEDIA_AUTOPLAY target-session path",
+        "opening LauncherActivity does not duplicate the boot batch",
+        "behavior repeats in a second ignition cycle"
       ],
       "required_logs": [
-        "ignition cycle id",
-        "registered list",
-        "launch result",
-        "media result"
+        "AUTOSTART_ALARM_FIRED",
+        "AUTOSTART_LAUNCH_DISPATCHED",
+        "AUTOSTART_LAUNCH_FAILED",
+        "BACKGROUND_MEDIA_APP_DISPATCHED",
+        "package",
+        "delay_ms",
+        "index",
+        "operator launch order observation"
       ]
     },
     {
@@ -2245,4 +2263,4 @@
       ]
     }
   ]
-}
+}\n

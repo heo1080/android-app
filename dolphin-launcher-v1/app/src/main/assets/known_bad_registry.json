@@ -69,9 +69,9 @@
         "LCH-BOOT-001",
         "LCH-BOOT-002"
       ],
-      "summary": "multi-app add UI and boot-independent dispatch restored; BYD Android 10 boot launch pending real-car verification",
+      "summary": "multi-app persistence/UI restored; boot delays now use process-independent AlarmManager scheduling, pending BYD Android 10 background-launch verification",
       "state": "FIX_CANDIDATE",
-      "close_gate": "real-car persistence of 2+ configured apps, BOOT_COMPLETED dispatch, sequential launch, no duplicate launch after opening V1"
+      "close_gate": "two repeatable real-car ignition cycles with 2+ registered apps, saved per-app delays, AUTOSTART_ALARM_FIRED for each entry, correct target launches/media path, and no duplicate batch after opening V1"
     },
     {
       "id": "KB-007",
@@ -145,4 +145,4 @@
       "close_gate": "real-car target session package match, configured delay, audible target playback, non-target media unchanged, global fallback absent, and stock safety warning audio remains functional"
     }
   ]
-}
+}\n
