@@ -19,8 +19,7 @@ public final class BootAutoLaunchRuntime {
             VerificationEvidenceRuntime.recordPassiveEvent(app,"AUTOSTART_SKIPPED","source=boot-receiver;reason=master-disabled");
             return;
         }
-        Set<String> saved=p.getStringSet("autostart_set",java.util.Collections.emptySet());
-        ArrayList<String> packages=new ArrayList<>(saved);
+        ArrayList<String> packages=new ArrayList<>(AutoStartStore.read(p));
         VerificationEvidenceRuntime.recordPassiveEvent(app,"AUTOSTART_BOOT_BATCH","registered="+packages.size());
         Handler h=new Handler(Looper.getMainLooper());
         for(int i=0;i<packages.size();i++){
