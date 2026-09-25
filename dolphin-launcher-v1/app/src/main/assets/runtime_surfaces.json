@@ -160,7 +160,12 @@
         "getTyrePressureValue",
         "getTyrePressureState",
         "getTyreSignalState",
-        "onTpmsRaw"
+        "onTpmsRaw",
+        "TYRE_COMMAND_AREA_LEFT_FRONT",
+        "TYRE_COMMAND_AREA_RIGHT_FRONT",
+        "TYRE_COMMAND_AREA_LEFT_REAR",
+        "TYRE_COMMAND_AREA_RIGHT_REAR",
+        "staticInt"
       ]
     }
   ]
