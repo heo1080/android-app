@@ -247,6 +247,27 @@
         "voice=suppressed",
         "classification=unknown-object"
       ]
+    },
+    {
+      "feature_id": "DPI_DISPLAY_DIAGNOSTICS",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DisplayDiagnostics.java",
+      "tokens": [
+        "DISPLAY_PROFILE",
+        "densityDpi",
+        "fontScale",
+        "smallestWidthDp",
+        "windowBounds",
+        "display_density_forced",
+        "display_size_forced",
+        "mode=read-only"
+      ]
+    },
+    {
+      "feature_id": "DPI_DISPLAY_DIAGNOSTICS",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+      "tokens": [
+        "DisplayDiagnostics.capture(this)"
+      ]
     }
   ],
   "notes": [
