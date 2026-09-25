@@ -17,7 +17,12 @@
       "tokens": [
         "showAutoStartManager",
         "showAutoStartAppPicker",
-        "KEY_AUTOSTART_SET"
+        "KEY_AUTOSTART_SET",
+        "AUTOSTART_TRIGGER_CONSUMED",
+        "AUTOSTART_BATCH_SCHEDULED",
+        "AUTOSTART_LAUNCH_ATTEMPT",
+        "AUTOSTART_SKIPPED",
+        "runPendingAutostart"
       ]
     },
     {
