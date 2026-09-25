@@ -21,6 +21,9 @@ public final class DisplayDiagnostics {
                 bounds=activity.getSystemService(WindowManager.class).getCurrentWindowMetrics().getBounds();
             }
             String forcedDensity=readSecure(activity,"display_density_forced");
+            String accelerometerRotation=readSystem(activity,"accelerometer_rotation");
+            String userRotation=readSystem(activity,"user_rotation");
+            String fontScaleSetting=readSystem(activity,"font_scale");
             String forcedSize=readGlobal(activity,"display_size_forced");
             String detail="densityDpi="+dm.densityDpi
                     +";density="+dm.density
@@ -33,6 +36,9 @@ public final class DisplayDiagnostics {
                     +";windowBounds="+(bounds==null?"unavailable":bounds.width()+"x"+bounds.height())
                     +";forcedDensity="+safe(forcedDensity)
                     +";forcedSize="+safe(forcedSize)
+                    +";accelerometerRotation="+safe(accelerometerRotation)
+                    +";userRotation="+safe(userRotation)
+                    +";fontScaleSetting="+safe(fontScaleSetting)
                     +";mode=read-only";
             VerificationEvidenceRuntime.recordPassiveEvent(activity,"DISPLAY_PROFILE",detail);
         }catch(Throwable t){
@@ -41,6 +47,10 @@ public final class DisplayDiagnostics {
         }
     }
 
+    private static String readSystem(Context c,String key){
+        try{return Settings.System.getString(c.getContentResolver(),key);}
+        catch(Throwable t){return null;}
+    }
     private static String readSecure(Context c,String key){
         try{return Settings.Secure.getString(c.getContentResolver(),key);}
         catch(Throwable t){return null;}
