@@ -36,7 +36,9 @@ public final class VehicleReadOnlyMonitor {
         void onSnowRaw(Integer raw);
         void onIccCandidateRaw(Integer raw);
         void onFrontRadarRaw(Integer leftMid, Integer rightMid);
-        void onTpmsRaw(Integer fl, Integer fr, Integer rl, Integer rr);
+        void onTpmsRaw(Integer fl, Integer fr, Integer rl, Integer rr,
+                       Integer flState, Integer frState, Integer rlState, Integer rrState,
+                       Integer flSignal, Integer frSignal, Integer rlSignal, Integer rrSignal);
         void onRaw(String signal, Integer raw);
     }
 
@@ -119,7 +121,26 @@ public final class VehicleReadOnlyMonitor {
         tyreChanged=changed("tyre.fr.raw",tyreFr) || tyreChanged;
         tyreChanged=changed("tyre.rl.raw",tyreRl) || tyreChanged;
         tyreChanged=changed("tyre.rr.raw",tyreRr) || tyreChanged;
-        if(tyreChanged) post(()->listener.onTpmsRaw(tyreFl,tyreFr,tyreRl,tyreRr));
+        Integer tyreFlState=readIntArg(TYRE,"getTyrePressureState",1);
+        Integer tyreFrState=readIntArg(TYRE,"getTyrePressureState",2);
+        Integer tyreRlState=readIntArg(TYRE,"getTyrePressureState",3);
+        Integer tyreRrState=readIntArg(TYRE,"getTyrePressureState",4);
+        Integer tyreFlSignal=readIntArg(TYRE,"getTyreSignalState",1);
+        Integer tyreFrSignal=readIntArg(TYRE,"getTyreSignalState",2);
+        Integer tyreRlSignal=readIntArg(TYRE,"getTyreSignalState",3);
+        Integer tyreRrSignal=readIntArg(TYRE,"getTyreSignalState",4);
+        tyreChanged=changed("tyre.fl.pressureState",tyreFlState)||tyreChanged;
+        tyreChanged=changed("tyre.fr.pressureState",tyreFrState)||tyreChanged;
+        tyreChanged=changed("tyre.rl.pressureState",tyreRlState)||tyreChanged;
+        tyreChanged=changed("tyre.rr.pressureState",tyreRrState)||tyreChanged;
+        tyreChanged=changed("tyre.fl.signalState",tyreFlSignal)||tyreChanged;
+        tyreChanged=changed("tyre.fr.signalState",tyreFrSignal)||tyreChanged;
+        tyreChanged=changed("tyre.rl.signalState",tyreRlSignal)||tyreChanged;
+        tyreChanged=changed("tyre.rr.signalState",tyreRrSignal)||tyreChanged;
+        if(tyreChanged) post(()->listener.onTpmsRaw(
+                tyreFl,tyreFr,tyreRl,tyreRr,
+                tyreFlState,tyreFrState,tyreRlState,tyreRrState,
+                tyreFlSignal,tyreFrSignal,tyreRlSignal,tyreRrSignal));
 
         // Semantics still require physical-control correlation. Expose transitions to
         // the listener as raw evidence only; do not map them to spoken ON/OFF/side yet.
