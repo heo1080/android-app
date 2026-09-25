@@ -22,6 +22,7 @@ public final class VehicleReadOnlyMonitor {
     private static final String ENERGY="android.hardware.bydauto.energy.BYDAutoEnergyDevice";
     private static final String SETTING="android.hardware.bydauto.setting.BYDAutoSettingDevice";
     private static final String ADAS="android.hardware.bydauto.adas.BYDAutoADASDevice";
+    private static final String RADAR="android.hardware.bydauto.radar.BYDAutoRadarDevice";
     private static final long PERIOD_MS=500L;
 
     public interface Listener {
@@ -33,6 +34,7 @@ public final class VehicleReadOnlyMonitor {
         void onBsdRaw(Integer raw);
         void onSnowRaw(Integer raw);
         void onIccCandidateRaw(Integer raw);
+        void onFrontRadarRaw(Integer leftMid, Integer rightMid);
         void onRaw(String signal, Integer raw);
     }
 
@@ -95,6 +97,15 @@ public final class VehicleReadOnlyMonitor {
         Integer tja=read(ADAS,"getTJAState");
         if(changed("adas.tja",tja)) post(()->listener.onIccCandidateRaw(tja));
 
+        // Areas 7/8 are front-centre parking-radar candidates in the legacy
+        // DiLink 3 evidence. V1 records only raw values; it does not call an
+        // obstacle moving away a "leading vehicle departure" yet.
+        Integer radarLeft=readIntArg(RADAR,"getRadarObstacleDistance",7);
+        Integer radarRight=readIntArg(RADAR,"getRadarObstacleDistance",8);
+        boolean radarChanged=changed("radar.frontLeftMid",radarLeft);
+        radarChanged=changed("radar.frontRightMid",radarRight) || radarChanged;
+        if(radarChanged) post(()->listener.onFrontRadarRaw(radarLeft,radarRight));
+
         // Semantics still require physical-control correlation. Expose transitions to
         // the listener as raw evidence only; do not map them to spoken ON/OFF/side yet.
         Integer avh=read(ADAS,"getAVHState");
@@ -124,6 +135,26 @@ public final class VehicleReadOnlyMonitor {
             return false;
         }
         return !old.equals(value);
+    }
+
+    private Integer readIntArg(String className,String methodName,int arg){
+        String key=className+"#"+methodName+"(int)";
+        try{
+            Object d=devices.get(className);
+            if(d==null){
+                Class<?> clazz=Class.forName(className);
+                Context bydContext=BydPermissionContext.wrap(app);
+                d=clazz.getMethod("getInstance",Context.class).invoke(null,bydContext);
+                if(d==null)throw new IllegalStateException("getInstance null");
+                devices.put(className,d);
+            }
+            Method m=methods.get(key);
+            if(m==null){m=d.getClass().getMethod(methodName,int.class);methods.put(key,m);}
+            Object v=m.invoke(d,arg);
+            return v instanceof Number?((Number)v).intValue():null;
+        }catch(Throwable t){
+            devices.remove(className);methods.remove(key);once(key,t);return null;
+        }
     }
 
     private Integer read(String className,String methodName){
