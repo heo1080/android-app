@@ -52,7 +52,12 @@
             </intent-filter>
         </service>
 
-        <receiver\n            android:name=".ShortcutPinReceiver"\n            android:enabled="true"\n            android:exported="false" />\n\n        <receiver
+        <receiver
+            android:name=".ShortcutPinReceiver"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
             android:name=".UpdateInstallReceiver"
             android:enabled="true"
             android:exported="false" />
