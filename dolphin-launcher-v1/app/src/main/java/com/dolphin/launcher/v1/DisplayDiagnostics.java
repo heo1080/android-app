@@ -27,8 +27,11 @@ public final class DisplayDiagnostics {
             int requestedOrientation=activity.getRequestedOrientation();
             int displayRotation=activity.getDisplay()==null?-1:activity.getDisplay().getRotation();
             int windowingMode=-1;
-            try { windowingMode=activity.getResources().getConfiguration().windowConfiguration.getWindowingMode(); }
-            catch(Throwable ignored) { }
+            try {
+                Object wc=Configuration.class.getField("windowConfiguration").get(cfg);
+                Object wm=wc.getClass().getMethod("getWindowingMode").invoke(wc);
+                if(wm instanceof Number) windowingMode=((Number)wm).intValue();
+            } catch(Throwable ignored) { }
             String forcedSize=readGlobal(activity,"display_size_forced");
             String detail="densityDpi="+dm.densityDpi
                     +";density="+dm.density
