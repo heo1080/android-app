@@ -12,6 +12,7 @@ public final class AutoStartStore {
     private static final String KEY_ORDERED="autostart_ordered_v2";
     private static final String SEP="\n";
     private static final String MEDIA_PREFIX="autostart_media_";
+    private static final String DELAY_PREFIX="autostart_delay_ms_";
     private AutoStartStore(){}
 
     public static List<String> read(SharedPreferences p){
@@ -44,6 +45,13 @@ public final class AutoStartStore {
         int to=from+delta; if(to<0||to>=list.size())return false;
         Collections.swap(list,from,to); write(p,list); return true;
     }
+
+    public static long delayMs(SharedPreferences p,String pkg,int index){
+        long fallback=1800L+(Math.max(0,index)*3000L);
+        long value=p.getLong(DELAY_PREFIX+pkg,fallback);
+        return Math.max(0L,Math.min(30000L,value));
+    }
+    public static void setDelayMs(SharedPreferences p,String pkg,long value){ p.edit().putLong(DELAY_PREFIX+pkg,Math.max(0L,Math.min(30000L,value))).apply(); }
 
     public static boolean mediaEnabled(SharedPreferences p,String pkg){ return p.getBoolean(MEDIA_PREFIX+pkg,false); }
     public static void setMediaEnabled(SharedPreferences p,String pkg,boolean enabled){ p.edit().putBoolean(MEDIA_PREFIX+pkg,enabled).apply(); }
