@@ -54,6 +54,31 @@ public final class SplitExecutionBridge {
 
     private SplitExecutionBridge(){}
 
+    public static Result inspectCurrentPair(Context context,String leftPackage,String rightPackage) {
+        SplitCapabilityProbe.Result probe=SplitCapabilityProbe.inspect(context);
+        if (!probe.authorizedPathReady()) {
+            return new Result(false,"blocked;actuation=false;"+probe.evidence());
+        }
+        try (Dadb adb=SplitCapabilityProbe.connectAuthorized(context)) {
+            AdbShellResponse activities=adb.shell("dumpsys activity activities");
+            AdbShellResponse stacks=adb.shell("am stack list");
+            String activityOutput=activities.getOutput()==null?"":activities.getOutput();
+            String stackOutput=stacks.getOutput()==null?"":stacks.getOutput();
+            Readback readback=readback(activityOutput+"\n"+stackOutput,leftPackage,rightPackage);
+            String detail="dumpsys-exit="+activities.getExitCode()
+                    +";stack-exit="+stacks.getExitCode()
+                    +";"+readback.summary()
+                    +";actuation=false";
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    context,"SPLIT_READBACK_PASSIVE",
+                    "left="+leftPackage+";right="+rightPackage+";"+detail);
+            return new Result(readback.verified(),detail);
+        } catch(Throwable t) {
+            return new Result(false,"exception="+t.getClass().getSimpleName()
+                    +";readback_verified=false;actuation=false");
+        }
+    }
+
     public static Result launch(Context context,String leftPackage,String rightPackage) {
         SplitCapabilityProbe.Result probe=SplitCapabilityProbe.inspect(context);
         if (!probe.authorizedPathReady()) return new Result(false,"blocked;"+probe.evidence());
