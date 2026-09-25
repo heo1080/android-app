@@ -851,7 +851,7 @@ public class LauncherActivity extends Activity {
 
                 Button delayMinus = button("-1초");
                 delayMinus.setOnClickListener(v -> {
-                    long next = Math.max(0L, AutoStartStore.delayMs(prefs, app.packageName, order - 1) - 1000L);
+                    long next = Math.max(0L, AutoStartStore.delayMs(prefs, app.packageName, appOrderIndex) - 1000L);
                     AutoStartStore.setDelayMs(prefs, app.packageName, next);
                     VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_DELAY_CHANGED", "package=" + app.packageName + ";delay_ms=" + next);
                     showAutoStartManager();
@@ -860,7 +860,7 @@ public class LauncherActivity extends Activity {
 
                 Button delayPlus = button("+1초");
                 delayPlus.setOnClickListener(v -> {
-                    long next = Math.min(30000L, AutoStartStore.delayMs(prefs, app.packageName, order - 1) + 1000L);
+                    long next = Math.min(30000L, AutoStartStore.delayMs(prefs, app.packageName, appOrderIndex) + 1000L);
                     AutoStartStore.setDelayMs(prefs, app.packageName, next);
                     VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_DELAY_CHANGED", "package=" + app.packageName + ";delay_ms=" + next);
                     showAutoStartManager();
