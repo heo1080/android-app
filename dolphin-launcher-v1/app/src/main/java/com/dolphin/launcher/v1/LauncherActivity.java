@@ -1185,7 +1185,7 @@ public class LauncherActivity extends Activity {
                     VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_DELAY_CHANGED", "package=" + app.packageName + ";delay_ms=" + next);
                     showAutoStartManager();
                 });
-                controls.addView(delayMinus, new LinearLayout.LayoutParams(0, dp(38), 1f));
+                controls.addView(delayMinus, new LinearLayout.LayoutParams(0, dp(48), 1f));
 
                 Button delayPlus = button("+1초");
                 delayPlus.setOnClickListener(v -> {
@@ -1194,7 +1194,7 @@ public class LauncherActivity extends Activity {
                     VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_DELAY_CHANGED", "package=" + app.packageName + ";delay_ms=" + next);
                     showAutoStartManager();
                 });
-                controls.addView(delayPlus, new LinearLayout.LayoutParams(0, dp(38), 1f));
+                controls.addView(delayPlus, new LinearLayout.LayoutParams(0, dp(48), 1f));
 
                 Button up = button("↑ 위로");
                 up.setOnClickListener(v -> {
@@ -1203,7 +1203,7 @@ public class LauncherActivity extends Activity {
                         showAutoStartManager();
                     }
                 });
-                controls.addView(up, new LinearLayout.LayoutParams(0, dp(38), 1f));
+                controls.addView(up, new LinearLayout.LayoutParams(0, dp(48), 1f));
 
                 Button down = button("↓ 아래로");
                 down.setOnClickListener(v -> {
@@ -1212,7 +1212,7 @@ public class LauncherActivity extends Activity {
                         showAutoStartManager();
                     }
                 });
-                controls.addView(down, new LinearLayout.LayoutParams(0, dp(38), 1f));
+                controls.addView(down, new LinearLayout.LayoutParams(0, dp(48), 1f));
 
                 Button remove = new Button(this);
                 remove.setText("삭제");
@@ -1223,7 +1223,7 @@ public class LauncherActivity extends Activity {
                     toggleAutoStart(app.packageName);
                     Toast.makeText(this, app.label + " 제거", Toast.LENGTH_SHORT).show();
                 });
-                controls.addView(remove, new LinearLayout.LayoutParams(0, dp(38), 1f));
+                controls.addView(remove, new LinearLayout.LayoutParams(0, dp(48), 1f));
                 LinearLayout.LayoutParams controlsLp = new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, dp(52));
                 controlsLp.topMargin = dp(4);

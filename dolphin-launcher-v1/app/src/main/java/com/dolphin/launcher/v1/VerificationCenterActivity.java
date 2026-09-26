@@ -109,7 +109,7 @@ public class VerificationCenterActivity extends Activity {
 
         Button back = button("닫기");
         back.setOnClickListener(v -> finish());
-        header.addView(back, new LinearLayout.LayoutParams(dp(86), dp(44)));
+        header.addView(back, new LinearLayout.LayoutParams(dp(86), dp(48)));
         root.addView(header);
 
         VerificationEvidenceRuntime.recordPassiveEvent(
