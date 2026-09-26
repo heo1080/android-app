@@ -117,9 +117,9 @@
         "BLD-ID-002",
         "LCH-ID-001"
       ],
-      "summary": "BYD Korean Dolphin previously rejected a V1 APK as a desktop app when HOME launcher role was advertised; current candidate installs as a normal LAUNCHER app with HOME disabled pending real-car compatibility proof",
+      "summary": "BYD Korean Dolphin previously rejected a V1 APK as a desktop app when HOME role was active; current candidate keeps the normal LAUNCHER entry and packages a HOME+DEFAULT alias disabled-by-default for explicit evidence-gated activation research.",
       "state": "REAL_CAR_RETEST",
-      "close_gate": "current candidate installs on BYD without desktop-app rejection; packaged APK has exactly one LauncherActivity LAUNCHER entry, no HOME category, and build identity matches package/version/source/APK hash"
+      "close_gate": "current candidate installs on BYD without desktop-app rejection; normal LauncherActivity remains the single active LAUNCHER entry; packaged HOME alias is disabled-by-default and is enabled only after separate real-car compatibility evidence."
     },
     {
       "id": "KB-011",

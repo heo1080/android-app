@@ -174,16 +174,19 @@ public class VerificationCenterActivity extends Activity {
         refreshRuntimeStatus();
         root.addView(autoStatus);
 
-        final String detailLabel = "개발자 상세 · " + featureCount + " Feature / " + testIds.size() + " Test ID";
+        final String detailLabel = "전체 기능 인벤토리 · " + featureCount + " Feature / " + testIds.size() + " Test ID";
         Button details = button(detailLabel);
         details.setBackground(pressableGradientRound(
                 new String[]{"#0E222A","#07151B"},
                 new String[]{"#173440","#0A2028"},
                 15, "#284B57"));
         details.setOnClickListener(v -> {
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "FEATURE_INVENTORY_HMI_RENDER",
+                    "features=" + featureCount + ";test_ids=" + testIds.size() + ";source=registry");
             detailsVisible = !detailsVisible;
             if (detailList != null) detailList.setVisibility(detailsVisible ? View.VISIBLE : View.GONE);
-            details.setText(detailsVisible ? "개발자 상세 닫기" : detailLabel);
+            details.setText(detailsVisible ? "전체 기능 인벤토리 닫기" : detailLabel);
         });
         root.addView(details, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
 

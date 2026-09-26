@@ -10,8 +10,8 @@ android {
         applicationId = "com.dolphin.launcher.v1"
         minSdk = 29
         targetSdk = 35
-        versionCode = 5
-        versionName = "1.2.2-v1-auto-evidence-beta"
+        versionCode = 6
+        versionName = "1.3.0-v1-full-inventory-beta"
         buildConfigField("String", "SOURCE_COMMIT", "\"" + (System.getenv("GITHUB_SHA") ?: "LOCAL") + "\"")
         val evidenceKey = System.getenv("DOLPHIN_UPLOAD_KEY") ?: ""
         buildConfigField("String", "EVIDENCE_UPLOAD_KEY", "\"" + evidenceKey.replace("\\", "\\\\").replace("\"", "\\\"") + "\"")

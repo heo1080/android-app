@@ -1,18 +1,8 @@
 {
   "schema_version": 3,
   "registry_id": "DOLPHIN-MASTER-VERIFICATION-REGISTRY",
-  "generated_at": "2026-09-20",
-  "source": {
-    "repository": "heo1080/android-app",
-    "branch_base": "main",
-    "base_commit": "5716596ca5e7f14245655736de762158fb8e0c8c",
-    "diagnostics_repository": "heo1080/dolphin-diagnostics",
-    "latest_diagnostics_commit": "d75939f6ed2daacbdf0b6fbabd5d27c0ca18ee31",
-    "source_build_gradle_version": "3.0.7-v30.4-driver-dsp-probe",
-    "source_build_gradle_version_code": 37,
-    "latest_release_line_observed": "v34.3.1",
-    "build_identity_note": "main의 build.gradle.kts 버전과 CI 패치/릴리스 버전이 다르므로 source identity와 generated release identity를 반드시 별도 추적한다."
-  },
+  "generated_at": "2026-09-26T18:49:00+09:00",
+  "source": "Dolphin Launcher V1 active inventory sync after main Registry/Codex governance review",
   "state_definitions": {
     "VERIFIED": "실차 반복 재현 및 요구 Acceptance Criteria 충족",
     "BETA": "실차 시험 가능한 구현이 있으나 검증 미완료 또는 알려진 결함 존재",
@@ -57,7 +47,7 @@
         "APK SHA-256",
         "signing fingerprint",
         "launchable activity count",
-        "HOME category absent",
+        "HOME alias present and disabled-by-default",
         "minSdk 29",
         "targetSdk 35",
         "BUILD_IDENTITY_OK"
@@ -156,7 +146,7 @@
       "acceptance": [
         "앱서랍에서 정상 아이콘/이름 표시",
         "실행 시 desktop/freeform 오인 없음",
-        "HOME 역할을 의도하지 않았다면 HOME category 없음",
+        "normal LAUNCHER activity remains install entry; HOME+DEFAULT alias is packaged disabled-by-default until BYD compatibility evidence",
         "앱서랍 아이콘 표시와 일반 앱 형태 실행을 operator marker로 각각 확인",
         "HOME category 비활성 상태에서 desktop/freeform 오인 없이 실행"
       ],
@@ -2298,6 +2288,687 @@
         "safety": "HIGH",
         "compatibility": "LOW"
       }
+    },
+    {
+      "req_id": "REQ-CAM-001",
+      "feature_id": "AVM_DVR_CAPTURE",
+      "area": "camera",
+      "requirement": "AVM/360 카메라 원본 접근과 DVR 캡처는 source provenance·권한·privacy gate가 실차에서 증명된 경우에만 활성화한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "CAM-AVM-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "verified AVM/camera source provenance",
+        "read-only frame acquisition",
+        "privacy indicator",
+        "no camera-control write"
+      ],
+      "required_logs": [
+        "camera source id",
+        "permission result",
+        "frame timestamp",
+        "vehicle_write=false"
+      ],
+      "known_bad": [
+        "Dolphin V1에서 검증된 AVM frame source가 아직 없음"
+      ],
+      "dependencies": [
+        "camera/AVM access proof"
+      ],
+      "real_vehicle_test": [
+        "정차 상태에서 source inventory와 read-only frame availability만 확인",
+        "프레임 source가 미확정이면 캡처를 시도하지 않음"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "real-car AVM source evidence 확보 전 BLOCKED 유지",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-DVR-001",
+      "feature_id": "CONTINUOUS_PARKING_RECORDING",
+      "area": "dvr",
+      "requirement": "상시·주차 녹화는 검증된 camera source, 저장 경로, retention/전원 정책이 모두 확인된 경우에만 기록을 시작한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "DVR-REC-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "camera source proven",
+        "storage target proven",
+        "power/retention policy",
+        "no hidden background capture"
+      ],
+      "required_logs": [
+        "recording state",
+        "camera source",
+        "storage target",
+        "retention",
+        "vehicle_write=false"
+      ],
+      "known_bad": [
+        "검증된 V1 camera/storage pipeline 없음"
+      ],
+      "dependencies": [
+        "AVM_DVR_CAPTURE",
+        "SD_CARD_PRIMARY_STORAGE"
+      ],
+      "real_vehicle_test": [
+        "정차 상태에서 recording prerequisites만 확인",
+        "camera/storage gate 미충족 시 recording=disabled 확인"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "camera/storage evidence 전 녹화 비활성",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-DVR-002",
+      "feature_id": "SD_CARD_PRIMARY_STORAGE",
+      "area": "storage",
+      "requirement": "DVR 저장은 사용자가 식별 가능한 removable SD 경로를 검증한 뒤에만 SD 우선 정책을 적용한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "DVR-SD-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "removable volume identity",
+        "writable/readback",
+        "free-space check",
+        "fallback explicitly reported"
+      ],
+      "required_logs": [
+        "volume uuid",
+        "removable flag",
+        "writable",
+        "free bytes",
+        "selected target"
+      ],
+      "known_bad": [
+        "실차 SD mount/SAF 권한 경로 미검증"
+      ],
+      "dependencies": [
+        "Android storage volume evidence"
+      ],
+      "real_vehicle_test": [
+        "SD 장착/미장착 각각에서 volume inventory 확인",
+        "임의 internal path를 SD로 가장하지 않음"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "실차 removable storage 식별 근거 확보",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-DVR-003",
+      "feature_id": "PARKING_OBJECT_EVENT_DETECTION",
+      "area": "vision",
+      "requirement": "주차 중 사람·차량·동물 이벤트는 검증된 영상 source와 model hash/confidence가 있을 때만 생성한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "DVR-EVT-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "camera source proven",
+        "model hash",
+        "class/confidence output",
+        "false-positive review"
+      ],
+      "required_logs": [
+        "model hash",
+        "inference latency",
+        "class",
+        "confidence",
+        "frame source"
+      ],
+      "known_bad": [
+        "검증된 parking vision model/source 없음"
+      ],
+      "dependencies": [
+        "AVM_DVR_CAPTURE"
+      ],
+      "real_vehicle_test": [
+        "저장된 시험 영상 또는 정차 실차에서 candidate detection만 검증",
+        "source/model 미확정 시 이벤트 생성 금지"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "합법적 source/model provenance 확보",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-CMP-001",
+      "feature_id": "COMPANION_REMOTE_VIDEO",
+      "area": "companion",
+      "requirement": "Companion 원격 영상은 명시적 사용자 승인, 인증된 세션, 검증된 camera source가 모두 충족될 때만 제공한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "CMP-VID-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "explicit opt-in",
+        "authenticated session",
+        "camera source proven",
+        "session expiry"
+      ],
+      "required_logs": [
+        "auth state",
+        "session id",
+        "source id",
+        "start/stop",
+        "expiry"
+      ],
+      "known_bad": [
+        "Companion 인증·영상 전송 경로 미구현"
+      ],
+      "dependencies": [
+        "AVM_DVR_CAPTURE",
+        "companion authenticated transport"
+      ],
+      "real_vehicle_test": [
+        "로컬 UI에서 remote-video gate가 BLOCKED임을 확인",
+        "네트워크 전송/카메라 활성화가 발생하지 않음을 확인"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "인증/프라이버시 설계와 실차 source 증거 필요",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-CMP-002",
+      "feature_id": "COMPANION_PARKING_LOCATION",
+      "area": "companion",
+      "requirement": "주차 위치 공유는 사용자가 승인한 위치 source와 명시적 전송 동의가 확인된 경우에만 제공한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "CMP-PARK-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "location source provenance",
+        "explicit opt-in",
+        "timestamp/expiry",
+        "manual clear"
+      ],
+      "required_logs": [
+        "source provider",
+        "accuracy",
+        "timestamp",
+        "share state"
+      ],
+      "known_bad": [
+        "V1 Companion 위치 공유 경로 미구현"
+      ],
+      "dependencies": [
+        "companion authenticated transport",
+        "location permission"
+      ],
+      "real_vehicle_test": [
+        "위치 권한/동의가 없을 때 공유가 BLOCKED임을 확인"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "위치 privacy/consent 설계 후 구현",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-CMP-003",
+      "feature_id": "COMPANION_VEHICLE_STATUS",
+      "area": "companion",
+      "requirement": "원격 차량상태는 실차에서 검증된 read-only 값만 전송하며 추정 차량값을 생성하지 않는다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "CMP-VEH-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "read-only provenance",
+        "freshness",
+        "authenticated session",
+        "no fabricated values"
+      ],
+      "required_logs": [
+        "raw source",
+        "age",
+        "session id",
+        "field availability"
+      ],
+      "known_bad": [
+        "원격 상태 transport 미구현"
+      ],
+      "dependencies": [
+        "LIVE_VEHICLE_INFO",
+        "companion authenticated transport"
+      ],
+      "real_vehicle_test": [
+        "미검증 필드는 unavailable로 표시",
+        "vehicle write가 발생하지 않음을 확인"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "read-only field provenance와 auth transport 확보",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-CAM-002",
+      "feature_id": "BVM_FISHEYE_CORRECTION",
+      "area": "camera",
+      "requirement": "현대·기아식 BVM 어안보정은 검증된 AVM frame과 calibration parameter가 있을 때만 렌더링한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "CAM-BVM-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "camera intrinsics/extrinsics",
+        "calibration artifact",
+        "latency budget",
+        "no fake correction"
+      ],
+      "required_logs": [
+        "calibration id",
+        "input source",
+        "render latency",
+        "frame timestamp"
+      ],
+      "known_bad": [
+        "Dolphin camera calibration 데이터 미확보"
+      ],
+      "dependencies": [
+        "AVM_DVR_CAPTURE"
+      ],
+      "real_vehicle_test": [
+        "실제 frame/calibration 없이는 보정 영상을 생성하지 않음"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "실차 calibration evidence 확보",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-BLE-001",
+      "feature_id": "BLE_ONLY_AUTOLOCK",
+      "area": "ble",
+      "requirement": "BLE-only AutoLock은 정식/검증된 차량 인증·키 자료와 거리/상태 readback이 확보되기 전 잠금 write를 금지한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "BLE-LOCK-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "authorized key material",
+        "proximity evidence",
+        "lock readback",
+        "manual disable/failsafe"
+      ],
+      "required_logs": [
+        "BLE identity",
+        "auth result",
+        "distance/RSSI context",
+        "lock readback"
+      ],
+      "known_bad": [
+        "BYD BLE key material/protocol을 추측하지 않음"
+      ],
+      "dependencies": [
+        "verified BYD BLE authorization"
+      ],
+      "real_vehicle_test": [
+        "BLE advertising/read-only inventory만 허용",
+        "lock command 전송 없음 확인"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "합법적 BLE 인증 경로 확보 전 BLOCKED",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-BLE-002",
+      "feature_id": "LOCAL_REMOTE_CONTROL",
+      "area": "ble",
+      "requirement": "로컬 원격제어는 검증된 차량 command/readback pair와 사용자 승인 정책이 없으면 actuation을 금지한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "BLE-REMOTE-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "authorized command path",
+        "readback",
+        "timeout/rollback",
+        "explicit user action"
+      ],
+      "required_logs": [
+        "command id provenance",
+        "request",
+        "readback",
+        "timeout"
+      ],
+      "known_bad": [
+        "private BLE/CAN/BCM command 추측 금지"
+      ],
+      "dependencies": [
+        "verified BYD local-control API"
+      ],
+      "real_vehicle_test": [
+        "read-only capability inventory만 허용",
+        "actuation=false 확인"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "검증된 local-control API evidence 필요",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-RES-001",
+      "feature_id": "THIRD_PARTY_RESEARCH_CANDIDATES",
+      "area": "research",
+      "requirement": "OverDrive/KINEX 등 타사 동작은 연구 근거로만 취급하며 라이선스·차량모델·DiLink·펌웨어·HW 적합성 증거 없이 기능으로 복제하지 않는다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "RES-3P-001"
+      ],
+      "state": "UNSUPPORTED",
+      "acceptance": [
+        "reference provenance",
+        "license review",
+        "vehicle/firmware compatibility",
+        "no copied private key/material"
+      ],
+      "required_logs": [
+        "reference name/version",
+        "license status",
+        "vehicle applicability",
+        "evidence link"
+      ],
+      "known_bad": [
+        "타사 동작 자체는 Dolphin V1 API 호환성을 증명하지 않음"
+      ],
+      "dependencies": [
+        "public/legal research evidence"
+      ],
+      "real_vehicle_test": [
+        "연구 후보가 UNSUPPORTED/참고 상태로만 표시되는지 확인"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "합법적 공개 근거가 생길 때 feature별 Registry proposal로 승격",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-PLAT-002",
+      "feature_id": "APP_HEALTH",
+      "area": "platform",
+      "requirement": "App Health는 crash/startup/evidence queue 상태를 실제 runtime 지표에서만 계산하며 가짜 healthy 값을 금지한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "PLAT-HEALTH-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "runtime health metrics",
+        "crash/startup counters",
+        "evidence queue health",
+        "truthful unknown state"
+      ],
+      "required_logs": [
+        "process start",
+        "last crash",
+        "queue depth",
+        "health reason"
+      ],
+      "known_bad": [
+        "독립 App Health runtime surface 미구현"
+      ],
+      "dependencies": [
+        "diagnostic runtime"
+      ],
+      "real_vehicle_test": [
+        "미구현 상태가 BLOCKED로 노출되는지 확인"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "실제 health metric runtime 추가 필요",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-PLAT-003",
+      "feature_id": "SAFE_MODE",
+      "area": "platform",
+      "requirement": "Safe Mode는 반복 crash/무결성 실패에서 차량 write·자동실행 등 위험 경로를 fail-closed로 차단하고 수동 복구 경로를 제공해야 한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "PLAT-SAFE-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "entry trigger",
+        "persisted state",
+        "dangerous path suppression",
+        "manual recovery"
+      ],
+      "required_logs": [
+        "safe-mode reason",
+        "entered_at",
+        "suppressed feature",
+        "exit action"
+      ],
+      "known_bad": [
+        "통합 Safe Mode controller 미구현"
+      ],
+      "dependencies": [
+        "APP_HEALTH",
+        "POLICY_CONTROL_PLANE"
+      ],
+      "real_vehicle_test": [
+        "BLOCKED 상태와 필요한 evidence를 확인",
+        "임의 차량 write 없음 확인"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "crash/integrity trigger와 policy gate 구현",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-PLAT-004",
+      "feature_id": "POLICY_CONTROL_PLANE",
+      "area": "platform",
+      "requirement": "Policy Control Plane은 차량 write, camera/mic, remote transport, OTA 등 민감 기능의 상태·근거·차단 이유를 중앙에서 강제해야 한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "PLAT-POLICY-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "central policy decision",
+        "feature state/evidence gate",
+        "audit log",
+        "fail closed"
+      ],
+      "required_logs": [
+        "policy input",
+        "decision",
+        "reason",
+        "feature id"
+      ],
+      "known_bad": [
+        "중앙 policy runtime 미구현"
+      ],
+      "dependencies": [
+        "MASTER_VERIFICATION_REGISTRY"
+      ],
+      "real_vehicle_test": [
+        "모든 신규 민감 기능이 BLOCKED/UNSUPPORTED로 fail-closed 노출되는지 확인"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "registry state 기반 central policy gate 구현",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-PLAT-005",
+      "feature_id": "RECOVERY_BOOTSTRAP",
+      "area": "platform",
+      "requirement": "Repository/Build 복구는 source SHA, Registry schema, signing identity, bootstrap manifest로 재현 가능해야 한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+      ],
+      "test_ids": [
+        "PLAT-RECOVERY-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "bootstrap manifest",
+        "source SHA",
+        "registry hash",
+        "signing identity reference",
+        "restore drill"
+      ],
+      "required_logs": [
+        "source sha",
+        "registry sha256",
+        "artifact sha256",
+        "signer digest"
+      ],
+      "known_bad": [
+        "V1 독립 bootstrap/recovery manifest 미구현"
+      ],
+      "dependencies": [
+        "BUILD_IDENTITY",
+        "MASTER_VERIFICATION_REGISTRY"
+      ],
+      "real_vehicle_test": [
+        "현재 build/source fingerprint를 기록",
+        "복구 manifest 부재를 BLOCKED로 노출"
+      ],
+      "evidence": [
+        "inventory surface added without vehicle actuation; BlockedCapabilityRuntime fail-closed"
+      ],
+      "next_action": "V1 bootstrap manifest 및 restore drill 추가",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
     }
   ],
   "known_bad_library": [
@@ -2439,7 +3110,7 @@
         "BLD-ID-002",
         "LCH-ID-001"
       ],
-      "close_gate": "current candidate installs on BYD without desktop-app rejection; packaged APK has exactly one LauncherActivity LAUNCHER entry, no HOME category, and build identity matches package/version/source/APK hash"
+      "close_gate": "current candidate installs on BYD without desktop-app rejection; normal LauncherActivity remains the single active LAUNCHER entry; packaged HOME alias is disabled-by-default and is enabled only after separate real-car compatibility evidence."
     },
     {
       "id": "KB-011",
