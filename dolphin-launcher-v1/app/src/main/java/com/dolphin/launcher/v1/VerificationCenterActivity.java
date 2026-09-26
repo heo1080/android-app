@@ -506,8 +506,24 @@ public class VerificationCenterActivity extends Activity {
         activeTestState = state;
         activeFeature = feature;
         activeCorrelationId = VerificationEvidenceRuntime.startTest(this, testId);
+        captureFeatureSpecificProbe(testId);
         refreshActiveCaptureUi();
         Toast.makeText(this, testId + " 캡처 시작", Toast.LENGTH_SHORT).show();
+    }
+
+    private void captureFeatureSpecificProbe(String testId) {
+        if (testId == null) return;
+        if (testId.startsWith("PARK-HAZ-")) {
+            ParkingHazardAutomationProbe.captureCapability(this);
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "TEST_CAPABILITY_REFRESH",
+                    "test_id=" + testId + ";probe=parking_hazard;vehicle_write=false");
+        } else if (testId.startsWith("ADAS-LDW-")) {
+            LaneDepartureCapabilityProbe.capture(this);
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "TEST_CAPABILITY_REFRESH",
+                    "test_id=" + testId + ";probe=lane_departure;voice_enabled=false;vehicle_write=false");
+        }
     }
 
     private void restoreActiveCapture() {
@@ -698,6 +714,21 @@ public class VerificationCenterActivity extends Activity {
                 {"우 BSD+우깜빡이","BSD_RIGHT_CONTEXT_VISIBLE"}};
         if ("AUD-LVDA-001".equals(testId)) return new String[][]{
                 {"전방차 출발","LEADING_CAR_DEPARTURE_VISIBLE"}};
+        if ("PARK-HAZ-001".equals(testId)) return new String[][]{
+                {"첫 R","PARKING_REVERSE_START_VISIBLE"},
+                {"주차 변속","PARKING_GEAR_CHANGE_VISIBLE"},
+                {"최종 P","PARKING_FINAL_P_VISIBLE"}};
+        if ("PARK-HAZ-002".equals(testId)) return new String[][]{
+                {"P 취소","PARKING_P_CANCEL_VISIBLE"},
+                {"P 10초","PARKING_P_10S_VISIBLE"}};
+        if ("ADAS-LDW-001".equals(testId)) return new String[][]{
+                {"좌 이탈","LANE_LEFT_DEPARTURE_VISIBLE"},
+                {"우 이탈","LANE_RIGHT_DEPARTURE_VISIBLE"}};
+        if ("ADAS-LDW-002".equals(testId)) return new String[][]{
+                {"보조 OFF 좌","LANE_LEFT_ASSIST_OFF_VISIBLE"},
+                {"보조 OFF 우","LANE_RIGHT_ASSIST_OFF_VISIBLE"},
+                {"ICC/ACC 좌","LANE_LEFT_ASSIST_ON_VISIBLE"},
+                {"ICC/ACC 우","LANE_RIGHT_ASSIST_ON_VISIBLE"}};
         if ("WIN-SPLIT-001".equals(testId)) return new String[][]{
                 {"2분할 보임","SPLIT_TWO_APP_VISIBLE"},
                 {"카메라 복귀 정상","SPLIT_CAMERA_RETURN_OK"}};
