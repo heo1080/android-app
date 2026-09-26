@@ -1218,7 +1218,8 @@
         "동일 이벤트 중복 음성 없음",
         "radar area7/8 후보와 speed_raw/tja_raw를 같은 샘플에서 기록해 일반 주행과 ICC/ACC/TJA 활성 문맥을 분리 비교",
         "tja_raw numeric meaning이나 radar object class는 메서드/상수 이름만으로 추정하지 않음",
-        "assist context와 실제 앞차 출발의 반복 correlation이 입증되기 전 음성 출력 금지"
+        "assist context와 실제 앞차 출발의 반복 correlation이 입증되기 전 음성 출력 금지",
+        "AUD-LVDA-001 marker는 radar_area7_raw/radar_area8_raw/speed_raw/tja_raw 네 값이 모두 null/unavailable이 아닌 실제 raw일 때만 반복 수에 반영"
       ],
       "required_logs": [
         "source package",
@@ -2411,7 +2412,8 @@
         "metadata-isolation self-test 실패 시 governance PASS 금지",
         "Build Dolphin Launcher V1 pull_request validation은 dolphin-launcher-v1와 dolphin-launcher-v1-ui-reference-dock 두 기준 브랜치를 모두 merge 전에 검증",
         "Verification Center는 BETA · OPERATOR GATED를 명시하고 CI/runtime source만으로 실차 feature를 자동 승격하지 않음",
-        "Verification Center premium HMI는 glass-vector-v3-premium을 사용하되 evidence outcome semantics를 변경하지 않음"
+        "Verification Center premium HMI는 glass-vector-v3-premium을 사용하되 evidence outcome semantics를 변경하지 않음",
+        "raw 상관 marker는 필요한 key가 null/unavailable인 경우 반복 수에 포함하지 않으며, capability refresh evidence는 active test correlation을 보존"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2518,7 +2520,8 @@
         "structured UI frame timing bundle and Verification Center metrics",
         "V1 and production diagnostic evaluators implement runtime-only metadata isolation with synthetic metadata-only/runtime-success/runtime-failure self-tests",
         "Build workflow PR target coverage guard for dolphin-launcher-v1 and dolphin-launcher-v1-ui-reference-dock",
-        "Verification Center header exposes BETA operator gate and runtime render evidence records auto_promotion=false"
+        "Verification Center header exposes BETA operator gate and runtime render evidence records auto_promotion=false",
+        "VerificationEvidenceRuntime recordTestEvent + operatorObservationCountsWithRequiredRaw enforce correlated capability evidence and complete raw marker context"
       ],
       "next_action": "KB-014: V1/production runtime-only metadata isolation 구현 상태를 유지하고 기존 대표 Evidence를 재평가 → metadata contamination 제거가 확인되기 전 FIX_CANDIDATE 유지 → 재평가 후에만 lifecycle 전환 및 GOV-REG-001 PASS 검토",
       "confidence": {
@@ -2645,7 +2648,8 @@
         "BLOCKED 상태에서는 PASS를 허용하지 않고 NEED_MORE_DATA만 허용",
         "공개 Dolphin 후보인 BYDAutoBodyworkDevice/AbsBYDAutoBodyworkListener와 generic auto service는 실차 class/method 존재만 passive inventory",
         "generic auto service의 getInt/setInt/getBuffer/setBuffer signature가 보여도 AVAS device/FID mapping이 입증된 것으로 간주하지 않음",
-        "bodywork auto-system/door/listener surface가 보여도 lock/unlock numeric semantic은 별도 실차 correlation 전 unproven 유지"
+        "bodywork auto-system/door/listener surface가 보여도 lock/unlock numeric semantic은 별도 실차 correlation 전 unproven 유지",
+        "AUD-AVAS-001 시작 후 EXTERNAL_AVAS_CAPABILITY_* 및 TEST_CAPABILITY_REFRESH 이벤트는 동일 active test_id/correlation_id로 기록"
       ],
       "required_logs": [
         "EXTERNAL_AVAS_CAPABILITY_METHOD",
