@@ -424,6 +424,10 @@ jobs:
 
           assert "referencePanelHero" in launcher and "referenceSectionLabel" in launcher
           assert "referenceUtilityHero" in launcher
+          assert "referenceDialogScroll" in launcher and "showReferenceDialog" in launcher
+          for profile in ("media","vehicle","safety","map","display","dark"):
+              assert "dialog_profile="+profile in launcher, profile
+          assert launcher.count("scroll_safe=true") >= 6
           assert "SUPPORTED NAV APPS" in launcher and "LAUNCH ONLY · SEMANTICS LOCKED" in launcher
           assert "DISPLAY PROFILE" in launcher and "THEME STATUS" in launcher
           assert "rendered_supported_nav=" in launcher and "launch_only=true" in launcher
