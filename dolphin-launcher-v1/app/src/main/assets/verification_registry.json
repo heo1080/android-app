@@ -1970,7 +1970,8 @@
         "Verification Center는 P0 queue/active capture/feature cards를 glass-vector-v2 우선순위 시각 체계로 표시",
         "Verification Center Test dialog는 state color와 실차 절차를 별도 glass panel로 표시",
         "Evidence ZIP은 현재 검증 session의 최신 UI Golden Screenshot PNG를 최대 6개 ui_screenshots/ 경로로 포함",
-        "Evidence ZIP은 동일 session의 UI layout audit JSON을 최대 6개 ui_layout_audits/ 경로로 포함"
+        "Evidence ZIP은 동일 session의 UI layout audit JSON을 최대 6개 ui_layout_audits/ 경로로 포함",
+        "Verification Center의 명시적 interactive control은 실차 터치 편의성을 위해 48dp 이상 높이를 사용"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2058,7 +2059,8 @@
         "P0 queue follows Known-Bad lifecycle and hides CLOSED regression-library entries",
         "glass-vector-v2 Verification Center visual hierarchy",
         "VerificationEvidenceRuntime addUiScreenshots bundle inclusion",
-        "VerificationEvidenceRuntime addUiLayoutAudits bundle inclusion"
+        "VerificationEvidenceRuntime addUiLayoutAudits bundle inclusion",
+        "Verification Center close control 48dp touch target"
       ],
       "next_action": "실차 Evidence ZIP을 최소 2개 session에서 수집하고 evaluator 다중 입력으로 동일 raw 반복성을 비교; cross-session 후보도 수동 검토 전 매핑 활성화 금지",
       "confidence": {

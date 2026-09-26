@@ -193,7 +193,8 @@
         "gradientRound",
         "pressableGradientRound",
         "HmiGlyphView",
-        "active_capture=glass-green"
+        "active_capture=glass-green",
+        "dp(86), dp(48)"
       ]
     },
     {
