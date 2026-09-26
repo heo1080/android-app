@@ -1752,6 +1752,21 @@
         "DIAGNOSTIC_EVALUATOR_SELF_TEST_OK runtime_evidence_only=true",
         "\"evidence_scope\": \"runtime-only; canonical metadata excluded\""
       ]
+    },
+    {
+      "feature_id": "IN_APP_TTS_CORE",
+      "path": "dolphin-launcher-v1/tools/generate_fixed_voice_assets.py",
+      "tokens": [
+        "DEFAULT_VOICE = \"ko-KR-SunHiNeural\"",
+        "OUTPUT_FORMAT = \"riff-24khz-16bit-mono-pcm\"",
+        "PROFILE_ID = \"azure-sunhi-ko-kr-24k-pcm-v1\"",
+        "AZURE_SPEECH_KEY",
+        "AZURE_SPEECH_REGION",
+        "mixed fixed-asset states are forbidden",
+        "VOICE_FIXED_ASSET_STATE",
+        "VOICE_FIXED_ASSET_GENERATION_OK",
+        "sha256_file"
+      ]
     }
   ],
   "notes": [
