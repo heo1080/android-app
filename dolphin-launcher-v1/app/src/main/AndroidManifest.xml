@@ -19,6 +19,8 @@
 
     <application
         android:allowBackup="false"
+        android:icon="@drawable/ic_dolphin_launcher_v1"
+        android:roundIcon="@drawable/ic_dolphin_launcher_v1"
         android:label="Dolphin Launcher V1"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.NoActionBar"
@@ -45,6 +47,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- HOME role is packaged for controlled launcher research, but remains disabled by
+             default until BYD real-car install/role compatibility evidence is collected. -->
+        <activity-alias
+            android:name=".HomeLauncherAlias"
+            android:targetActivity=".LauncherActivity"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
 
         <service
             android:name=".NavNotificationEvidenceService"
