@@ -408,8 +408,8 @@ public class LauncherActivity extends Activity {
     private void buildShell() {
         LinearLayout shell = new LinearLayout(this);
         shell.setOrientation(LinearLayout.VERTICAL);
-        shell.setPadding(dp(26), dp(10), dp(26), dp(12));
-        shell.setBackground(gradient("#071821", "#02070A"));
+        shell.setPadding(dp(22), dp(8), dp(22), dp(12));
+        shell.setBackground(gradient("#06141B", "#010406"));
 
         shell.addView(buildTopBar(), new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(60)));
@@ -430,8 +430,17 @@ public class LauncherActivity extends Activity {
         bar.setOrientation(LinearLayout.HORIZONTAL);
         bar.setGravity(Gravity.CENTER_VERTICAL);
 
-        TextView brand = text("DOLPHIN  /  LAUNCHER", 18f, Color.WHITE, true);
-        bar.addView(brand, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        LinearLayout brandBox = new LinearLayout(this);
+        brandBox.setOrientation(LinearLayout.VERTICAL);
+        TextView brand = text("DOLPHIN", 19f, Color.WHITE, true);
+        brand.setLetterSpacing(0.14f);
+        brandBox.addView(brand);
+        TextView brandSub = text("DRIVE OS  ·  V1 EVOLUTION", 9.5f,
+                Color.parseColor("#6F909B"), false);
+        brandSub.setLetterSpacing(0.10f);
+        brandBox.addView(brandSub);
+        bar.addView(brandBox, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         TextView version = chip("V1 OTA");
         version.setTextColor(Color.parseColor("#7FFFE0"));
@@ -457,8 +466,9 @@ public class LauncherActivity extends Activity {
         LinearLayout dock = new LinearLayout(this);
         dock.setOrientation(LinearLayout.HORIZONTAL);
         dock.setGravity(Gravity.CENTER);
-        dock.setPadding(dp(12), dp(8), dp(12), dp(8));
-        dock.setBackground(round("#0E1D25", 24, "#1A3946"));
+        dock.setPadding(dp(10), dp(8), dp(10), dp(8));
+        dock.setBackground(gradientRound(
+                new String[]{"#10252F","#08151B","#050B0F"}, 26, "#234B5B"));
 
         dock.addView(dockButton("HOME", "⌂", this::showHome), weighted());
         dock.addView(dockButton("APPS", "▦", this::showAppDrawer), weighted());
@@ -484,24 +494,13 @@ public class LauncherActivity extends Activity {
         scroll.addView(content, new ScrollView.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        LinearLayout hero = new LinearLayout(this);
-        hero.setOrientation(LinearLayout.HORIZONTAL);
-        hero.setGravity(Gravity.CENTER_VERTICAL);
+        View hero = buildPremiumHero();
+        LinearLayout.LayoutParams heroLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(238));
+        heroLp.bottomMargin = dp(12);
+        content.addView(hero, heroLp);
 
-        LinearLayout heroText = new LinearLayout(this);
-        heroText.setOrientation(LinearLayout.VERTICAL);
-        heroText.addView(text("DRIVE HOME", 38f, Color.WHITE, true));
-        TextView subtitle = text("차량에서 앱을 빠르게 실행하고 조합하는 새 홈", 14f,
-                Color.parseColor("#91A8B5"), false);
-        heroText.addView(subtitle);
-        hero.addView(heroText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-
-        TextView badge = chip("CLEAN-SLATE V1");
-        badge.setTextColor(Color.parseColor("#7FFFE0"));
-        hero.addView(badge, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, dp(38)));
-
-        content.addView(hero);
+        content.addView(sectionHeader("QUICK CONTROL", "Launch · Split · Automation · Evidence"));
 
         LinearLayout quick = new LinearLayout(this);
         quick.setOrientation(LinearLayout.HORIZONTAL);
@@ -515,6 +514,8 @@ public class LauncherActivity extends Activity {
         quick.addView(actionCard("시동 앱", autoStartCount() + "개 등록", "▶", this::showAutoStartManager), weighted());
         quick.addView(actionCard("검증 센터", "Registry v3 · Test ID", "✓", this::openVerificationCenter), weighted());
 
+        content.addView(sectionHeader("SOUND LAB", "App-owned audio · safe preview"));
+
         LinearLayout audio = new LinearLayout(this);
         audio.setOrientation(LinearLayout.HORIZONTAL);
         LinearLayout.LayoutParams audioLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(88));
@@ -522,6 +523,8 @@ public class LauncherActivity extends Activity {
         content.addView(audio, audioLp);
         audio.addView(actionCard("사운드 EQ", "저음 · 중음 · 고음", "≋", this::showEqualizer), weighted());
         audio.addView(actionCard("음장 위치", "BETA · 미리보기", "◎", this::showSoundPosition), weighted());
+
+        content.addView(sectionHeader("TYRE MONITOR", "Live read-only pressure layer"));
 
         LinearLayout tpms = new LinearLayout(this);
         tpms.setOrientation(LinearLayout.HORIZONTAL);
@@ -561,6 +564,11 @@ public class LauncherActivity extends Activity {
             }
             content.addView(grid);
         }
+
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this, "PREMIUM_HMI_RENDER",
+                "variant=glass-vector-v2;hero=canvas-vector;bitmap_assets=false"
+                        + ";tpms_cards=4;quick_cards=4;dock_items=5");
 
         TextView footer = text(
                 "앱 길게 누르기  →  홈 고정 · 2분할 좌/우 · 시동 자동실행 · 앱 정보",
@@ -1429,25 +1437,116 @@ public class LauncherActivity extends Activity {
         return kpa == null ? "-- psi · 연결 대기" : tpmsPsi(kpa) + " · BETA";
     }
 
+    private View buildPremiumHero() {
+        FrameLayout hero = new FrameLayout(this);
+        hero.setClipToOutline(true);
+        hero.setElevation(dp(3));
+        hero.setBackground(gradientRound(
+                new String[]{"#102A34","#07151C","#040A0E"}, 28, "#285565"));
+
+        HomeHeroGraphicView graphic = new HomeHeroGraphicView(this);
+        FrameLayout.LayoutParams graphicLp = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        hero.addView(graphic, graphicLp);
+
+        LinearLayout copy = new LinearLayout(this);
+        copy.setOrientation(LinearLayout.VERTICAL);
+        copy.setGravity(Gravity.CENTER_VERTICAL);
+        copy.setPadding(dp(28), dp(22), dp(12), dp(22));
+
+        TextView eyebrow = text("DOLPHIN  ·  COCKPIT", 10f,
+                Color.parseColor("#76C9C1"), true);
+        eyebrow.setLetterSpacing(0.14f);
+        copy.addView(eyebrow);
+
+        TextView title = text("DRIVE\nHOME", 38f, Color.WHITE, true);
+        title.setLineSpacing(0f, 0.88f);
+        title.setLetterSpacing(0.02f);
+        copy.addView(title);
+
+        TextView subtitle = text(
+                "미디어 · 안전운전 · 차량정보를\n한 화면에서 빠르게 제어",
+                12.5f, Color.parseColor("#A6BCC4"), false);
+        subtitle.setLineSpacing(dp(2), 1f);
+        copy.addView(subtitle);
+
+        LinearLayout status = new LinearLayout(this);
+        status.setOrientation(LinearLayout.HORIZONTAL);
+        status.setPadding(0, dp(14), 0, 0);
+
+        TextView live = chip("● LIVE");
+        live.setTextColor(Color.parseColor("#77FDDC"));
+        status.addView(live, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, dp(32)));
+
+        TextView split = chip(splitReady() ? "SPLIT READY" : "SPLIT SETUP");
+        LinearLayout.LayoutParams splitLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, dp(32));
+        splitLp.leftMargin = dp(8);
+        status.addView(split, splitLp);
+
+        copy.addView(status);
+
+        FrameLayout.LayoutParams copyLp = new FrameLayout.LayoutParams(
+                dp(360), ViewGroup.LayoutParams.MATCH_PARENT);
+        copyLp.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
+        hero.addView(copy, copyLp);
+        return hero;
+    }
+
+    private View sectionHeader(String title, String subtitle) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(6), dp(4), dp(6), 0);
+
+        LinearLayout labels = new LinearLayout(this);
+        labels.setOrientation(LinearLayout.VERTICAL);
+        TextView head = text(title, 12f, Color.parseColor("#D8E9ED"), true);
+        head.setLetterSpacing(0.12f);
+        labels.addView(head);
+        labels.addView(text(subtitle, 9.5f, Color.parseColor("#617E89"), false));
+        row.addView(labels, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView line = text("━━", 10f, Color.parseColor("#2C6C72"), true);
+        line.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+        row.addView(line, new LinearLayout.LayoutParams(dp(60), dp(34)));
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(42));
+        lp.topMargin = dp(2);
+        row.setLayoutParams(lp);
+        return row;
+    }
+
     private View actionCard(String title, String subtitle, String symbol, Runnable action) {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.HORIZONTAL);
         card.setGravity(Gravity.CENTER_VERTICAL);
         card.setPadding(dp(14), dp(10), dp(14), dp(10));
-        card.setBackground(round("#0A171D", 20, "#1B3743"));
+        card.setBackground(pressableGradientRound(
+                new String[]{"#102831","#09171D","#061014"},
+                new String[]{"#173B47","#0D252E","#09181E"},
+                20, "#244C59"));
+        card.setElevation(dp(2));
         card.setClickable(true);
         card.setFocusable(true);
         card.setOnClickListener(v -> action.run());
 
-        TextView icon = text(symbol, 28f, Color.parseColor("#7FFFE0"), true);
+        TextView icon = text(symbol, 27f, Color.parseColor("#88FFE5"), true);
         icon.setGravity(Gravity.CENTER);
-        card.addView(icon, new LinearLayout.LayoutParams(dp(48), dp(48)));
+        icon.setBackground(gradientRound(
+                new String[]{"#163F46","#0A242A"}, 18, "#2B615F"));
+        LinearLayout.LayoutParams iconLp = new LinearLayout.LayoutParams(dp(48), dp(48));
+        iconLp.rightMargin = dp(4);
+        card.addView(icon, iconLp);
 
         LinearLayout labels = new LinearLayout(this);
         labels.setOrientation(LinearLayout.VERTICAL);
         labels.setPadding(dp(8), 0, 0, 0);
         labels.addView(text(title, 15f, Color.WHITE, true));
-        TextView sub = text(subtitle, 11f, Color.parseColor("#7F98A4"), false);
+        TextView sub = text(subtitle, 10.5f, Color.parseColor("#829DA7"), false);
         sub.setMaxLines(2);
         labels.addView(sub);
         card.addView(labels, new LinearLayout.LayoutParams(0,
@@ -1459,11 +1558,16 @@ public class LauncherActivity extends Activity {
         LinearLayout button = new LinearLayout(this);
         button.setOrientation(LinearLayout.VERTICAL);
         button.setGravity(Gravity.CENTER);
+        button.setPadding(dp(4), dp(3), dp(4), dp(3));
+        button.setBackground(pressableGradientRound(
+                new String[]{"#0B1D24","#071218"},
+                new String[]{"#163541","#0B2028"},
+                17, "#173742"));
         button.setClickable(true);
         button.setFocusable(true);
         button.setOnClickListener(v -> action.run());
 
-        TextView icon = text(symbol, 22f, Color.parseColor("#7FFFE0"), true);
+        TextView icon = text(symbol, 21f, Color.parseColor("#8CFFE8"), true);
         icon.setGravity(Gravity.CENTER);
         button.addView(icon, new LinearLayout.LayoutParams(dp(34), dp(32)));
 
@@ -1513,6 +1617,28 @@ public class LauncherActivity extends Activity {
                 GradientDrawable.Orientation.TL_BR,
                 new int[]{Color.parseColor(start), Color.parseColor(end)});
         return drawable;
+    }
+
+    private GradientDrawable gradientRound(String[] colors, int radiusDp, String stroke) {
+        int[] parsed = new int[colors.length];
+        for (int i = 0; i < colors.length; i++) parsed[i] = Color.parseColor(colors[i]);
+        GradientDrawable drawable = new GradientDrawable(
+                GradientDrawable.Orientation.TL_BR, parsed);
+        drawable.setShape(GradientDrawable.RECTANGLE);
+        drawable.setCornerRadius(dp(radiusDp));
+        if (stroke != null) drawable.setStroke(dp(1), Color.parseColor(stroke));
+        return drawable;
+    }
+
+    private Drawable pressableGradientRound(
+            String[] normalColors, String[] pressedColors, int radiusDp, String stroke) {
+        android.graphics.drawable.StateListDrawable states =
+                new android.graphics.drawable.StateListDrawable();
+        states.addState(new int[]{android.R.attr.state_pressed},
+                gradientRound(pressedColors, radiusDp, stroke));
+        states.addState(new int[]{},
+                gradientRound(normalColors, radiusDp, stroke));
+        return states;
     }
 
     private GradientDrawable round(String fill, int radiusDp, String stroke) {
