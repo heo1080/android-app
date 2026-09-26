@@ -2051,6 +2051,28 @@
       "tokens": [
         "LaneDepartureCapabilityProbe.capture(this)"
       ]
+    },
+    {
+      "feature_id": "PARKING_REVERSE_HAZARD_AUTOMATION",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java",
+      "tokens": [
+        "PARK-HAZ-",
+        "ParkingHazardAutomationProbe.captureCapability(this)",
+        "PARKING_REVERSE_START_VISIBLE",
+        "PARKING_P_10S_VISIBLE",
+        "TEST_CAPABILITY_REFRESH"
+      ]
+    },
+    {
+      "feature_id": "LANE_DEPARTURE_DIRECTIONAL_VOICE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java",
+      "tokens": [
+        "ADAS-LDW-",
+        "LaneDepartureCapabilityProbe.capture(this)",
+        "LANE_LEFT_DEPARTURE_VISIBLE",
+        "LANE_LEFT_ASSIST_ON_VISIBLE",
+        "TEST_CAPABILITY_REFRESH"
+      ]
     }
   ],
   "notes": [
