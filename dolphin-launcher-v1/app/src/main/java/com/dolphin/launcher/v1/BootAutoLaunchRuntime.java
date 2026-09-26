@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.SystemClock;
 import android.provider.Settings;
@@ -145,7 +146,9 @@ public final class BootAutoLaunchRuntime {
                 .putExtra(EXTRA_PACKAGE,pkg)
                 .putExtra(EXTRA_DELAY_MS,delay)
                 .putExtra(EXTRA_MEDIA,media)
-                .putExtra(EXTRA_INDEX,index);
+                .putExtra(EXTRA_INDEX,index)
+                .setData(Uri.parse("dolphin-v1://autostart/"
+                        +Uri.encode(pkg)+"/"+index));
         int requestCode=31*pkg.hashCode()+index;
         PendingIntent pending=PendingIntent.getBroadcast(
                 app,requestCode,intent,
@@ -171,6 +174,8 @@ public final class BootAutoLaunchRuntime {
                             +";delay_ms="+delay
                             +";media="+media
                             +";index="+index
+                            +";pending_identity=package-index"
+                            +";pending_data_unique=true"
                             +";scheduler=AlarmManager"
                             +";exact=true"
                             +";process_independent=true");
