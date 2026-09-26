@@ -383,7 +383,7 @@
         "BOOT_COMPLETED schedules each item through AlarmManager rather than Handler-only delayed work",
         "Android 12+ missing exact-alarm access fails explicitly instead of silently using an hour-scale inexact fallback",
         "BootAutoLaunchReceiver is packaged as enabled non-exported manifest receiver",
-        "BOOT_COMPLETED and QUICKBOOT_POWERON in the same boot epoch schedule only one autostart batch"
+        "public Settings.Global.BOOT_COUNT distinguishes real reboot epochs while BOOT_COMPLETED and QUICKBOOT_POWERON in the same epoch schedule one batch"
       ],
       "required_logs": [
         "BOOT_COMPLETED",
@@ -395,7 +395,8 @@
         "delay_ms",
         "index",
         "packaged manifest BootAutoLaunchReceiver registration",
-        "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED"
+        "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED",
+        "boot_count"
       ]
     },
     {
@@ -454,7 +455,8 @@
         "index",
         "operator launch order observation",
         "BootAutoLaunchReceiver delivery path",
-        "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED"
+        "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED",
+        "boot_count"
       ]
     },
     {
