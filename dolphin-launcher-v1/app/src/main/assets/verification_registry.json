@@ -1980,7 +1980,9 @@
         "Verification Center Test dialog는 state color와 실차 절차를 별도 glass panel로 표시",
         "Evidence ZIP은 현재 검증 session의 최신 UI Golden Screenshot PNG를 최대 6개 ui_screenshots/ 경로로 포함",
         "Evidence ZIP은 동일 session의 UI layout audit JSON을 최대 6개 ui_layout_audits/ 경로로 포함",
-        "Verification Center의 명시적 interactive control은 실차 터치 편의성을 위해 48dp 이상 높이를 사용"
+        "Verification Center의 명시적 interactive control은 실차 터치 편의성을 위해 48dp 이상 높이를 사용",
+        "Verification Center는 최근 UI layout audit를 CLEAN/REVIEW/REGRESSION/CAPTURE REQUIRED로 표시하되 Feature VERIFIED 판정과 분리",
+        "UI QUALITY 상세는 touch/ellipsis/clipping, display profile, baseline delta를 표시하고 실제 텍스트 내용은 노출하지 않음"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2033,7 +2035,8 @@
         "isActiveP0",
         "VERIFICATION_HMI_RENDER",
         "ui_screenshots/",
-        "ui_layout_audits/"
+        "ui_layout_audits/",
+        "UI_QUALITY_SUMMARY_OPENED"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
@@ -2069,7 +2072,8 @@
         "glass-vector-v2 Verification Center visual hierarchy",
         "VerificationEvidenceRuntime addUiScreenshots bundle inclusion",
         "VerificationEvidenceRuntime addUiLayoutAudits bundle inclusion",
-        "Verification Center close control 48dp touch target"
+        "Verification Center close control 48dp touch target",
+        "Verification Center UI QUALITY summary card"
       ],
       "next_action": "실차 Evidence ZIP을 최소 2개 session에서 수집하고 evaluator 다중 입력으로 동일 raw 반복성을 비교; cross-session 후보도 수동 검토 전 매핑 활성화 금지",
       "confidence": {

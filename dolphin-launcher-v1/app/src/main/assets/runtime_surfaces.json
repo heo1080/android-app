@@ -194,7 +194,12 @@
         "pressableGradientRound",
         "HmiGlyphView",
         "active_capture=glass-green",
-        "dp(86), dp(48)"
+        "dp(86), dp(48)",
+        "uiQualityState",
+        "uiQualityLabel",
+        "showUiQualitySummary",
+        "UI_QUALITY_SUMMARY_OPENED",
+        "UiLayoutAuditRuntime.latestAudit"
       ]
     },
     {
@@ -1219,7 +1224,8 @@
         "delta_ellipsis",
         "delta_clips",
         "UI_LAYOUT_REGRESSION",
-        "UI_LAYOUT_BASELINE_COMPARE"
+        "UI_LAYOUT_BASELINE_COMPARE",
+        "latestAudit"
       ]
     },
     {
@@ -1239,7 +1245,8 @@
         "delta_ellipsis",
         "delta_clips",
         "UI_LAYOUT_REGRESSION",
-        "UI_LAYOUT_BASELINE_COMPARE"
+        "UI_LAYOUT_BASELINE_COMPARE",
+        "latestAudit"
       ]
     }
   ],
