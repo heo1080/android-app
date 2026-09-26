@@ -605,7 +605,8 @@
       "area": "audio",
       "requirement": "차량 음성 안내는 패키지 내 사전 생성 한국어 여성 고정 음성을 우선 재생하고, 자산 누락 시 Android TTS fallback을 사용하되 이를 고정 여성 음성으로 간주하지 않는다.",
       "source_paths": [
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehiclePromptPlayer.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehiclePromptPlayer.java",
+        "dolphin-launcher-v1/tools/generate_fixed_voice_assets.py"
       ],
       "test_ids": [
         "AUD-TTS-001",
@@ -624,7 +625,11 @@
         "Android 11+ package visibility를 위해 TTS_SERVICE query가 Manifest에 존재",
         "패키지 고정 음성 자산이 존재하지만 SoundPool 로딩 중이면 Android TTS로 우회하지 않고 해당 이벤트를 즉시 드롭",
         "TTS 미준비 상태의 fallback 요청은 queued=false/delayed_replay=false로 드롭하며 준비 후 재생하지 않음",
-        "Android TTS fallback은 fixed asset missing/load-failed일 때만 사용"
+        "Android TTS fallback은 fixed asset missing/load-failed일 때만 사용",
+        "고정 음성 생성기는 22개 자산 전체 합성·RIFF/WAVE 검증 완료 후에만 res/raw와 manifest를 원자적으로 ASSET_READY로 전환",
+        "고정 음성 생성 credential은 개발 환경변수에서만 읽고 APK/CI/source/log/manifest에 저장하지 않음",
+        "ASSET_READY 자산은 manifest SHA-256/byte count와 res/raw WAV가 일치해야 함",
+        "고정 음성 생성 profile은 ko-KR-SunHiNeural / riff-24khz-16bit-mono-pcm으로 잠금"
       ],
       "required_logs": [
         "VOICE_ASSET_READY",
@@ -644,12 +649,18 @@
         "VOICE_FIXED_ASSET_LOADING_DROP",
         "VOICE_TTS_FALLBACK_DROPPED_NOT_READY",
         "queued=false",
-        "delayed_replay=false"
+        "delayed_replay=false",
+        "VOICE_FIXED_ASSET_STATE",
+        "VOICE_SYNTHESIZED",
+        "VOICE_FIXED_ASSET_GENERATION_OK",
+        "atomic=true",
+        "sha256=verified"
       ],
       "known_bad": [
         "현재 고정 voice_* raw 자산이 아직 공급되지 않아 Android TTS fallback에 의존",
         "Android TTS fallback voice gender는 보장되지 않음",
-        "과거 시스템 TTS 미리듣기가 비프 후 뒤늦게 재생"
+        "과거 시스템 TTS 미리듣기가 비프 후 뒤늦게 재생",
+        "현재 실행 환경에서 외부 TTS 합성 네트워크가 차단되어 22개 WAV 실자산은 아직 ASSET_REQUIRED 상태"
       ],
       "dependencies": [
         "voice_prompt_manifest.json",
@@ -670,9 +681,11 @@
         "UtteranceProgressListener captures fallback request/start/done/stop/error timing",
         "Android TTS fallback explicitly applies USAGE_ASSISTANCE_NAVIGATION_GUIDANCE; driver-speaker routing remains unproven",
         "CI verifies AndroidManifest TTS_SERVICE query",
-        "VehiclePromptPlayer forbids TTS fallback while fixed asset is still loading"
+        "VehiclePromptPlayer forbids TTS fallback while fixed asset is still loading",
+        "generate_fixed_voice_assets.py validates atomic 22-asset generation, RIFF/WAVE format, manifest SHA-256 and byte counts",
+        "voice_prompt_manifest locks Azure Speech ko-KR-SunHiNeural generation profile without persisting credentials"
       ],
-      "next_action": "22개 고정 여성 음성 자산 공급 후 fixed-asset load race에서 TTS 혼용이 없는지, fallback cold-start 요청이 지연 재생되지 않는지 AUD-TTS-001/002 실차 재검증",
+      "next_action": "개발 환경에서 AZURE_SPEECH_KEY/AZURE_SPEECH_REGION으로 22개 고정 여성 WAV를 원자 생성·manifest SHA-256 검증 후 AUD-TTS-001/002 실차 가청·지연·혼용 회귀 재검증",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
