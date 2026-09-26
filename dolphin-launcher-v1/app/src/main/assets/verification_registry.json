@@ -632,7 +632,7 @@
         "ASSET_READY 자산은 manifest SHA-256/byte count와 res/raw WAV가 일치해야 함",
         "고정 음성 생성 profile은 ko-KR-SunHiNeural / riff-24khz-16bit-mono-pcm으로 잠금",
         "오픈 라이선스 fixed-voice 후보 생성은 앱 manifest/state를 변경하지 않고 별도 artifact에서만 22개 WAV를 만든다",
-        "Ppaso 후보는 Apache-2.0 source revision을 고정하고 22.05kHz 합성 출력을 24kHz/16-bit/mono PCM으로 변환한 뒤 SHA-256/byte count를 candidate manifest에 기록한다",
+        "Ppaso 후보는 workflow 시작 시 Hugging Face revision을 immutable full commit SHA로 resolve한 뒤 그 SHA에서만 모델을 받고, 22.05kHz 합성 출력을 24kHz/16-bit/mono PCM으로 변환해 SHA-256/byte count와 resolved revision을 candidate manifest에 기록한다",
         "후보 음질과 실차 가청 검증 전 voice_prompt_manifest의 preferred Azure profile과 ASSET_REQUIRED 상태를 변경하지 않는다"
       ],
       "required_logs": [
