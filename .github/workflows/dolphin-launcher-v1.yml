@@ -593,6 +593,8 @@ jobs:
           assert "setExactAndAllowWhileIdle" in boot_autostart_runtime and "setExact(" in boot_autostart_runtime
           assert "process_independent=true" in boot_autostart_runtime
           assert "AUTOSTART_SCHEDULED" in boot_autostart_runtime and "AUTOSTART_ALARM_FIRED" in boot_autostart_runtime
+          assert "dolphin-v1://autostart/" in boot_autostart_runtime and "Uri.encode(pkg)" in boot_autostart_runtime, "multi-app PendingIntent data identity missing"
+          assert "pending_identity=package-index" in boot_autostart_runtime and "pending_data_unique=true" in boot_autostart_runtime
 
           assert 'android:name=".BootAutoLaunchReceiver"' in manifest
           assert "ACTION_MEDIA_PLAY_STAGE" in receiver and "ACTION_MEDIA_READBACK_STAGE" in receiver
@@ -605,6 +607,8 @@ jobs:
           assert "global_media_key=false" in media
           assert "dispatchMediaButtonEvent" not in media and "KEYCODE_MEDIA" not in media, "global media-key fallback reintroduced"
           assert "BACKGROUND_MEDIA_PLAYBACK_READBACK" in media
+          assert "dolphin-v1://media-stage/" in media and "Uri.encode(pkg)" in media and "Uri.encode(stage)" in media, "target-media PendingIntent data identity missing"
+          assert "pending_identity=package-stage" in media and "pending_data_unique=true" in media
 
           update_manager=(src/"AppUpdateManager.java").read_text(encoding="utf-8")
           update_receiver=(src/"UpdateInstallReceiver.java").read_text(encoding="utf-8")
