@@ -411,6 +411,12 @@ jobs:
           assert 'dockMiniButton("DISPLAY"' in launcher
           assert 'dockMiniButton("DARK"' in launcher
           assert "REFERENCE_DOCK_RENDER" in launcher
+          assert "dockPrimaryWeighted" in launcher
+          assert "lp.setMargins(dp(1), dp(2), dp(1), dp(2))" in launcher
+          assert "screen_width_dp=" in launcher
+          assert "dock_min_safe_width_dp=632" in launcher
+          assert "touch_target_goal_dp=48" in launcher
+          assert "compact_risk=" in launcher
           assert "vehicle_hidden_api=false" in launcher
 
           for token in ('case "MAP"','case "VOL"','case "SUN"','case "DSP"','case "MOON"',
