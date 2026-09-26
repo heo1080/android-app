@@ -460,7 +460,7 @@ public class LauncherActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
         shell.addView(buildDock(), new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, dp(80)));
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(84)));
 
         setContentView(shell);
         showHome();
@@ -506,16 +506,53 @@ public class LauncherActivity extends Activity {
     private View buildDock() {
         LinearLayout dock = new LinearLayout(this);
         dock.setOrientation(LinearLayout.HORIZONTAL);
-        dock.setGravity(Gravity.CENTER);
-        dock.setPadding(dp(10), dp(8), dp(10), dp(8));
+        dock.setGravity(Gravity.CENTER_VERTICAL);
+        dock.setPadding(dp(8), dp(7), dp(8), dp(7));
         dock.setBackground(gradientRound(
                 new String[]{"#10252F","#08151B","#050B0F"}, 26, "#234B5B"));
 
-        dock.addView(dockButton("HOME", "⌂", this::showHome), weighted());
-        dock.addView(dockButton("APPS", "▦", this::showAppDrawer), weighted());
-        dock.addView(dockButton("SPLIT", "◫", this::launchSplitPair), weighted());
-        dock.addView(dockButton("AUTO", "▶", this::showAutoStartManager), weighted());
-        dock.addView(dockButton("SET", "⚙", this::showSettings), weighted());
+        LinearLayout primary = new LinearLayout(this);
+        primary.setOrientation(LinearLayout.HORIZONTAL);
+        primary.setGravity(Gravity.CENTER);
+
+        primary.addView(dockButton("HOME", "⌂", this::showHome), weighted());
+        primary.addView(dockButton("APPS", "▦", this::showAppDrawer), weighted());
+        primary.addView(dockButton("2-SPLIT", "◫", this::launchSplitPair), weighted());
+        primary.addView(dockButton("MAP", "MAP", this::showNavigationPanel), weighted());
+        primary.addView(dockButton("SETTINGS", "⚙", this::showSettings), weighted());
+        primary.addView(dockButton("VERIFY", "✓", this::openVerificationCenter), weighted());
+
+        dock.addView(primary, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+
+        View divider = new View(this);
+        divider.setBackgroundColor(Color.parseColor("#244853"));
+        LinearLayout.LayoutParams dividerLp = new LinearLayout.LayoutParams(dp(1), dp(46));
+        dividerLp.leftMargin = dp(5);
+        dividerLp.rightMargin = dp(8);
+        dock.addView(divider, dividerLp);
+
+        LinearLayout controls = new LinearLayout(this);
+        controls.setOrientation(LinearLayout.HORIZONTAL);
+        controls.setGravity(Gravity.CENTER);
+        controls.setPadding(dp(5), dp(4), dp(5), dp(4));
+        controls.setBackground(gradientRound(
+                new String[]{"#0D2027","#061116"}, 19, "#274957"));
+        controls.addView(dockMiniButton("VOLUME", "VOL",
+                () -> openSystemSettings(Settings.ACTION_SOUND_SETTINGS, "volume")), miniWeighted());
+        controls.addView(dockMiniButton("BRIGHTNESS", "SUN",
+                () -> openSystemSettings(Settings.ACTION_DISPLAY_SETTINGS, "brightness")), miniWeighted());
+        controls.addView(dockMiniButton("DISPLAY", "DSP", this::showDisplayQuickPanel), miniWeighted());
+        controls.addView(dockMiniButton("DARK", "MOON", this::showThemeStatusPanel), miniWeighted());
+
+        dock.addView(controls, new LinearLayout.LayoutParams(dp(214),
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this,"REFERENCE_DOCK_RENDER",
+                "primary=HOME,APPS,2-SPLIT,MAP,SETTINGS,VERIFY"
+                        +";controls=VOLUME,BRIGHTNESS,DISPLAY,DARK"
+                        +";vehicle_hidden_api=false");
         return dock;
     }
 
@@ -2765,6 +2802,7 @@ public class LauncherActivity extends Activity {
                 17, "#173742"));
         button.setClickable(true);
         button.setFocusable(true);
+        button.setContentDescription(label);
         button.setOnClickListener(v -> action.run());
 
         HmiGlyphView icon = new HmiGlyphView(this, symbol);
@@ -2784,6 +2822,31 @@ public class LauncherActivity extends Activity {
         view.setEllipsize(android.text.TextUtils.TruncateAt.END);
         view.setAutoSizeTextTypeUniformWithConfiguration(
                 minSp,maxSp,1,android.util.TypedValue.COMPLEX_UNIT_SP);
+    }
+
+    private View dockMiniButton(String label, String symbol, Runnable action) {
+        LinearLayout button = new LinearLayout(this);
+        button.setGravity(Gravity.CENTER);
+        button.setBackground(pressableGradientRound(
+                new String[]{"#0B1D24","#071218"},
+                new String[]{"#163541","#0B2028"},
+                14, "#173742"));
+        button.setClickable(true);
+        button.setFocusable(true);
+        button.setContentDescription(label);
+        button.setOnClickListener(v -> action.run());
+
+        HmiGlyphView icon = new HmiGlyphView(this, symbol);
+        icon.setAccentColor(Color.parseColor("#8CFFE8"));
+        button.addView(icon, new LinearLayout.LayoutParams(dp(32), dp(32)));
+        return button;
+    }
+
+    private LinearLayout.LayoutParams miniWeighted() {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+        lp.setMargins(dp(2), dp(2), dp(2), dp(2));
+        return lp;
     }
 
     private Button button(String label) {
