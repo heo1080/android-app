@@ -512,22 +512,27 @@ public class VerificationCenterActivity extends Activity {
     }
 
     private void captureFeatureSpecificProbe(String testId) {
-        if (testId == null) return;
-        if (testId.startsWith("PARK-HAZ-")) {
+        if (testId == null || activeCorrelationId == null) return;
+        if ("AUD-AVAS-001".equals(testId)) {
+            AudioCapabilityProbe.capture(this, testId, activeCorrelationId);
+            VerificationEvidenceRuntime.recordTestEvent(
+                    this, testId, activeCorrelationId, "TEST_CAPABILITY_REFRESH",
+                    "probe=external_avas;vehicle_write=false;actuation=false");
+        } else if (testId.startsWith("PARK-HAZ-")) {
             ParkingHazardAutomationProbe.captureCapability(this);
-            VerificationEvidenceRuntime.recordPassiveEvent(
-                    this, "TEST_CAPABILITY_REFRESH",
-                    "test_id=" + testId + ";probe=parking_hazard;vehicle_write=false");
+            VerificationEvidenceRuntime.recordTestEvent(
+                    this, testId, activeCorrelationId, "TEST_CAPABILITY_REFRESH",
+                    "probe=parking_hazard;vehicle_write=false");
         } else if (testId.startsWith("ADAS-LDW-")) {
             LaneDepartureCapabilityProbe.capture(this);
-            VerificationEvidenceRuntime.recordPassiveEvent(
-                    this, "TEST_CAPABILITY_REFRESH",
-                    "test_id=" + testId + ";probe=lane_departure;voice_enabled=false;vehicle_write=false");
+            VerificationEvidenceRuntime.recordTestEvent(
+                    this, testId, activeCorrelationId, "TEST_CAPABILITY_REFRESH",
+                    "probe=lane_departure;voice_enabled=false;vehicle_write=false");
         } else if (testId.startsWith("WIN-POP-")) {
             PopupMultiWindowCapabilityProbe.capture(this, null);
-            VerificationEvidenceRuntime.recordPassiveEvent(
-                    this, "TEST_CAPABILITY_REFRESH",
-                    "test_id=" + testId + ";probe=popup_multiwindow;windowing_mode_request=false;actuation=false");
+            VerificationEvidenceRuntime.recordTestEvent(
+                    this, testId, activeCorrelationId, "TEST_CAPABILITY_REFRESH",
+                    "probe=popup_multiwindow;windowing_mode_request=false;actuation=false");
         }
     }
 
@@ -618,7 +623,8 @@ public class VerificationCenterActivity extends Activity {
         if (filtered.isEmpty()) {
             return "최근 raw 후보(candidate only · PASS 아님) · 아직 없음";
         }
-        return "최근 raw 후보(candidate only · PASS 아님) · " + filtered;
+        return "최근 raw 후보(candidate only · PASS 아님) · "
+                + filtered.replace(";", " · ");
     }
 
     private String filteredRawSnapshotForTest(String testId) {
@@ -648,7 +654,7 @@ public class VerificationCenterActivity extends Activity {
             return new String[]{"bsd_raw","turn_left_raw","turn_right_raw"};
         }
         if ("AUD-LVDA-001".equals(testId)) {
-            return new String[]{"radar_area7_raw","radar_area8_raw","speed_raw"};
+            return new String[]{"radar_area7_raw","radar_area8_raw","speed_raw","tja_raw"};
         }
         if ("PARK-HAZ-001".equals(testId) || "PARK-HAZ-002".equals(testId)) {
             return new String[]{"gear_raw","hazard_raw"};
@@ -669,7 +675,7 @@ public class VerificationCenterActivity extends Activity {
             if (split <= 0) continue;
             String key = part.substring(0, split).trim();
             if (!wanted.contains(key)) continue;
-            if (out.length() > 0) out.append(" · ");
+            if (out.length() > 0) out.append(";");
             out.append(part.trim());
         }
         return out.toString();
@@ -765,6 +771,10 @@ public class VerificationCenterActivity extends Activity {
 
     private Map<String,Integer> activeMarkerCounts() {
         if (activeCorrelationId == null) return new java.util.LinkedHashMap<>();
+        if ("AUD-LVDA-001".equals(activeTestId)) {
+            return VerificationEvidenceRuntime.operatorObservationCountsWithRequiredRaw(
+                    this, activeCorrelationId, rawKeysForTest(activeTestId));
+        }
         if (rawKeysForTest(activeTestId).length > 0) {
             return VerificationEvidenceRuntime.operatorObservationCountsWithRaw(
                     this, activeCorrelationId);
