@@ -926,22 +926,14 @@ public class LauncherActivity extends Activity {
                 this,"NAV_LAUNCHER_HMI_RENDER",
                 "variant=golden-reference-v3;installed_supported_nav="+installed
                         +";rendered_supported_nav="+rendered
-                        +";panel_hero=true;launch_only=true;semantic_parse=false");
+                        +";panel_hero=true;launch_only=true"
+                        +";scroll_safe=true;dialog_profile=map;semantic_parse=false");
 
         AlertDialog dialog=new AlertDialog.Builder(this)
-                .setView(panel)
+                .setView(referenceDialogScroll(panel))
                 .setNegativeButton("닫기",null)
                 .create();
-        dialog.setOnShowListener(d -> {
-            Window w=dialog.getWindow();
-            if(w!=null){
-                w.setLayout((int)(getResources().getDisplayMetrics().widthPixels*0.62f),
-                        (int)(getResources().getDisplayMetrics().heightPixels*0.78f));
-                w.setDimAmount(0.72f);
-                w.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            }
-        });
-        dialog.show();
+        showReferenceDialog(dialog,0.68f,0.84f);
     }
 
     private void openSystemSettings(String action,String source) {
@@ -1057,14 +1049,14 @@ public class LauncherActivity extends Activity {
                         +";density_dpi="+dm.densityDpi
                         +";font_scale="+cfg.fontScale
                         +";variant=golden-reference-v3"
-                        +";panel_hero=true;actuation=false");
+                        +";panel_hero=true;scroll_safe=true;dialog_profile=display;actuation=false");
 
         AlertDialog dialog=new AlertDialog.Builder(this)
-                .setView(panel)
+                .setView(referenceDialogScroll(panel))
                 .setNegativeButton("닫기",null)
                 .create();
         holder[0]=dialog;
-        dialog.show();
+        showReferenceDialog(dialog,0.66f,0.82f);
     }
 
     private void showThemeStatusPanel() {
@@ -1114,12 +1106,13 @@ public class LauncherActivity extends Activity {
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this,"THEME_STATUS_HMI_RENDER",
                 "variant=golden-reference-v3;app_theme=dark;system_night="+systemNight
-                        +";panel_hero=true;actuation=false");
+                        +";panel_hero=true;scroll_safe=true;dialog_profile=dark;actuation=false");
 
-        new AlertDialog.Builder(this)
-                .setView(panel)
+        AlertDialog dialog=new AlertDialog.Builder(this)
+                .setView(referenceDialogScroll(panel))
                 .setNegativeButton("닫기",null)
-                .show();
+                .create();
+        showReferenceDialog(dialog,0.62f,0.74f);
     }
 
     private void showAppDrawer() {
@@ -2716,13 +2709,15 @@ public class LauncherActivity extends Activity {
                         +";text_length="+nav.textLength
                         +";panel_hero=true"
                         +";fsd_state="+fsdState
+                        +";scroll_safe=true;dialog_profile=safety"
                         +";parser=none;semantic_values=false");
 
-        new AlertDialog.Builder(this)
-                .setView(panel)
+        AlertDialog dialog=new AlertDialog.Builder(this)
+                .setView(referenceDialogScroll(panel))
                 .setPositiveButton("검증 센터",(d,w)->openVerificationCenter())
                 .setNegativeButton("닫기",null)
-                .show();
+                .create();
+        showReferenceDialog(dialog,0.76f,0.84f);
     }
 
     private void recordHeroSourceRailState(int media,int nav,int vehicle) {
@@ -2855,12 +2850,14 @@ public class LauncherActivity extends Activity {
                         +";now_playing_state="+nowPlaying.playback
                         +";panel_hero=true"
                         +";target_scoped=true"
+                        +";scroll_safe=true;dialog_profile=media"
                         +";playback_verified=false");
 
-        new AlertDialog.Builder(this)
-                .setView(panel)
+        AlertDialog dialog=new AlertDialog.Builder(this)
+                .setView(referenceDialogScroll(panel))
                 .setPositiveButton("완료",null)
-                .show();
+                .create();
+        showReferenceDialog(dialog,0.80f,0.88f);
     }
 
     private MediaNowPlayingRuntime.Snapshot mediaNowPlayingSnapshot() {
@@ -3086,12 +3083,14 @@ public class LauncherActivity extends Activity {
                         +";speed_raw="+String.valueOf(vehicleSpeedRaw)
                         +";turn_left_raw="+String.valueOf(vehicleTurnLeftRaw)
                         +";turn_right_raw="+String.valueOf(vehicleTurnRightRaw)
+                        +";scroll_safe=true;dialog_profile=vehicle"
                         +";normalized=false;actuation=false");
 
-        new AlertDialog.Builder(this)
-                .setView(panel)
+        AlertDialog dialog=new AlertDialog.Builder(this)
+                .setView(referenceDialogScroll(panel))
                 .setPositiveButton("완료",null)
-                .show();
+                .create();
+        showReferenceDialog(dialog,0.76f,0.84f);
     }
 
     private String rawValue(Integer value) {
