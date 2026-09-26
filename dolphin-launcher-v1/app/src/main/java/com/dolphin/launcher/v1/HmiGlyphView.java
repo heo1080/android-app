@@ -74,6 +74,21 @@ public final class HmiGlyphView extends View {
             case "◉":
                 drawTyre(canvas, cx, cy, s);
                 break;
+            case "MAP":
+                drawMapPin(canvas, cx, cy, s);
+                break;
+            case "VOL":
+                drawVolume(canvas, cx, cy, s);
+                break;
+            case "SUN":
+                drawSun(canvas, cx, cy, s);
+                break;
+            case "DSP":
+                drawDisplay(canvas, cx, cy, s);
+                break;
+            case "MOON":
+                drawMoon(canvas, cx, cy, s);
+                break;
             default:
                 drawFallback(canvas, cx, cy, s);
                 break;
@@ -197,6 +212,60 @@ public final class HmiGlyphView extends View {
             float y2 = cy + (float)Math.sin(angle) * s * 0.27f;
             canvas.drawLine(x1, y1, x2, y2, paint);
         }
+    }
+
+    private void drawMapPin(Canvas canvas, float cx, float cy, float s) {
+        float r=s*0.20f;
+        canvas.drawCircle(cx,cy-s*0.08f,r,paint);
+        canvas.drawCircle(cx,cy-s*0.08f,s*0.055f,paint);
+        path.reset();
+        path.moveTo(cx-r*0.78f,cy+s*0.02f);
+        path.quadTo(cx,cy+s*0.34f,cx+r*0.78f,cy+s*0.02f);
+        canvas.drawPath(path,paint);
+    }
+
+    private void drawVolume(Canvas canvas, float cx, float cy, float s) {
+        path.reset();
+        path.moveTo(cx-s*0.28f,cy-s*0.10f);
+        path.lineTo(cx-s*0.12f,cy-s*0.10f);
+        path.lineTo(cx+s*0.03f,cy-s*0.25f);
+        path.lineTo(cx+s*0.03f,cy+s*0.25f);
+        path.lineTo(cx-s*0.12f,cy+s*0.10f);
+        path.lineTo(cx-s*0.28f,cy+s*0.10f);
+        path.close();
+        canvas.drawPath(path,paint);
+        rect.set(cx-s*0.02f,cy-s*0.25f,cx+s*0.34f,cy+s*0.25f);
+        canvas.drawArc(rect,-48f,96f,false,paint);
+    }
+
+    private void drawSun(Canvas canvas, float cx, float cy, float s) {
+        canvas.drawCircle(cx,cy,s*0.13f,paint);
+        for(int i=0;i<8;i++){
+            double a=Math.PI*i/4.0;
+            float x1=cx+(float)Math.cos(a)*s*0.20f;
+            float y1=cy+(float)Math.sin(a)*s*0.20f;
+            float x2=cx+(float)Math.cos(a)*s*0.31f;
+            float y2=cy+(float)Math.sin(a)*s*0.31f;
+            canvas.drawLine(x1,y1,x2,y2,paint);
+        }
+    }
+
+    private void drawDisplay(Canvas canvas, float cx, float cy, float s) {
+        float w=s*0.62f,h=s*0.40f;
+        rect.set(cx-w*0.5f,cy-h*0.55f,cx+w*0.5f,cy+h*0.45f);
+        canvas.drawRoundRect(rect,s*0.06f,s*0.06f,paint);
+        canvas.drawLine(cx,cy+h*0.45f,cx,cy+h*0.65f,paint);
+        canvas.drawLine(cx-s*0.16f,cy+h*0.65f,cx+s*0.16f,cy+h*0.65f,paint);
+    }
+
+    private void drawMoon(Canvas canvas, float cx, float cy, float s) {
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(accentColor);
+        canvas.drawCircle(cx-s*0.03f,cy,s*0.27f,paint);
+        paint.setColor(Color.argb(255,7,18,24));
+        canvas.drawCircle(cx+s*0.09f,cy-s*0.06f,s*0.25f,paint);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(accentColor);
     }
 
     private void drawFallback(Canvas canvas, float cx, float cy, float s) {
