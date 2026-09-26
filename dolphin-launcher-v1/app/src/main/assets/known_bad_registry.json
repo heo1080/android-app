@@ -154,6 +154,17 @@
       "summary": "APK-static BuildConfig upload credential removed from the candidate; evidence ZIP queue now fails closed and remains retained until a server-backed Android Keystore runtime enrollment path is proven.",
       "state": "FIX_CANDIDATE",
       "close_gate": "remove the APK-static shared upload credential; use an evidence-backed runtime credential/enrollment path with private credential material protected by Android Keystore (or an equally strong non-extractable platform mechanism), prove rotation/revocation behavior, and verify real-car upload receipts without a reusable secret embedded in APK strings"
+    },
+    {
+      "id": "KB-014",
+      "severity": "P0",
+      "feature_id": "MASTER_VERIFICATION_REGISTRY",
+      "test_ids": [
+        "GOV-REG-001"
+      ],
+      "summary": "Evidence evaluator can self-match success_any/failure_any literals from bundled canonical metadata; V1 metadata-isolated evaluator candidate exists, but production diagnostics evaluator must still be switched and existing evidence re-evaluated.",
+      "state": "FIX_CANDIDATE",
+      "close_gate": "V1 and production diagnostics evaluators exclude canonical metadata/prior evaluation output from runtime marker matching; metadata-only synthetic ZIP stays INCONCLUSIVE, explicit runtime success/failure markers classify correctly, and representative existing evidence is re-evaluated before GOV-REG-001 PASS is restored"
     }
   ]
 }
