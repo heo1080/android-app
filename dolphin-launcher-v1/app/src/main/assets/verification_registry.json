@@ -272,7 +272,7 @@
         "BOOT_COMPLETED에서 각 항목을 process-independent AlarmManager exact alarm으로 예약",
         "예약 alarm이 앱별 package/media/index를 보존해 실행",
         "LauncherActivity 진입으로 동일 boot dispatch를 중복 실행하지 않음",
-        "동일 부팅에서 BOOT_COMPLETED와 QUICKBOOT_POWERON이 연속 수신되어도 하나의 autostart batch만 예약",
+        "공개 Settings.Global.BOOT_COUNT로 실제 부팅 세대를 구분하고, 동일 부팅에서 BOOT_COMPLETED와 QUICKBOOT_POWERON이 연속 수신되어도 하나의 autostart batch만 예약",
         "앱별 미디어 자동재생은 대상 MediaSession 경로로 넘기며 PLAY 요청 자체를 실제 재생 성공으로 간주하지 않음",
         "Android 12+ exact-alarm access가 없으면 불확실한 inexact fallback 대신 명시적으로 실패 기록",
         "시동 자동실행의 지연/순서/삭제/추가/미디어 스위치 조작 영역은 48dp 이상 터치 높이를 사용",
@@ -282,6 +282,7 @@
         "BOOT_COMPLETED",
         "AUTOSTART_BOOT_BATCH",
         "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED",
+        "boot_count",
         "AUTOSTART_SCHEDULED",
         "AUTOSTART_SCHEDULE_FAILED",
         "AUTOSTART_ALARM_FIRED",
@@ -326,7 +327,7 @@
         "48dp autostart manager touch-target hardening",
         "AndroidManifest registers BootAutoLaunchReceiver as non-exported static receiver for AlarmManager delivery",
         "LauncherActivity legacy pending_autostart flag is consumed without launching apps; boot execution ownership remains BootAutoLaunchRuntime only",
-        "BootAutoLaunchRuntime claims one dispatch per elapsed-realtime boot epoch and suppresses duplicate boot broadcasts"
+        "BootAutoLaunchRuntime uses public Settings.Global.BOOT_COUNT as the persisted boot epoch and elapsedRealtime windows only within the same boot"
       ],
       "next_action": "BYD Android 10 실차 재부팅 2회에서 AlarmManager delivery, background activity dispatch, 2개 이상 앱 순차 실행 및 중복 방지 evidence 수집",
       "confidence": {
