@@ -845,19 +845,10 @@
         "PPASO_FIXED_VOICE_CANDIDATE_OK",
         "candidate_only=true",
         "app_manifest_unchanged=true",
-        "t",
-        "r",
-        "i",
-        "m",
-        "e",
-        "d",
-        "_",
-        "l",
-        "a",
-        "n",
-        "g",
-        "s",
-        "="
+        "silence_trim_db=-60",
+        "leading_pad_ms=30",
+        "trailing_pad_ms=60",
+        "trimmed_leading_ms="
       ]
     },
     {
@@ -943,19 +934,10 @@
         "PPASO_FIXED_VOICE_CANDIDATE_OK",
         "candidate_only=true",
         "app_manifest_unchanged=true",
-        "t",
-        "r",
-        "i",
-        "m",
-        "e",
-        "d",
-        "_",
-        "l",
-        "a",
-        "n",
-        "g",
-        "s",
-        "="
+        "silence_trim_db=-60",
+        "leading_pad_ms=30",
+        "trailing_pad_ms=60",
+        "trimmed_leading_ms="
       ]
     },
     {
