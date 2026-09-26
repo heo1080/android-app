@@ -422,6 +422,15 @@ jobs:
               assert pkg in launcher, pkg
           assert "NAV_LAUNCHER_HMI_RENDER" in launcher and "semantic_parse=false" in launcher
 
+          assert "referencePanelHero" in launcher and "referenceSectionLabel" in launcher
+          assert "variant=golden-reference-v3" in launcher
+          assert "panel_hero=true" in launcher
+          assert "target_scoped=true" in launcher and "playback_verified=false" in launcher
+          assert "vehicle_source_live=" in launcher and "normalized=false;actuation=false" in launcher
+          assert "fsd_state=" in launcher and "semantic_values=false" in launcher
+          assert "PROVENANCE LAYER" in launcher and "VERIFICATION BOUNDARY" in launcher
+          assert "READ-ONLY VEHICLE BUS" in launcher and "TARGET MEDIA SESSION" in launcher
+
           assert "DISPLAY_QUICK_HMI_RENDER" in launcher and "actuation=false" in launcher
           assert "THEME_STATUS_HMI_RENDER" in launcher
           assert "Settings.ACTION_SOUND_SETTINGS" in launcher
@@ -444,8 +453,14 @@ jobs:
           ui=features["PREMIUM_HMI_HOME"]
           for token in ("REFERENCE_DOCK_RENDER","NAV_LAUNCHER_HMI_RENDER",
                         "DISPLAY_QUICK_HMI_RENDER","THEME_STATUS_HMI_RENDER",
-                        "SYSTEM_SETTINGS_DISPATCH"):
+                        "SYSTEM_SETTINGS_DISPATCH","variant=golden-reference-v3",
+                        "panel_hero=true","target_scoped=true",
+                        "vehicle_source_live=","fsd_state="):
               assert token in ui.get("required_logs",[]), token
+
+          assert launcher.find('chip("● LIVE")') == -1
+          assert "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java" in features["LIVE_VEHICLE_INFO"].get("source_paths",[])
+          assert "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java" in features["FSD_OBJECT_LANE_MODEL"].get("source_paths",[])
 
           by_test={c["test_id"]:c for c in contracts.get("contracts",[])}
           for tid in ("UI-HOME-001","UI-HOME-002"):
