@@ -2642,7 +2642,10 @@
         "도어 lock/unlock trigger path는 실제 read-only event source가 입증되기 전 unproven 유지",
         "커스텀 WAV/MP3 경로와 내장 tone/preset 경로를 별도 capability로 취급",
         "독립 readback과 실제 외부 가청 반응이 입증되기 전 vehicle_write=false 및 actuation=false",
-        "BLOCKED 상태에서는 PASS를 허용하지 않고 NEED_MORE_DATA만 허용"
+        "BLOCKED 상태에서는 PASS를 허용하지 않고 NEED_MORE_DATA만 허용",
+        "공개 Dolphin 후보인 BYDAutoBodyworkDevice/AbsBYDAutoBodyworkListener와 generic auto service는 실차 class/method 존재만 passive inventory",
+        "generic auto service의 getInt/setInt/getBuffer/setBuffer signature가 보여도 AVAS device/FID mapping이 입증된 것으로 간주하지 않음",
+        "bodywork auto-system/door/listener surface가 보여도 lock/unlock numeric semantic은 별도 실차 correlation 전 unproven 유지"
       ],
       "required_logs": [
         "EXTERNAL_AVAS_CAPABILITY_METHOD",
@@ -2654,7 +2657,15 @@
         "lock_trigger_path=unproven",
         "vehicle_write=false",
         "actuation=false",
-        "TEST_CAPABILITY_REFRESH"
+        "TEST_CAPABILITY_REFRESH",
+        "AVAS_TRIGGER_CAPABILITY_METHOD",
+        "AVAS_TRIGGER_CAPABILITY_CONSTANT",
+        "EXTERNAL_AVAS_GENERIC_SERVICE",
+        "EXTERNAL_AVAS_GENERIC_SERVICE_METHOD",
+        "generic_service_available=",
+        "generic_bridge_methods=",
+        "feature_mapping=unproven",
+        "trigger_semantic=unproven"
       ],
       "known_bad": [
         "외부 AVAS speaker에 arbitrary media file을 출력할 수 있다고 가정하면 안 됨",
@@ -2671,9 +2682,10 @@
         "실제 candidate API가 확인되더라도 별도 setter/readback 계약과 물리 외부 출력 증거가 생기기 전 실행 금지"
       ],
       "evidence": [
-        "AudioCapabilityProbe emits EXTERNAL_AVAS_CAPABILITY_* candidate inventory without invoking methods or reading/writing vehicle values"
+        "AudioCapabilityProbe emits EXTERNAL_AVAS_CAPABILITY_* candidate inventory without invoking methods or reading/writing vehicle values",
+        "Public Dolphin DiLink 3 research identifies BYDAutoBodyworkDevice listener candidates for door/security events and a generic auto-service bridge for AVAS control; V1 only inventories these surfaces and does not invoke them"
       ],
-      "next_action": "1.2.7 실차 Evidence에서 AVAS/exterior 관련 runtime surface 존재 여부와 도어 lock/unlock read-only trigger source를 먼저 확정. 커스텀 파일 출력과 내장 tone/preset 출력은 별도 경로로 검증하고 write는 계속 차단",
+      "next_action": "1.2.7 실차 AUD-AVAS-001에서 BYDAutoBodyworkDevice/listener surface와 generic auto-service bridge 존재 여부를 active correlation 안에서 수집한다. lock/unlock raw semantic, AVAS device/FID mapping, readback, 물리 외부 출력이 각각 입증되기 전 custom file·tone/preset write는 계속 차단",
       "confidence": {
         "behavior": "LOW",
         "root_cause": "LOW",
