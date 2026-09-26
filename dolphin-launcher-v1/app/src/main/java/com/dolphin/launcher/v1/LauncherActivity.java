@@ -645,6 +645,8 @@ public class LauncherActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(44));
         footerLp.topMargin = dp(10);
         content.addView(footer, footerLp);
+
+        UiFrameTimingRuntime.start(this, "home");
     }
 
     private LinearLayout hmiDialogHeader(String title, String subtitle, String glyph) {
