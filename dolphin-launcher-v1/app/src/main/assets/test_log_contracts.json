@@ -2352,7 +2352,10 @@
         "실패 시 현 버전 유지",
         "automatic app-start release check remains wired",
         "Evidence ledger covers release check, verified package, installer stage and final install status",
-        "unknown-app-source settings 중 process recreation 후에도 consented release tag를 durable state에서 복구하고 exact-tag re-fetch로 재개"
+        "unknown-app-source settings 중 process recreation 후에도 consented release tag를 durable state에서 복구하고 exact-tag re-fetch로 재개",
+        "release discovery accepts only GitHub prerelease=true entries with the dolphin-launcher-v1-v* tag prefix",
+        "same-prefix stable releases are ignored and cannot become OTA candidates",
+        "process-death exact-tag restore still requires prerelease=true plus APK/SHA asset completeness"
       ],
       "required_logs": [
         "release metadata",
@@ -2364,7 +2367,8 @@
         "APP_UPDATE_INSTALL_STATUS",
         "APP_UPDATE_PERMISSION_PENDING_SAVED",
         "APP_UPDATE_PERMISSION_RESUME_RESTORED",
-        "APP_UPDATE_PERMISSION_RESUME_FAILED"
+        "APP_UPDATE_PERMISSION_RESUME_FAILED",
+        "release_prerelease=true"
       ]
     },
     {
@@ -2400,7 +2404,10 @@
         "실패 시 현 버전 유지",
         "automatic app-start release check remains wired",
         "Evidence ledger covers release check, verified package, installer stage and final install status",
-        "unknown-app-source settings 중 process recreation 후에도 consented release tag를 durable state에서 복구하고 exact-tag re-fetch로 재개"
+        "unknown-app-source settings 중 process recreation 후에도 consented release tag를 durable state에서 복구하고 exact-tag re-fetch로 재개",
+        "release discovery accepts only GitHub prerelease=true entries with the dolphin-launcher-v1-v* tag prefix",
+        "same-prefix stable releases are ignored and cannot become OTA candidates",
+        "process-death exact-tag restore still requires prerelease=true plus APK/SHA asset completeness"
       ],
       "required_logs": [
         "release metadata",
@@ -2412,7 +2419,8 @@
         "APP_UPDATE_INSTALL_STATUS",
         "APP_UPDATE_PERMISSION_PENDING_SAVED",
         "APP_UPDATE_PERMISSION_RESUME_RESTORED",
-        "APP_UPDATE_PERMISSION_RESUME_FAILED"
+        "APP_UPDATE_PERMISSION_RESUME_FAILED",
+        "release_prerelease=true"
       ]
     },
     {
