@@ -60,6 +60,7 @@ public final class AppUpdateManager {
                 ReleaseInfo release = fetchLatestV1Release();
                 VerificationEvidenceRuntime.recordPassiveEvent(activity, "APP_UPDATE_RELEASE_CHECK",
                         "manual=" + manual + ";release=" + release.tagName
+                                + ";release_prerelease=" + release.prerelease
                                 + ";current=" + BuildConfig.VERSION_NAME);
                 int cmp = compareVersions(release.version, parseVersion(BuildConfig.VERSION_NAME));
                 if (cmp <= 0) {
@@ -228,6 +229,9 @@ public final class AppUpdateManager {
             JSONObject root = releases.optJSONObject(i);
             if (root == null || root.optBoolean("draft", false)) continue;
 
+            boolean prerelease = root.optBoolean("prerelease", false);
+            if (!prerelease) continue;
+
             String tag = root.optString("tag_name", "");
             if (!tag.startsWith(TAG_PREFIX)) continue;
             if (requiredTag != null && !requiredTag.equals(tag)) continue;
@@ -250,7 +254,7 @@ public final class AppUpdateManager {
             }
 
             if (apkUrl == null || shaUrl == null) continue;
-            ReleaseInfo candidate = new ReleaseInfo(tag, version, apkUrl, shaUrl);
+            ReleaseInfo candidate = new ReleaseInfo(tag, version, apkUrl, shaUrl, prerelease);
             if (best == null || compareVersions(candidate.version, best.version) > 0) best = candidate;
         }
 
@@ -295,7 +299,8 @@ public final class AppUpdateManager {
 
         VerifiedPackage verified = verifyPackageVersionAndSigner(activity, apk);
         VerificationEvidenceRuntime.recordPassiveEvent(activity, "APP_UPDATE_PACKAGE_VERIFIED",
-                "release=" + release.tagName + ";sha256=" + actualHash
+                "release=" + release.tagName + ";release_prerelease=" + release.prerelease
+                        + ";sha256=" + actualHash
                         + ";installed_version_code=" + verified.installedCode
                         + ";archive_version_code=" + verified.archiveCode
                         + ";signer_sha256=" + verified.signerSha256
@@ -513,12 +518,19 @@ public final class AppUpdateManager {
         final List<Integer> version;
         final String apkUrl;
         final String shaUrl;
+        final boolean prerelease;
 
-        ReleaseInfo(String tagName, List<Integer> version, String apkUrl, String shaUrl) {
+        ReleaseInfo(
+                String tagName,
+                List<Integer> version,
+                String apkUrl,
+                String shaUrl,
+                boolean prerelease) {
             this.tagName = tagName;
             this.version = version;
             this.apkUrl = apkUrl;
             this.shaUrl = shaUrl;
+            this.prerelease = prerelease;
         }
     }
 }
