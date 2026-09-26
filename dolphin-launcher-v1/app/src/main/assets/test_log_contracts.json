@@ -57,7 +57,7 @@
         "APK가 어떤 source commit+patch chain에서 생성됐는지 추적 가능",
         "동일 signing certificate 유지",
         "packaged APK has exactly one launchable LauncherActivity",
-        "packaged APK contains LAUNCHER category and no HOME category",
+        "packaged APK contains LAUNCHER plus HOME+DEFAULT alias disabled-by-default",
         "packaged minSdk=29 and targetSdk=35"
       ],
       "required_logs": [
@@ -67,7 +67,7 @@
         "APK SHA-256",
         "signing fingerprint",
         "launchable-activity count=1",
-        "HOME category absent",
+        "HOME alias present and disabled-by-default",
         "sdkVersion=29",
         "targetSdkVersion=35",
         "BUILD_IDENTITY_OK"
@@ -103,7 +103,7 @@
         "APK가 어떤 source commit+patch chain에서 생성됐는지 추적 가능",
         "동일 signing certificate 유지",
         "packaged APK has exactly one launchable LauncherActivity",
-        "packaged APK contains LAUNCHER category and no HOME category",
+        "packaged APK contains LAUNCHER plus HOME+DEFAULT alias disabled-by-default",
         "packaged minSdk=29 and targetSdk=35"
       ],
       "required_logs": [
@@ -113,7 +113,7 @@
         "APK SHA-256",
         "signing fingerprint",
         "launchable-activity count=1",
-        "HOME category absent",
+        "HOME alias present and disabled-by-default",
         "sdkVersion=29",
         "targetSdkVersion=35",
         "BUILD_IDENTITY_OK"
@@ -223,11 +223,11 @@
       "acceptance": [
         "앱서랍에서 정상 아이콘/이름 표시",
         "실행 시 desktop/freeform 오인 없음",
-        "HOME 역할을 의도하지 않았다면 HOME category 없음",
+        "HOME+DEFAULT alias is present but disabled-by-default; normal LAUNCHER install entry remains active",
         "operator confirms app drawer icon is visible after install",
         "operator confirms normal app launch without desktop/freeform misclassification",
         "required launcher markers reach 3 observations before PASS",
-        "HOME launcher role remains disabled until separate BYD compatibility evidence exists"
+        "HOME launcher alias remains disabled-by-default until separate BYD compatibility evidence exists"
       ],
       "required_logs": [
         "resolved activity",
@@ -2693,6 +2693,521 @@
         "BACKGROUND_MEDIA_STAGE_SCHEDULED",
         "BACKGROUND_MEDIA_STAGE_SCHEDULE_FAILED",
         "BACKGROUND_MEDIA_PLAYBACK_READBACK_FAILED"
+      ]
+    },
+    {
+      "test_id": "CAM-AVM-001",
+      "feature_id": "AVM_DVR_CAPTURE",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "verified AVM/camera source provenance",
+        "read-only frame acquisition",
+        "privacy indicator",
+        "no camera-control write"
+      ],
+      "required_logs": [
+        "camera source id",
+        "permission result",
+        "frame timestamp",
+        "vehicle_write=false"
+      ]
+    },
+    {
+      "test_id": "DVR-REC-001",
+      "feature_id": "CONTINUOUS_PARKING_RECORDING",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "camera source proven",
+        "storage target proven",
+        "power/retention policy",
+        "no hidden background capture"
+      ],
+      "required_logs": [
+        "recording state",
+        "camera source",
+        "storage target",
+        "retention",
+        "vehicle_write=false"
+      ]
+    },
+    {
+      "test_id": "DVR-SD-001",
+      "feature_id": "SD_CARD_PRIMARY_STORAGE",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "removable volume identity",
+        "writable/readback",
+        "free-space check",
+        "fallback explicitly reported"
+      ],
+      "required_logs": [
+        "volume uuid",
+        "removable flag",
+        "writable",
+        "free bytes",
+        "selected target"
+      ]
+    },
+    {
+      "test_id": "DVR-EVT-001",
+      "feature_id": "PARKING_OBJECT_EVENT_DETECTION",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "camera source proven",
+        "model hash",
+        "class/confidence output",
+        "false-positive review"
+      ],
+      "required_logs": [
+        "model hash",
+        "inference latency",
+        "class",
+        "confidence",
+        "frame source"
+      ]
+    },
+    {
+      "test_id": "CMP-VID-001",
+      "feature_id": "COMPANION_REMOTE_VIDEO",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "explicit opt-in",
+        "authenticated session",
+        "camera source proven",
+        "session expiry"
+      ],
+      "required_logs": [
+        "auth state",
+        "session id",
+        "source id",
+        "start/stop",
+        "expiry"
+      ]
+    },
+    {
+      "test_id": "CMP-PARK-001",
+      "feature_id": "COMPANION_PARKING_LOCATION",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "location source provenance",
+        "explicit opt-in",
+        "timestamp/expiry",
+        "manual clear"
+      ],
+      "required_logs": [
+        "source provider",
+        "accuracy",
+        "timestamp",
+        "share state"
+      ]
+    },
+    {
+      "test_id": "CMP-VEH-001",
+      "feature_id": "COMPANION_VEHICLE_STATUS",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "read-only provenance",
+        "freshness",
+        "authenticated session",
+        "no fabricated values"
+      ],
+      "required_logs": [
+        "raw source",
+        "age",
+        "session id",
+        "field availability"
+      ]
+    },
+    {
+      "test_id": "CAM-BVM-001",
+      "feature_id": "BVM_FISHEYE_CORRECTION",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "camera intrinsics/extrinsics",
+        "calibration artifact",
+        "latency budget",
+        "no fake correction"
+      ],
+      "required_logs": [
+        "calibration id",
+        "input source",
+        "render latency",
+        "frame timestamp"
+      ]
+    },
+    {
+      "test_id": "BLE-LOCK-001",
+      "feature_id": "BLE_ONLY_AUTOLOCK",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "authorized key material",
+        "proximity evidence",
+        "lock readback",
+        "manual disable/failsafe"
+      ],
+      "required_logs": [
+        "BLE identity",
+        "auth result",
+        "distance/RSSI context",
+        "lock readback"
+      ]
+    },
+    {
+      "test_id": "BLE-REMOTE-001",
+      "feature_id": "LOCAL_REMOTE_CONTROL",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "authorized command path",
+        "readback",
+        "timeout/rollback",
+        "explicit user action"
+      ],
+      "required_logs": [
+        "command id provenance",
+        "request",
+        "readback",
+        "timeout"
+      ]
+    },
+    {
+      "test_id": "RES-3P-001",
+      "feature_id": "THIRD_PARTY_RESEARCH_CANDIDATES",
+      "feature_state": "UNSUPPORTED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "reference provenance",
+        "license review",
+        "vehicle/firmware compatibility",
+        "no copied private key/material"
+      ],
+      "required_logs": [
+        "reference name/version",
+        "license status",
+        "vehicle applicability",
+        "evidence link"
+      ]
+    },
+    {
+      "test_id": "PLAT-HEALTH-001",
+      "feature_id": "APP_HEALTH",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "runtime health metrics",
+        "crash/startup counters",
+        "evidence queue health",
+        "truthful unknown state"
+      ],
+      "required_logs": [
+        "process start",
+        "last crash",
+        "queue depth",
+        "health reason"
+      ]
+    },
+    {
+      "test_id": "PLAT-SAFE-001",
+      "feature_id": "SAFE_MODE",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "entry trigger",
+        "persisted state",
+        "dangerous path suppression",
+        "manual recovery"
+      ],
+      "required_logs": [
+        "safe-mode reason",
+        "entered_at",
+        "suppressed feature",
+        "exit action"
+      ]
+    },
+    {
+      "test_id": "PLAT-POLICY-001",
+      "feature_id": "POLICY_CONTROL_PLANE",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "central policy decision",
+        "feature state/evidence gate",
+        "audit log",
+        "fail closed"
+      ],
+      "required_logs": [
+        "policy input",
+        "decision",
+        "reason",
+        "feature id"
+      ]
+    },
+    {
+      "test_id": "PLAT-RECOVERY-001",
+      "feature_id": "RECOVERY_BOOTSTRAP",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": false,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 1,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "bootstrap manifest",
+        "source SHA",
+        "registry hash",
+        "signing identity reference",
+        "restore drill"
+      ],
+      "required_logs": [
+        "source sha",
+        "registry sha256",
+        "artifact sha256",
+        "signer digest"
       ]
     }
   ]
