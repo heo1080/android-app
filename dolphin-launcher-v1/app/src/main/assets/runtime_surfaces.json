@@ -2024,7 +2024,9 @@
         "PARK_HAZARD_CAPABILITY",
         "PARK_HAZARD_PLAN",
         "PARK_COMPLETE_DELAY_MS",
-        "vehicle_write=false"
+        "vehicle_write=false",
+        "PARK_HAZARD_CAPABILITY_CONSTANT",
+        "matching_constants"
       ]
     },
     {
