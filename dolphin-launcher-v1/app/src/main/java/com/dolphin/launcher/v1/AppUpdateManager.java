@@ -44,8 +44,28 @@ public final class AppUpdateManager {
 
     private AppUpdateManager() {}
 
+    private static boolean suppressForVoicePreview(
+            Activity activity,
+            String operation,
+            boolean manual) {
+        if (!BuildConfig.VOICE_PREVIEW_BUILD) return false;
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                activity,
+                "APP_UPDATE_SUPPRESSED_PREVIEW_BUILD",
+                "operation=" + operation
+                        + ";voice_preview=true;network_check=false;installer=false");
+        if (manual) {
+            activity.runOnUiThread(() -> showMessage(
+                    activity,
+                    "고정 음성 Preview",
+                    "Preview APK는 정식 OTA 채널과 분리되어 업데이트 확인을 수행하지 않습니다."));
+        }
+        return true;
+    }
+
     public static void checkForUpdates(Activity activity, boolean manual) {
         if (activity == null || activity.isFinishing()) return;
+        if (suppressForVoicePreview(activity, "check", manual)) return;
 
         SharedPreferences prefs = activity.getSharedPreferences(PREFS, Activity.MODE_PRIVATE);
         long now = System.currentTimeMillis();
@@ -92,6 +112,7 @@ public final class AppUpdateManager {
 
     public static void resumePendingInstallPermission(Activity activity) {
         if (activity == null || activity.isFinishing()) return;
+        if (suppressForVoicePreview(activity, "resume", false)) return;
         if (Build.VERSION.SDK_INT >= 26 &&
                 !activity.getPackageManager().canRequestPackageInstalls()) return;
 

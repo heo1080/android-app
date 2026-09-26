@@ -249,7 +249,13 @@
         "stageInstaller(activity, apk, release.tagName)",
         "UpdateInstallReceiver.EXTRA_RELEASE_TAG",
         "UpdateInstallReceiver.EXTRA_EXPECTED_SESSION_ID",
-        "\";release=\" + releaseTag"
+        "\";release=\" + releaseTag",
+        "suppressForVoicePreview",
+        "BuildConfig.VOICE_PREVIEW_BUILD",
+        "APP_UPDATE_SUPPRESSED_PREVIEW_BUILD",
+        "voice_preview=true;network_check=false;installer=false",
+        "suppressForVoicePreview(activity, \"check\", manual)",
+        "suppressForVoicePreview(activity, \"resume\", false)"
       ]
     },
     {
@@ -1310,7 +1316,12 @@
         "minSdk = 29",
         "targetSdk = 35",
         "versionCode = 5",
-        "versionName = \"1.2.2-v1-auto-evidence-beta\""
+        "versionName = \"1.2.2-v1-auto-evidence-beta\"",
+        "buildConfigField(\"boolean\", \"VOICE_PREVIEW_BUILD\", \"false\")",
+        "create(\"voicePreview\")",
+        "applicationIdSuffix = \".voicepreview\"",
+        "versionNameSuffix = \"-voice-preview\"",
+        "buildConfigField(\"boolean\", \"VOICE_PREVIEW_BUILD\", \"true\")"
       ]
     },
     {
@@ -1887,6 +1898,34 @@
         "prompt_count=",
         "vehicle_write=false",
         "vehiclePromptPlayer.play(promptId, phrase)"
+      ]
+    },
+    {
+      "feature_id": "IN_APP_TTS_CORE",
+      "path": "dolphin-launcher-v1/app/build.gradle.kts",
+      "tokens": [
+        "buildConfigField(\"boolean\", \"VOICE_PREVIEW_BUILD\", \"false\")",
+        "create(\"voicePreview\")",
+        "applicationIdSuffix = \".voicepreview\"",
+        "buildConfigField(\"boolean\", \"VOICE_PREVIEW_BUILD\", \"true\")"
+      ]
+    },
+    {
+      "feature_id": "IN_APP_TTS_CORE",
+      "path": "dolphin-launcher-v1/tools/prepare_fixed_voice_preview.py",
+      "tokens": [
+        "canonical voice manifest must start ASSET_REQUIRED",
+        "EXPECTED_PROFILE = \"ppaso-v8-ko-female-24k-pcm-candidate-v1\"",
+        "EXPECTED_MODEL_REVISION = \"53d09664c4f636a5fb6f2ebe3ec22cd83ee249b9\"",
+        "PREVIEW_PACKAGE = \"com.dolphin.launcher.v1.voicepreview\"",
+        "preview overlay refuses pre-existing packaged asset",
+        "\"state\"] = \"ASSET_READY\"",
+        "\"preview_only\"] = True",
+        "\"canonical_repository_state\": \"ASSET_REQUIRED\"",
+        "\"workspace_state\": \"ASSET_READY\"",
+        "\"promotion_allowed\": False",
+        "VOICE_PREVIEW_OVERLAY_READY",
+        "promotion_allowed=false"
       ]
     }
   ],
