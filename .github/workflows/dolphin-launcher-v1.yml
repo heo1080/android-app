@@ -571,6 +571,12 @@ jobs:
           assert "persisted_elapsed_guard=false" in boot_autostart_runtime, "unknown boot identity must fail open across processes"
           assert "now>=lastElapsed" in boot_autostart_runtime, "same-epoch elapsed guard missing"
           assert "CROSS_ACTION_DUPLICATE_WINDOW_MS" in boot_autostart_runtime, "cross-action boot dedup window missing"
+          assert "for(int i=0;i<packages.size();i++)" in boot_autostart_runtime, "multi-app autostart loop missing"
+          assert "AutoStartStore.delayMs" in boot_autostart_runtime and "AutoStartStore.mediaEnabled" in boot_autostart_runtime
+          assert "canScheduleExactAlarms()" in boot_autostart_runtime, "exact-alarm permission gate missing"
+          assert "setExactAndAllowWhileIdle" in boot_autostart_runtime and "setExact(" in boot_autostart_runtime
+          assert "process_independent=true" in boot_autostart_runtime
+          assert "AUTOSTART_SCHEDULED" in boot_autostart_runtime and "AUTOSTART_ALARM_FIRED" in boot_autostart_runtime
 
           assert 'android:name=".BootAutoLaunchReceiver"' in manifest
           assert "ACTION_MEDIA_PLAY_STAGE" in receiver and "ACTION_MEDIA_READBACK_STAGE" in receiver
@@ -578,6 +584,11 @@ jobs:
           assert "AlarmManager" in media and "BACKGROUND_MEDIA_STAGE_SCHEDULED" in media
           assert "process_independent=true" in media
           assert "new Handler" not in media and "postDelayed" not in media
+          assert "pkg.equals(controller.getPackageName())" in media, "target MediaSession package match missing"
+          assert "getTransportControls().play()" in media, "target-scoped PLAY request missing"
+          assert "global_media_key=false" in media
+          assert "dispatchMediaButtonEvent" not in media and "KEYCODE_MEDIA" not in media, "global media-key fallback reintroduced"
+          assert "BACKGROUND_MEDIA_PLAYBACK_READBACK" in media
 
           update_manager=(src/"AppUpdateManager.java").read_text(encoding="utf-8")
           update_receiver=(src/"UpdateInstallReceiver.java").read_text(encoding="utf-8")
@@ -592,12 +603,21 @@ jobs:
           assert "APP_UPDATE_INSTALL_STATUS" in update_receiver
           assert "AppUpdateManager.checkForUpdates(this, false)" in launcher
           assert "AppUpdateManager.resumePendingInstallPermission(this)" in launcher
+          assert "activity.getPackageName().equals(archive.packageName)" in update_manager, "OTA package identity check missing"
+          assert "archiveCode <= installedCode" in update_manager, "OTA higher-versionCode gate missing"
+          assert "!installedSigner.equals(archiveSigner)" in update_manager, "OTA signer equality gate missing"
+          assert "PackageInstaller.SessionParams" in update_manager and "session.commit" in update_manager
           for token in ("EVIDENCE_UPLOAD_ATTEMPT","EVIDENCE_UPLOAD_RECEIPT","EVIDENCE_UPLOAD_RETRY_RETAINED","receipt_verified=true"):
               assert token in evidence,token
+          assert "sha.equalsIgnoreCase(receiptSha)" in evidence, "upload receipt SHA-256 binding missing"
+          assert "sessionId.equals(receiptSession)" in evidence, "upload receipt session binding missing"
+          assert "receipt identity mismatch" in evidence
+          assert "queueDir(context)" in evidence and "retryPendingUploads" in evidence
           assert "VerificationEvidenceRuntime.startAutomaticUploadRuntime(this)" in launcher
           assert "VerificationEvidenceRuntime.retryPendingUploadsAsync(this)" in launcher
           assert 'queueBundleAndUpload(this, "startup-snapshot")' in launcher
           assert "BOOT_UPLOAD_RETRY_FINISHED" in boot_receiver and "goAsync()" in boot_receiver
+          print("P0_REGRESSION_GUARD_OK boot_multi=true media_target_scoped=true upload_receipt_bound=true ota_identity_verified=true")
 
           layout_audit=(src/"UiLayoutAuditRuntime.java").read_text(encoding="utf-8")
           frame_timing=(src/"UiFrameTimingRuntime.java").read_text(encoding="utf-8")
