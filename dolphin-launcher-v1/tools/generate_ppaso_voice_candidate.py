@@ -124,7 +124,12 @@ def load_ppaso(model_dir: Path):
     if spec is None or spec.loader is None:
         raise SystemExit("unable to load Ppaso runtime module")
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    sys.modules[spec.name] = module
+    try:
+        spec.loader.exec_module(module)
+    except Exception:
+        sys.modules.pop(spec.name, None)
+        raise
     cls = getattr(module, "PpasoTTS", None)
     if cls is None:
         raise SystemExit("PpasoTTS class missing from candidate runtime")
