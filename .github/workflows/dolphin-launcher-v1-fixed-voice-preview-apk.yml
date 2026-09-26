@@ -202,17 +202,18 @@ jobs:
           assert preview.get("canonical_repository_state")=="ASSET_REQUIRED"
           assert preview.get("workspace_state")=="ASSET_READY"
           assert preview.get("promotion_allowed") is False
+          expected={(str(p["sha256"]).lower(),int(p["bytes"])) for p in prompts}
+          assert len(expected)==22,("manifest payload identity drift",len(expected))
           with zipfile.ZipFile(apk) as z:
-              names=set(z.namelist())
-              wav_names=[n for n in names if re.fullmatch(r"res/raw/voice_[a-z0-9_]+\.wav",n)]
-              assert len(wav_names)==22,(len(wav_names),sorted(wav_names))
-              for p in prompts:
-                  name="res/raw/"+p["resource"]+".wav"
-                  assert name in names,name
+              wav_entries=[n for n in z.namelist() if n.lower().endswith(".wav")]
+              actual=set()
+              for name in wav_entries:
                   data=z.read(name)
-                  assert len(data)==int(p["bytes"]),(name,len(data),p["bytes"])
-                  assert hashlib.sha256(data).hexdigest()==p["sha256"],name
-          print("VOICE_PREVIEW_APK_CONTENT_OK preview_assets=22 sha256=verified canonical_manifest_unchanged=true")
+                  actual.add((hashlib.sha256(data).hexdigest(),len(data)))
+              assert len(wav_entries)==22,(len(wav_entries),wav_entries)
+              assert len(actual)==22,("duplicate packaged wav payload",len(actual))
+              assert actual==expected,("packaged wav SHA/byte set mismatch",sorted(actual),sorted(expected))
+          print("VOICE_PREVIEW_APK_CONTENT_OK preview_assets=22 sha256_set=verified aapt_path_independent=true canonical_manifest_unchanged=true")
           PY
 
       - name: Restore stable signing key
