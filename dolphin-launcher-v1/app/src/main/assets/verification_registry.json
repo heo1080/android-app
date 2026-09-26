@@ -1782,7 +1782,9 @@
         "MEDIA CENTER cockpit panel은 전용 glass-vector-v2 surface를 열고 미디어 자동재생 등록 앱/지연시간을 표시",
         "MEDIA CENTER는 실차 재생 검증 전 playback_verified=false와 REVERIFY 상태를 유지",
         "MEDIA CENTER Now Playing은 configured target package의 활성 MediaSession metadata만 표시하고 접근 실패 시 unavailable로 degrade",
-        "VEHICLE INFO는 gear/speed/turn의 미확정 값을 RAW 라벨로만 표시하고 P/R/N/D·km/h 등 의미를 추정하지 않음"
+        "VEHICLE INFO는 gear/speed/turn의 미확정 값을 RAW 라벨로만 표시하고 P/R/N/D·km/h 등 의미를 추정하지 않음",
+        "HOME live binding은 화면 전체 재생성 없이 2초 주기로 Media/Vehicle/TPMS TextView·Gauge만 갱신",
+        "주기적 MediaSession refresh는 metadata 내용을 evidence에 반복 기록하지 않음"
       ],
       "required_logs": [
         "display profile",
@@ -1806,7 +1808,8 @@
         "MEDIA_CENTER_HMI_RENDER",
         "NOW_PLAYING_SNAPSHOT",
         "LIVE_VEHICLE_SPEED_RAW",
-        "LIVE_VEHICLE_GEAR_RAW"
+        "LIVE_VEHICLE_GEAR_RAW",
+        "live_binding_ms=2000"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1838,7 +1841,8 @@
         "state-aware cockpit badge palette",
         "premium media center lists target-scoped autoplay apps",
         "MediaNowPlayingRuntime target-scoped read-only metadata snapshot",
-        "raw-only gear/speed/turn cockpit telemetry"
+        "raw-only gear/speed/turn cockpit telemetry",
+        "homeLiveTick lightweight binding without scroll reset"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {

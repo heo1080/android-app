@@ -264,7 +264,12 @@
         "vehicleSpeedRaw",
         "vehicleGearRaw",
         "rawValue",
-        "normalized=false"
+        "normalized=false",
+        "homeLiveTick",
+        "refreshHomeLiveBindings",
+        "live_binding_ms=2000",
+        "mediaNowPlayingSnapshot(false)",
+        "homeTpmsGauge"
       ]
     },
     {
