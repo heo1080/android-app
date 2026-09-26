@@ -3,27 +3,53 @@ import argparse
 import json
 import re
 import sys
+import tempfile
 import zipfile
 from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTRACTS = ROOT / "verification/test_log_contracts.json"
-REGISTRY = ROOT / "verification/master_registry.json"
+ASSETS = ROOT / "app/src/main/assets"
+CONTRACTS = ASSETS / "test_log_contracts.json"
+REGISTRY = ASSETS / "verification_registry.json"
 LEDGER_NAME = "verification_evidence.jsonl"
+
+# These files define how evidence is interpreted. They are not evidence themselves.
+# Searching their own success_any/failure_any strings would let metadata self-satisfy
+# or self-fail a Test ID, so they must never enter the runtime marker blob.
+METADATA_ONLY_BASENAMES = {
+    "verification_registry.json",
+    "master_registry.json",
+    "test_log_contracts.json",
+    "feature_dependencies.json",
+    "runtime_surfaces.json",
+    "known_bad_registry.json",
+    "voice_prompt_manifest.json",
+    "verification_evaluation.json",
+}
+
+
+def metadata_only(name: str) -> bool:
+    return Path(name).name in METADATA_ONLY_BASENAMES
+
 
 def read_input(path: Path):
     chunks = []
     ledger_lines = []
+
+    def consume(name: str, text: str):
+        base = Path(name).name
+        if base == LEDGER_NAME:
+            ledger_lines.extend(text.splitlines())
+        if not metadata_only(name):
+            chunks.append(text)
+
     if path.is_dir():
         for f in path.rglob("*"):
             if not f.is_file() or f.stat().st_size > 20_000_000:
                 continue
             try:
-                text = f.read_text(encoding="utf-8", errors="ignore")
-                chunks.append(text)
-                if f.name == LEDGER_NAME:
-                    ledger_lines.extend(text.splitlines())
+                consume(str(f.relative_to(path)), f.read_text(encoding="utf-8", errors="ignore"))
             except Exception:
                 pass
     elif path.suffix.lower() == ".zip":
@@ -32,18 +58,14 @@ def read_input(path: Path):
                 if info.file_size > 20_000_000 or info.is_dir():
                     continue
                 try:
-                    text = z.read(info).decode("utf-8", errors="ignore")
-                    chunks.append(text)
-                    if Path(info.filename).name == LEDGER_NAME:
-                        ledger_lines.extend(text.splitlines())
+                    consume(info.filename, z.read(info).decode("utf-8", errors="ignore"))
                 except Exception:
                     pass
     else:
         text = path.read_text(encoding="utf-8", errors="ignore")
-        chunks.append(text)
-        if path.name == LEDGER_NAME:
-            ledger_lines.extend(text.splitlines())
+        consume(path.name, text)
     return "\n".join(chunks), parse_ledger(ledger_lines)
+
 
 def parse_ledger(lines):
     events = []
@@ -59,10 +81,12 @@ def parse_ledger(lines):
             pass
     return events
 
+
 def contains(blob: str, pattern: str) -> bool:
     if pattern.startswith("re:"):
         return re.search(pattern[3:], blob, re.I | re.M) is not None
     return pattern.lower() in blob.lower()
+
 
 def structured_observations(events, test_id):
     grouped = defaultdict(list)
@@ -92,6 +116,7 @@ def structured_observations(events, test_id):
         })
     return sorted(observations, key=lambda x: x["wall_time_ms"])
 
+
 def has_build_fingerprint(obs):
     build = obs["result"].get("build")
     if not isinstance(build, dict):
@@ -99,9 +124,11 @@ def has_build_fingerprint(obs):
     required = ("version_name", "version_code", "source_commit", "apk_sha256")
     return all(build.get(k) not in (None, "", "local-unknown") for k in required)
 
+
 def has_preconditions(obs):
     pre = obs["result"].get("preconditions")
     return isinstance(pre, dict) and bool(pre)
+
 
 def session_key(obs, requires_session):
     sid = obs["result"].get("diagnostic_session_id")
@@ -113,7 +140,8 @@ def session_key(obs, requires_session):
     build = obs["result"].get("build") or {}
     return str(sid or build.get("source_commit") or obs["correlation_id"])
 
-def observation_result(contract, obs, blob):
+
+def observation_result(contract, obs, runtime_blob):
     outcome = str(obs["result"].get("outcome", "")).upper()
     if outcome not in contract.get("allowed_outcomes", []):
         return "NEED_MORE_DATA", "outcome_not_allowed"
@@ -125,9 +153,9 @@ def observation_result(contract, obs, blob):
     if session_key(obs, contract.get("requires_diagnostic_session", True)) is None:
         return "NEED_MORE_DATA", "diagnostic_session_not_active"
 
-    for p in contract.get("failure_any", []):
-        if contains(blob, p):
-            return "FAIL", "failure_pattern:" + p
+    for pattern in contract.get("failure_any", []):
+        if contains(runtime_blob, pattern):
+            return "FAIL", "failure_pattern:" + pattern
 
     if outcome == "FAIL":
         return "FAIL", "operator"
@@ -139,11 +167,12 @@ def observation_result(contract, obs, blob):
         return "NEED_MORE_DATA", "missing_operator_outcome"
 
     success = contract.get("success_any", [])
-    if success and not any(contains(blob, p) for p in success):
+    if success and not any(contains(runtime_blob, pattern) for pattern in success):
         return "INCONCLUSIVE", "operator_pass_without_runtime_success_marker"
     return "PASS", "structured_operator+runtime" if success else "structured_operator"
 
-def evaluate_contract(contract, blob, events):
+
+def evaluate_contract(contract, runtime_blob, events):
     observations = structured_observations(events, contract["test_id"])
     if not observations:
         return {
@@ -160,7 +189,7 @@ def evaluate_contract(contract, blob, events):
     evaluated = []
     pass_sessions = set()
     for obs in observations:
-        result, reason = observation_result(contract, obs, blob)
+        result, reason = observation_result(contract, obs, runtime_blob)
         skey = session_key(obs, contract.get("requires_diagnostic_session", True))
         if result == "PASS" and skey:
             pass_sessions.add(skey)
@@ -180,6 +209,7 @@ def evaluate_contract(contract, blob, events):
         "promotion_ready": promotion_ready,
         "known_bad_ids": contract.get("known_bad_ids", []),
     }
+
 
 def known_bad_recommendations(registry, results):
     by_test = {r["test_id"]: r for r in results}
@@ -203,43 +233,114 @@ def known_bad_recommendations(registry, results):
         })
     return out
 
+
+def _sample_events(test_id, feature_id, outcome="PASS", session="S1"):
+    cid = "CID-" + session
+    base = {
+        "schema_version": 3,
+        "correlation_id": cid,
+        "test_id": test_id,
+        "feature_id": feature_id,
+        "diagnostic_session_id": session,
+        "diagnostic_session_active": True,
+        "build": {
+            "version_name": "x",
+            "version_code": 1,
+            "source_commit": "abc",
+            "apk_sha256": "123",
+        },
+        "preconditions": {"safe_test": True},
+        "wall_time_ms": 1,
+    }
+    return [
+        dict(base, event="TEST_START"),
+        dict(base, event="OPERATOR_RESULT", outcome=outcome),
+        dict(base, event="TEST_END", outcome=outcome),
+    ]
+
+
+def _write_test_zip(path: Path, metadata_text: str, runtime_text: str = ""):
+    events = _sample_events("META-SELF-001", "MASTER_VERIFICATION_REGISTRY")
+    ledger = "\n".join(json.dumps(row, ensure_ascii=False) for row in events) + "\n"
+    with zipfile.ZipFile(path, "w") as z:
+        z.writestr("test_log_contracts.json", metadata_text)
+        z.writestr("verification_registry.json", metadata_text)
+        z.writestr("known_bad_registry.json", metadata_text)
+        z.writestr("verification_evaluation.json", metadata_text)
+        z.writestr(LEDGER_NAME, ledger)
+        if runtime_text:
+            z.writestr("runtime.log", runtime_text)
+
+
+def metadata_isolation_self_test():
+    contract = {
+        "test_id": "META-SELF-001",
+        "feature_id": "MASTER_VERIFICATION_REGISTRY",
+        "allowed_outcomes": ["PASS", "FAIL", "NEED_MORE_DATA"],
+        "requires_build_fingerprint": True,
+        "requires_preconditions": True,
+        "requires_diagnostic_session": True,
+        "repeatability_required_sessions": 1,
+        "success_any": ["RUNTIME_SUCCESS_MARKER"],
+        "failure_any": ["RUNTIME_FAILURE_MARKER"],
+        "known_bad_ids": [],
+    }
+    metadata = json.dumps({
+        "success_any": ["RUNTIME_SUCCESS_MARKER"],
+        "failure_any": ["RUNTIME_FAILURE_MARKER"],
+    })
+
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+
+        metadata_only_zip = root / "metadata-only.zip"
+        _write_test_zip(metadata_only_zip, metadata)
+        runtime_blob, events = read_input(metadata_only_zip)
+        assert "RUNTIME_SUCCESS_MARKER" not in runtime_blob
+        assert "RUNTIME_FAILURE_MARKER" not in runtime_blob
+        result = evaluate_contract(contract, runtime_blob, events)
+        assert result["result"] == "INCONCLUSIVE", result
+
+        success_zip = root / "runtime-success.zip"
+        _write_test_zip(success_zip, metadata, "RUNTIME_SUCCESS_MARKER")
+        runtime_blob, events = read_input(success_zip)
+        result = evaluate_contract(contract, runtime_blob, events)
+        assert result["result"] == "PASS", result
+        assert result["promotion_ready"] is True, result
+
+        failure_zip = root / "runtime-failure.zip"
+        _write_test_zip(failure_zip, metadata, "RUNTIME_FAILURE_MARKER")
+        runtime_blob, events = read_input(failure_zip)
+        result = evaluate_contract(contract, runtime_blob, events)
+        assert result["result"] == "FAIL", result
+
+    print("DIAGNOSTIC_EVALUATOR_METADATA_ISOLATION_OK metadata_self_match=false")
+
+
 def self_test(contracts):
     by_id = {c["test_id"]: c for c in contracts}
     contract = dict(by_id["AUD-TTS-001"])
     contract["success_any"] = ["stream14 voice played"]
     sample_events = []
     for session in ("S1", "S2"):
-        cid = "CID-" + session
-        base = {
-            "schema_version": 1,
-            "correlation_id": cid,
-            "test_id": "AUD-TTS-001",
-            "feature_id": "IN_APP_TTS_CORE",
-            "diagnostic_session_id": session,
-            "diagnostic_session_active": True,
-            "build": {
-                "version_name": "x",
-                "version_code": 1,
-                "source_commit": "abc",
-                "apk_sha256": "123",
-            },
-            "preconditions": {"gear_raw": 0},
-            "wall_time_ms": 1 if session == "S1" else 2,
-        }
-        sample_events += [
-            dict(base, event="TEST_START"),
-            dict(base, event="OPERATOR_RESULT", outcome="PASS"),
-            dict(base, event="TEST_END", outcome="PASS"),
-        ]
+        sample_events += _sample_events(
+            "AUD-TTS-001", "IN_APP_TTS_CORE", outcome="PASS", session=session
+        )
     result = evaluate_contract(contract, "stream14 voice played", sample_events)
     assert result["result"] == "PASS"
     assert result["promotion_ready"] is True
+
     blocked = dict(by_id["DSP-ORI-001"])
-    blocked_result = evaluate_contract(blocked, "", [
-        dict(sample_events[0], test_id="DSP-ORI-001", feature_id="FORCED_APP_ORIENTATION", outcome="PASS"),
-    ])
+    blocked_result = evaluate_contract(
+        blocked,
+        "",
+        _sample_events("DSP-ORI-001", "FORCED_APP_ORIENTATION", outcome="PASS"),
+    )
     assert blocked_result["result"] == "NEED_MORE_DATA"
-    print("DIAGNOSTIC_EVALUATOR_SELF_TEST_OK")
+
+    metadata_isolation_self_test()
+    print("DIAGNOSTIC_EVALUATOR_SELF_TEST_OK runtime_evidence_only=true")
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -261,15 +362,21 @@ def main():
     path = Path(args.input)
     if not path.exists():
         raise SystemExit(f"input not found: {path}")
-    blob, events = read_input(path)
-    results = [evaluate_contract(c, blob, events) for c in contracts]
-    summary = {k: sum(1 for r in results if r["result"] == k) for k in ["PASS", "FAIL", "INCONCLUSIVE", "NEED_MORE_DATA"]}
+    runtime_blob, events = read_input(path)
+    results = [evaluate_contract(c, runtime_blob, events) for c in contracts]
+    summary = {
+        key: sum(1 for r in results if r["result"] == key)
+        for key in ["PASS", "FAIL", "INCONCLUSIVE", "NEED_MORE_DATA"]
+    }
     output = {
-        "schema_version": 2,
+        "schema_version": 3,
         "input": str(path),
+        "evidence_scope": "runtime-only; canonical metadata excluded",
         "structured_event_count": len(events),
         "summary": summary,
-        "promotion_ready_tests": sorted(r["test_id"] for r in results if r.get("promotion_ready")),
+        "promotion_ready_tests": sorted(
+            r["test_id"] for r in results if r.get("promotion_ready")
+        ),
         "known_bad": known_bad_recommendations(registry, results),
         "results": results,
     }
@@ -279,6 +386,7 @@ def main():
     print(rendered)
     if summary["FAIL"]:
         sys.exit(2)
+
 
 if __name__ == "__main__":
     main()
