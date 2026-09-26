@@ -185,6 +185,18 @@ public final class VehicleReadOnlyMonitor {
         VerificationEvidenceRuntime.updateLiveCorrelationValue("radar_area8_raw",radarRight);
         boolean radarChanged=changed("radar.frontLeftMid",radarLeft);
         radarChanged=changed("radar.frontRightMid",radarRight) || radarChanged;
+        if(radarChanged || tjaChanged) {
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    app,"LEADING_CAR_CONTEXT_SAMPLE",
+                    "radar_area7_raw="+radarLeft
+                            +";radar_area8_raw="+radarRight
+                            +";speed_raw="+speed
+                            +";tja_raw="+tja
+                            +";assist_context_semantic=unmapped"
+                            +";object_semantic=false"
+                            +";voice_enabled=false"
+                            +";vehicle_write=false");
+        }
         if(radarChanged) post(()->listener.onFrontRadarRaw(radarLeft,radarRight));
 
         // Resolve BYD wheel-area constants before any TPMS API call. Never pass
