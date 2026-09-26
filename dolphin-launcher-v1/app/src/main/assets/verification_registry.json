@@ -1375,7 +1375,8 @@
       "area": "fsd",
       "requirement": "실제 사람/차량/차선/도로 객체는 접근 가능한 센서 또는 검증된 비전 모델에서만 생성한다.",
       "source_paths": [
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
       ],
       "test_ids": [
         "FSD-OBJ-001"
@@ -1408,7 +1409,8 @@
         "sensor access proof 전 visual-only mock 금지"
       ],
       "evidence": [
-        "current Surrounding Vision intentionally read-only/raw"
+        "current Surrounding Vision intentionally read-only/raw",
+        "LauncherActivity Golden Reference v3 FSD Safety panel displays BLOCKED/semantics LOCKED without fabricated objects"
       ],
       "next_action": "sensor capability research 우선",
       "confidence": {
@@ -1491,7 +1493,8 @@
       "area": "vehicle_read",
       "requirement": "배터리 등 HOME의 LIVE 값은 실제 vehicle getter에서만 표시한다.",
       "source_paths": [
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
       ],
       "test_ids": [
         "VEH-INFO-001"
@@ -1528,7 +1531,8 @@
       "evidence": [
         "HomeHmiView source says no mock numbers",
         "continuous read-only getCurrentSpeed raw telemetry",
-        "Golden Reference v3 Vehicle Info hero keeps raw-only telemetry boundary"
+        "Golden Reference v3 Vehicle Info hero keeps raw-only telemetry boundary",
+        "LauncherActivity Golden Reference v3 Vehicle Info panel binds only raw observed values"
       ],
       "next_action": "각 field별 getter mapping 등록",
       "confidence": {
