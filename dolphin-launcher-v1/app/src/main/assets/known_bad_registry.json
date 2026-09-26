@@ -162,9 +162,9 @@
       "test_ids": [
         "GOV-REG-001"
       ],
-      "summary": "Evidence evaluator can self-match success_any/failure_any literals from bundled canonical metadata; V1 metadata-isolated evaluator candidate exists, but production diagnostics evaluator must still be switched and existing evidence re-evaluated.",
+      "summary": "Historical evaluator behavior could self-match success_any/failure_any literals from bundled canonical metadata. Runtime-only metadata isolation is now implemented in both V1 and production diagnostics evaluators, but representative existing Evidence still requires re-evaluation before KB-014 can advance from FIX_CANDIDATE.",
       "state": "FIX_CANDIDATE",
-      "close_gate": "V1 and production diagnostics evaluators exclude canonical metadata/prior evaluation output from runtime marker matching; metadata-only synthetic ZIP stays INCONCLUSIVE, explicit runtime success/failure markers classify correctly, and representative existing evidence is re-evaluated before GOV-REG-001 PASS is restored"
+      "close_gate": "Keep V1 and production diagnostics evaluators on runtime-only marker scope; metadata-only synthetic ZIP must remain INCONCLUSIVE and explicit runtime success/failure markers must classify correctly; then re-evaluate representative existing Evidence and confirm metadata contamination is removed before any KB-014 lifecycle advance or GOV-REG-001 PASS"
     }
   ]
 }
