@@ -2722,7 +2722,7 @@
         "Known-Bad required Test ID가 log contract와 연결",
         "핵심 Runtime Surface token 누락 시 CI 실패",
         "차량 Verification Center에서 Test ID별 operator result를 OPERATOR_RESULT 로그로 기록",
-        "54개 모든 Test ID가 test_log_contracts에 1:1로 존재",
+        "58개 모든 Test ID가 test_log_contracts에 1:1로 존재",
         "Test ID별 결과가 append-only evidence ledger에 correlation/build/precondition/session과 함께 기록",
         "BLOCKED/UNSUPPORTED Test ID는 PASS/FAIL 기록 불가",
         "repeatability와 Known-Bad lifecycle을 자동 평가",
@@ -3075,6 +3075,187 @@
         "adaptive_hero=true",
         "pending_identity=package-stage",
         "pending_data_unique=true"
+      ]
+    },
+    {
+      "test_id": "PARK-HAZ-001",
+      "feature_id": "PARKING_REVERSE_HAZARD_AUTOMATION",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 0,
+      "required_any": [
+        "PARK_HAZARD_CAPABILITY",
+        "PARK_HAZARD_PLAN"
+      ],
+      "success_any": [],
+      "failure_any": [
+        "vehicle_write=true",
+        "hazard setter invoked before proof"
+      ],
+      "known_bad_ids": [],
+      "acceptance": [
+        "R 최초 진입은 parking session 시작과 desired_hazard=ON 계획만 기록",
+        "주차 중 D/N/R 기어변속에서도 desired_hazard=ON 계획을 유지",
+        "P 진입은 10초 OFF 타이머를 arm하고 P 이탈 시 타이머를 취소",
+        "최종 P가 10초 연속 유지된 경우에만 desired_hazard=OFF 계획 기록",
+        "실제 hazard setter/readback pair와 물리 점멸이 입증되기 전 vehicle write 금지",
+        "BLOCKED 상태에서는 PASS를 허용하지 않으며 planner timing evidence만 수집"
+      ],
+      "required_logs": [
+        "PARK_HAZARD_CAPABILITY_METHOD",
+        "PARK_HAZARD_CAPABILITY",
+        "PARK_HAZARD_PLAN",
+        "PARK_HAZARD_PARK_ARMED",
+        "PARK_HAZARD_PARK_CANCELLED",
+        "hazard_raw",
+        "setter_proven=false",
+        "would_request_only=true",
+        "vehicle_write=false"
+      ]
+    },
+    {
+      "test_id": "PARK-HAZ-002",
+      "feature_id": "PARKING_REVERSE_HAZARD_AUTOMATION",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 0,
+      "required_any": [
+        "PARK_HAZARD_PARK_ARMED",
+        "PARK_HAZARD_PARK_CANCELLED",
+        "PARK_HAZARD_PLAN"
+      ],
+      "success_any": [],
+      "failure_any": [
+        "vehicle_write=true",
+        "premature desired_hazard=OFF"
+      ],
+      "known_bad_ids": [],
+      "acceptance": [
+        "P 후 10초 안에 R/D/N으로 이탈하면 pending OFF 계획이 취소됨",
+        "P 10초 안정화 전에는 PARK_COMPLETE/OFF 계획을 기록하지 않음",
+        "P 10초 안정화 후 OFF 계획은 would-request evidence이며 실제 actuation이 아님",
+        "실차 readback과 operator observation은 추후 setter 검증과 분리 기록",
+        "BLOCKED 상태에서는 실제 비상등 자동제어를 활성화하지 않음"
+      ],
+      "required_logs": [
+        "PARK_HAZARD_PARK_ARMED",
+        "PARK_HAZARD_PARK_CANCELLED",
+        "PARK_HAZARD_PLAN",
+        "delay_ms=10000",
+        "phase=PARK_COMPLETE",
+        "would_request_only=true",
+        "vehicle_write=false"
+      ]
+    },
+    {
+      "test_id": "ADAS-LDW-001",
+      "feature_id": "LANE_DEPARTURE_DIRECTIONAL_VOICE",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 0,
+      "required_any": [
+        "LANE_DEPARTURE_CAPABILITY"
+      ],
+      "success_any": [],
+      "failure_any": [
+        "directional voice emitted before mapping proof",
+        "fixed_voice_asset_added=true"
+      ],
+      "known_bad_ids": [],
+      "acceptance": [
+        "일반 주행에서 LKS/LDW/LDP/LANE/ELK runtime surface를 passive inventory",
+        "메서드/상수 이름만으로 LEFT/RIGHT 차선이탈 의미를 추정하지 않음",
+        "directional raw 후보는 실제 좌/우 차선이탈 operator observation과 별도 correlation 필요",
+        "directional_signal_proven=false 동안 왼쪽/오른쪽 차선이탈 음성을 출력하지 않음",
+        "BLOCKED 상태에서는 fixed voice asset을 추가하지 않고 NEED_MORE_DATA만 허용"
+      ],
+      "required_logs": [
+        "LANE_DEPARTURE_CAPABILITY_METHOD",
+        "LANE_DEPARTURE_CAPABILITY_CONSTANT",
+        "LANE_DEPARTURE_CAPABILITY",
+        "lks_surface_present",
+        "directional_candidate_present",
+        "directional_signal_proven=false",
+        "normal_drive_voice_enabled=false",
+        "fixed_voice_asset_added=false",
+        "vehicle_write=false"
+      ]
+    },
+    {
+      "test_id": "ADAS-LDW-002",
+      "feature_id": "LANE_DEPARTURE_DIRECTIONAL_VOICE",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 0,
+      "required_any": [
+        "LANE_DEPARTURE_CAPABILITY"
+      ],
+      "success_any": [],
+      "failure_any": [
+        "ICC/ACC directional voice emitted before mapping proof",
+        "assist mode inferred from method presence"
+      ],
+      "known_bad_ids": [],
+      "acceptance": [
+        "ICC/ACC/TJA 관련 runtime surface 존재 여부를 lane candidate와 분리해 기록",
+        "일반 주행에서 검증된 directional semantic이 ICC/ACC 작동 중에도 동일한지 별도 실차 correlation 필요",
+        "assist_context_surface_present만으로 ICC/ACC active 상태를 추정하지 않음",
+        "directional_signal_proven=false 동안 ICC/ACC 차선이탈 음성을 출력하지 않음",
+        "BLOCKED 상태에서는 fixed voice asset을 추가하지 않고 NEED_MORE_DATA만 허용"
+      ],
+      "required_logs": [
+        "LANE_DEPARTURE_CAPABILITY_METHOD",
+        "LANE_DEPARTURE_CAPABILITY_CONSTANT",
+        "LANE_DEPARTURE_CAPABILITY",
+        "assist_context_surface_present",
+        "directional_signal_proven=false",
+        "icc_acc_voice_enabled=false",
+        "fixed_voice_asset_added=false",
+        "vehicle_write=false"
       ]
     }
   ]
