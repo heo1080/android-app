@@ -2642,17 +2642,41 @@ public class LauncherActivity extends Activity {
 
         String state = registryFeatureState(
                 "BACKGROUND_MEDIA_AUTOPLAY","REVERIFY_REQUIRED");
+        MediaNowPlayingRuntime.Snapshot nowPlaying = mediaNowPlayingSnapshot();
+        List<AppEntry> mediaApps = mediaAutoStartApps();
+
         panel.addView(hmiDialogHeader(
                 "MEDIA CENTER","Target-scoped MediaSession · "+state,"▶"));
         panel.addView(hmiInfoStrip(
                 "전역 media key 미사용 · 대상 MediaSession만 PLAY 요청 · 실차 재검증 필요"));
 
-        MediaNowPlayingRuntime.Snapshot nowPlaying = mediaNowPlayingSnapshot();
+        String heroStatus=state + (nowPlaying.available
+                ? " · "+nowPlaying.playback : " · SESSION WAITING");
+        String heroDetail=nowPlaying.available
+                ? nowPlaying.title+" · "+nowPlaying.artist
+                : "configured targets "+mediaApps.size()+" · "+nowPlaying.reason;
+        panel.addView(referencePanelHero(
+                CockpitPanelGraphicView.MEDIA,
+                "TARGET MEDIA SESSION",
+                nowPlaying.available ? "NOW PLAYING" : "MEDIA READY",
+                heroStatus,
+                heroDetail),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(118)));
+
+        panel.addView(referenceSectionLabel(
+                "SESSION DETAIL","audible success = operator verification"),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(34)));
         panel.addView(nowPlayingCard(nowPlaying),
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,dp(92)));
 
-        List<AppEntry> mediaApps = mediaAutoStartApps();
+        panel.addView(referenceSectionLabel(
+                "AUTOPLAY TARGETS",mediaApps.size()+" configured"),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(34)));
+
         if (mediaApps.isEmpty()) {
             TextView empty = text(
                     "미디어 자동재생으로 등록된 앱이 없습니다.\n"
@@ -2691,10 +2715,12 @@ public class LauncherActivity extends Activity {
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this,"MEDIA_CENTER_HMI_RENDER",
-                "variant=glass-vector-v2;state="+state
+                "variant=golden-reference-v3;state="+state
                         +";configured_media_apps="+mediaApps.size()
                         +";now_playing_available="+nowPlaying.available
                         +";now_playing_state="+nowPlaying.playback
+                        +";panel_hero=true"
+                        +";target_scoped=true"
                         +";playback_verified=false");
 
         new AlertDialog.Builder(this)
