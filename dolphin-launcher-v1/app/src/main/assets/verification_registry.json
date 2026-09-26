@@ -1882,7 +1882,9 @@
         "Media/Vehicle/FSD·Safety 상세 패널은 동일한 Golden Reference visual hero 구조를 사용하되 각 패널의 검증 경계를 다르게 표시",
         "MEDIA CENTER hero는 target MediaSession 상태와 configured target 수를 보여주고 playback_verified=false를 유지",
         "VEHICLE INFO hero는 RAW SOURCE ACTIVE/WAITING과 READ ONLY를 표시하며 normalized=false/actuation=false를 유지",
-        "FSD·SAFETY hero는 navigation provenance 상태와 FSD BLOCKED/semantics LOCKED 경계를 표시하고 객체/차선 의미를 생성하지 않음"
+        "FSD·SAFETY hero는 navigation provenance 상태와 FSD BLOCKED/semantics LOCKED 경계를 표시하고 객체/차선 의미를 생성하지 않음",
+        "UI layout audit의 48dp 검사는 View 전체 크기가 아니라 실제 global visible width/height를 사용",
+        "UI frame timing JSON은 diagnostic session_id를 포함하고 Evidence ZIP은 현재 session과 일치하는 timing만 포함"
       ],
       "required_logs": [
         "display profile",
@@ -1939,7 +1941,9 @@
         "vehicle_source_live=",
         "fsd_state=",
         "SEMANTICS",
-        "LOCKED"
+        "LOCKED",
+        "frame_timing_session_id",
+        "visible_touch_geometry"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1992,7 +1996,9 @@
         "cockpit role badges MEDIA/SOURCE/RAW",
         "Media Center golden-reference-v3 target-scoped panel",
         "Vehicle Info golden-reference-v3 raw-only panel",
-        "FSD Safety golden-reference-v3 provenance boundary panel"
+        "FSD Safety golden-reference-v3 provenance boundary panel",
+        "UiLayoutAuditRuntime visible-geometry touch target measurement",
+        "UiFrameTimingRuntime session-bound sample and VerificationEvidenceRuntime same-session ZIP filter"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
@@ -2086,7 +2092,8 @@
         "Verification Center는 최근 UI layout audit를 CLEAN/REVIEW/REGRESSION/CAPTURE REQUIRED로 표시하되 Feature VERIFIED 판정과 분리",
         "UI QUALITY 상세는 touch/ellipsis/clipping, display profile, baseline delta를 표시하고 실제 텍스트 내용은 노출하지 않음",
         "UI QUALITY 상세는 최신 HMI frame p95/max/>32ms를 diagnostic-only로 표시",
-        "Evidence ZIP은 최신 structured frame timing JSON을 ui_frame_timing/latest.json으로 포함"
+        "Evidence ZIP은 최신 structured frame timing JSON을 ui_frame_timing/latest.json으로 포함",
+        "UI frame timing evidence는 diagnostic session ID로 묶어 과거 session latest 파일 혼입을 차단"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2141,7 +2148,10 @@
         "ui_screenshots/",
         "ui_layout_audits/",
         "UI_QUALITY_SUMMARY_OPENED",
-        "ui_frame_timing/latest.json"
+        "ui_frame_timing/latest.json",
+        "UI_FRAME_TIMING",
+        "session_id",
+        "same-session timing filter"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
