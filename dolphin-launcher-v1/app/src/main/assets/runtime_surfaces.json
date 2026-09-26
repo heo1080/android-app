@@ -297,7 +297,9 @@
         "state_badges=HOME,AUTO,MEDIA,L,R",
         "AutoStartStore.mediaEnabled",
         "KEY_SPLIT_LEFT",
-        "KEY_SPLIT_RIGHT"
+        "KEY_SPLIT_RIGHT",
+        "tile_height_dp=138",
+        "lp.height = dp(138)"
       ]
     },
     {
