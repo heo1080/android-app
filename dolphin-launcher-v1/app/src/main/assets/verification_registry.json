@@ -48,7 +48,9 @@
         "동일 signing certificate 유지",
         "packaged APK launchable activity는 com.dolphin.launcher.v1.LauncherActivity 정확히 1개",
         "BYD 설치 호환성이 실차 검증되기 전 HOME category는 packaged Manifest에 없어야 함",
-        "minSdk=29 targetSdk=35가 packaged APK metadata와 일치"
+        "minSdk=29 targetSdk=35가 packaged APK metadata와 일치",
+        "canonical release identity remains com.dolphin.launcher.v1 while voicePreview uses com.dolphin.launcher.v1.voicepreview only for real-car fixed-voice audition",
+        "voicePreview uses the same stable signing certificate but a distinct package identity so it cannot overwrite the canonical install"
       ],
       "required_logs": [
         "source commit",
@@ -79,7 +81,8 @@
         "CI validates packaged APK package/version/minSdk/targetSdk/launchable activity",
         "packaged Manifest must contain LAUNCHER and must not contain HOME",
         "build identity evidence records source commit/APK SHA-256",
-        "CI BUILD_IDENTITY_OK home=0 launchable=1"
+        "CI BUILD_IDENTITY_OK home=0 launchable=1",
+        "Gradle voicePreview build type isolates audition package identity from canonical release"
       ],
       "next_action": "최신 V1 APK를 BYD Korean Dolphin에 설치해 desktop-app 오인 없이 앱서랍 노출/일반 실행을 LCH-ID-001로 재검증",
       "confidence": {
@@ -609,7 +612,9 @@
         "dolphin-launcher-v1/tools/generate_fixed_voice_assets.py",
         "dolphin-launcher-v1/tools/generate_ppaso_voice_candidate.py",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleVoicePolicy.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/build.gradle.kts",
+        "dolphin-launcher-v1/tools/prepare_fixed_voice_preview.py"
       ],
       "test_ids": [
         "AUD-TTS-001",
@@ -641,7 +646,12 @@
         "SOUND LAB 고정 음성 패널은 VehicleVoicePolicy prompt catalog 22개를 단일 원천으로 사용하고 Launcher에 별도 phrase 사본을 두지 않는다",
         "고정 음성 미리듣기 패널의 각 버튼은 promptId/phrase를 그대로 VehiclePromptPlayer.play()에 전달하며 차량 상태를 변경하지 않는다",
         "미리듣기 패널 open/request 이벤트는 실제 가청 성공과 분리 기록되며 VOICE_PLAY_REQUESTED만으로 audible PASS 처리하지 않는다",
-        "candidate preview APK에서 packaged fixed asset 청취를 수행할 수 있어야 하며 canonical feature state는 실차 evidence 전 REVERIFY_REQUIRED 유지"
+        "candidate preview APK에서 packaged fixed asset 청취를 수행할 수 있어야 하며 canonical feature state는 실차 evidence 전 REVERIFY_REQUIRED 유지",
+        "voicePreview build uses applicationIdSuffix=.voicepreview so fixed-voice audition can coexist with the canonical com.dolphin.launcher.v1 install",
+        "voicePreview build sets BuildConfig.VOICE_PREVIEW_BUILD=true while canonical release remains false",
+        "preview asset preparation requires canonical voice_prompt_manifest to start ASSET_REQUIRED, verifies the 22-candidate manifest/WAV SHA-256 pairs, then mutates only the CI workspace copy to ASSET_READY",
+        "preview APK embeds exactly 22 reviewed-candidate WAV resources and a preview-only manifest while repository canonical voice_prompt_manifest remains ASSET_REQUIRED",
+        "voice-preview packaging is a real-car audition surface only and never promotes IN_APP_TTS_CORE beyond REVERIFY_REQUIRED"
       ],
       "required_logs": [
         "VOICE_ASSET_READY",
@@ -670,7 +680,11 @@
         "VOICE_FIXED_PREVIEW_HMI_RENDER",
         "VOICE_FIXED_PREVIEW_REQUESTED",
         "prompt_count=22",
-        "vehicle_write=false"
+        "vehicle_write=false",
+        "VOICE_PREVIEW_PACKAGE_READY",
+        "preview_package=com.dolphin.launcher.v1.voicepreview",
+        "canonical_manifest_unchanged=true",
+        "preview_assets=22"
       ],
       "known_bad": [
         "현재 고정 voice_* raw 자산이 아직 공급되지 않아 Android TTS fallback에 의존",
@@ -702,9 +716,10 @@
         "voice_prompt_manifest locks Azure Speech ko-KR-SunHiNeural generation profile without persisting credentials",
         "Ppaso-TTS candidate path is generation-only; model weights are not packaged into APK",
         "Ppaso candidate post-process trims model-added silence only; manual pronunciation/quality review remains mandatory before promotion",
-        "VehicleVoicePolicy phraseForPromptId + LauncherActivity fixed voice preview panel keep all 22 review buttons bound to the canonical prompt catalog"
+        "VehicleVoicePolicy phraseForPromptId + LauncherActivity fixed voice preview panel keep all 22 review buttons bound to the canonical prompt catalog",
+        "voicePreview Android build type plus prepare_fixed_voice_preview.py provide an isolated signed real-car audition APK without committing candidate WAV binaries"
       ],
-      "next_action": "고정 음성 preview APK에서 22개 버튼을 연속 청취하고 발음/음질/지연 Evidence를 AUD-TTS-001/002에 기록; 승인 전 REVERIFY_REQUIRED 유지",
+      "next_action": "signed voice-preview APK에서 SOUND LAB 22개 prompt를 실차 청취하고 AUD-TTS-001/002 operator Evidence 확보; 통과 전 canonical ASSET_REQUIRED/REVERIFY_REQUIRED 유지",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
@@ -1899,7 +1914,9 @@
         "OTA release discovery requires GitHub prerelease=true in addition to dolphin-launcher-v1-v* tag prefix; stable releases with the same prefix are ignored",
         "process-death exact-tag restore also rejects a tag if it no longer resolves to a prerelease with both APK and SHA-256 assets",
         "APP_UPDATE_INSTALL_STAGED and final APP_UPDATE_INSTALL_STATUS evidence share the same PackageInstaller session_id and selected release tag",
-        "PENDING_USER_ACTION / SUCCESS / FAILURE install status events retain session_id + release correlation instead of status-only evidence"
+        "PENDING_USER_ACTION / SUCCESS / FAILURE install status events retain session_id + release correlation instead of status-only evidence",
+        "BuildConfig.VOICE_PREVIEW_BUILD=true이면 automatic/manual OTA check와 pending install resume를 fail-closed로 억제해 preview package가 canonical OTA channel을 사용하지 않는다",
+        "voice-preview OTA suppression is logged and performs no release download, PackageInstaller stage, or update permission flow"
       ],
       "required_logs": [
         "release metadata",
@@ -1921,7 +1938,10 @@
         "APP_UPDATE_INSTALL_STATUS",
         "release_prerelease=true",
         "APP_UPDATE_INSTALL_STATUS session_id",
-        "APP_UPDATE_INSTALL_STATUS release tag"
+        "APP_UPDATE_INSTALL_STATUS release tag",
+        "APP_UPDATE_SUPPRESSED_PREVIEW_BUILD",
+        "voice_preview=true",
+        "network_check=false"
       ],
       "known_bad": [
         "versionCode downgrade 설치 실패가 과거 발생하여 v34.3.1에서 114로 수정한 기록",
@@ -1948,7 +1968,8 @@
         "UpdateInstallReceiver records pending-user-action/success/failure status",
         "AppUpdateManager persists the consented release tag before opening unknown-app-source settings and re-fetches that exact tag after process recreation",
         "AppUpdateManager requires GitHub prerelease=true before tag-prefix acceptance and records release_prerelease in release/package verification evidence",
-        "AppUpdateManager status PendingIntent carries selected release tag + expected session id; UpdateInstallReceiver records PackageInstaller session_id/release on PENDING/SUCCESS/FAILURE"
+        "AppUpdateManager status PendingIntent carries selected release tag + expected session id; UpdateInstallReceiver records PackageInstaller session_id/release on PENDING/SUCCESS/FAILURE",
+        "AppUpdateManager preview-build guard returns before release discovery or pending-install resume"
       ],
       "next_action": "OTA prerelease gate와 install status session/release correlation을 CI로 고정하고 V1 실차에서 UPD-001/UPD-002 재검증",
       "confidence": {
