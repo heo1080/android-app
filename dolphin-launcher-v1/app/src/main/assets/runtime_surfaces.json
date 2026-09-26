@@ -1728,6 +1728,19 @@
       "tokens": [
         "buildConfigField(\"String\", \"SOURCE_COMMIT\""
       ]
+    },
+    {
+      "feature_id": "MASTER_VERIFICATION_REGISTRY",
+      "path": "dolphin-launcher-v1/tools/evaluate_diagnostic.py",
+      "tokens": [
+        "METADATA_ONLY_BASENAMES",
+        "verification_evaluation.json",
+        "if not metadata_only(name):",
+        "metadata_isolation_self_test",
+        "DIAGNOSTIC_EVALUATOR_METADATA_ISOLATION_OK metadata_self_match=false",
+        "DIAGNOSTIC_EVALUATOR_SELF_TEST_OK runtime_evidence_only=true",
+        "\"evidence_scope\": \"runtime-only; canonical metadata excluded\""
+      ]
     }
   ],
   "notes": [
