@@ -35,7 +35,8 @@
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java",
         "dolphin-launcher-v1/app/src/main/AndroidManifest.xml",
-        "dolphin-launcher-v1/app/build.gradle.kts"
+        "dolphin-launcher-v1/app/build.gradle.kts",
+        ".github/workflows/dolphin-launcher-v1.yml"
       ],
       "test_ids": [
         "BLD-ID-001",
@@ -50,7 +51,8 @@
         "BYD 설치 호환성이 실차 검증되기 전 HOME category는 packaged Manifest에 없어야 함",
         "minSdk=29 targetSdk=35가 packaged APK metadata와 일치",
         "canonical release identity remains com.dolphin.launcher.v1 while voicePreview uses com.dolphin.launcher.v1.voicepreview only for real-car fixed-voice audition",
-        "voicePreview uses the same stable signing certificate but a distinct package identity so it cannot overwrite the canonical install"
+        "voicePreview uses the same stable signing certificate but a distinct package identity so it cannot overwrite the canonical install",
+        "Real-car BETA release metadata version_code는 Gradle/APK manifest versionCode와 정확히 일치"
       ],
       "required_logs": [
         "source commit",
@@ -62,10 +64,12 @@
         "HOME category absent",
         "minSdk 29",
         "targetSdk 35",
-        "BUILD_IDENTITY_OK"
+        "BUILD_IDENTITY_OK",
+        "REALCAR_BETA_METADATA_VERSION_MATCH"
       ],
       "known_bad": [
-        "과거 V1 설치본에서 HOME category가 BYD Korean Dolphin에서 desktop app으로 분류되어 설치 거부된 회귀"
+        "과거 V1 설치본에서 HOME category가 BYD Korean Dolphin에서 desktop app으로 분류되어 설치 거부된 회귀",
+        "1.2.5 real-car BETA workflow가 APK versionCode 8과 달리 Release metadata/notes에 versionCode 7을 하드코딩한 회귀"
       ],
       "dependencies": [
         "GitHub Actions",
@@ -82,9 +86,10 @@
         "packaged Manifest must contain LAUNCHER and must not contain HOME",
         "build identity evidence records source commit/APK SHA-256",
         "CI BUILD_IDENTITY_OK home=0 launchable=1",
-        "Gradle voicePreview build type isolates audition package identity from canonical release"
+        "Gradle voicePreview build type isolates audition package identity from canonical release",
+        "real-car BETA workflow derives VERSION_CODE from app/build.gradle.kts and validates REALCAR_BETA_METADATA_VERSION_MATCH"
       ],
-      "next_action": "최신 V1 APK를 BYD Korean Dolphin에 설치해 desktop-app 오인 없이 앱서랍 노출/일반 실행을 LCH-ID-001로 재검증",
+      "next_action": "1.2.6-v1-premium-realcar-beta를 BYD Korean Dolphin에 설치해 APK/Release metadata identity와 desktop-app 오인 없음까지 재검증",
       "confidence": {
         "behavior": "HIGH",
         "root_cause": "HIGH",
