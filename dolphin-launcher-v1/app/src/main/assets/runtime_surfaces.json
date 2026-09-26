@@ -882,7 +882,12 @@
         "claimBootDispatch",
         "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED",
         "duplicate_dispatch=false",
-        "CROSS_ACTION_DUPLICATE_WINDOW_MS"
+        "CROSS_ACTION_DUPLICATE_WINDOW_MS",
+        "Settings.Global.BOOT_COUNT",
+        "storedBootCount==bootCount",
+        "AUTOSTART_DEDUP_BOOT_ID_UNAVAILABLE",
+        "persisted_elapsed_guard=false",
+        "boot_count="
       ]
     },
     {
