@@ -58,7 +58,7 @@ public final class HomeHeroGraphicView extends View {
         if (w <= 0f || h <= 0f) return;
 
         drawAtmosphere(canvas, w, h);
-        drawRoad(canvas, w, h);
+        drawPerspectiveDeck(canvas, w, h);
         drawSensorField(canvas, w, h);
         drawVehicle(canvas, w, h);
         drawTelemetry(canvas, w, h);
@@ -83,34 +83,33 @@ public final class HomeHeroGraphicView extends View {
         }
     }
 
-    private void drawRoad(Canvas canvas, float w, float h) {
-        float horizonY = h * 0.23f;
-        float centerX = w * 0.61f;
+    private void drawPerspectiveDeck(Canvas canvas, float w, float h) {
+        // Decorative depth deck only. This is not a road/lane model and carries
+        // no object, lane, drivable-space, or navigation semantics.
+        float cx = w * 0.61f;
+        float cy = h * 0.70f;
 
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setStrokeWidth(dp(2));
-        paint.setColor(Color.argb(105, 99, 255, 221));
+        for (int i = 0; i < 5; i++) {
+            float rx = w * (0.13f + i * 0.055f);
+            float ry = h * (0.055f + i * 0.026f);
+            oval.set(cx - rx, cy - ry, cx + rx, cy + ry);
+            paint.setStrokeWidth(dp(i == 0 ? 1.7f : 1.0f));
+            paint.setColor(Color.argb(72 - i * 9, 100, 246, 224));
+            canvas.drawArc(oval, 12f, 156f, false, paint);
+            canvas.drawArc(oval, 192f, 156f, false, paint);
+        }
 
-        path.reset();
-        path.moveTo(centerX - w * 0.055f, horizonY);
-        path.lineTo(centerX - w * 0.30f, h * 0.98f);
-        canvas.drawPath(path, paint);
-
-        path.reset();
-        path.moveTo(centerX + w * 0.055f, horizonY);
-        path.lineTo(centerX + w * 0.30f, h * 0.98f);
-        canvas.drawPath(path, paint);
-
-        paint.setStrokeWidth(dp(1.4f));
-        paint.setColor(Color.argb(72, 136, 205, 219));
-        for (int i = 0; i < 7; i++) {
-            float t0 = 0.18f + i * 0.11f;
-            float t1 = Math.min(0.96f, t0 + 0.05f);
-            float y0 = horizonY + (h - horizonY) * t0;
-            float y1 = horizonY + (h - horizonY) * t1;
-            float x0 = centerX;
-            canvas.drawLine(x0, y0, x0, y1, paint);
+        // Short lateral depth ticks create perspective without forming lane lines.
+        paint.setStrokeWidth(dp(1));
+        paint.setColor(Color.argb(46, 116, 212, 216));
+        for (int i = 0; i < 6; i++) {
+            float spread = w * (0.12f + i * 0.035f);
+            float y = h * (0.48f + i * 0.072f);
+            float tick = w * (0.014f + i * 0.003f);
+            canvas.drawLine(cx - spread - tick, y, cx - spread, y, paint);
+            canvas.drawLine(cx + spread, y, cx + spread + tick, y, paint);
         }
         paint.setStrokeCap(Paint.Cap.BUTT);
     }
@@ -161,10 +160,16 @@ public final class HomeHeroGraphicView extends View {
                 cx + half * 0.90f, top + h * 0.025f, cx, top);
         path.close();
 
+        // Ego-vehicle sculpture only; it is not a detected object.
         paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.argb(78, 36, 255, 220));
+        oval.set(cx - half * 1.34f, bottom - h * 0.025f,
+                cx + half * 1.34f, bottom + h * 0.045f);
+        canvas.drawOval(oval, paint);
+
         paint.setShader(new LinearGradient(
                 cx - half, top, cx + half, bottom,
-                new int[]{Color.rgb(31, 68, 80), Color.rgb(11, 28, 35), Color.rgb(26, 55, 65)},
+                new int[]{Color.rgb(39, 82, 94), Color.rgb(10, 27, 34), Color.rgb(30, 67, 77)},
                 null, Shader.TileMode.CLAMP));
         canvas.drawPath(path, paint);
         paint.setShader(null);
@@ -186,6 +191,13 @@ public final class HomeHeroGraphicView extends View {
         path.close();
         canvas.drawPath(path, paint);
 
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(1));
+        paint.setColor(Color.argb(86, 150, 255, 236));
+        canvas.drawLine(cx - half * 0.54f, glassTop + h * 0.165f,
+                cx + half * 0.54f, glassTop + h * 0.165f, paint);
+
+        paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.rgb(107, 255, 225));
         canvas.drawRoundRect(
                 cx - half * 0.68f, bottom - h * 0.055f,
