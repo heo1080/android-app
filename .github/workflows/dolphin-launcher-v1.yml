@@ -453,6 +453,11 @@ jobs:
           assert "PROVENANCE LAYER" in launcher and "VERIFICATION BOUNDARY" in launcher
           assert "READ-ONLY VEHICLE BUS" in launcher and "TARGET MEDIA SESSION" in launcher
 
+          cockpit_graphic=(src/"CockpitPanelGraphicView.java").read_text(encoding="utf-8")
+          assert cockpit_graphic.count("paint.setColor(accent(") >= 6, "cockpit signal-state accent wiring incomplete"
+          assert "SIGNAL_WAITING" in cockpit_graphic and "SIGNAL_LIVE" in cockpit_graphic
+          assert "SIGNAL_STALE" in cockpit_graphic and "SIGNAL_BLOCKED" in cockpit_graphic
+
           assert "DISPLAY_QUICK_HMI_RENDER" in launcher and "actuation=false" in launcher
           assert "THEME_STATUS_HMI_RENDER" in launcher
           assert "Settings.ACTION_SOUND_SETTINGS" in launcher
