@@ -354,7 +354,7 @@ jobs:
           assert candidate_source in feature.get("source_paths",[])
           assert any("immutable full commit SHA" in item for item in feature.get("acceptance",[]))
           assert any("-60dB activity threshold" in item for item in feature.get("acceptance",[]))
-          assert any("30ms pre-roll" in item and "60ms post-roll" in item for item in feature.get("acceptance",[]))
+          assert any("30ms pre-roll" in item and "최대 60ms" in item for item in feature.get("acceptance",[]))
           for tid in ("AUD-TTS-001","AUD-TTS-002"):
               contract=next(c for c in contracts["contracts"] if c["test_id"]==tid)
               assert any("Ppaso candidate generation never changes" in item for item in contract.get("acceptance",[])),tid
@@ -362,7 +362,7 @@ jobs:
                             "silence_trim_db=-60","leading_pad_ms=30","trailing_pad_ms=60",
                             "trimmed_leading_ms="):
                   assert token in contract.get("required_logs",[]),(tid,token)
-              assert any("30ms pre-roll" in item and "60ms post-roll" in item
+              assert any("30ms pre-roll" in item and "up to 60ms of available trailing source silence" in item
                          for item in contract.get("acceptance",[])),tid
 
           rows=[r for r in surfaces["surfaces"]
