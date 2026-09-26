@@ -116,6 +116,7 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           import hashlib, json, os, pathlib, re, wave
+          import numpy as np
 
           out=pathlib.Path(os.environ["OUTPUT_DIR"])
           candidate=json.loads((out/"ppaso_candidate_manifest.json").read_text(encoding="utf-8"))
@@ -130,6 +131,13 @@ jobs:
           assert candidate["model_revision"]=="53d09664c4f636a5fb6f2ebe3ec22cd83ee249b9"
           assert candidate["asset_count"]==22
           assert {p["state"] for p in app["prompts"]}=={"ASSET_REQUIRED"}
+          trim=candidate.get("trim_policy",{})
+          assert trim=={
+              "silence_trim_db":-60,
+              "leading_pad_ms":30,
+              "trailing_pad_ms":60,
+              "quality_claim":False,
+          },trim
 
           assets=candidate["assets"]
           assert len(assets)==22
@@ -140,11 +148,25 @@ jobs:
               raw=wav_path.read_bytes()
               assert hashlib.sha256(raw).hexdigest()==asset["sha256"]
               assert len(raw)==asset["bytes"]
+              assert asset["silence_trim_db"]==-60
+              assert asset["leading_pad_ms"]==30
+              assert asset["trailing_pad_ms"]==60
+              assert asset["trimmed_leading_ms"]>=0
+              assert asset["trimmed_trailing_ms"]>=0
+              assert asset["original_duration_ms"]>=asset["duration_ms"]
               with wave.open(str(wav_path),"rb") as stream:
                   assert stream.getnchannels()==1
                   assert stream.getsampwidth()==2
                   assert stream.getframerate()==24000
-                  assert stream.getnframes()>0
+                  frames=stream.getnframes()
+                  assert frames>0
+                  pcm=stream.readframes(frames)
+              samples=np.frombuffer(pcm,dtype="<i2").astype(np.float32)/32768.0
+              active=np.flatnonzero(np.abs(samples)>=10.0**(-60.0/20.0))
+              assert active.size>0,asset["resource"]
+              leading_ms=float(active[0])*1000.0/24000.0
+              assert leading_ms<=35.0,(asset["resource"],leading_ms)
+              assert float(np.max(np.abs(samples)))<1.0,asset["resource"]
 
           by_id={a["id"]:a for a in assets}
           assert by_id["gear_p"]["synthesis_text"]=="피"
@@ -155,7 +177,8 @@ jobs:
           assert by_id["icc_off"]["synthesis_text"]=="아이씨씨 꺼짐"
           print(
               "PPASO_CANDIDATE_BUNDLE_OK assets=22 rate=24000 bits=16 channels=1 "
-              "candidate_only=true app_manifest_unchanged=true"
+              "candidate_only=true app_manifest_unchanged=true silence_trim_db=-60 "
+              "leading_pad_ms=30 trailing_pad_ms=60"
           )
           PY
           git diff --exit-code -- \
