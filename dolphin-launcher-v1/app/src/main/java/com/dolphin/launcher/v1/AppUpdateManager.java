@@ -56,8 +56,13 @@ public final class AppUpdateManager {
         new Thread(() -> {
             try {
                 ReleaseInfo release = fetchLatestV1Release();
+                VerificationEvidenceRuntime.recordPassiveEvent(activity, "APP_UPDATE_RELEASE_CHECK",
+                        "manual=" + manual + ";release=" + release.tagName
+                                + ";current=" + BuildConfig.VERSION_NAME);
                 int cmp = compareVersions(release.version, parseVersion(BuildConfig.VERSION_NAME));
                 if (cmp <= 0) {
+                    VerificationEvidenceRuntime.recordPassiveEvent(activity, "APP_UPDATE_LATEST",
+                            "release=" + release.tagName + ";current=" + BuildConfig.VERSION_NAME);
                     if (manual) {
                         activity.runOnUiThread(() -> showMessage(activity,
                                 "최신 버전입니다",
@@ -65,8 +70,12 @@ public final class AppUpdateManager {
                     }
                     return;
                 }
+                VerificationEvidenceRuntime.recordPassiveEvent(activity, "APP_UPDATE_AVAILABLE",
+                        "release=" + release.tagName + ";current=" + BuildConfig.VERSION_NAME);
                 activity.runOnUiThread(() -> showUpdateAvailable(activity, release));
             } catch (Exception e) {
+                VerificationEvidenceRuntime.recordPassiveEvent(activity, "APP_UPDATE_CHECK_FAILED",
+                        "manual=" + manual + ";error=" + e.getClass().getSimpleName());
                 Log.e(TAG, "update check failed", e);
                 if (manual) {
                     activity.runOnUiThread(() -> showMessage(activity,
@@ -85,6 +94,8 @@ public final class AppUpdateManager {
                 !activity.getPackageManager().canRequestPackageInstalls()) return;
 
         pendingPermissionRelease = null;
+        VerificationEvidenceRuntime.recordPassiveEvent(activity, "APP_UPDATE_INSTALL_PERMISSION_GRANTED",
+                "release=" + pending.tagName);
         beginUpdate(activity, pending);
     }
 
@@ -104,6 +115,8 @@ public final class AppUpdateManager {
         if (Build.VERSION.SDK_INT >= 26 &&
                 !activity.getPackageManager().canRequestPackageInstalls()) {
             pendingPermissionRelease = release;
+            VerificationEvidenceRuntime.recordPassiveEvent(activity, "APP_UPDATE_INSTALL_PERMISSION_REQUIRED",
+                    "release=" + release.tagName);
             new AlertDialog.Builder(activity)
                     .setTitle("업데이트 설치 권한")
                     .setMessage("'이 출처 허용'을 한 번 켜주세요. 앱으로 돌아오면 다운로드를 이어갑니다.")
@@ -211,13 +224,19 @@ public final class AppUpdateManager {
             throw new SecurityException("APK SHA-256 불일치");
         }
 
-        verifyPackageVersionAndSigner(activity, apk);
+        VerifiedPackage verified = verifyPackageVersionAndSigner(activity, apk);
+        VerificationEvidenceRuntime.recordPassiveEvent(activity, "APP_UPDATE_PACKAGE_VERIFIED",
+                "release=" + release.tagName + ";sha256=" + actualHash
+                        + ";installed_version_code=" + verified.installedCode
+                        + ";archive_version_code=" + verified.archiveCode
+                        + ";signer_sha256=" + verified.signerSha256
+                        + ";signature_match=true");
         Log.i(TAG, "verified " + release.tagName + " sha256=" + actualHash);
         return apk;
     }
 
     @SuppressWarnings("deprecation")
-    private static void verifyPackageVersionAndSigner(Activity activity, File apk) throws Exception {
+    private static VerifiedPackage verifyPackageVersionAndSigner(Activity activity, File apk) throws Exception {
         PackageManager pm = activity.getPackageManager();
         PackageInfo archive = pm.getPackageArchiveInfo(
                 apk.getAbsolutePath(), PackageManager.GET_SIGNING_CERTIFICATES);
@@ -241,6 +260,7 @@ public final class AppUpdateManager {
                 !installedSigner.equals(archiveSigner)) {
             throw new SecurityException("APK 서명이 현재 설치본과 다릅니다.");
         }
+        return new VerifiedPackage(installedCode, archiveCode, installedSigner);
     }
 
     private static String signerDigest(PackageInfo info) throws Exception {
@@ -274,6 +294,8 @@ public final class AppUpdateManager {
             android.app.PendingIntent pending = android.app.PendingIntent.getBroadcast(
                     activity, sessionId, status, flags);
             session.commit(pending.getIntentSender());
+            VerificationEvidenceRuntime.recordPassiveEvent(activity, "APP_UPDATE_INSTALL_STAGED",
+                    "session_id=" + sessionId + ";apk_bytes=" + apk.length());
         }
     }
 
@@ -403,6 +425,18 @@ public final class AppUpdateManager {
                 .setMessage(message)
                 .setPositiveButton("확인", null)
                 .show();
+    }
+
+    private static final class VerifiedPackage {
+        final long installedCode;
+        final long archiveCode;
+        final String signerSha256;
+
+        VerifiedPackage(long installedCode, long archiveCode, String signerSha256) {
+            this.installedCode = installedCode;
+            this.archiveCode = archiveCode;
+            this.signerSha256 = signerSha256;
+        }
     }
 
     private static final class ReleaseInfo {
