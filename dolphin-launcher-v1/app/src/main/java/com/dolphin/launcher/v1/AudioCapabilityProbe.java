@@ -33,6 +33,10 @@ public final class AudioCapabilityProbe {
     private AudioCapabilityProbe(){}
 
     public static void capture(Context context){
+        capture(context, null, null);
+    }
+
+    public static void capture(Context context, String testId, String correlationId){
         int classes=0, methods=0, fields=0;
         int exteriorMethods=0, exteriorFields=0;
         for(String name:CLASS_CANDIDATES){
@@ -42,7 +46,7 @@ public final class AudioCapabilityProbe {
                 for(Method m:cls.getMethods()){
                     if(matches(m.getName())){
                         methods++;
-                        VerificationEvidenceRuntime.recordPassiveEvent(context,"AUDIO_CAPABILITY",
+                        record(context, testId, correlationId,"AUDIO_CAPABILITY",
                                 "class="+name+";method="+m.getName()+";params="+m.getParameterTypes().length+
                                 ";return="+m.getReturnType().getSimpleName()+";invoked=false;mode=read-only");
                     }
@@ -58,7 +62,7 @@ public final class AudioCapabilityProbe {
                 for(Field f:cls.getFields()){
                     if(matches(f.getName())){
                         fields++;
-                        VerificationEvidenceRuntime.recordPassiveEvent(context,"AUDIO_CAPABILITY_CONSTANT",
+                        record(context, testId, correlationId,"AUDIO_CAPABILITY_CONSTANT",
                                 "class="+name+";field="+f.getName()+";type="+f.getType().getSimpleName()+
                                 ";read=false;invoked=false;mode=read-only");
                     }
@@ -71,7 +75,7 @@ public final class AudioCapabilityProbe {
                     }
                 }
             }catch(Throwable t){
-                VerificationEvidenceRuntime.recordPassiveEvent(context,"AUDIO_CAPABILITY_CLASS",
+                record(context, testId, correlationId,"AUDIO_CAPABILITY_CLASS",
                         "class="+name+";available=false;error="+t.getClass().getSimpleName()+";mode=read-only");
             }
         }
@@ -134,7 +138,7 @@ public final class AudioCapabilityProbe {
                         ";generic_bridge_methods="+genericBridgeMethods+
                         ";feature_mapping=unproven;invoked=false;vehicle_write=false");
 
-        VerificationEvidenceRuntime.recordPassiveEvent(context,"AUDIO_CAPABILITY_SCAN",
+        record(context, testId, correlationId,"AUDIO_CAPABILITY_SCAN",
                 "classes="+classes+";methods="+methods+";fields="+fields+";vehicle_write=false");
         VerificationEvidenceRuntime.recordPassiveEvent(
                 context,"EXTERNAL_AVAS_CAPABILITY_SCAN",
@@ -145,6 +149,17 @@ public final class AudioCapabilityProbe {
                         ";generic_bridge_methods="+genericBridgeMethods+
                         ";custom_audio_path=unproven;builtin_tone_path=unproven"+
                         ";lock_trigger_path=unproven;vehicle_write=false;actuation=false");
+    }
+
+    private static void record(Context context, String testId, String correlationId,
+                               String event, String note){
+        if(testId != null && !testId.trim().isEmpty()
+                && correlationId != null && !correlationId.trim().isEmpty()){
+            VerificationEvidenceRuntime.recordTestEvent(
+                    context, testId, correlationId, event, note);
+        }else{
+            VerificationEvidenceRuntime.recordPassiveEvent(context, event, note);
+        }
     }
 
     private static boolean matchesGenericBridge(String value){
