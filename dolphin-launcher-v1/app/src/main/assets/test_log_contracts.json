@@ -404,7 +404,8 @@
         "BOOT_COMPLETED schedules each item through AlarmManager rather than Handler-only delayed work",
         "Android 12+ missing exact-alarm access fails explicitly instead of silently using an hour-scale inexact fallback",
         "BootAutoLaunchReceiver is packaged as enabled non-exported manifest receiver",
-        "public Settings.Global.BOOT_COUNT distinguishes real reboot epochs while BOOT_COMPLETED and QUICKBOOT_POWERON in the same epoch schedule one batch"
+        "public Settings.Global.BOOT_COUNT distinguishes real reboot epochs while BOOT_COMPLETED and QUICKBOOT_POWERON in the same epoch schedule one batch",
+        "multi-app Alarm PendingIntent identity is package+index data URI scoped"
       ],
       "required_logs": [
         "BOOT_COMPLETED",
@@ -417,7 +418,9 @@
         "index",
         "packaged manifest BootAutoLaunchReceiver registration",
         "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED",
-        "boot_count"
+        "boot_count",
+        "pending_identity=package-index",
+        "pending_data_unique=true"
       ]
     },
     {
@@ -464,7 +467,8 @@
         "opening LauncherActivity does not duplicate the boot batch",
         "behavior repeats in a second ignition cycle",
         "scheduled AlarmManager broadcast is delivered through BootAutoLaunchReceiver before target dispatch",
-        "public Settings.Global.BOOT_COUNT distinguishes real reboot epochs while BOOT_COMPLETED and QUICKBOOT_POWERON in the same epoch schedule one batch"
+        "public Settings.Global.BOOT_COUNT distinguishes real reboot epochs while BOOT_COMPLETED and QUICKBOOT_POWERON in the same epoch schedule one batch",
+        "multi-app Alarm PendingIntent identity is package+index data URI scoped"
       ],
       "required_logs": [
         "AUTOSTART_ALARM_FIRED",
@@ -477,7 +481,9 @@
         "operator launch order observation",
         "BootAutoLaunchReceiver delivery path",
         "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED",
-        "boot_count"
+        "boot_count",
+        "pending_identity=package-index",
+        "pending_data_unique=true"
       ]
     },
     {
@@ -2814,7 +2820,8 @@
         "golden-reference-v3 Media hero remains target-scoped and does not treat UI state as audible playback verification",
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
         "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries",
-        "Media cockpit graphic does not use a fixed PLAY symbol as audible playback evidence"
+        "Media cockpit graphic does not use a fixed PLAY symbol as audible playback evidence",
+        "target-media Alarm PendingIntent identity is package+stage data URI scoped"
       ],
       "required_logs": [
         "target package",
@@ -2834,7 +2841,9 @@
         "target_scoped=true",
         "playback_verified=false",
         "scroll_safe=true",
-        "adaptive_hero=true"
+        "adaptive_hero=true",
+        "pending_identity=package-stage",
+        "pending_data_unique=true"
       ]
     },
     {
@@ -2887,7 +2896,8 @@
         "golden-reference-v3 Media hero remains target-scoped and does not treat UI state as audible playback verification",
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
         "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries",
-        "Media cockpit graphic does not use a fixed PLAY symbol as audible playback evidence"
+        "Media cockpit graphic does not use a fixed PLAY symbol as audible playback evidence",
+        "target-media Alarm PendingIntent identity is package+stage data URI scoped"
       ],
       "required_logs": [
         "target package",
@@ -2907,7 +2917,9 @@
         "target_scoped=true",
         "playback_verified=false",
         "scroll_safe=true",
-        "adaptive_hero=true"
+        "adaptive_hero=true",
+        "pending_identity=package-stage",
+        "pending_data_unique=true"
       ]
     }
   ]
