@@ -849,7 +849,8 @@
         "AUTOSTART_MEDIA_CHANGED",
         "fitSingleLine",
         "dp(48)",
-        "AUTOSTART_ORDER_CHANGED"
+        "AUTOSTART_ORDER_CHANGED",
+        "AUTOSTART_LEGACY_PENDING_IGNORED"
       ]
     },
     {
