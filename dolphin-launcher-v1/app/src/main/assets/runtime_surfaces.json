@@ -133,7 +133,12 @@
         "EVIDENCE_UPLOAD_ATTEMPT",
         "EVIDENCE_UPLOAD_RECEIPT",
         "EVIDENCE_UPLOAD_RETRY_RETAINED",
-        "receipt_verified=true"
+        "receipt_verified=true",
+        "runtimeUploadCredential",
+        "EVIDENCE_UPLOAD_CREDENTIAL_UNAVAILABLE",
+        "queue_retained=true",
+        "apk_static_secret=false",
+        "runtime_enrollment=unavailable"
       ]
     },
     {
@@ -1715,6 +1720,13 @@
         "postDelayed",
         "4500L",
         "finishTask"
+      ]
+    },
+    {
+      "feature_id": "DIAGNOSTIC_CAPTURE_UPLOAD",
+      "path": "dolphin-launcher-v1/app/build.gradle.kts",
+      "tokens": [
+        "buildConfigField(\"String\", \"SOURCE_COMMIT\""
       ]
     }
   ],
