@@ -277,9 +277,8 @@ public final class CockpitPanelGraphicView extends View {
     }
 
     private void drawSourceLegend(Canvas canvas, float w, float h) {
-        // Truthful source-scope legend only. SOURCE LIVE means source availability;
-        // it never upgrades the Registry feature state or proves audible playback,
-        // semantic perception, or normalized telemetry.
+        // SOURCE LIVE means source availability; it never upgrades the Registry feature state.
+        // It proves neither audible playback, semantic perception, nor normalized telemetry.
         String scope = mode == MEDIA ? "TARGET SESSION"
                 : mode == SAFETY ? "SEMANTICS LOCKED" : "RAW SOURCE";
         String state = signalState == SIGNAL_LIVE ? "LIVE"
