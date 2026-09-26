@@ -633,7 +633,9 @@
         "고정 음성 생성 profile은 ko-KR-SunHiNeural / riff-24khz-16bit-mono-pcm으로 잠금",
         "오픈 라이선스 fixed-voice 후보 생성은 앱 manifest/state를 변경하지 않고 별도 artifact에서만 22개 WAV를 만든다",
         "Ppaso 후보는 workflow 시작 시 Hugging Face revision을 immutable full commit SHA로 resolve한 뒤 그 SHA에서만 모델을 받고, 22.05kHz 합성 출력을 24kHz/16-bit/mono PCM으로 변환해 SHA-256/byte count와 resolved revision을 candidate manifest에 기록한다",
-        "후보 음질과 실차 가청 검증 전 voice_prompt_manifest의 preferred Azure profile과 ASSET_REQUIRED 상태를 변경하지 않는다"
+        "후보 음질과 실차 가청 검증 전 voice_prompt_manifest의 preferred Azure profile과 ASSET_REQUIRED 상태를 변경하지 않는다",
+        "Ppaso 후보 WAV는 -60dB activity threshold 기준 선행 무음 trim을 적용하되 30ms pre-roll과 60ms post-roll을 보존해 이벤트 음성 시작 지연을 줄이고 발음 onset 절단을 방지한다",
+        "candidate manifest는 각 prompt의 original_duration_ms/trimmed_leading_ms/trimmed_trailing_ms를 기록하며 trim 자체를 audible quality 성공 증거로 간주하지 않는다"
       ],
       "required_logs": [
         "VOICE_ASSET_READY",
@@ -688,7 +690,8 @@
         "VehiclePromptPlayer forbids TTS fallback while fixed asset is still loading",
         "generate_fixed_voice_assets.py validates atomic 22-asset generation, RIFF/WAVE format, manifest SHA-256 and byte counts",
         "voice_prompt_manifest locks Azure Speech ko-KR-SunHiNeural generation profile without persisting credentials",
-        "Ppaso-TTS candidate path is generation-only; model weights are not packaged into APK"
+        "Ppaso-TTS candidate path is generation-only; model weights are not packaged into APK",
+        "Ppaso candidate post-process trims model-added silence only; manual pronunciation/quality review remains mandatory before promotion"
       ],
       "next_action": "Ppaso Apache-2.0 후보 WAV 22개 Actions artifact 생성 → 음질/발음 검토 → 통과 시에만 fixed asset profile 승격 여부 판단; Azure 경로는 유지",
       "confidence": {
