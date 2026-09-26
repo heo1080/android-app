@@ -878,7 +878,8 @@
         "AUTOSTART_MEDIA_CHANGED",
         "fitSingleLine",
         "dp(48)",
-        "AUTOSTART_ORDER_CHANGED"
+        "AUTOSTART_ORDER_CHANGED",
+        "AUTOSTART_LEGACY_PENDING_IGNORED"
       ]
     },
     {
@@ -969,7 +970,13 @@
         "BACKGROUND_MEDIA_PLAY_FAILED",
         "getActiveSessions",
         "getTransportControls().play()",
-        "global_media_key=false"
+        "global_media_key=false",
+        "AlarmManager",
+        "BACKGROUND_MEDIA_STAGE_SCHEDULED",
+        "BACKGROUND_MEDIA_STAGE_SCHEDULE_FAILED",
+        "process_independent=true",
+        "ACTION_MEDIA_PLAY_STAGE",
+        "ACTION_MEDIA_READBACK_STAGE"
       ]
     },
     {
@@ -998,7 +1005,9 @@
         "BootAutoLaunchRuntime.execute",
         "EXTRA_PACKAGE",
         "EXTRA_DELAY_MS",
-        "EXTRA_MEDIA"
+        "EXTRA_MEDIA",
+        "ACTION_MEDIA_PLAY_STAGE",
+        "ACTION_MEDIA_READBACK_STAGE"
       ]
     },
     {
@@ -1333,6 +1342,34 @@
         "over_50ms",
         "thresholds_are_diagnostic",
         "UI_FRAME_TIMING"
+      ]
+    },
+    {
+      "feature_id": "BOOT_MULTI_APP_AUTOLAUNCH",
+      "path": "dolphin-launcher-v1/app/src/main/AndroidManifest.xml",
+      "tokens": [
+        "android:name=\".BootAutoLaunchReceiver\"",
+        "android:enabled=\"true\"",
+        "android:exported=\"false\""
+      ]
+    },
+    {
+      "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
+      "path": "dolphin-launcher-v1/app/src/main/AndroidManifest.xml",
+      "tokens": [
+        "android:name=\".BootAutoLaunchReceiver\"",
+        "android:enabled=\"true\"",
+        "android:exported=\"false\""
+      ]
+    },
+    {
+      "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchReceiver.java",
+      "tokens": [
+        "ACTION_MEDIA_PLAY_STAGE",
+        "ACTION_MEDIA_READBACK_STAGE",
+        "executeTargetSessionPlay",
+        "recordTargetReadback"
       ]
     }
   ],
