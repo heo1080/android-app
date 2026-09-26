@@ -53,6 +53,9 @@ jobs:
               '"release_ready":False',
               '"open_p0_known_bad":open_p0',
               "REALCAR_BETA_METADATA_OK",
+              "REALCAR_BETA_METADATA_VERSION_MATCH",
+              '"version_code":int(version_code)',
+              "versionCode $VERSION_CODE",
               "REALCAR_BETA_RELEASE_OK",
               "--prerelease",
           )
@@ -106,8 +109,8 @@ jobs:
           BADGING="$(printf '%s\n' "$BADGING_ALL" | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -q "package: name='com.dolphin.launcher.v1'"
-          echo "$BADGING" | grep -q "versionCode='8'"
-          echo "$BADGING" | grep -q "versionName='1.2.5-v1-premium-realcar-beta'"
+          echo "$BADGING" | grep -q "versionCode='9'"
+          echo "$BADGING" | grep -q "versionName='1.2.6-v1-premium-realcar-beta'"
           printf '%s\n' "$BADGING_ALL" | grep -q "^sdkVersion:'29'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^targetSdkVersion:'35'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^launchable-activity: name='com.dolphin.launcher.v1.LauncherActivity'"
@@ -186,7 +189,7 @@ jobs:
             echo "HOME category must remain disabled until BYD real-car compatibility is proven" >&2
             exit 1
           fi
-          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=8 minSdk=29 targetSdk=35 main_launcher=1 drawer_slots=16_disabled home=0"
+          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=9 minSdk=29 targetSdk=35 main_launcher=1 drawer_slots=16_disabled home=0"
 
       - name: Validate Registry v3 payload
         shell: bash
@@ -1133,6 +1136,8 @@ jobs:
         run: |
           set -euo pipefail
           VERSION="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' dolphin-launcher-v1/app/build.gradle.kts | head -n 1)"
+          VERSION_CODE="$(sed -n 's/.*versionCode = \([0-9][0-9]*\).*/\1/p' dolphin-launcher-v1/app/build.gradle.kts | head -n 1)"
+          test -n "$VERSION_CODE"
           SEMVER="$(printf '%s' "$VERSION" | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
           TAG="dolphin-launcher-v1-v${SEMVER}-realcar-beta1"
           APK="dolphin-launcher-v1/app/build/outputs/apk/release/DolphinLauncherV1-Evolution.apk"
@@ -1140,9 +1145,9 @@ jobs:
           META="dolphin-launcher-v1/app/build/outputs/apk/release/DolphinLauncherV1-RealCarValidation.json"
           NOTES="$RUNNER_TEMP/v1-realcar-beta-notes.md"
 
-          python3 - "$META" "$GITHUB_SHA" "$VERSION" <<'PY'
+          python3 - "$META" "$GITHUB_SHA" "$VERSION" "$VERSION_CODE" <<'PY'
           import json, sys
-          out, commit, version = sys.argv[1:]
+          out, commit, version, version_code = sys.argv[1:]
           kb=json.load(open("dolphin-launcher-v1/app/src/main/assets/known_bad_registry.json",encoding="utf-8"))
           open_p0=[r["id"] for r in kb["known_bad"] if r["severity"]=="P0" and r["state"]!="CLOSED"]
           payload={
@@ -1153,13 +1158,15 @@ jobs:
               "release_ready":False,
               "package":"com.dolphin.launcher.v1",
               "version_name":version,
-              "version_code":7,
+              "version_code":int(version_code),
               "source_commit":commit,
               "open_p0_known_bad":open_p0,
               "promotion_requires_real_car_evidence":True
           }
           json.dump(payload,open(out,"w",encoding="utf-8"),ensure_ascii=False,indent=2)
           print("REALCAR_BETA_METADATA_OK open_p0="+",".join(open_p0))
+          assert payload["version_code"] == int(version_code)
+          print("REALCAR_BETA_METADATA_VERSION_MATCH version_code="+str(payload["version_code"]))
           PY
 
           OPEN_P0="$(python3 - <<'PY'
@@ -1172,7 +1179,7 @@ jobs:
           Dolphin Launcher V1 real-car validation BETA.
 
           - Package: com.dolphin.launcher.v1
-          - Version: $VERSION (versionCode 7)
+          - Version: $VERSION (versionCode $VERSION_CODE)
           - Channel: REAL_CAR_VALIDATION_BETA
           - Prerelease: true
           - Stable promotion: false
