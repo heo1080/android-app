@@ -476,6 +476,21 @@ jobs:
           assert "process_independent=true" in media
           assert "new Handler" not in media and "postDelayed" not in media
 
+          update_manager=(src/"AppUpdateManager.java").read_text(encoding="utf-8")
+          update_receiver=(src/"UpdateInstallReceiver.java").read_text(encoding="utf-8")
+          boot_receiver=(src/"BootReceiver.java").read_text(encoding="utf-8")
+          for token in ("APP_UPDATE_RELEASE_CHECK","APP_UPDATE_PACKAGE_VERIFIED","APP_UPDATE_INSTALL_STAGED","signature_match=true"):
+              assert token in update_manager,token
+          assert "APP_UPDATE_INSTALL_STATUS" in update_receiver
+          assert "AppUpdateManager.checkForUpdates(this, false)" in launcher
+          assert "AppUpdateManager.resumePendingInstallPermission(this)" in launcher
+          for token in ("EVIDENCE_UPLOAD_ATTEMPT","EVIDENCE_UPLOAD_RECEIPT","EVIDENCE_UPLOAD_RETRY_RETAINED","receipt_verified=true"):
+              assert token in evidence,token
+          assert "VerificationEvidenceRuntime.startAutomaticUploadRuntime(this)" in launcher
+          assert "VerificationEvidenceRuntime.retryPendingUploadsAsync(this)" in launcher
+          assert 'queueBundleAndUpload(this, "startup-snapshot")' in launcher
+          assert "BOOT_UPLOAD_RETRY_FINISHED" in boot_receiver and "goAsync()" in boot_receiver
+
           layout_audit=(src/"UiLayoutAuditRuntime.java").read_text(encoding="utf-8")
           frame_timing=(src/"UiFrameTimingRuntime.java").read_text(encoding="utf-8")
           assert "visible.width()/Math.max(0.01f,dm.density)" in layout_audit
@@ -515,6 +530,15 @@ jobs:
           fsd_contract=by_test["FSD-OBJ-001"]
           assert any("decorative arcs/ticks only" in item for item in fsd_contract.get("acceptance",[]))
 
+          for tid in ("DIA-CAP-001","DIA-UP-001"):
+              logs=by_test[tid].get("required_logs",[])
+              for token in ("EVIDENCE_UPLOAD_ATTEMPT","EVIDENCE_UPLOAD_RECEIPT","EVIDENCE_UPLOAD_RETRY_RETAINED","BOOT_UPLOAD_RETRY_FINISHED"):
+                  assert token in logs,(tid,token)
+          for tid in ("UPD-001","UPD-002"):
+              logs=by_test[tid].get("required_logs",[])
+              for token in ("APP_UPDATE_RELEASE_CHECK","APP_UPDATE_PACKAGE_VERIFIED","APP_UPDATE_INSTALL_STAGED","APP_UPDATE_INSTALL_STATUS"):
+                  assert token in logs,(tid,token)
+
           surface_rows=[s for s in surfaces.get("surfaces",[])
                         if s["feature_id"]=="PREMIUM_HMI_HOME"
                         and s["path"].endswith("/LauncherActivity.java")]
@@ -530,6 +554,7 @@ jobs:
                         "DISPLAY_QUICK_HMI_RENDER","THEME_STATUS_HMI_RENDER"):
               assert token in dock_tokens,token
 
+          print("AUTO_EVIDENCE_OTA_GATE_OK upload_receipt=true ota_evidence=true")
           print("GOLDEN_REFERENCE_DOCK_OK primary=6 controls=4 vector=true fail_safe=true home_semantic_objects=false")
           PY
 
