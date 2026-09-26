@@ -95,7 +95,9 @@
       "area": "diagnostics",
       "requirement": "앱 내부에서 진단 세션을 생성하고 민감정보를 최소화해 private diagnostic repository로 업로드/공유 가능해야 한다.",
       "source_paths": [
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootReceiver.java"
       ],
       "test_ids": [
         "DIA-CAP-001",
@@ -106,13 +108,21 @@
         "세션 ZIP 생성",
         "차량 raw/state/audio/display 정보 포함",
         "업로드 결과 확인",
-        "토큰은 Android Keystore 보호"
+        "토큰은 Android Keystore 보호",
+        "앱 시작 시 network callback 기반 자동 업로드 retry가 활성화되고 startup snapshot ZIP을 queue에 생성",
+        "BOOT_COMPLETED에서도 durable queue upload retry를 수행해 LauncherActivity 프로세스 수명과 독립적으로 복구",
+        "upload attempt와 server receipt의 session_id/SHA-256 일치 여부를 Evidence ledger에 기록"
       ],
       "required_logs": [
         "session manifest",
         "events.jsonl/full log",
         "upload result",
-        "build identity"
+        "build identity",
+        "AUTO_BUNDLE",
+        "EVIDENCE_UPLOAD_ATTEMPT",
+        "EVIDENCE_UPLOAD_RECEIPT",
+        "EVIDENCE_UPLOAD_RETRY_RETAINED",
+        "BOOT_UPLOAD_RETRY_FINISHED"
       ],
       "known_bad": [
         "V1 1.2.1 evidence session binding stale; V1 1.2.2 automatic Worker→Drive upload requires real-car re-verification"
@@ -131,7 +141,10 @@
       "evidence": [
         "dolphin-diagnostics 2026-09-19 session commits",
         "DiagnosticUploadManager source",
-        "PC ZIP→Worker→Google Drive receipt path verified 2026-09-25; APK real-car automatic upload not yet verified"
+        "PC ZIP→Worker→Google Drive receipt path verified 2026-09-25; APK real-car automatic upload not yet verified",
+        "LauncherActivity starts automatic upload runtime, retries pending queue and creates startup-snapshot bundle",
+        "BootReceiver retries durable upload queue with goAsync lifecycle",
+        "VerificationEvidenceRuntime records upload attempt/receipt/retry-retained without persisting upload secret"
       ],
       "next_action": "V1 1.2.2 real-car: passive session capture → session-bound ZIP → persistent queue → Worker upload → SHA/session receipt 확인",
       "confidence": {
@@ -1766,7 +1779,10 @@
       "area": "update",
       "requirement": "새 릴리스 확인/다운로드 후 Android installer 확인을 거치며 잘못된 downgrade/서명 불일치를 차단한다.",
       "source_paths": [
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AppUpdateManager.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AppUpdateManager.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UpdateInstallReceiver.java",
+        "dolphin-launcher-v1/app/src/main/AndroidManifest.xml"
       ],
       "test_ids": [
         "UPD-001",
@@ -1784,7 +1800,10 @@
         "다운로드 APK package=com.dolphin.launcher.v1 일치",
         "다운로드 APK versionCode가 설치본보다 높음",
         "서명 인증서 digest가 설치본과 동일",
-        "Android PackageInstaller 사용자 확인 유지"
+        "Android PackageInstaller 사용자 확인 유지",
+        "앱 시작 시 6시간 cadence의 자동 release check 진입점 유지",
+        "다운로드 APK SHA-256, package, higher versionCode, current signer 일치 검증 후에만 PackageInstaller stage",
+        "release check·package verification·installer stage·최종 install status를 Evidence ledger에 기록"
       ],
       "required_logs": [
         "release metadata",
@@ -1793,7 +1812,14 @@
         "selected V1 release tag",
         "downloaded APK versionCode",
         "signer digest",
-        "PackageInstaller status"
+        "PackageInstaller status",
+        "APP_UPDATE_RELEASE_CHECK",
+        "APP_UPDATE_LATEST",
+        "APP_UPDATE_AVAILABLE",
+        "APP_UPDATE_CHECK_FAILED",
+        "APP_UPDATE_PACKAGE_VERIFIED",
+        "APP_UPDATE_INSTALL_STAGED",
+        "APP_UPDATE_INSTALL_STATUS"
       ],
       "known_bad": [
         "versionCode downgrade 설치 실패가 과거 발생하여 v34.3.1에서 114로 수정한 기록"
@@ -1812,7 +1838,10 @@
         "commit Fix install downgrade with versionCode 114",
         "V1 1.2 AppUpdateManager filters dedicated Dolphin Launcher V1 release channel",
         "V1 CI publishes signed prerelease assets with SHA-256",
-        "Dolphin Launcher V1 OTA implementation is maintained on dolphin-launcher-v1 branch and validated by its dedicated CI"
+        "Dolphin Launcher V1 OTA implementation is maintained on dolphin-launcher-v1 branch and validated by its dedicated CI",
+        "LauncherActivity triggers AppUpdateManager.checkForUpdates(false) and resumes pending install permission",
+        "AppUpdateManager records release/hash/version/signer verification evidence before installer staging",
+        "UpdateInstallReceiver records pending-user-action/success/failure status"
       ],
       "next_action": "V1 1.2 실차에서 UPD-001/UPD-002 수행 후 REVERIFY_REQUIRED 해제 여부 판단",
       "confidence": {
