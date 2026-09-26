@@ -299,7 +299,12 @@
         "KEY_SPLIT_LEFT",
         "KEY_SPLIT_RIGHT",
         "tile_height_dp=138",
-        "lp.height = dp(138)"
+        "lp.height = dp(138)",
+        "showAppActions(AppEntry app, Runnable afterChange)",
+        "appActionRow",
+        "APP_ACTION_HMI_RENDER",
+        "touch_min_dp=48",
+        "rows=7"
       ]
     },
     {

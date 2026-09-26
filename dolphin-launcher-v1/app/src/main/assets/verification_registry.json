@@ -1820,7 +1820,10 @@
         "UI layout audit는 동일 display profile의 직전 baseline과 touch/ellipsis/clipping 수치를 비교하고 증가 시 regression으로 기록",
         "앱서랍/즐겨찾기 타일은 HOME/AUTO/MEDIA/SPLIT-L/SPLIT-R 상태를 한 줄 compact strip으로 표시",
         "상태가 없는 앱도 동일한 strip 높이를 유지해 6열 grid 정렬이 흔들리지 않음",
-        "상태 strip 추가 후 앱 타일은 138dp 높이와 2줄 auto-size 앱명을 사용해 label clipping 여유를 확보"
+        "상태 strip 추가 후 앱 타일은 138dp 높이와 2줄 auto-size 앱명을 사용해 label clipping 여유를 확보",
+        "앱 long-press action은 기본 setItems dialog 대신 7개 58dp glass HMI row로 HOME/shortcut/Split/Autostart/App info를 표시",
+        "위험 성격의 shortcut 비활성화 액션은 별도 danger palette로 구분",
+        "HOME/AUTO/SPLIT 상태 변경 후 현재 app tile state strip을 즉시 갱신"
       ],
       "required_logs": [
         "display profile",
@@ -1856,7 +1859,8 @@
         "UI_LAYOUT_BASELINE_COMPARE",
         "UI_LAYOUT_REGRESSION",
         "state_badges=HOME,AUTO,MEDIA,L,R",
-        "tile_height_dp=138"
+        "tile_height_dp=138",
+        "APP_ACTION_HMI_RENDER"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1897,7 +1901,8 @@
         "fitSingleLine adaptive labels and 48dp interactive controls",
         "same-profile UI audit regression delta comparison",
         "appStateBadges compact app tile state strip",
-        "138dp app tile preserves two-line label after state strip"
+        "138dp app tile preserves two-line label after state strip",
+        "premium app action glass panel with 58dp rows"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
