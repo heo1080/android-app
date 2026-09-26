@@ -222,7 +222,12 @@
         "UiLayoutAuditRuntime.latestAudit",
         "UiFrameTimingRuntime.latest",
         "FRAME P95",
-        "frame_timing_available"
+        "frame_timing_available",
+        "glass-vector-v3-premium",
+        "BETA  ·  OPERATOR GATED",
+        "release_channel=BETA",
+        "promotion=operator-gated",
+        "auto_promotion=false"
       ]
     },
     {
@@ -434,7 +439,12 @@
         "actionCard(\"고정 음성\", \"22개 · 실차 청취\"",
         "showFixedVoicePreview",
         "VOICE_FIXED_PREVIEW_HMI_RENDER",
-        "sound_lab_cards=3"
+        "sound_lab_cards=3",
+        "glass-vector-v3-premium",
+        "source_live_not_verified=true",
+        "adaptive_icons=true",
+        "V1 BETA",
+        "SOURCE LAYER ≠ VERIFIED"
       ]
     },
     {
@@ -787,7 +797,9 @@
       "tokens": [
         ".LauncherActivity",
         "android.intent.action.MAIN",
-        "android.intent.category.LAUNCHER"
+        "android.intent.category.LAUNCHER",
+        "android:icon=\"@mipmap/ic_launcher\"",
+        "android:roundIcon=\"@mipmap/ic_launcher_round\""
       ]
     },
     {
@@ -1315,8 +1327,8 @@
         "applicationId = \"com.dolphin.launcher.v1\"",
         "minSdk = 29",
         "targetSdk = 35",
-        "versionCode = 5",
-        "versionName = \"1.2.2-v1-auto-evidence-beta\"",
+        "versionCode = 6",
+        "versionName = \"1.2.3-v1-premium-realcar-beta\"",
         "buildConfigField(\"boolean\", \"VOICE_PREVIEW_BUILD\", \"false\")",
         "create(\"voicePreview\")",
         "applicationIdSuffix = \".voicepreview\"",
@@ -1378,7 +1390,11 @@
         "sourceColor",
         "Decorative depth deck only.",
         "no object, lane, drivable-space, or navigation semantics.",
-        "Ego-vehicle sculpture only; it is not a detected object."
+        "Ego-vehicle sculpture only; it is not a detected object.",
+        "RadialGradient",
+        "drawGlassHighlights",
+        "Layered ambient bloom",
+        "Subtle inner chrome"
       ]
     },
     {
@@ -1442,7 +1458,10 @@
         "measureText",
         "availableTextWidth",
         "top + dp(12)",
-        "bottom - dp(7)"
+        "bottom - dp(7)",
+        "RadialGradient",
+        "drawChromeCorners",
+        "≠  VERIFIED"
       ]
     },
     {
@@ -1926,6 +1945,76 @@
         "\"promotion_allowed\": False",
         "VOICE_PREVIEW_OVERLAY_READY",
         "promotion_allowed=false"
+      ]
+    },
+    {
+      "feature_id": "LAUNCHER_ENTRY_IDENTITY",
+      "path": "dolphin-launcher-v1/app/src/main/res/values/launcher_icon_colors.xml",
+      "tokens": [
+        "launcher_icon_background",
+        "launcher_icon_preview_background"
+      ]
+    },
+    {
+      "feature_id": "LAUNCHER_ENTRY_IDENTITY",
+      "path": "dolphin-launcher-v1/app/src/main/res/drawable/ic_launcher_foreground.xml",
+      "tokens": [
+        "#6FFFE0",
+        "M19,62 C30,35 53,22 87,39",
+        "M54,29 L67,43 L63,68 L54,78 L45,68 L41,43 Z"
+      ]
+    },
+    {
+      "feature_id": "LAUNCHER_ENTRY_IDENTITY",
+      "path": "dolphin-launcher-v1/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+      "tokens": [
+        "adaptive-icon",
+        "@color/launcher_icon_background",
+        "@drawable/ic_launcher_foreground"
+      ]
+    },
+    {
+      "feature_id": "LAUNCHER_ENTRY_IDENTITY",
+      "path": "dolphin-launcher-v1/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+      "tokens": [
+        "adaptive-icon",
+        "@color/launcher_icon_background",
+        "@drawable/ic_launcher_foreground"
+      ]
+    },
+    {
+      "feature_id": "LAUNCHER_ENTRY_IDENTITY",
+      "path": "dolphin-launcher-v1/app/src/voicePreview/AndroidManifest.xml",
+      "tokens": [
+        "@mipmap/ic_launcher_preview",
+        "Dolphin Voice Preview"
+      ]
+    },
+    {
+      "feature_id": "LAUNCHER_ENTRY_IDENTITY",
+      "path": "dolphin-launcher-v1/app/src/voicePreview/res/drawable/ic_launcher_preview_foreground.xml",
+      "tokens": [
+        "#FFC857",
+        "M72,67 L76,67",
+        "#7CFFE4"
+      ]
+    },
+    {
+      "feature_id": "LAUNCHER_ENTRY_IDENTITY",
+      "path": "dolphin-launcher-v1/app/src/voicePreview/res/mipmap-anydpi-v26/ic_launcher_preview.xml",
+      "tokens": [
+        "adaptive-icon",
+        "@color/launcher_icon_preview_background",
+        "@drawable/ic_launcher_preview_foreground"
+      ]
+    },
+    {
+      "feature_id": "LAUNCHER_ENTRY_IDENTITY",
+      "path": "dolphin-launcher-v1/app/src/voicePreview/res/mipmap-anydpi-v26/ic_launcher_preview_round.xml",
+      "tokens": [
+        "adaptive-icon",
+        "@color/launcher_icon_preview_background",
+        "@drawable/ic_launcher_preview_foreground"
       ]
     }
   ],

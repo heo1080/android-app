@@ -84,7 +84,7 @@ public class VerificationCenterActivity extends Activity {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(dp(22), dp(12), dp(22), dp(16));
-        root.setBackground(gradient("#06141B", "#010406"));
+        root.setBackground(gradient("#071A22", "#010305"));
 
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
@@ -93,7 +93,7 @@ public class VerificationCenterActivity extends Activity {
         HmiGlyphView verifyGlyph = new HmiGlyphView(this, "✓");
         verifyGlyph.setAccentColor(Color.parseColor("#8CFFE8"));
         verifyGlyph.setBackground(gradientRound(
-                new String[]{"#173F46","#0B252A"}, 18, "#2E615F"));
+                new String[]{"#1B4E50","#0B2B2E","#06191D"}, 18, "#3B756E"));
         LinearLayout.LayoutParams verifyGlyphLp = new LinearLayout.LayoutParams(dp(48), dp(48));
         verifyGlyphLp.rightMargin = dp(14);
         header.addView(verifyGlyph, verifyGlyphLp);
@@ -108,6 +108,18 @@ public class VerificationCenterActivity extends Activity {
         header.addView(titleBox,
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
+        TextView betaGate = text("BETA  ·  OPERATOR GATED", 9.5f,
+                Color.parseColor("#FFD166"), true);
+        betaGate.setLetterSpacing(0.06f);
+        betaGate.setGravity(Gravity.CENTER);
+        betaGate.setPadding(dp(12), 0, dp(12), 0);
+        betaGate.setBackground(gradientRound(
+                new String[]{"#2D2715","#17140B"}, 15, "#6F5A22"));
+        LinearLayout.LayoutParams betaLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, dp(34));
+        betaLp.rightMargin = dp(10);
+        header.addView(betaGate, betaLp);
+
         Button back = button("닫기");
         back.setOnClickListener(v -> finish());
         header.addView(back, new LinearLayout.LayoutParams(dp(86), dp(48)));
@@ -115,7 +127,9 @@ public class VerificationCenterActivity extends Activity {
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this, "VERIFICATION_HMI_RENDER",
-                "variant=glass-vector-v2;priority=P0;active_capture=glass-green");
+                "variant=glass-vector-v3-premium;compat_variant=glass-vector-v2"
+                        + ";priority=P0;active_capture=glass-green"
+                        + ";release_channel=BETA;promotion=operator-gated;auto_promotion=false");
 
         JSONArray features = registry.optJSONArray("features");
         int featureCount = features == null ? 0 : features.length();

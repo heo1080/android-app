@@ -27,7 +27,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: dolphin-v1-fixed-voice-preview-${{ github.workflow }}-${{ github.ref }}
@@ -181,8 +181,8 @@ jobs:
           BADGING="$(printf '%s\n' "$BADGING_ALL" | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -q "package: name='com.dolphin.launcher.v1.voicepreview'"
-          echo "$BADGING" | grep -q "versionCode='5'"
-          echo "$BADGING" | grep -q "versionName='1.2.2-v1-auto-evidence-beta-voice-preview'"
+          echo "$BADGING" | grep -q "versionCode='6'"
+          echo "$BADGING" | grep -q "versionName='1.2.3-v1-premium-realcar-beta-voice-preview'"
           printf '%s\n' "$BADGING_ALL" | grep -q "^sdkVersion:'29'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^targetSdkVersion:'35'$"
 
@@ -273,3 +273,23 @@ jobs:
             dolphin-launcher-v1/app/build/outputs/apk/voicePreview/DolphinLauncherV1-FixedVoicePreview.apk
             dolphin-launcher-v1/app/build/outputs/apk/voicePreview/DolphinLauncherV1-FixedVoicePreview.sha256
             ${{ runner.temp }}/fixed-voice-candidate/ppaso_candidate_manifest.json
+
+      - name: Attach Fixed Voice Preview to real-car BETA prerelease
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/dolphin-launcher-v1-ui-reference-dock'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VERSION="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' dolphin-launcher-v1/app/build.gradle.kts | head -n 1)"
+          SEMVER="$(printf '%s' "$VERSION" | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
+          TAG="dolphin-launcher-v1-v${SEMVER}-realcar-beta1"
+          APK="dolphin-launcher-v1/app/build/outputs/apk/voicePreview/DolphinLauncherV1-FixedVoicePreview.apk"
+          SHA="dolphin-launcher-v1/app/build/outputs/apk/voicePreview/DolphinLauncherV1-FixedVoicePreview.sha256"
+          MANIFEST="$RUNNER_TEMP/fixed-voice-candidate/ppaso_candidate_manifest.json"
+
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$TAG"               --repo "$GITHUB_REPOSITORY"               --target "$GITHUB_SHA"               --title "Dolphin Launcher V1 ${SEMVER} Real-Car BETA"               --notes "Real-car validation BETA. Canonical release assets are attached by the main V1 workflow. Fixed Voice Preview is audition-only and cannot promote IN_APP_TTS_CORE."               --prerelease
+          fi
+          gh release upload "$TAG" "$APK" "$SHA" "$MANIFEST"             --repo "$GITHUB_REPOSITORY"             --clobber
+          echo "VOICE_PREVIEW_BETA_RELEASE_ASSET_OK tag=$TAG preview_only=true promotion_allowed=false"
