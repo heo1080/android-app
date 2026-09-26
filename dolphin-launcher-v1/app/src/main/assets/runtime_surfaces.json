@@ -1832,7 +1832,6 @@
       "path": "dolphin-launcher-v1/tools/generate_ppaso_voice_candidate.py",
       "tokens": [
         "MODEL_REPO = \"akamotaco/ppaso-tts-v1\"",
-        "MODEL_REVISION = \"1a1f8d6\"",
         "PROFILE_ID = \"ppaso-v8-ko-female-24k-pcm-candidate-v1\"",
         "\"gear_p\": \"피\"",
         "\"gear_r\": \"알\"",
@@ -1846,7 +1845,10 @@
         "validate_wav",
         "PPASO_FIXED_VOICE_CANDIDATE_OK",
         "candidate_only=true",
-        "app_manifest_unchanged=true"
+        "app_manifest_unchanged=true",
+        "DEFAULT_MODEL_REVISION = \"main\"",
+        "--model-revision",
+        "\"model_revision\": model_revision"
       ]
     }
   ],
