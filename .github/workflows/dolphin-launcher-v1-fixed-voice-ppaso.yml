@@ -1,0 +1,194 @@
+name: Dolphin Launcher V1 Ppaso Fixed Voice Candidate
+
+on:
+  push:
+    branches:
+      - dolphin-launcher-v1-fixed-voice-ppaso-candidate
+    paths:
+      - "dolphin-launcher-v1/tools/generate_ppaso_voice_candidate.py"
+      - "dolphin-launcher-v1/app/src/main/assets/voice_prompt_manifest.json"
+      - "dolphin-launcher-v1/app/src/main/assets/verification_registry.json"
+      - "dolphin-launcher-v1/app/src/main/assets/test_log_contracts.json"
+      - "dolphin-launcher-v1/app/src/main/assets/runtime_surfaces.json"
+      - ".github/workflows/dolphin-launcher-v1-fixed-voice-ppaso.yml"
+  pull_request:
+    branches:
+      - dolphin-launcher-v1-ui-reference-dock
+    paths:
+      - "dolphin-launcher-v1/tools/generate_ppaso_voice_candidate.py"
+      - "dolphin-launcher-v1/app/src/main/assets/voice_prompt_manifest.json"
+      - "dolphin-launcher-v1/app/src/main/assets/verification_registry.json"
+      - "dolphin-launcher-v1/app/src/main/assets/test_log_contracts.json"
+      - "dolphin-launcher-v1/app/src/main/assets/runtime_surfaces.json"
+      - ".github/workflows/dolphin-launcher-v1-fixed-voice-ppaso.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --quiet \
+            "huggingface_hub>=0.35,<2" \
+            "onnxruntime>=1.20,<2" \
+            "python-mecab-ko>=1.3,<2" \
+            "soundfile>=0.12,<1" \
+            "numpy>=1.26,<3"
+
+      - name: Validate candidate generator
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 dolphin-launcher-v1/tools/generate_ppaso_voice_candidate.py self-test
+
+      - name: Resolve immutable Ppaso revision and download runtime
+        shell: bash
+        env:
+          MODEL_DIR: ${{ runner.temp }}/ppaso-model
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os
+          from huggingface_hub import HfApi, snapshot_download
+
+          repo="akamotaco/ppaso-tts-v1"
+          requested="53d09664c4f636a5fb6f2ebe3ec22cd83ee249b9"
+          info=HfApi().model_info(repo, revision=requested)
+          revision=str(info.sha)
+          if revision != requested:
+              raise SystemExit(f"model revision mismatch requested={requested} resolved={revision}")
+          local=os.environ["MODEL_DIR"]
+          snapshot_download(
+              repo_id=repo,
+              revision=revision,
+              local_dir=local,
+              allow_patterns=[
+                  "config.json",
+                  "LICENSE",
+                  "onnx/**",
+                  "runtime/**",
+                  "example/ppaso_tts.py",
+              ],
+          )
+          with open(os.environ["GITHUB_ENV"],"a",encoding="utf-8") as env:
+              env.write(f"PPASO_MODEL_REVISION={revision}\n")
+              env.write(f"PPASO_MODEL_DIR={local}\n")
+          print(f"PPASO_MODEL_RESOLVED repo={repo} revision={revision}")
+          PY
+
+      - name: Generate 22 candidate WAV assets
+        shell: bash
+        env:
+          OUTPUT_DIR: ${{ runner.temp }}/dolphin-ppaso-fixed-voice-candidate
+        run: |
+          set -euo pipefail
+          python3 dolphin-launcher-v1/tools/generate_ppaso_voice_candidate.py generate \
+            --model-dir "$PPASO_MODEL_DIR" \
+            --model-revision "$PPASO_MODEL_REVISION" \
+            --output-dir "$OUTPUT_DIR"
+          cp "$PPASO_MODEL_DIR/LICENSE" "$OUTPUT_DIR/PPASO_LICENSE.txt"
+          cat > "$OUTPUT_DIR/NOTICE.txt" <<EOF
+          Dolphin Launcher V1 fixed voice candidate only.
+          Provider: Ppaso-TTS
+          Source: https://huggingface.co/akamotaco/ppaso-tts-v1
+          Resolved revision: $PPASO_MODEL_REVISION
+          License: Apache-2.0
+          Model weights are generation-only and are not packaged into the Android APK.
+          This bundle does not promote voice_prompt_manifest.json to ASSET_READY.
+          EOF
+
+      - name: Verify candidate bundle and app state isolation
+        shell: bash
+        env:
+          OUTPUT_DIR: ${{ runner.temp }}/dolphin-ppaso-fixed-voice-candidate
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, re, wave
+          import numpy as np
+
+          out=pathlib.Path(os.environ["OUTPUT_DIR"])
+          candidate=json.loads((out/"ppaso_candidate_manifest.json").read_text(encoding="utf-8"))
+          app=json.loads(pathlib.Path(
+              "dolphin-launcher-v1/app/src/main/assets/voice_prompt_manifest.json"
+          ).read_text(encoding="utf-8"))
+
+          assert candidate["candidate_only"] is True
+          assert candidate["promotes_app_manifest"] is False
+          assert candidate["app_manifest_state"]=="ASSET_REQUIRED"
+          assert candidate["model_license"]=="Apache-2.0"
+          assert candidate["model_revision"]=="53d09664c4f636a5fb6f2ebe3ec22cd83ee249b9"
+          assert candidate["asset_count"]==22
+          assert {p["state"] for p in app["prompts"]}=={"ASSET_REQUIRED"}
+          trim=candidate.get("trim_policy",{})
+          assert trim=={
+              "silence_trim_db":-60,
+              "leading_pad_ms":30,
+              "trailing_pad_ms":60,
+              "quality_claim":False,
+          },trim
+
+          assets=candidate["assets"]
+          assert len(assets)==22
+          assert len({a["resource"] for a in assets})==22
+          for asset in assets:
+              wav_path=out/(asset["resource"]+".wav")
+              assert wav_path.is_file(),wav_path
+              raw=wav_path.read_bytes()
+              assert hashlib.sha256(raw).hexdigest()==asset["sha256"]
+              assert len(raw)==asset["bytes"]
+              assert asset["silence_trim_db"]==-60
+              assert asset["leading_pad_ms"]==30
+              assert asset["trailing_pad_ms"]==60
+              assert asset["trimmed_leading_ms"]>=0
+              assert asset["trimmed_trailing_ms"]>=0
+              assert asset["original_duration_ms"]>=asset["duration_ms"]
+              with wave.open(str(wav_path),"rb") as stream:
+                  assert stream.getnchannels()==1
+                  assert stream.getsampwidth()==2
+                  assert stream.getframerate()==24000
+                  frames=stream.getnframes()
+                  assert frames>0
+                  pcm=stream.readframes(frames)
+              samples=np.frombuffer(pcm,dtype="<i2").astype(np.float32)/32768.0
+              active=np.flatnonzero(np.abs(samples)>=10.0**(-60.0/20.0))
+              assert active.size>0,asset["resource"]
+              leading_ms=float(active[0])*1000.0/24000.0
+              assert leading_ms<=35.0,(asset["resource"],leading_ms)
+              assert float(np.max(np.abs(samples)))<1.0,asset["resource"]
+
+          by_id={a["id"]:a for a in assets}
+          assert by_id["gear_p"]["synthesis_text"]=="피"
+          assert by_id["gear_r"]["synthesis_text"]=="알"
+          assert by_id["gear_n"]["synthesis_text"]=="엔"
+          assert by_id["gear_d"]["synthesis_text"]=="디"
+          assert by_id["icc_on"]["synthesis_text"]=="아이씨씨 켜짐"
+          assert by_id["icc_off"]["synthesis_text"]=="아이씨씨 꺼짐"
+          print(
+              "PPASO_CANDIDATE_BUNDLE_OK assets=22 rate=24000 bits=16 channels=1 "
+              "candidate_only=true app_manifest_unchanged=true silence_trim_db=-60 "
+              "leading_pad_ms=30 trailing_pad_ms=60"
+          )
+          PY
+          git diff --exit-code -- \
+            dolphin-launcher-v1/app/src/main/assets/voice_prompt_manifest.json \
+            dolphin-launcher-v1/app/src/main/res/raw
+
+      - name: Upload candidate voice bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: dolphin-v1-ppaso-fixed-voice-candidate
+          retention-days: 7
+          if-no-files-found: error
+          path: ${{ runner.temp }}/dolphin-ppaso-fixed-voice-candidate/
