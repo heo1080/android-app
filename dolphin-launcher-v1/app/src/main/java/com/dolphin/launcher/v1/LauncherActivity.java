@@ -581,19 +581,69 @@ public class LauncherActivity extends Activity {
         content.addView(footer, footerLp);
     }
 
+    private LinearLayout hmiDialogHeader(String title, String subtitle, String glyph) {
+        LinearLayout head = new LinearLayout(this);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+
+        LinearLayout copy = new LinearLayout(this);
+        copy.setOrientation(LinearLayout.VERTICAL);
+        TextView titleView = text(title,22f,Color.WHITE,true);
+        titleView.setLetterSpacing(0.07f);
+        copy.addView(titleView);
+        copy.addView(text(subtitle,10f,Color.parseColor("#6E8C97"),false));
+        head.addView(copy,new LinearLayout.LayoutParams(
+                0,ViewGroup.LayoutParams.WRAP_CONTENT,1f));
+
+        HmiGlyphView icon = new HmiGlyphView(this,glyph);
+        icon.setAccentColor(Color.parseColor("#8CFFE8"));
+        icon.setBackground(gradientRound(
+                new String[]{"#173F46","#0B252A"},17,"#2E615F"));
+        head.addView(icon,new LinearLayout.LayoutParams(dp(44),dp(44)));
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(58));
+        lp.bottomMargin=dp(8);
+        head.setLayoutParams(lp);
+        return head;
+    }
+
+    private TextView hmiInfoStrip(String value) {
+        TextView strip=text(value,10.5f,Color.parseColor("#A2BBC3"),false);
+        strip.setGravity(Gravity.CENTER_VERTICAL);
+        strip.setPadding(dp(12),0,dp(12),0);
+        strip.setBackground(gradientRound(
+                new String[]{"#0D2027","#071318"},14,"#254957"));
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(38));
+        lp.bottomMargin=dp(10);
+        strip.setLayoutParams(lp);
+        return strip;
+    }
+
     private void showSoundPosition() {
         if(ownedSoundPosition==null) ownedSoundPosition=new OwnedSoundPosition(this);
         LinearLayout panel=new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setPadding(dp(24),dp(20),dp(24),dp(20));
-        panel.setBackground(round("#0D1920",22,"#294451"));
-        panel.addView(text("SOUND POSITION",24f,Color.WHITE,true));
-        panel.addView(text("앞/뒤 · 좌/우 미리보기 · 차량 DSP 쓰기 차단",12f,Color.parseColor("#91A8B5"),false));
+        panel.setPadding(dp(22),dp(18),dp(22),dp(18));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
+        LinearLayout soundHead = hmiDialogHeader(
+                "SOUND POSITION","Balance · Fader · Driver preset","◎");
+        panel.addView(soundHead);
+        TextView guard = hmiInfoStrip("차량 DSP 쓰기 차단 · 앱 소유 오디오 미리보기");
+        panel.addView(guard);
         addPositionAxis(panel,"좌  BALANCE  우",ownedSoundPosition.balance(),true);
         addPositionAxis(panel,"뒤  FADER  앞",ownedSoundPosition.fader(),false);
         Button driver=button("운전석 중심 프리셋");
+        driver.setBackground(pressableGradientRound(
+                new String[]{"#12352F","#0A211D"},
+                new String[]{"#19493F","#0D302A"},
+                15,"#3B8E75"));
         driver.setOnClickListener(v->{ ownedSoundPosition.driverCenter(); Toast.makeText(this,"운전석 중심 요청값을 저장했습니다. 차량 적용은 아직 차단됩니다.",Toast.LENGTH_SHORT).show(); });
         panel.addView(driver,new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,dp(48)));
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this,"SOUND_POSITION_HMI_RENDER","variant=glass-vector-v2");
         new AlertDialog.Builder(this).setView(panel).setPositiveButton("완료",null)
                 .setNeutralButton("중앙 초기화",(d,w)->ownedSoundPosition.reset()).show();
     }
@@ -619,14 +669,22 @@ public class LauncherActivity extends Activity {
         if (ownedAudioEqualizer == null) ownedAudioEqualizer = new OwnedAudioEqualizer(this);
         LinearLayout panel = new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setPadding(dp(24),dp(20),dp(24),dp(20));
-        panel.setBackground(round("#0D1920",22,"#294451"));
-        panel.addView(text("SOUND EQ",24f,Color.WHITE,true));
-        panel.addView(text("앱 소유 오디오 · BYD 차량 DSP 쓰기 차단",12f,Color.parseColor("#91A8B5"),false));
+        panel.setPadding(dp(22),dp(18),dp(22),dp(18));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
+        LinearLayout eqHead = hmiDialogHeader(
+                "SOUND EQ","Bass · Mid · Treble","≋");
+        panel.addView(eqHead);
+        TextView guard = hmiInfoStrip("앱 소유 오디오 · BYD 차량 DSP 쓰기 차단");
+        panel.addView(guard);
         addEqBand(panel,"저음  BASS",ownedAudioEqualizer.bass(),0);
         addEqBand(panel,"중음  MID",ownedAudioEqualizer.mid(),1);
         addEqBand(panel,"고음  TREBLE",ownedAudioEqualizer.treble(),2);
         Button test=button("EQ 테스트 · 100 Hz → 1 kHz → 8 kHz");
+        test.setBackground(pressableGradientRound(
+                new String[]{"#12352F","#0A211D"},
+                new String[]{"#19493F","#0D302A"},
+                15,"#3B8E75"));
         test.setOnClickListener(v->{
             VerificationEvidenceRuntime.recordPassiveEvent(this,"EQ_AUDIBLE_TEST_REQUESTED",ownedAudioEqualizer.snapshot());
             EqualizerAudibleTest.play(this,ownedAudioEqualizer);
@@ -634,6 +692,8 @@ public class LauncherActivity extends Activity {
         LinearLayout.LayoutParams testLp=new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,dp(48));
         testLp.topMargin=dp(10);
         panel.addView(test,testLp);
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this,"SOUND_EQ_HMI_RENDER","variant=glass-vector-v2");
         new AlertDialog.Builder(this).setView(panel).setPositiveButton("완료",null)
                 .setNeutralButton("초기화",(d,w)->{ ownedAudioEqualizer.reset(); Toast.makeText(this,"EQ를 0 / 0 / 0으로 초기화했습니다.",Toast.LENGTH_SHORT).show(); })
                 .show();

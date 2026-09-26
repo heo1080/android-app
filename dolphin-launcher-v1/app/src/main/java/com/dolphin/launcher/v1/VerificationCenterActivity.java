@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -81,18 +82,28 @@ public class VerificationCenterActivity extends Activity {
     private View buildUi() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(24), dp(16), dp(24), dp(18));
-        root.setBackground(gradient("#071821", "#02070A"));
+        root.setPadding(dp(22), dp(12), dp(22), dp(16));
+        root.setBackground(gradient("#06141B", "#010406"));
 
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
         header.setGravity(Gravity.CENTER_VERTICAL);
 
+        HmiGlyphView verifyGlyph = new HmiGlyphView(this, "✓");
+        verifyGlyph.setAccentColor(Color.parseColor("#8CFFE8"));
+        verifyGlyph.setBackground(gradientRound(
+                new String[]{"#173F46","#0B252A"}, 18, "#2E615F"));
+        LinearLayout.LayoutParams verifyGlyphLp = new LinearLayout.LayoutParams(dp(48), dp(48));
+        verifyGlyphLp.rightMargin = dp(14);
+        header.addView(verifyGlyph, verifyGlyphLp);
+
         LinearLayout titleBox = new LinearLayout(this);
         titleBox.setOrientation(LinearLayout.VERTICAL);
-        titleBox.addView(text("VERIFICATION CENTER", 27f, Color.WHITE, true));
-        titleBox.addView(text("Registry-first · 실차 Test ID evidence", 13f,
-                Color.parseColor("#8AA5B2"), false));
+        TextView verifyTitle = text("VERIFICATION CENTER", 25f, Color.WHITE, true);
+        verifyTitle.setLetterSpacing(0.06f);
+        titleBox.addView(verifyTitle);
+        titleBox.addView(text("REGISTRY-FIRST  ·  REAL CAR EVIDENCE", 10f,
+                Color.parseColor("#6E8C97"), false));
         header.addView(titleBox,
                 new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
@@ -100,6 +111,10 @@ public class VerificationCenterActivity extends Activity {
         back.setOnClickListener(v -> finish());
         header.addView(back, new LinearLayout.LayoutParams(dp(86), dp(44)));
         root.addView(header);
+
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this, "VERIFICATION_HMI_RENDER",
+                "variant=glass-vector-v2;priority=P0;active_capture=glass-green");
 
         JSONArray features = registry.optJSONArray("features");
         int featureCount = features == null ? 0 : features.length();
@@ -126,10 +141,17 @@ public class VerificationCenterActivity extends Activity {
         summary.addView(ledgerStatus, weighted());
         root.addView(summary);
 
-        Button p0Queue = button("P0 실차 검증 큐 · " + p0Count() + "건");
+        Button p0Queue = button("P0  ·  실차 검증 큐  ·  " + p0Count() + "건");
+        p0Queue.setTextColor(Color.parseColor("#FFD6DB"));
+        p0Queue.setBackground(pressableGradientRound(
+                new String[]{"#351A20","#1C0F13"},
+                new String[]{"#49232B","#281419"},
+                16, "#7C3E49"));
         p0Queue.setOnClickListener(v -> showP0Queue());
-        root.addView(p0Queue,
-                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
+        LinearLayout.LayoutParams p0Lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(50));
+        p0Lp.bottomMargin = dp(6);
+        root.addView(p0Queue, p0Lp);
 
         LinearLayout autoStatus = new LinearLayout(this);
         autoStatus.setOrientation(LinearLayout.HORIZONTAL);
@@ -145,6 +167,10 @@ public class VerificationCenterActivity extends Activity {
 
         final String detailLabel = "개발자 상세 · " + featureCount + " Feature / " + testIds.size() + " Test ID";
         Button details = button(detailLabel);
+        details.setBackground(pressableGradientRound(
+                new String[]{"#0E222A","#07151B"},
+                new String[]{"#173440","#0A2028"},
+                15, "#284B57"));
         details.setOnClickListener(v -> {
             detailsVisible = !detailsVisible;
             if (detailList != null) detailList.setVisibility(detailsVisible ? View.VISIBLE : View.GONE);
@@ -155,7 +181,11 @@ public class VerificationCenterActivity extends Activity {
         LinearLayout actions = new LinearLayout(this);
         actions.setOrientation(LinearLayout.HORIZONTAL);
 
-        Button problem = button("지금 문제 발생");
+        Button problem = button("문제 순간 기록");
+        problem.setBackground(pressableGradientRound(
+                new String[]{"#2A171C","#160D11"},
+                new String[]{"#402129","#241116"},
+                15, "#6D3843"));
         problem.setOnClickListener(v -> {
             VerificationEvidenceRuntime.markProblem(this, "Verification Center manual marker");
             refreshLedger();
@@ -205,8 +235,10 @@ public class VerificationCenterActivity extends Activity {
 
         activeCapturePanel = new LinearLayout(this);
         activeCapturePanel.setOrientation(LinearLayout.VERTICAL);
-        activeCapturePanel.setPadding(dp(14), dp(12), dp(14), dp(12));
-        activeCapturePanel.setBackground(round("#101B10", 16, "#4A7A58"));
+        activeCapturePanel.setPadding(dp(16), dp(14), dp(16), dp(14));
+        activeCapturePanel.setBackground(gradientRound(
+                new String[]{"#10332D","#09211D","#061410"}, 19, "#3F8F72"));
+        activeCapturePanel.setElevation(dp(3));
         activeCapturePanel.setVisibility(View.GONE);
 
         activeCaptureStatus = text("실차 캡처 세션 없음", 13f, Color.WHITE, true);
@@ -317,7 +349,9 @@ public class VerificationCenterActivity extends Activity {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(dp(16), dp(14), dp(16), dp(14));
-        card.setBackground(round("#0A171D", 18, "#1C3946"));
+        card.setBackground(gradientRound(
+                new String[]{"#102831","#09171D","#061014"}, 19, "#244C59"));
+        card.setElevation(dp(1));
 
         String featureId = feature.optString("feature_id", "UNKNOWN");
         String state = feature.optString("state", "UNKNOWN");
@@ -372,13 +406,35 @@ public class VerificationCenterActivity extends Activity {
             return;
         }
 
-        new AlertDialog.Builder(this)
-                .setTitle(testId + " · " + state)
-                .setMessage(captureGuide(testId, feature))
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(18), dp(16), dp(18), dp(16));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E","#07151B","#040A0E"}, 22, "#315A68"));
+
+        TextView testHead = text(testId, 20f, stateColor(state), true);
+        testHead.setLetterSpacing(0.04f);
+        panel.addView(testHead);
+        TextView stateLine = text(state + "  ·  실차 캡처", 10f,
+                Color.parseColor("#7896A1"), true);
+        stateLine.setPadding(0, dp(2), 0, dp(10));
+        panel.addView(stateLine);
+
+        TextView guide = text(captureGuide(testId, feature), 12f,
+                Color.parseColor("#C7D7DD"), false);
+        guide.setLineSpacing(dp(2), 1.05f);
+        guide.setBackground(gradientRound(
+                new String[]{"#0B1D24","#061117"}, 15, "#274B58"));
+        guide.setPadding(dp(14), dp(12), dp(14), dp(12));
+        panel.addView(guide);
+
+        AlertDialog testDialog = new AlertDialog.Builder(this)
+                .setView(panel)
                 .setPositiveButton("실차 캡처 시작", (dialog, which) ->
                         startLiveCapture(testId, state, feature))
                 .setNegativeButton("취소", null)
-                .show();
+                .create();
+        testDialog.show();
     }
 
     private String captureGuide(String testId, JSONObject feature) {
@@ -774,14 +830,16 @@ public class VerificationCenterActivity extends Activity {
         TextView card = text(label + "\n" + value, 14f, Color.WHITE, true);
         card.setGravity(Gravity.CENTER);
         card.setPadding(dp(8), dp(12), dp(8), dp(12));
-        card.setBackground(round("#0B1A21", 16, "#2A5362"));
+        card.setBackground(gradientRound(
+                new String[]{"#102730","#09171D"}, 16, "#2A5362"));
         return card;
     }
 
     private TextView summaryChip(String label, String value) {
         TextView chip = text(label + "\n" + value, 12f, Color.WHITE, true);
         chip.setGravity(Gravity.CENTER);
-        chip.setBackground(round("#0B1A21", 14, "#24424F"));
+        chip.setBackground(gradientRound(
+                new String[]{"#0D222A","#071419"}, 14, "#24424F"));
         return chip;
     }
 
@@ -791,7 +849,10 @@ public class VerificationCenterActivity extends Activity {
         b.setTextColor(Color.WHITE);
         b.setTextSize(12f);
         b.setAllCaps(false);
-        b.setBackground(round("#10252E", 14, "#2A5362"));
+        b.setBackground(pressableGradientRound(
+                new String[]{"#102831","#09171D"},
+                new String[]{"#173B47","#0D252E"},
+                14, "#2A5362"));
         return b;
     }
 
@@ -823,6 +884,28 @@ public class VerificationCenterActivity extends Activity {
         return new GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
                 new int[]{Color.parseColor(start), Color.parseColor(end)});
+    }
+
+    private GradientDrawable gradientRound(String[] colors, int radiusDp, String stroke) {
+        int[] parsed = new int[colors.length];
+        for (int i = 0; i < colors.length; i++) parsed[i] = Color.parseColor(colors[i]);
+        GradientDrawable d = new GradientDrawable(
+                GradientDrawable.Orientation.TL_BR, parsed);
+        d.setShape(GradientDrawable.RECTANGLE);
+        d.setCornerRadius(dp(radiusDp));
+        if (stroke != null) d.setStroke(dp(1), Color.parseColor(stroke));
+        return d;
+    }
+
+    private Drawable pressableGradientRound(
+            String[] normalColors, String[] pressedColors, int radiusDp, String stroke) {
+        android.graphics.drawable.StateListDrawable states =
+                new android.graphics.drawable.StateListDrawable();
+        states.addState(new int[]{android.R.attr.state_pressed},
+                gradientRound(pressedColors, radiusDp, stroke));
+        states.addState(new int[]{},
+                gradientRound(normalColors, radiusDp, stroke));
+        return states;
     }
 
     private GradientDrawable round(String fill, int radiusDp, String stroke) {

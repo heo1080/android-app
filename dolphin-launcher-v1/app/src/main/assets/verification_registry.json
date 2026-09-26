@@ -1756,7 +1756,8 @@
         "설정/시동 자동실행 주요 surface도 HOME과 동일한 glass-vector-v2 디자인 시스템을 사용",
         "설정의 destructive action은 별도 danger palette로 시각 구분",
         "시동 자동실행 앱 카드에서 지연/순서/미디어 옵션의 기존 기능 연결을 유지",
-        "hero copy 영역은 실제 widthDp의 36%를 기준으로 276~372dp 범위에서 적응해 DPI/해상도 변화 시 차량 그래픽과 겹침 최소화"
+        "hero copy 영역은 실제 widthDp의 36%를 기준으로 276~372dp 범위에서 적응해 DPI/해상도 변화 시 차량 그래픽과 겹침 최소화",
+        "EQ와 음장 위치 다이얼로그도 HOME과 동일한 glass-vector-v2 header/info strip/pressed state를 사용"
       ],
       "required_logs": [
         "display profile",
@@ -1767,7 +1768,9 @@
         "APP_DRAWER_HMI_RENDER",
         "SETTINGS_HMI_RENDER",
         "AUTOSTART_HMI_RENDER",
-        "hero_copy_dp"
+        "hero_copy_dp",
+        "SOUND_EQ_HMI_RENDER",
+        "SOUND_POSITION_HMI_RENDER"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1790,7 +1793,8 @@
         "glass-vector-v2 app drawer and app icon wells",
         "premium settings rows with vector glyphs and danger states",
         "premium autostart manager surface",
-        "responsive heroCopyWidthDp clamp for 10-inch DPI variants"
+        "responsive heroCopyWidthDp clamp for 10-inch DPI variants",
+        "glass-vector-v2 Sound EQ and Sound Position dialogs"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
@@ -1875,7 +1879,9 @@
         "correlation evaluator는 DRIVE ECO/NORMAL/SPORT 및 REGEN STANDARD/HIGH raw 충돌을 distinct group으로 탐지",
         "차량 raw 상관 Test의 marker 진행률과 PASS 잠금은 latest_raw가 실제 기록된 OPERATOR_OBSERVATION만 카운트",
         "raw가 없는 반복 클릭만으로 vehicle correlation Test PASS 잠금 해제 금지",
-        "Verification Center P0 실차 검증 큐는 lifecycle state=CLOSED Known-Bad를 제외하고 활성 P0만 표시"
+        "Verification Center P0 실차 검증 큐는 lifecycle state=CLOSED Known-Bad를 제외하고 활성 P0만 표시",
+        "Verification Center는 P0 queue/active capture/feature cards를 glass-vector-v2 우선순위 시각 체계로 표시",
+        "Verification Center Test dialog는 state color와 실차 절차를 별도 glass panel로 표시"
       ],
       "required_logs": [
         "registry schema/version",
@@ -1925,7 +1931,8 @@
         "operatorObservationCountsWithRaw",
         "hasLatestRawFromNote",
         "activeMarkerCounts",
-        "isActiveP0"
+        "isActiveP0",
+        "VERIFICATION_HMI_RENDER"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
@@ -1957,7 +1964,8 @@
         "Verification Center writes Test-ID-scoped latest_raw into OPERATOR_OBSERVATION",
         "evaluator checks drive/regen cross-label raw collisions",
         "raw-qualified marker counting prevents empty-raw PASS unlock",
-        "P0 queue follows Known-Bad lifecycle and hides CLOSED regression-library entries"
+        "P0 queue follows Known-Bad lifecycle and hides CLOSED regression-library entries",
+        "glass-vector-v2 Verification Center visual hierarchy"
       ],
       "next_action": "실차 Evidence ZIP을 최소 2개 session에서 수집하고 evaluator 다중 입력으로 동일 raw 반복성을 비교; cross-session 후보도 수동 검토 전 매핑 활성화 금지",
       "confidence": {

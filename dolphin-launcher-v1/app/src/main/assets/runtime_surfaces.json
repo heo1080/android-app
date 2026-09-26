@@ -188,7 +188,12 @@
         "operatorObservationCountsWithRaw",
         "latest_raw가 실제 기록된 마커",
         "isActiveP0",
-        "!\"CLOSED\".equals"
+        "!\"CLOSED\".equals",
+        "VERIFICATION_HMI_RENDER",
+        "gradientRound",
+        "pressableGradientRound",
+        "HmiGlyphView",
+        "active_capture=glass-green"
       ]
     },
     {
@@ -224,7 +229,11 @@
         "danger_rows=2",
         "heroCopyWidthDp",
         "widthDp * 0.36f",
-        "hero_copy_dp"
+        "hero_copy_dp",
+        "hmiDialogHeader",
+        "hmiInfoStrip",
+        "SOUND_EQ_HMI_RENDER",
+        "SOUND_POSITION_HMI_RENDER"
       ]
     },
     {
