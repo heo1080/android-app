@@ -57,6 +57,8 @@ jobs:
               '"version_code":int(version_code)',
               "versionCode $VERSION_CODE",
               "REALCAR_BETA_RELEASE_OK",
+              "REALCAR_BETA_RELEASE_IMMUTABLE",
+              "upload=false",
               "--prerelease",
           )
           for token in beta_tokens:
@@ -1199,12 +1201,19 @@ jobs:
           - Operator/runtime evidence is required before any real-car feature promotion.
           EOF
 
-          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release create "$TAG"               --repo "$GITHUB_REPOSITORY"               --target "$GITHUB_SHA"               --title "Dolphin Launcher V1 ${SEMVER} Real-Car BETA"               --notes-file "$NOTES"               --prerelease
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "REALCAR_BETA_RELEASE_IMMUTABLE tag=$TAG upload=false"
+          else
+            gh release create "$TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "Dolphin Launcher V1 ${SEMVER} Real-Car BETA" \
+              --notes-file "$NOTES" \
+              --prerelease
+            gh release upload "$TAG" "$APK" "$SHA" "$META" \
+              --repo "$GITHUB_REPOSITORY"
+            echo "REALCAR_BETA_RELEASE_OK tag=$TAG prerelease=true stable=false"
           fi
-          gh release edit "$TAG"             --repo "$GITHUB_REPOSITORY"             --title "Dolphin Launcher V1 ${SEMVER} Real-Car BETA"             --notes-file "$NOTES"             --prerelease
-          gh release upload "$TAG" "$APK" "$SHA" "$META"             --repo "$GITHUB_REPOSITORY"             --clobber
-          echo "REALCAR_BETA_RELEASE_OK tag=$TAG prerelease=true stable=false"
 
       - name: Enforce release Known-Bad gate
         if: github.event_name == 'push' && github.ref == 'refs/heads/dolphin-launcher-v1' && vars.V1_RELEASE_READY == 'true'
