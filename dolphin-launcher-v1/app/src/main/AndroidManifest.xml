@@ -54,7 +54,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 01"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -71,7 +70,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 02"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -88,7 +86,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 03"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -105,7 +102,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 04"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -122,7 +118,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 05"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -139,7 +134,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 06"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -156,7 +150,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 07"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -173,7 +166,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 08"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -190,7 +182,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 09"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -207,7 +198,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 10"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -224,7 +214,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 11"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -241,7 +230,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 12"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -258,7 +246,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 13"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -275,7 +262,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 14"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -292,7 +278,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 15"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -309,7 +294,6 @@
             android:noHistory="true"
             android:screenOrientation="landscape"
             android:resizeableActivity="true"
-            android:icon="@android:drawable/sym_def_app_icon"
             android:label="Dolphin 바로가기 16"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
