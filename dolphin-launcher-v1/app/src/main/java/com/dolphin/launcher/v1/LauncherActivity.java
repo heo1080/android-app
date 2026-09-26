@@ -83,6 +83,7 @@ public class LauncherActivity extends Activity {
     private volatile Integer vehicleGearRaw, vehicleSpeedRaw;
     private volatile Integer vehicleTurnLeftRaw, vehicleTurnRightRaw;
     private TextView homeMediaStatus, homeMediaSubtitle;
+    private TextView homeSafetyStatus, homeSafetySubtitle;
     private TextView homeVehicleStatus, homeVehicleSubtitle;
     private final TextView[] homeTpmsPressure = new TextView[4];
     private final TextView[] homeTpmsState = new TextView[4];
@@ -519,6 +520,8 @@ public class LauncherActivity extends Activity {
         if (bodyHost == null) return;
         homeMediaStatus = null;
         homeMediaSubtitle = null;
+        homeSafetyStatus = null;
+        homeSafetySubtitle = null;
         homeVehicleStatus = null;
         homeVehicleSubtitle = null;
         for (int i = 0; i < 4; i++) {
@@ -624,6 +627,7 @@ public class LauncherActivity extends Activity {
                         + ";hero_copy_dp=" + heroCopyWidthDp()
                         + ";cockpit_panels=3;layout=media-safety-vehicle"
                         + ";cockpit_state_source=verification_registry"
+                        + ";nav_source_status=notification-provenance-only"
                         + ";live_binding_ms=2000"
                         + ";tpms_cards=4;tpms_visual=vector-wheel-gauge"
                         + ";quick_cards=4;dock_items=5");
@@ -1781,8 +1785,8 @@ public class LauncherActivity extends Activity {
     }
 
     private void refreshHomeLiveBindings() {
-        if (homeMediaStatus == null && homeVehicleSubtitle == null
-                && homeTpmsPressure[0] == null) return;
+        if (homeMediaStatus == null && homeSafetyStatus == null
+                && homeVehicleSubtitle == null && homeTpmsPressure[0] == null) return;
 
         if (homeMediaStatus != null || homeMediaSubtitle != null) {
             MediaNowPlayingRuntime.Snapshot snapshot = mediaNowPlayingSnapshot(false);
@@ -1796,6 +1800,20 @@ public class LauncherActivity extends Activity {
             }
             if (homeMediaSubtitle != null) {
                 homeMediaSubtitle.setText(mediaPanelSummary(snapshot));
+            }
+        }
+
+        if (homeSafetyStatus != null || homeSafetySubtitle != null) {
+            NavSafetyStatusRuntime.Snapshot nav = NavSafetyStatusRuntime.read(this);
+            String safetyState = registryFeatureState("NAV_SAFETY_FEED","BETA");
+            String fsdState = registryFeatureState("FSD_OBJECT_LANE_MODEL","BLOCKED");
+            String status = safetyStatusLine(nav,safetyState,fsdState);
+            if (homeSafetyStatus != null) {
+                homeSafetyStatus.setText(status);
+                homeSafetyStatus.setTextColor(cockpitStatusColor(status));
+            }
+            if (homeSafetySubtitle != null) {
+                homeSafetySubtitle.setText(safetyPanelSummary(nav));
             }
         }
 
@@ -1846,13 +1864,14 @@ public class LauncherActivity extends Activity {
                 CockpitPanelGraphicView.MEDIA,
                 this::showMediaCenter), weighted());
 
+        NavSafetyStatusRuntime.Snapshot navSource = NavSafetyStatusRuntime.read(this);
         deck.addView(cockpitPanel(
                 "FSD · SAFETY",
-                "안전정보 " + safetyState + " · 객체/차선 " + fsdState,
-                "SAFETY " + safetyState + " · FSD " + fsdState,
+                safetyPanelSummary(navSource),
+                safetyStatusLine(navSource,safetyState,fsdState),
                 HmiGlyphView.class,
                 CockpitPanelGraphicView.SAFETY,
-                this::openVerificationCenter), weighted());
+                this::showSafetySourcePanel), weighted());
 
         deck.addView(cockpitPanel(
                 "VEHICLE INFO",
@@ -1890,6 +1909,7 @@ public class LauncherActivity extends Activity {
         TextView eyebrow = text(status,9.5f,cockpitStatusColor(status),true);
         eyebrow.setLetterSpacing(0.08f);
         if (mode == CockpitPanelGraphicView.MEDIA) homeMediaStatus = eyebrow;
+        if (mode == CockpitPanelGraphicView.SAFETY) homeSafetyStatus = eyebrow;
         if (mode == CockpitPanelGraphicView.VEHICLE) homeVehicleStatus = eyebrow;
         copy.addView(eyebrow);
 
@@ -1900,6 +1920,7 @@ public class LauncherActivity extends Activity {
         TextView sub = text(subtitle,10f,Color.parseColor("#8CA6AF"),false);
         sub.setMaxLines(2);
         if (mode == CockpitPanelGraphicView.MEDIA) homeMediaSubtitle = sub;
+        if (mode == CockpitPanelGraphicView.SAFETY) homeSafetySubtitle = sub;
         if (mode == CockpitPanelGraphicView.VEHICLE) homeVehicleSubtitle = sub;
         copy.addView(sub);
 
@@ -1908,6 +1929,81 @@ public class LauncherActivity extends Activity {
         copyLp.gravity = Gravity.LEFT;
         card.addView(copy,copyLp);
         return card;
+    }
+
+    private String safetyStatusLine(
+            NavSafetyStatusRuntime.Snapshot nav,String safetyState,String fsdState) {
+        String source;
+        if (nav == null || !nav.available) source = "SOURCE WAITING";
+        else if (nav.fresh) source = "SOURCE LIVE";
+        else if (nav.active) source = "SOURCE STALE";
+        else source = "SOURCE REMOVED";
+        return "SAFETY " + safetyState + " · " + source + " · FSD " + fsdState;
+    }
+
+    private String safetyPanelSummary(NavSafetyStatusRuntime.Snapshot nav) {
+        if (nav == null || !nav.available) {
+            return "지원 내비 source 대기 · parser pending";
+        }
+        return NavSafetyStatusRuntime.sourceLabel(nav.packageName)
+                + " · " + formatSourceAge(nav.ageMs)
+                + " · parser pending";
+    }
+
+    private String formatSourceAge(long ageMs) {
+        if (ageMs == Long.MAX_VALUE) return "age --";
+        long sec=Math.max(0L,ageMs/1000L);
+        if(sec<60L)return sec+"s ago";
+        return (sec/60L)+"m ago";
+    }
+
+    private void showSafetySourcePanel() {
+        NavSafetyStatusRuntime.Snapshot nav=NavSafetyStatusRuntime.read(this);
+        String safetyState=registryFeatureState("NAV_SAFETY_FEED","BETA");
+        String fsdState=registryFeatureState("FSD_OBJECT_LANE_MODEL","BLOCKED");
+
+        LinearLayout panel=new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(20),dp(16),dp(20),dp(16));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
+        panel.addView(hmiDialogHeader(
+                "SAFETY SOURCE","Navigation provenance · parser pending","✓"));
+        panel.addView(hmiInfoStrip(
+                "지원 내비 notification source만 표시 · 카메라/속도/거리 의미 추정 금지"));
+
+        LinearLayout row1=new LinearLayout(this);
+        row1.setOrientation(LinearLayout.HORIZONTAL);
+        row1.addView(vehicleMetric("NAV STATE",safetyState),weighted());
+        row1.addView(vehicleMetric("FSD MODEL",fsdState),weighted());
+        panel.addView(row1,new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(78)));
+
+        LinearLayout row2=new LinearLayout(this);
+        row2.setOrientation(LinearLayout.HORIZONTAL);
+        row2.addView(vehicleMetric("SOURCE",
+                nav.available?NavSafetyStatusRuntime.sourceLabel(nav.packageName):"WAITING"),weighted());
+        row2.addView(vehicleMetric("AGE",formatSourceAge(nav.ageMs)),weighted());
+        row2.addView(vehicleMetric("PAYLOAD",
+                nav.available?nav.textLength+" chars":"--"),weighted());
+        panel.addView(row2,new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(78)));
+
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this,"SAFETY_SOURCE_HMI_RENDER",
+                "available="+nav.available
+                        +";active="+nav.active
+                        +";fresh="+nav.fresh
+                        +";package="+String.valueOf(nav.packageName)
+                        +";age_ms="+nav.ageMs
+                        +";text_length="+nav.textLength
+                        +";parser=none;semantic_values=false");
+
+        new AlertDialog.Builder(this)
+                .setView(panel)
+                .setPositiveButton("검증 센터",(d,w)->openVerificationCenter())
+                .setNegativeButton("닫기",null)
+                .show();
     }
 
     private int cockpitStatusColor(String status) {
