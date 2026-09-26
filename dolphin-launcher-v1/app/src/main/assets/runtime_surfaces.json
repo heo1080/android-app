@@ -964,14 +964,7 @@
         "balance",
         "fader",
         "AUDIO_CAPABILITY_SCAN",
-        "vehicle_write=false",
-        "EXTERNAL_AVAS_CAPABILITY_METHOD",
-        "EXTERNAL_AVAS_CAPABILITY_CONSTANT",
-        "EXTERNAL_AVAS_CAPABILITY_SCAN",
-        "custom_audio_path=unproven",
-        "builtin_tone_path=unproven",
-        "lock_trigger_path=unproven",
-        "actuation=false"
+        "vehicle_write=false"
       ]
     },
     {
@@ -2142,6 +2135,35 @@
         "WIN-POP-",
         "probe=popup_multiwindow",
         "windowing_mode_request=false",
+        "actuation=false"
+      ]
+    },
+    {
+      "feature_id": "EXTERIOR_AVAS_CUSTOM_SOUND",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AudioCapabilityProbe.java",
+      "tokens": [
+        "EXTERIOR_TOKENS",
+        "matchesExterior",
+        "EXTERNAL_AVAS_CAPABILITY_METHOD",
+        "EXTERNAL_AVAS_CAPABILITY_CONSTANT",
+        "EXTERNAL_AVAS_CAPABILITY_SCAN",
+        "candidate_only=true",
+        "custom_audio_path=unproven",
+        "builtin_tone_path=unproven",
+        "lock_trigger_path=unproven",
+        "vehicle_write=false",
+        "actuation=false"
+      ]
+    },
+    {
+      "feature_id": "EXTERIOR_AVAS_CUSTOM_SOUND",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java",
+      "tokens": [
+        "AUD-AVAS-001",
+        "AudioCapabilityProbe.capture(this)",
+        "TEST_CAPABILITY_REFRESH",
+        "probe=external_avas",
+        "vehicle_write=false",
         "actuation=false"
       ]
     }
