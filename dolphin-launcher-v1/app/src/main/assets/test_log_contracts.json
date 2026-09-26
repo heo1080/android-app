@@ -60,7 +60,8 @@
         "packaged APK contains LAUNCHER category and no HOME category",
         "packaged minSdk=29 and targetSdk=35",
         "voicePreview audition artifact uses com.dolphin.launcher.v1.voicepreview while canonical release package remains com.dolphin.launcher.v1",
-        "voicePreview and canonical release use the same stable signer but remain distinct install identities"
+        "voicePreview and canonical release use the same stable signer but remain distinct install identities",
+        "Real-car BETA release metadata version_code는 Gradle/APK manifest versionCode와 정확히 일치"
       ],
       "required_logs": [
         "source commit",
@@ -72,7 +73,8 @@
         "HOME category absent",
         "sdkVersion=29",
         "targetSdkVersion=35",
-        "BUILD_IDENTITY_OK"
+        "BUILD_IDENTITY_OK",
+        "REALCAR_BETA_METADATA_VERSION_MATCH"
       ]
     },
     {
@@ -108,7 +110,8 @@
         "packaged APK contains LAUNCHER category and no HOME category",
         "packaged minSdk=29 and targetSdk=35",
         "voicePreview audition artifact uses com.dolphin.launcher.v1.voicepreview while canonical release package remains com.dolphin.launcher.v1",
-        "voicePreview and canonical release use the same stable signer but remain distinct install identities"
+        "voicePreview and canonical release use the same stable signer but remain distinct install identities",
+        "Real-car BETA release metadata version_code는 Gradle/APK manifest versionCode와 정확히 일치"
       ],
       "required_logs": [
         "source commit",
@@ -120,7 +123,8 @@
         "HOME category absent",
         "sdkVersion=29",
         "targetSdkVersion=35",
-        "BUILD_IDENTITY_OK"
+        "BUILD_IDENTITY_OK",
+        "REALCAR_BETA_METADATA_VERSION_MATCH"
       ]
     },
     {
