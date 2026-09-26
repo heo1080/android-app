@@ -1846,9 +1846,9 @@
         "PPASO_FIXED_VOICE_CANDIDATE_OK",
         "candidate_only=true",
         "app_manifest_unchanged=true",
-        "DEFAULT_MODEL_REVISION = \"main\"",
         "--model-revision",
-        "\"model_revision\": model_revision"
+        "\"model_revision\": model_revision",
+        "DEFAULT_MODEL_REVISION = \"53d09664c4f636a5fb6f2ebe3ec22cd83ee249b9\""
       ]
     }
   ],
