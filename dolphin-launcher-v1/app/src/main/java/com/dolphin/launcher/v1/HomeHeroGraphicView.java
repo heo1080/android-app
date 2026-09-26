@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RadialGradient;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.view.View;
@@ -58,6 +59,7 @@ public final class HomeHeroGraphicView extends View {
         if (w <= 0f || h <= 0f) return;
 
         drawAtmosphere(canvas, w, h);
+        drawGlassHighlights(canvas, w, h);
         drawPerspectiveDeck(canvas, w, h);
         drawSensorField(canvas, w, h);
         drawVehicle(canvas, w, h);
@@ -68,19 +70,58 @@ public final class HomeHeroGraphicView extends View {
         paint.setStyle(Paint.Style.FILL);
         paint.setShader(new LinearGradient(
                 0f, 0f, w, h,
-                new int[]{Color.rgb(10, 34, 43), Color.rgb(3, 12, 17), Color.rgb(1, 6, 9)},
-                new float[]{0f, 0.58f, 1f},
+                new int[]{Color.rgb(13, 42, 52), Color.rgb(4, 15, 21), Color.rgb(1, 5, 8)},
+                new float[]{0f, 0.54f, 1f},
                 Shader.TileMode.CLAMP));
+        canvas.drawRoundRect(0f, 0f, w, h, dp(28), dp(28), paint);
+        paint.setShader(null);
+
+        // Layered ambient bloom gives the hero depth without encoding vehicle semantics.
+        paint.setShader(new RadialGradient(
+                w * 0.63f, h * 0.44f, Math.max(w, h) * 0.46f,
+                new int[]{Color.argb(76, 55, 255, 220), Color.argb(22, 25, 116, 126), Color.TRANSPARENT},
+                new float[]{0f, 0.44f, 1f}, Shader.TileMode.CLAMP));
         canvas.drawRoundRect(0f, 0f, w, h, dp(28), dp(28), paint);
         paint.setShader(null);
 
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(dp(1));
-        paint.setColor(Color.argb(26, 127, 255, 224));
+        paint.setColor(Color.argb(28, 127, 255, 224));
         for (int i = 1; i <= 5; i++) {
             float y = h * i / 6f;
             canvas.drawLine(w * 0.07f, y, w * 0.95f, y, paint);
         }
+
+        // Subtle inner chrome. Decorative only: no lane/object/ADAS meaning.
+        paint.setStrokeWidth(dp(1.2f));
+        paint.setColor(Color.argb(78, 155, 255, 236));
+        canvas.drawRoundRect(dp(1.5f), dp(1.5f), w - dp(1.5f), h - dp(1.5f),
+                dp(27), dp(27), paint);
+    }
+
+    private void drawGlassHighlights(Canvas canvas, float w, float h) {
+        paint.setStyle(Paint.Style.FILL);
+        paint.setShader(new LinearGradient(
+                0f, 0f, w * 0.72f, h * 0.42f,
+                new int[]{Color.argb(44, 255, 255, 255), Color.argb(10, 130, 255, 232), Color.TRANSPARENT},
+                new float[]{0f, 0.40f, 1f}, Shader.TileMode.CLAMP));
+        path.reset();
+        path.moveTo(w * 0.035f, h * 0.05f);
+        path.lineTo(w * 0.70f, h * 0.05f);
+        path.lineTo(w * 0.52f, h * 0.23f);
+        path.lineTo(w * 0.035f, h * 0.19f);
+        path.close();
+        canvas.drawPath(path, paint);
+        paint.setShader(null);
+
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(1f));
+        paint.setColor(Color.argb(54, 94, 255, 224));
+        path.reset();
+        path.moveTo(w * 0.48f, h * 0.12f);
+        path.lineTo(w * 0.93f, h * 0.12f);
+        path.lineTo(w * 0.88f, h * 0.17f);
+        canvas.drawPath(path, paint);
     }
 
     private void drawPerspectiveDeck(Canvas canvas, float w, float h) {
