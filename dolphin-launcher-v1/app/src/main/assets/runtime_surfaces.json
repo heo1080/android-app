@@ -227,7 +227,10 @@
         "BETA  ·  OPERATOR GATED",
         "release_channel=BETA",
         "promotion=operator-gated",
-        "auto_promotion=false"
+        "auto_promotion=false",
+        "operatorObservationCountsWithRequiredRaw",
+        "\"AUD-LVDA-001\".equals(activeTestId)",
+        "recordTestEvent"
       ]
     },
     {
@@ -1299,7 +1302,12 @@
         "ui_frame_timing/latest.json",
         "UiFrameTimingRuntime.latestFile",
         "addUiFrameTiming(context, out, sessionId)",
-        "sessionId.equals(timing.optString(\"session_id\",\"\"))"
+        "sessionId.equals(timing.optString(\"session_id\",\"\"))",
+        "recordTestEvent",
+        "operatorObservationCountsWithRequiredRaw",
+        "hasRequiredLatestRawFromNote",
+        "isUnavailableRawValue",
+        "requiredRawKeys"
       ]
     },
     {
@@ -2172,7 +2180,9 @@
         "EXTERNAL_AVAS_GENERIC_SERVICE",
         "feature_mapping=unproven",
         "generic_service_available=",
-        "generic_bridge_methods="
+        "generic_bridge_methods=",
+        "capture(Context context, String testId, String correlationId)",
+        "recordTestEvent"
       ]
     },
     {
@@ -2180,11 +2190,13 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java",
       "tokens": [
         "AUD-AVAS-001",
-        "AudioCapabilityProbe.capture(this)",
         "TEST_CAPABILITY_REFRESH",
         "probe=external_avas",
         "vehicle_write=false",
-        "actuation=false"
+        "actuation=false",
+        "AudioCapabilityProbe.capture(this, testId, activeCorrelationId)",
+        "recordTestEvent",
+        "activeCorrelationId"
       ]
     }
   ],
