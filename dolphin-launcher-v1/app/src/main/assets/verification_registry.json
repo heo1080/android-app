@@ -288,7 +288,8 @@
         "AUTOSTART_MEDIA_CHANGED",
         "BACKGROUND_MEDIA_APP_DISPATCHED",
         "BACKGROUND_MEDIA_PLAY_REQUESTED",
-        "BACKGROUND_MEDIA_PLAY_FAILED"
+        "BACKGROUND_MEDIA_PLAY_FAILED",
+        "AUTOSTART_LEGACY_PENDING_IGNORED"
       ],
       "known_bad": [
         "과거 최신 설치본에서 여러 앱 추가 버튼이 사라졌다고 보고",
@@ -320,7 +321,8 @@
         "BootAutoLaunchRuntime AlarmManager exact scheduling",
         "BootAutoLaunchReceiver process-independent execution",
         "48dp autostart manager touch-target hardening",
-        "AndroidManifest registers BootAutoLaunchReceiver as non-exported static receiver for AlarmManager delivery"
+        "AndroidManifest registers BootAutoLaunchReceiver as non-exported static receiver for AlarmManager delivery",
+        "LauncherActivity legacy pending_autostart flag is consumed without launching apps; boot execution ownership remains BootAutoLaunchRuntime only"
       ],
       "next_action": "BYD Android 10 실차 재부팅 2회에서 AlarmManager delivery, background activity dispatch, 2개 이상 앱 순차 실행 및 중복 방지 evidence 수집",
       "confidence": {
