@@ -288,8 +288,7 @@
         "AUTOSTART_MEDIA_CHANGED",
         "BACKGROUND_MEDIA_APP_DISPATCHED",
         "BACKGROUND_MEDIA_PLAY_REQUESTED",
-        "BACKGROUND_MEDIA_PLAY_FAILED",
-        "AUTOSTART_LEGACY_PENDING_IGNORED"
+        "BACKGROUND_MEDIA_PLAY_FAILED"
       ],
       "known_bad": [
         "과거 최신 설치본에서 여러 앱 추가 버튼이 사라졌다고 보고",
