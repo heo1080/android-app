@@ -1386,13 +1386,16 @@
         "calibration",
         "confidence/expiry",
         "latency budget",
-        "no fabricated objects"
+        "no fabricated objects",
+        "HOME/FSD·SAFETY UI는 Feature가 BLOCKED인 동안 객체/차선 semantic 시각화를 생성하지 않고 BLOCKED/LOCKED 경계만 표시"
       ],
       "required_logs": [
         "camera source",
         "model hash",
         "inference latency",
-        "object confidence"
+        "object confidence",
+        "fsd_state=",
+        "semantic_values=false"
       ],
       "known_bad": [
         "현재 공개 source에서 실제 camera/object inference pipeline 미확인"
@@ -1439,7 +1442,9 @@
         "지원 내비 notification source freshness는 UI 전용 30초 TTL로 LIVE/STALE을 구분하며 카메라/속도/거리 semantic parse는 수행하지 않음",
         "notification 제거 시 active=false로 기록하고 SAFETY UI는 SOURCE REMOVED로 degrade",
         "도크 MAP launcher는 NAVER Map/TMAP/KakaoNavi/ATLAN 중 실제 설치된 지원 package만 표시",
-        "MAP launcher는 앱 실행 surface이며 notification parser/카메라 의미 추론과 분리하고 semantic_parse=false를 기록"
+        "MAP launcher는 앱 실행 surface이며 notification parser/카메라 의미 추론과 분리하고 semantic_parse=false를 기록",
+        "FSD·SAFETY visual hero는 notification provenance freshness와 FSD_OBJECT_LANE_MODEL 상태를 함께 보여주되 semantic parser는 LOCKED 유지",
+        "source detail은 package/age/payload length로 제한"
       ],
       "required_logs": [
         "source package/version",
@@ -1450,7 +1455,11 @@
         "SAFETY_SOURCE_HMI_RENDER",
         "NAV_LAUNCHER_HMI_RENDER",
         "installed_supported_nav",
-        "semantic_parse=false"
+        "semantic_parse=false",
+        "variant=golden-reference-v3",
+        "panel_hero=true",
+        "fsd_state=",
+        "semantic_values=false"
       ],
       "known_bad": [
         "외부 앱 업데이트로 parser 파손 가능"
@@ -1465,7 +1474,8 @@
         "NavGuidanceParser SUPPORTED_NAV_PACKAGES",
         "V1 privacy-safe notification hash/provenance capture; parser disabled pending evidence",
         "NavSafetyStatusRuntime notification provenance freshness snapshot",
-        "LauncherActivity showNavigationPanel supported-package launcher surface"
+        "LauncherActivity showNavigationPanel supported-package launcher surface",
+        "Golden Reference v3 Safety hero surfaces provenance and FSD blocked boundary without semantic inference"
       ],
       "next_action": "실차 notification access/connected/package별 payload contract 확보 후 parser 활성화 검토",
       "confidence": {
@@ -1492,7 +1502,9 @@
         "unavailable은 unknown 표시",
         "mock value 사용 금지",
         "getCurrentSpeed/getCurrentGear는 의미·단위 상관 완료 전 UI에서 RAW로만 표시",
-        "turn signal 값도 좌/우 raw provenance만 표시하고 ON/OFF 의미를 추정하지 않음"
+        "turn signal 값도 좌/우 raw provenance만 표시하고 ON/OFF 의미를 추정하지 않음",
+        "VEHICLE INFO visual hero는 source LIVE/WAITING을 raw 값 존재 여부로만 표시하고 기어/속도/회전 의미를 정규화하지 않음",
+        "상세 패널은 normalized=false 및 actuation=false 경계를 명시"
       ],
       "required_logs": [
         "getter result",
@@ -1500,7 +1512,11 @@
         "timestamp",
         "LIVE_VEHICLE_SPEED_RAW",
         "LIVE_VEHICLE_GEAR_RAW",
-        "TURN_SIGNAL_RAW_TRANSITION"
+        "TURN_SIGNAL_RAW_TRANSITION",
+        "variant=golden-reference-v3",
+        "vehicle_source_live=",
+        "panel_hero=true",
+        "actuation=false"
       ],
       "known_bad": [],
       "dependencies": [
@@ -1511,7 +1527,8 @@
       ],
       "evidence": [
         "HomeHmiView source says no mock numbers",
-        "continuous read-only getCurrentSpeed raw telemetry"
+        "continuous read-only getCurrentSpeed raw telemetry",
+        "Golden Reference v3 Vehicle Info hero keeps raw-only telemetry boundary"
       ],
       "next_action": "각 field별 getter mapping 등록",
       "confidence": {
@@ -1856,7 +1873,12 @@
         "DARK quick panel은 앱 dark HMI와 system night 상태를 구분 표시하며 system night mode 강제 변경을 하지 않음",
         "도크 MAP은 설치된 지원 내비만 보여주며 선택 시 해당 앱 launch만 수행하고 navigation semantic 값을 추정하지 않음",
         "Golden Reference 도크 아이콘 MAP/VOL/SUN/DSP/MOON은 HmiGlyphView Canvas vector로 렌더링",
-        "Hero 상단 상태 chip은 고정 LIVE가 아니라 SOURCE LAYER로 표시해 source availability를 과장하지 않음"
+        "Hero 상단 상태 chip은 고정 LIVE가 아니라 SOURCE LAYER로 표시해 source availability를 과장하지 않음",
+        "HOME primary cockpit 3개 카드에는 MEDIA/SOURCE/RAW 역할 태그를 표시해 Media/FSD·Safety/Vehicle 성격을 즉시 구분",
+        "Media/Vehicle/FSD·Safety 상세 패널은 동일한 Golden Reference visual hero 구조를 사용하되 각 패널의 검증 경계를 다르게 표시",
+        "MEDIA CENTER hero는 target MediaSession 상태와 configured target 수를 보여주고 playback_verified=false를 유지",
+        "VEHICLE INFO hero는 RAW SOURCE ACTIVE/WAITING과 READ ONLY를 표시하며 normalized=false/actuation=false를 유지",
+        "FSD·SAFETY hero는 navigation provenance 상태와 FSD BLOCKED/semantics LOCKED 경계를 표시하고 객체/차선 의미를 생성하지 않음"
       ],
       "required_logs": [
         "display profile",
@@ -1906,7 +1928,14 @@
         "NAV_LAUNCHER_HMI_RENDER",
         "DISPLAY_QUICK_HMI_RENDER",
         "THEME_STATUS_HMI_RENDER",
-        "SYSTEM_SETTINGS_DISPATCH"
+        "SYSTEM_SETTINGS_DISPATCH",
+        "variant=golden-reference-v3",
+        "panel_hero=true",
+        "target_scoped=true",
+        "vehicle_source_live=",
+        "fsd_state=",
+        "SEMANTICS",
+        "LOCKED"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1954,7 +1983,12 @@
         "Golden Reference safe reference dock restored in LauncherActivity",
         "HmiGlyphView vector glyphs for MAP/VOL/SUN/DSP/MOON",
         "system settings dispatch keeps volume/brightness/display actuation outside unverified BYD hidden APIs",
-        "static HOME LIVE chip removed; source rail remains the truthful MEDIA/NAV/VEH availability indicator"
+        "static HOME LIVE chip removed; source rail remains the truthful MEDIA/NAV/VEH availability indicator",
+        "referencePanelHero shared Golden Reference v3 visual hierarchy",
+        "cockpit role badges MEDIA/SOURCE/RAW",
+        "Media Center golden-reference-v3 target-scoped panel",
+        "Vehicle Info golden-reference-v3 raw-only panel",
+        "FSD Safety golden-reference-v3 provenance boundary panel"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
@@ -2274,7 +2308,9 @@
         "실차에서 지정 앱 재생과 순정 안전 경고음 공존을 확인하기 전 VERIFIED 금지",
         "MEDIA CENTER UI는 AutoStartStore mediaEnabled=true 앱만 표시하고 실제 재생 성공으로 간주하지 않음",
         "Now Playing metadata는 mediaEnabled target package 세션에서만 읽고 전역 세션 metadata를 표시하지 않음",
-        "앱 실행→target MediaSession 탐색→PLAY→PlaybackState readback 후속 단계는 AlarmManager+BootAutoLaunchReceiver로 process-independent하게 이어짐"
+        "앱 실행→target MediaSession 탐색→PLAY→PlaybackState readback 후속 단계는 AlarmManager+BootAutoLaunchReceiver로 process-independent하게 이어짐",
+        "MEDIA CENTER visual hero는 target MediaSession의 실제 availability/playback만 표시하고 audible success를 추정하지 않음",
+        "configured autoplay target 목록은 Now Playing source와 분리해 표시"
       ],
       "required_logs": [
         "AUTOSTART_MEDIA_CHANGED",
@@ -2290,7 +2326,10 @@
         "NOW_PLAYING_SNAPSHOT",
         "BACKGROUND_MEDIA_STAGE_SCHEDULED",
         "BACKGROUND_MEDIA_STAGE_SCHEDULE_FAILED",
-        "BACKGROUND_MEDIA_PLAYBACK_READBACK_FAILED"
+        "BACKGROUND_MEDIA_PLAYBACK_READBACK_FAILED",
+        "variant=golden-reference-v3",
+        "panel_hero=true",
+        "target_scoped=true"
       ],
       "known_bad": [
         "대상 앱이 활성 MediaSession을 노출하는지 앱별 차이가 있으며 BYD Android 10 실차 재검증 필요",
@@ -2315,7 +2354,8 @@
       ],
       "evidence": [
         "MediaNowPlayingRuntime active target session metadata readback",
-        "BackgroundMediaRuntime AlarmManager stages re-enter BootAutoLaunchReceiver for target session PLAY/readback without global media-key fallback"
+        "BackgroundMediaRuntime AlarmManager stages re-enter BootAutoLaunchReceiver for target session PLAY/readback without global media-key fallback",
+        "Golden Reference v3 Media Center preserves playback_verified=false while surfacing target-scoped source state"
       ],
       "next_action": "1.2.2 BETA 실차에서 target MediaSession discovery/play/readback 및 순정 안전 오디오 arbitration evidence 수집",
       "confidence": {
