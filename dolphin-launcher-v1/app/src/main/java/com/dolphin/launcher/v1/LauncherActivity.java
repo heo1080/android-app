@@ -848,9 +848,24 @@ public class LauncherActivity extends Activity {
                 "설치된 지원 내비만 표시 · 선택 시 해당 앱 실행"));
 
         int installed=0;
+        for (AppEntry app : apps) if (isSupportedNavPackage(app.packageName)) installed++;
+        panel.addView(referenceUtilityHero(
+                "MAP",
+                "SUPPORTED NAV APPS",
+                installed>0 ? installed+" APPS READY" : "NAV APP WAITING",
+                "LAUNCH ONLY · SEMANTICS LOCKED",
+                "NAVER Map · TMAP · KakaoNavi · ATLAN / semantic_parse=false"),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(112)));
+        panel.addView(referenceSectionLabel(
+                "INSTALLED TARGETS","tap to launch selected navigation app"),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(34)));
+
+        int rendered=0;
         for (AppEntry app : apps) {
             if (!isSupportedNavPackage(app.packageName)) continue;
-            installed++;
+            rendered++;
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setGravity(Gravity.CENTER_VERTICAL);
@@ -894,7 +909,7 @@ public class LauncherActivity extends Activity {
             panel.addView(row,rowLp);
         }
 
-        if(installed==0){
+        if(rendered==0){
             TextView empty=text(
                     "지원 내비 앱을 찾지 못했습니다.\n"
                             + "NAVER Map, TMAP, KakaoNavi, ATLAN 설치 여부를 확인하세요.",
@@ -909,7 +924,9 @@ public class LauncherActivity extends Activity {
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this,"NAV_LAUNCHER_HMI_RENDER",
-                "installed_supported_nav="+installed+";semantic_parse=false");
+                "variant=golden-reference-v3;installed_supported_nav="+installed
+                        +";rendered_supported_nav="+rendered
+                        +";panel_hero=true;launch_only=true;semantic_parse=false");
 
         AlertDialog dialog=new AlertDialog.Builder(this)
                 .setView(panel)
@@ -978,6 +995,19 @@ public class LauncherActivity extends Activity {
         panel.addView(hmiInfoStrip(
                 "실제 Android display profile · OEM display spoof는 근거 확보 전 차단"));
 
+        panel.addView(referenceUtilityHero(
+                "DSP",
+                "DISPLAY PROFILE",
+                dm.widthPixels+"×"+dm.heightPixels,
+                "DPI "+dm.densityDpi+" · FONT "+String.format(Locale.US,"%.2f",cfg.fontScale),
+                "READ ONLY · Android system settings dispatch only"),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(112)));
+        panel.addView(referenceSectionLabel(
+                "LIVE METRICS","captured from Android DisplayMetrics"),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(34)));
+
         LinearLayout metrics1=new LinearLayout(this);
         metrics1.setOrientation(LinearLayout.HORIZONTAL);
         metrics1.addView(vehicleMetric("PIXELS",
@@ -1026,7 +1056,8 @@ public class LauncherActivity extends Activity {
                 "width_px="+dm.widthPixels+";height_px="+dm.heightPixels
                         +";density_dpi="+dm.densityDpi
                         +";font_scale="+cfg.fontScale
-                        +";actuation=false");
+                        +";variant=golden-reference-v3"
+                        +";panel_hero=true;actuation=false");
 
         AlertDialog dialog=new AlertDialog.Builder(this)
                 .setView(panel)
@@ -1053,6 +1084,19 @@ public class LauncherActivity extends Activity {
         panel.addView(hmiInfoStrip(
                 "Launcher는 dark HMI 유지 · 시스템 night mode는 상태만 읽고 강제 변경하지 않음"));
 
+        panel.addView(referenceUtilityHero(
+                "MOON",
+                "THEME STATUS",
+                "DARK HMI",
+                "SYSTEM "+systemNight+" · READ ONLY",
+                "launcher palette fixed dark · no forced system night mode"),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(112)));
+        panel.addView(referenceSectionLabel(
+                "THEME BOUNDARY","status only · no system actuation"),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(34)));
+
         LinearLayout row=new LinearLayout(this);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.addView(vehicleMetric("APP THEME","DARK HMI"),weighted());
@@ -1069,7 +1113,8 @@ public class LauncherActivity extends Activity {
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this,"THEME_STATUS_HMI_RENDER",
-                "app_theme=dark;system_night="+systemNight+";actuation=false");
+                "variant=golden-reference-v3;app_theme=dark;system_night="+systemNight
+                        +";panel_hero=true;actuation=false");
 
         new AlertDialog.Builder(this)
                 .setView(panel)
