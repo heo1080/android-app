@@ -355,6 +355,9 @@ jobs:
           assert "visible.width()/Math.max(0.01f,dm.density)" in layout_audit, "visible touch width audit missing"
           assert "visible.height()/Math.max(0.01f,dm.density)" in layout_audit, "visible touch height audit missing"
           assert 'chip("● LIVE")' not in launcher_ui, "static HOME LIVE chip must not overstate source availability"
+          legacy_autostart=launcher_ui.split("private void runPendingAutostart()",1)[1].split("private void toggleFavorite",1)[0]
+          assert "handler.postDelayed" not in legacy_autostart, "legacy LauncherActivity boot autostart must not schedule apps"
+          assert "AUTOSTART_LEGACY_PENDING_IGNORED" in legacy_autostart, "legacy pending flag must be fail-safe consumed"
 
           manifest_source=pathlib.Path("dolphin-launcher-v1/app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
           boot_receiver=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchReceiver.java").read_text(encoding="utf-8")
