@@ -52,6 +52,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LauncherActivity extends Activity {
 
@@ -67,6 +68,7 @@ public class LauncherActivity extends Activity {
     private static final String EXTRA_SPLIT_RIGHT = "split_right_package";
 
     private final Handler handler = new Handler(Looper.getMainLooper());
+    private final AtomicBoolean splitLaunchInFlight = new AtomicBoolean(false);
     private SharedPreferences prefs;
     private FrameLayout bodyHost;
     private TextView timeView;
@@ -1565,36 +1567,71 @@ public class LauncherActivity extends Activity {
             return;
         }
 
-        SplitCapabilityProbe.Result capability = SplitCapabilityProbe.inspect(this);
-        VerificationEvidenceRuntime.recordPassiveEvent(
-                this, "SPLIT_CAPABILITY_PROBE", capability.evidence());
-
-        VerificationEvidenceRuntime.recordPassiveEvent(
-                this, "SPLIT_EXECUTION_ATTEMPT",
-                "left=" + left + ";right=" + right + ";" + capability.evidence());
-        if (!capability.authorizedPathReady()) {
+        if (!splitLaunchInFlight.compareAndSet(false, true)) {
             VerificationEvidenceRuntime.recordPassiveEvent(
-                    this, "SPLIT_EXECUTION_BLOCKED",
-                    "reason=localhost-adb-not-authorized;left=" + left + ";right=" + right);
-            VerificationEvidenceRuntime.queueBundleAndUpload(this, "split-adb-authorization-required");
-            new AlertDialog.Builder(this)
-                    .setTitle("2분할 · ADB 승인 필요")
-                    .setMessage("차량의 localhost ADB 인증이 아직 승인되지 않았습니다. 한쪽 앱만 실행하는 방식으로 대체하지 않습니다. " +
-                            "차량에 ADB 승인 창이 표시되면 V1 키를 승인한 뒤 다시 실행하세요.")
-                    .setPositiveButton("확인", null)
-                    .show();
+                    this, "SPLIT_EXECUTION_SUPPRESSED",
+                    "reason=in-flight;left=" + left + ";right=" + right);
+            Toast.makeText(this, "2분할 구성을 확인 중입니다.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        SplitExecutionBridge.Result result = SplitExecutionBridge.launch(this, left, right);
         VerificationEvidenceRuntime.recordPassiveEvent(
-                this, result.success ? "SPLIT_EXECUTION_SUCCESS" : "SPLIT_EXECUTION_FAILED",
-                "left=" + left + ";right=" + right + ";" + result.detail);
-        VerificationEvidenceRuntime.queueBundleAndUpload(
-                this, result.success ? "split-execution-success-candidate" : "split-execution-failed");
-        if (!result.success) {
-            Toast.makeText(this, "2분할 실행에 실패했습니다. 검증 로그를 자동 저장했습니다.", Toast.LENGTH_LONG).show();
-        }
+                this, "SPLIT_EXECUTION_ASYNC_START",
+                "left=" + left + ";right=" + right);
+
+        new Thread(() -> {
+            try {
+                SplitCapabilityProbe.Result capability = SplitCapabilityProbe.inspect(this);
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        this, "SPLIT_CAPABILITY_PROBE", capability.evidence());
+
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        this, "SPLIT_EXECUTION_ATTEMPT",
+                        "left=" + left + ";right=" + right + ";" + capability.evidence());
+                if (!capability.authorizedPathReady()) {
+                    VerificationEvidenceRuntime.recordPassiveEvent(
+                            this, "SPLIT_EXECUTION_BLOCKED",
+                            "reason=localhost-adb-not-authorized;left=" + left + ";right=" + right);
+                    VerificationEvidenceRuntime.queueBundleAndUpload(
+                            this, "split-adb-authorization-required");
+                    runOnUiThread(() -> {
+                        if (isFinishing() || isDestroyed()) return;
+                        new AlertDialog.Builder(this)
+                                .setTitle("2분할 · ADB 승인 필요")
+                                .setMessage("차량의 localhost ADB 인증이 아직 승인되지 않았습니다. "
+                                        + "한쪽 앱만 실행하는 방식으로 대체하지 않습니다. "
+                                        + "차량에 ADB 승인 창이 표시되면 V1 키를 승인한 뒤 다시 실행하세요.")
+                                .setPositiveButton("확인", null)
+                                .show();
+                    });
+                    return;
+                }
+
+                SplitExecutionBridge.Result result =
+                        SplitExecutionBridge.launch(this, left, right);
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        this,
+                        result.success ? "SPLIT_EXECUTION_SUCCESS" : "SPLIT_EXECUTION_FAILED",
+                        "left=" + left + ";right=" + right + ";" + result.detail);
+                VerificationEvidenceRuntime.queueBundleAndUpload(
+                        this,
+                        result.success
+                                ? "split-execution-success-candidate"
+                                : "split-execution-failed");
+
+                if (!result.success) {
+                    runOnUiThread(() -> {
+                        if (isFinishing() || isDestroyed()) return;
+                        Toast.makeText(
+                                this,
+                                "2분할 실행에 실패했습니다. 검증 로그를 자동 저장했습니다.",
+                                Toast.LENGTH_LONG).show();
+                    });
+                }
+            } finally {
+                splitLaunchInFlight.set(false);
+            }
+        }, "V1SplitLaunch").start();
     }
 
     private void showAutoStartManager() {

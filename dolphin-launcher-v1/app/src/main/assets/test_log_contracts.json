@@ -526,7 +526,12 @@
         "single-session marker completion is not sufficient for VERIFIED",
         "camera lifecycle evidence is passive until real-car exit signal correlation is proven",
         "post-camera readback records whether the configured pair remains split without attempting restore",
-        "automatic restore is prohibited while restore_attempted=false policy is active"
+        "automatic restore is prohibited while restore_attempted=false policy is active",
+        "existing primary task recovery uses a V1-owned ghost primary stack plus am stack move-task",
+        "primary and secondary windowing modes are polled up to 12 times at 250 ms before success/failure is decided",
+        "secondary launch can fall back to moving an existing task into the observed mode-4 stack before retry",
+        "manual split probe/actuation executes off the UI main thread and duplicate taps are suppressed while in flight",
+        "ratio resize remains disabled until separate real-car evidence exists"
       ],
       "required_logs": [
         "SPLIT_ADB_COMMAND",
@@ -543,7 +548,12 @@
         "SPLIT_POST_CAMERA_READBACK",
         "SPLIT_READBACK_PASSIVE",
         "restore_attempted=false",
-        "actuation=false"
+        "actuation=false",
+        "SPLIT_RECOVERY_PATH",
+        "SPLIT_MODE_POLL",
+        "SPLIT_ADB_RESULT",
+        "SPLIT_EXECUTION_ASYNC_START",
+        "SPLIT_EXECUTION_SUPPRESSED"
       ]
     },
     {

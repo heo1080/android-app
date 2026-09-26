@@ -31,6 +31,15 @@
             android:resizeableActivity="true" />
 
         <activity
+            android:name=".SplitGhostActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:finishOnTaskLaunch="true"
+            android:launchMode="singleTask"
+            android:resizeableActivity="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <activity
             android:name=".LauncherActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|uiMode"
             android:exported="true"

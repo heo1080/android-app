@@ -29,9 +29,16 @@
       "feature_id": "SPLIT_SCREEN_TWO_APP",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SplitExecutionBridge.java",
       "tokens": [
-        "am start --windowingMode 3",
-        "am start --windowingMode 4",
+        "MODE_PRIMARY = 3",
+        "MODE_SECONDARY = 4",
+        "POLL_ATTEMPTS = 12",
+        "am start --user 0 --windowingMode ",
+        "am stack move-task ",
+        "SplitGhostActivity.class",
         "SPLIT_ADB_COMMAND",
+        "SPLIT_ADB_RESULT",
+        "SPLIT_RECOVERY_PATH",
+        "SPLIT_MODE_POLL",
         "dumpsys activity activities",
         "am stack list",
         "SPLIT_READBACK",
@@ -60,7 +67,10 @@
         "SPLIT_POST_CAMERA_READBACK",
         "AUTO_EXIT_PANO",
         "restore_attempted=false",
-        "actuation=false"
+        "actuation=false",
+        "SPLIT_EXECUTION_ASYNC_START",
+        "SPLIT_EXECUTION_SUPPRESSED",
+        "V1SplitLaunch"
       ]
     },
     {
@@ -1693,7 +1703,18 @@
         "DrawerSlotActivities$Slot01",
         "DrawerSlotActivities$Slot16",
         "android.intent.category.LAUNCHER",
-        "android:enabled=\"false\""
+        "android:enabled=\"false\"",
+        "SplitGhostActivity"
+      ]
+    },
+    {
+      "feature_id": "SPLIT_SCREEN_TWO_APP",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SplitGhostActivity.java",
+      "tokens": [
+        "SplitGhostActivity",
+        "postDelayed",
+        "4500L",
+        "finishTask"
       ]
     }
   ],
