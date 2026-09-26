@@ -96,6 +96,7 @@
       "requirement": "앱 내부에서 진단 세션을 생성하고 민감정보를 최소화해 private diagnostic repository로 업로드/공유 가능해야 한다.",
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java",
+        "dolphin-launcher-v1/app/build.gradle.kts",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootReceiver.java"
       ],
@@ -109,6 +110,7 @@
         "차량 raw/state/audio/display 정보 포함",
         "업로드 결과 확인",
         "토큰은 Android Keystore 보호",
+        "APK/BuildConfig에 재사용 가능한 upload credential을 포함하지 않으며, 증명된 runtime enrollment가 없으면 ZIP queue를 보존하고 network upload를 fail-closed",
         "앱 시작 시 network callback 기반 자동 업로드 retry가 활성화되고 startup snapshot ZIP을 queue에 생성",
         "BOOT_COMPLETED에서도 durable queue upload retry를 수행해 LauncherActivity 프로세스 수명과 독립적으로 복구",
         "upload attempt와 server receipt의 session_id/SHA-256 일치 여부를 Evidence ledger에 기록"
@@ -122,11 +124,13 @@
         "EVIDENCE_UPLOAD_ATTEMPT",
         "EVIDENCE_UPLOAD_RECEIPT",
         "EVIDENCE_UPLOAD_RETRY_RETAINED",
+        "EVIDENCE_UPLOAD_CREDENTIAL_UNAVAILABLE",
         "BOOT_UPLOAD_RETRY_FINISHED"
       ],
       "known_bad": [
         "V1 1.2.1 evidence session binding stale; V1 1.2.2 automatic Worker→Drive upload requires real-car re-verification",
-        "APK-static BuildConfig.EVIDENCE_UPLOAD_KEY is extractable and does not satisfy the Android Keystore secure-secret requirement"
+        "APK-static BuildConfig.EVIDENCE_UPLOAD_KEY is extractable and does not satisfy the Android Keystore secure-secret requirement",
+        "KB-013 fix candidate removes the APK-static credential; automatic upload remains disabled until a server-backed Keystore enrollment path is proven"
       ],
       "dependencies": [
         "Android Keystore",
@@ -138,7 +142,8 @@
         "15분 캡처 시작",
         "문제 순간 표시",
         "종료+ZIP",
-        "private repo 업로드 확인"
+        "private repo 업로드 확인",
+        "secure runtime credential 미등록 상태에서 ZIP이 삭제되지 않고 EVIDENCE_UPLOAD_CREDENTIAL_UNAVAILABLE로 보존되는지 확인"
       ],
       "evidence": [
         "dolphin-diagnostics 2026-09-19 session commits",
@@ -146,7 +151,8 @@
         "PC ZIP→Worker→Google Drive receipt path verified 2026-09-25; APK real-car automatic upload not yet verified",
         "LauncherActivity starts automatic upload runtime, retries pending queue and creates startup-snapshot bundle",
         "BootReceiver retries durable upload queue with goAsync lifecycle",
-        "VerificationEvidenceRuntime records upload attempt/receipt/retry-retained without persisting upload secret"
+        "VerificationEvidenceRuntime records upload attempt/receipt/retry-retained without persisting upload secret",
+        "APK-static BuildConfig upload credential removed; upload retry fails closed and retains queued ZIP until an evidence-backed runtime credential exists"
       ],
       "next_action": "KB-013: BuildConfig static upload secret 제거 → 서버가 증명된 runtime/per-device credential 경로를 제공할 때 Android Keystore 보호 저장 → rotation/revocation 및 real-car receipt 재검증",
       "confidence": {
@@ -2722,11 +2728,12 @@
         "DIAGNOSTIC_CAPTURE_UPLOAD"
       ],
       "severity": "P0",
-      "status": "OPEN",
+      "status": "FIX_CANDIDATE",
       "required_test_ids": [
         "DIA-UP-001"
       ],
-      "close_gate": "remove the APK-static shared upload credential; use an evidence-backed runtime credential/enrollment path with private credential material protected by Android Keystore (or an equally strong non-extractable platform mechanism), prove rotation/revocation behavior, and verify real-car upload receipts without a reusable secret embedded in APK strings"
+      "close_gate": "remove the APK-static shared upload credential; use an evidence-backed runtime credential/enrollment path with private credential material protected by Android Keystore (or an equally strong non-extractable platform mechanism), prove rotation/revocation behavior, and verify real-car upload receipts without a reusable secret embedded in APK strings",
+      "summary": "APK-static BuildConfig upload credential removed from the candidate; evidence ZIP queue now fails closed and remains retained until a server-backed Android Keystore runtime enrollment path is proven."
     }
   ],
   "next_priority": [
