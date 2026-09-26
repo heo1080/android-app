@@ -1074,6 +1074,12 @@ public class LauncherActivity extends Activity {
     private void showDisplayQuickPanel() {
         DisplayMetrics dm=getResources().getDisplayMetrics();
         android.content.res.Configuration cfg=getResources().getConfiguration();
+        android.view.Display display=getWindowManager().getDefaultDisplay();
+        DisplayMetrics realDm=new DisplayMetrics();
+        display.getRealMetrics(realDm);
+        android.view.Display.Mode activeMode=display.getMode();
+        String physicalModePx=activeMode==null?"unavailable":
+                activeMode.getPhysicalWidth()+"×"+activeMode.getPhysicalHeight();
 
         LinearLayout panel=new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
@@ -1089,7 +1095,8 @@ public class LauncherActivity extends Activity {
                 "DSP",
                 "DISPLAY PROFILE",
                 dm.widthPixels+"×"+dm.heightPixels,
-                "DPI "+dm.densityDpi+" · FONT "+String.format(Locale.US,"%.2f",cfg.fontScale),
+                "MODE "+physicalModePx+" · DPI "+dm.densityDpi+" · FONT "+
+                        String.format(Locale.US,"%.2f",cfg.fontScale),
                 "READ ONLY · Android system settings dispatch only"),
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,dp(112)));
@@ -1098,14 +1105,25 @@ public class LauncherActivity extends Activity {
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,dp(34)));
 
+        LinearLayout metricsPx=new LinearLayout(this);
+        metricsPx.setOrientation(LinearLayout.HORIZONTAL);
+        metricsPx.addView(vehicleMetric("APP PX",
+                dm.widthPixels+"×"+dm.heightPixels),weighted());
+        metricsPx.addView(vehicleMetric("REAL PX",
+                realDm.widthPixels+"×"+realDm.heightPixels),weighted());
+        metricsPx.addView(vehicleMetric("MODE PX",
+                physicalModePx),weighted());
+        panel.addView(metricsPx,new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(78)));
+
         LinearLayout metrics1=new LinearLayout(this);
         metrics1.setOrientation(LinearLayout.HORIZONTAL);
-        metrics1.addView(vehicleMetric("PIXELS",
-                dm.widthPixels+"×"+dm.heightPixels),weighted());
         metrics1.addView(vehicleMetric("DPI",
                 String.valueOf(dm.densityDpi)),weighted());
         metrics1.addView(vehicleMetric("FONT",
                 String.format(Locale.US,"%.2f",cfg.fontScale)),weighted());
+        metrics1.addView(vehicleMetric("REFRESH",
+                activeMode==null?"-":String.format(Locale.US,"%.1f",activeMode.getRefreshRate())),weighted());
         panel.addView(metrics1,new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,dp(78)));
 
@@ -1144,6 +1162,12 @@ public class LauncherActivity extends Activity {
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this,"DISPLAY_QUICK_HMI_RENDER",
                 "width_px="+dm.widthPixels+";height_px="+dm.heightPixels
+                        +";resource_px="+dm.widthPixels+"x"+dm.heightPixels
+                        +";real_px="+realDm.widthPixels+"x"+realDm.heightPixels
+                        +";physical_mode_px="+(activeMode==null?"unavailable":
+                                activeMode.getPhysicalWidth()+"x"+activeMode.getPhysicalHeight())
+                        +";display_mode_id="+(activeMode==null?-1:activeMode.getModeId())
+                        +";refresh_hz="+(activeMode==null?-1f:activeMode.getRefreshRate())
                         +";density_dpi="+dm.densityDpi
                         +";font_scale="+cfg.fontScale
                         +";variant=golden-reference-v3"
