@@ -154,6 +154,7 @@ jobs:
           import json, pathlib, sys
           registry=json.load(open(sys.argv[1], encoding="utf-8"))
           contracts=json.load(open(sys.argv[2], encoding="utf-8"))
+          assert contracts.get("schema_version")==2, ("test contract schema drift", contracts.get("schema_version"))
           features={f["feature_id"]: f for f in registry.get("features", [])}
           registered_test_ids={tid for f in features.values() for tid in f.get("test_ids", [])}
           seen=set()
