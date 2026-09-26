@@ -1923,7 +1923,8 @@
         "LauncherActivity triggers AppUpdateManager.checkForUpdates(false) and resumes pending install permission",
         "AppUpdateManager records release/hash/version/signer verification evidence before installer staging",
         "UpdateInstallReceiver records pending-user-action/success/failure status",
-        "AppUpdateManager persists the consented release tag before opening unknown-app-source settings and re-fetches that exact tag after process recreation"
+        "AppUpdateManager persists the consented release tag before opening unknown-app-source settings and re-fetches that exact tag after process recreation",
+        "AppUpdateManager requires GitHub prerelease=true before tag-prefix acceptance and records release_prerelease in release/package verification evidence"
       ],
       "next_action": "UPD prerelease=true selection gate를 CI negative test로 고정하고 V1 실차에서 UPD-001/UPD-002 재검증",
       "confidence": {
