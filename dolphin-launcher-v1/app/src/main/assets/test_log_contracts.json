@@ -1897,7 +1897,8 @@
         "no fabricated objects",
         "HOME/FSD Safety panel remains BLOCKED and semantics LOCKED while no verified object/lane pipeline exists",
         "UI does not fabricate object/lane semantics",
-        "HOME hero sensor field uses decorative arcs/ticks only while BLOCKED and does not render fixed object dots/rings"
+        "HOME hero sensor field uses decorative arcs/ticks only while BLOCKED and does not render fixed object dots/rings",
+        "FSD Safety cockpit graphic uses only abstract shield/padlock/arcs/ticks while BLOCKED and renders no fixed road/lane/object/warning target semantics"
       ],
       "required_logs": [
         "camera source",
