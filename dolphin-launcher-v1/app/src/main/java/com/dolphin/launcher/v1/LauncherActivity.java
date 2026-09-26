@@ -687,7 +687,7 @@ public class LauncherActivity extends Activity {
                         + ";home_hero_height_dp=238;home_cockpit_height_dp=168"
                         + ";topbar_height_dp=60;dock_height_dp=84"
                         + ";tpms_cards=4;tpms_visual=vector-wheel-gauge"
-                        + ";quick_cards=4;dock_items=5");
+                        + ";quick_cards=4;dock_items=6");
 
         TextView footer = text(
                 "앱 길게 누르기  →  홈 고정 · 2분할 좌/우 · 시동 자동실행 · 앱 정보",
