@@ -1815,6 +1815,7 @@
         "다운로드 APK versionCode가 설치본보다 높음",
         "서명 인증서 digest가 설치본과 동일",
         "Android PackageInstaller 사용자 확인 유지",
+        "설치 권한 설정 중 프로세스가 종료돼도 선택한 release tag를 durable pending state로 복구하고 동일 tag를 GitHub API에서 재조회한 뒤 계속 진행",
         "앱 시작 시 6시간 cadence의 자동 release check 진입점 유지",
         "다운로드 APK SHA-256, package, higher versionCode, current signer 일치 검증 후에만 PackageInstaller stage",
         "release check·package verification·installer stage·최종 install status를 Evidence ledger에 기록"
@@ -1830,13 +1831,17 @@
         "APP_UPDATE_RELEASE_CHECK",
         "APP_UPDATE_LATEST",
         "APP_UPDATE_AVAILABLE",
+        "APP_UPDATE_PERMISSION_RESUME_FAILED",
+        "APP_UPDATE_PERMISSION_RESUME_RESTORED",
+        "APP_UPDATE_PERMISSION_PENDING_SAVED",
         "APP_UPDATE_CHECK_FAILED",
         "APP_UPDATE_PACKAGE_VERIFIED",
         "APP_UPDATE_INSTALL_STAGED",
         "APP_UPDATE_INSTALL_STATUS"
       ],
       "known_bad": [
-        "versionCode downgrade 설치 실패가 과거 발생하여 v34.3.1에서 114로 수정한 기록"
+        "versionCode downgrade 설치 실패가 과거 발생하여 v34.3.1에서 114로 수정한 기록",
+        "설치 권한 설정 화면 전환 중 앱 프로세스가 종료되면 static pending release가 소실되어 업데이트가 재개되지 않을 수 있었음"
       ],
       "dependencies": [
         "GitHub Releases",
@@ -1845,7 +1850,8 @@
       "real_vehicle_test": [
         "현재→신규 update",
         "네트워크 실패",
-        "잘못된 version metadata negative test"
+        "잘못된 version metadata negative test",
+        "설치 권한 설정 화면에서 앱 프로세스를 종료한 뒤 권한 허용·복귀하여 동일 release tag 다운로드가 재개되는지 확인"
       ],
       "evidence": [
         "AppUpdateManager no-silent-install policy",
@@ -1855,7 +1861,8 @@
         "Dolphin Launcher V1 OTA implementation is maintained on dolphin-launcher-v1 branch and validated by its dedicated CI",
         "LauncherActivity triggers AppUpdateManager.checkForUpdates(false) and resumes pending install permission",
         "AppUpdateManager records release/hash/version/signer verification evidence before installer staging",
-        "UpdateInstallReceiver records pending-user-action/success/failure status"
+        "UpdateInstallReceiver records pending-user-action/success/failure status",
+        "AppUpdateManager persists the consented release tag before opening unknown-app-source settings and re-fetches that exact tag after process recreation"
       ],
       "next_action": "V1 1.2 실차에서 UPD-001/UPD-002 수행 후 REVERIFY_REQUIRED 해제 여부 판단",
       "confidence": {
