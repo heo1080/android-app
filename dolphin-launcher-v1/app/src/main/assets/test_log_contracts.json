@@ -251,7 +251,9 @@
         "operator confirms app drawer icon is visible after install",
         "operator confirms normal app launch without desktop/freeform misclassification",
         "required launcher markers reach 3 observations before PASS",
-        "HOME launcher role remains disabled until separate BYD compatibility evidence exists"
+        "HOME launcher role remains disabled until separate BYD compatibility evidence exists",
+        "canonical adaptive icon is visible and recognizable in the BYD app drawer",
+        "voicePreview uses a visually distinct adaptive icon/label and is not confused with canonical V1"
       ],
       "required_logs": [
         "resolved activity",
@@ -262,7 +264,9 @@
         "APP_DRAWER_ICON_VISIBLE",
         "NORMAL_APP_LAUNCH_VISIBLE",
         "elapsed_realtime_ms",
-        "BUILD_IDENTITY_OK"
+        "BUILD_IDENTITY_OK",
+        "ADAPTIVE_ICON_RESOURCE_OK",
+        "PREVIEW_ICON_VARIANT_OK"
       ]
     },
     {
@@ -2547,7 +2551,10 @@
         "cockpit source-state text is explicitly source availability only and does not imply feature VERIFIED state",
         "cockpit source legend scope/state text uses separate rows and width-fitted text so compact 10-inch cards do not overlap",
         "SOUND LAB renders EQ / sound position / fixed voice as three safe preview cards",
-        "fixed voice panel uses a scroll-safe dialog and exposes all 22 prompt review buttons"
+        "fixed voice panel uses a scroll-safe dialog and exposes all 22 prompt review buttons",
+        "premium radial ambient/chrome layers remain decorative and do not imply road/lane/object perception",
+        "cockpit source legend explicitly renders SOURCE state ≠ VERIFIED",
+        "V1 BETA visual identity remains distinguishable from stable/release-ready claims"
       ],
       "required_logs": [
         "display profile",
@@ -2575,7 +2582,10 @@
         "cockpit_copy_dp=",
         "dock_items=6",
         "VOICE_FIXED_PREVIEW_HMI_RENDER",
-        "sound_lab_cards=3"
+        "sound_lab_cards=3",
+        "variant=glass-vector-v3-premium",
+        "source_live_not_verified=true",
+        "adaptive_icons=true"
       ]
     },
     {
@@ -2626,7 +2636,10 @@
         "cockpit source-state text is explicitly source availability only and does not imply feature VERIFIED state",
         "cockpit source legend scope/state text uses separate rows and width-fitted text so compact 10-inch cards do not overlap",
         "SOUND LAB renders EQ / sound position / fixed voice as three safe preview cards",
-        "fixed voice panel uses a scroll-safe dialog and exposes all 22 prompt review buttons"
+        "fixed voice panel uses a scroll-safe dialog and exposes all 22 prompt review buttons",
+        "premium radial ambient/chrome layers remain decorative and do not imply road/lane/object perception",
+        "cockpit source legend explicitly renders SOURCE state ≠ VERIFIED",
+        "V1 BETA visual identity remains distinguishable from stable/release-ready claims"
       ],
       "required_logs": [
         "display profile",
@@ -2654,7 +2667,10 @@
         "cockpit_copy_dp=",
         "dock_items=6",
         "VOICE_FIXED_PREVIEW_HMI_RENDER",
-        "sound_lab_cards=3"
+        "sound_lab_cards=3",
+        "variant=glass-vector-v3-premium",
+        "source_live_not_verified=true",
+        "adaptive_icons=true"
       ]
     },
     {
