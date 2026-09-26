@@ -676,7 +676,8 @@
         "DISPLAY utility hero summarizes current profile while actuation remains false",
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
         "dock records screen-width compact risk while preserving 48dp touch-target goal",
-        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries",
+        "resource/logical px와 real/physical Display.Mode px를 분리 기록해 1280x720 vs 1920x1080을 추정으로 확정하지 않음"
       ],
       "required_logs": [
         "densityDpi",
@@ -694,7 +695,12 @@
         "dock_min_safe_width_dp=632",
         "touch_target_goal_dp=48",
         "compact_risk=",
-        "adaptive_hero=true"
+        "adaptive_hero=true",
+        "resource_px=",
+        "real_px=",
+        "physical_mode_px=",
+        "display_mode_id=",
+        "refresh_hz="
       ]
     },
     {
@@ -731,7 +737,8 @@
         "DISPLAY utility hero summarizes current profile while actuation remains false",
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
         "dock records screen-width compact risk while preserving 48dp touch-target goal",
-        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries",
+        "resource/logical px와 real/physical Display.Mode px를 분리 기록해 1280x720 vs 1920x1080을 추정으로 확정하지 않음"
       ],
       "required_logs": [
         "densityDpi",
@@ -749,7 +756,12 @@
         "dock_min_safe_width_dp=632",
         "touch_target_goal_dp=48",
         "compact_risk=",
-        "adaptive_hero=true"
+        "adaptive_hero=true",
+        "resource_px=",
+        "real_px=",
+        "physical_mode_px=",
+        "display_mode_id=",
+        "refresh_hz="
       ]
     },
     {
@@ -1693,7 +1705,10 @@
         "no departure speech from an unproven radar pattern",
         "cross-session evaluator output remains candidate_not_verified and never auto-enables vehicle speech",
         "Verification Center PASS is unavailable until every required marker reaches at least 3 observations in the active correlation",
-        "single-session marker completion does not equal VERIFIED"
+        "single-session marker completion does not equal VERIFIED",
+        "normal-driving and ICC/ACC/TJA-active observations preserve the same radar/speed/tja raw context",
+        "tja_raw numeric value is not promoted to an ICC/ACC semantic without separate proof",
+        "no leading-car departure voice is enabled merely because radar changes while an assist raw value is present"
       ],
       "required_logs": [
         "LEADING_OBJECT_RADAR_RAW",
@@ -1704,7 +1719,14 @@
         "elapsed_realtime_ms",
         "classification=unknown-object",
         "diagnostic_session_id",
-        "matching_stable_sessions"
+        "matching_stable_sessions",
+        "LEADING_CAR_CONTEXT_SAMPLE",
+        "speed_raw",
+        "tja_raw",
+        "assist_context_semantic=unmapped",
+        "object_semantic=false",
+        "voice_enabled=false",
+        "vehicle_write=false"
       ]
     },
     {
@@ -2007,7 +2029,8 @@
         "HOME hero sensor field uses decorative arcs/ticks only while BLOCKED and does not render fixed object dots/rings",
         "FSD Safety cockpit graphic uses only abstract shield/padlock/arcs/ticks while BLOCKED and renders no fixed road/lane/object/warning target semantics",
         "HOME perspective deck contains no lane boundaries, centerline dashes, drivable-space, or navigation semantics",
-        "FSD Safety vector displays SEMANTICS LOCKED plus source state while object/lane semantics remain prohibited"
+        "FSD Safety vector displays SEMANTICS LOCKED plus source state while object/lane semantics remain prohibited",
+        "ADAS raw visible only while ICC/ACC/TJA is active is not extrapolated into an always-available normal-driving FSD source"
       ],
       "required_logs": [
         "camera source",
@@ -2926,6 +2949,54 @@
         "requested position",
         "capability source",
         "physical/audible verification"
+      ]
+    },
+    {
+      "test_id": "AUD-AVAS-001",
+      "feature_id": "EXTERIOR_AVAS_CUSTOM_SOUND",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "EXTERNAL_AVAS_CAPABILITY_SCAN",
+        "TEST_CAPABILITY_REFRESH",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 0,
+      "required_any": [
+        "EXTERNAL_AVAS_CAPABILITY_SCAN"
+      ],
+      "success_any": [],
+      "failure_any": [
+        "vehicle_write=true",
+        "actuation=true",
+        "external custom sound emitted before capability/readback proof"
+      ],
+      "known_bad_ids": [],
+      "acceptance": [
+        "runtime method/constant inventory is candidate-only and does not prove exterior speaker routing",
+        "custom audio file path, built-in tone/preset path and lock/unlock trigger path remain separate unproven capabilities",
+        "no reflected AVAS/exterior method is invoked by the probe",
+        "BLOCKED state allows NEED_MORE_DATA only until independent readback plus physical exterior-audible evidence exists"
+      ],
+      "required_logs": [
+        "EXTERNAL_AVAS_CAPABILITY_METHOD",
+        "EXTERNAL_AVAS_CAPABILITY_CONSTANT",
+        "EXTERNAL_AVAS_CAPABILITY_SCAN",
+        "candidate_only=true",
+        "custom_audio_path=unproven",
+        "builtin_tone_path=unproven",
+        "lock_trigger_path=unproven",
+        "vehicle_write=false",
+        "actuation=false",
+        "TEST_CAPABILITY_REFRESH"
       ]
     },
     {
