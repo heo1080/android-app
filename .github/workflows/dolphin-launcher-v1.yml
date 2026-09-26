@@ -105,9 +105,9 @@ jobs:
           assert d.get("schema_version")==3, d.get("schema_version")
           features=d.get("features", [])
           ids={tid for f in features for tid in f.get("test_ids", [])}
-          assert len(features)==36, len(features)
-          assert len(ids)==54, len(ids)
-          print("REGISTRY_OK schema=3 features=36 test_ids=54")
+          assert len(features)==51, len(features)
+          assert len(ids)==69, len(ids)
+          print("REGISTRY_OK schema=3 features=51 test_ids=69")
           PY
           unzip -p "$APK" assets/feature_dependencies.json > "$RUNNER_TEMP/feature_dependencies.json"
           python3 - "$RUNNER_TEMP/verification_registry.json" "$RUNNER_TEMP/feature_dependencies.json" <<'PY'
