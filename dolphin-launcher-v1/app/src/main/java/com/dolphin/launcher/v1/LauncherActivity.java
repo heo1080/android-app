@@ -956,7 +956,7 @@ public class LauncherActivity extends Activity {
 
         tile.setOnClickListener(v -> launchPackage(app.packageName));
         tile.setOnLongClickListener(v -> {
-            showAppActions(app);
+            showAppActions(app, () -> stateStrip.setText(appStateBadges(app)));
             return true;
         });
         return tile;
@@ -975,37 +975,203 @@ public class LauncherActivity extends Activity {
         return android.text.TextUtils.join(" · ", states);
     }
 
-    private void showAppActions(AppEntry app) {
+    private void showAppActions(AppEntry app, Runnable afterChange) {
         boolean favorite = favoritePackages().contains(app.packageName);
         boolean auto = autoStartPackages().contains(app.packageName);
-        String[] actions = new String[] {
-                favorite ? "홈 고정 해제" : "홈에 고정",
-                "순정 앱서랍에 바로가기 만들기",
-                "순정 앱서랍 바로가기 비활성화",
-                "2분할 왼쪽 앱으로 지정",
-                "2분할 오른쪽 앱으로 지정",
-                auto ? "시동 자동실행에서 제거" : "시동 자동실행에 추가",
-                "앱 정보"
+
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(18), dp(16), dp(18), dp(16));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E","#07151B","#040A0E"}, 24, "#315A68"));
+
+        LinearLayout head = new LinearLayout(this);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+
+        FrameLayout iconWell = new FrameLayout(this);
+        iconWell.setBackground(gradientRound(
+                new String[]{"#17323A","#0A1A20"}, 18, "#2A515D"));
+        ImageView icon = new ImageView(this);
+        icon.setImageDrawable(app.icon);
+        icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        iconWell.addView(icon, new FrameLayout.LayoutParams(
+                dp(44), dp(44), Gravity.CENTER));
+        LinearLayout.LayoutParams iconLp = new LinearLayout.LayoutParams(dp(58), dp(58));
+        iconLp.rightMargin = dp(12);
+        head.addView(iconWell, iconLp);
+
+        LinearLayout appCopy = new LinearLayout(this);
+        appCopy.setOrientation(LinearLayout.VERTICAL);
+        TextView appName = text(app.label, 17f, Color.WHITE, true);
+        fitSingleLine(appName, 12, 17);
+        appCopy.addView(appName);
+        TextView packageView = text(app.packageName, 9.5f,
+                Color.parseColor("#6F8994"), false);
+        fitSingleLine(packageView, 8, 10);
+        appCopy.addView(packageView);
+        TextView badges = text(appStateBadges(app), 9f,
+                Color.parseColor("#74CFC1"), true);
+        badges.setSingleLine(true);
+        badges.setLetterSpacing(0.04f);
+        appCopy.addView(badges);
+        head.addView(appCopy, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        panel.addView(head, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(72)));
+
+        final AlertDialog[] holder = new AlertDialog[1];
+        Runnable refresh = () -> {
+            badges.setText(appStateBadges(app));
+            if (afterChange != null) afterChange.run();
         };
 
-        new AlertDialog.Builder(this)
-                .setTitle(app.label)
-                .setItems(actions, (dialog, which) -> {
-                    if (which == 0) toggleFavorite(app.packageName);
-                    if (which == 1) {
-                        boolean ok = AppDrawerShortcutManager.pin(this, app.packageName, app.label);
-                        Toast.makeText(this, ok ? "바로가기 생성 요청을 보냈습니다." : "이 런처에서는 바로가기 생성 요청을 사용할 수 없습니다.", Toast.LENGTH_LONG).show();
-                    }
-                    if (which == 2) {
-                        boolean ok = AppDrawerShortcutManager.disable(this, app.packageName);
-                        Toast.makeText(this, ok ? "바로가기를 비활성화했습니다." : "바로가기를 비활성화할 수 없습니다.", Toast.LENGTH_LONG).show();
-                    }
-                    if (which == 3) setSplit(KEY_SPLIT_LEFT, app.packageName, "왼쪽");
-                    if (which == 4) setSplit(KEY_SPLIT_RIGHT, app.packageName, "오른쪽");
-                    if (which == 5) toggleAutoStart(app.packageName);
-                    if (which == 6) openAppInfo(app.packageName);
-                })
-                .show();
+        panel.addView(appActionRow(
+                favorite ? "홈 고정 해제" : "홈에 고정",
+                favorite ? "HOME 즐겨찾기에서 제거" : "HOME 즐겨찾기 타일로 추가",
+                "⌂", false, () -> {
+                    toggleFavorite(app.packageName);
+                    refresh.run();
+                }, holder));
+
+        panel.addView(appActionRow(
+                "순정 앱서랍 바로가기 만들기",
+                "Android pinned shortcut 요청",
+                "▦", false, () -> {
+                    boolean ok = AppDrawerShortcutManager.pin(
+                            this, app.packageName, app.label);
+                    Toast.makeText(this,
+                            ok ? "바로가기 생성 요청을 보냈습니다."
+                                    : "이 런처에서는 바로가기 생성 요청을 사용할 수 없습니다.",
+                            Toast.LENGTH_LONG).show();
+                }, holder));
+
+        panel.addView(appActionRow(
+                "순정 앱서랍 바로가기 비활성화",
+                "해당 앱 바로가기만 비활성화",
+                "×", true, () -> {
+                    boolean ok = AppDrawerShortcutManager.disable(
+                            this, app.packageName);
+                    Toast.makeText(this,
+                            ok ? "바로가기를 비활성화했습니다."
+                                    : "바로가기를 비활성화할 수 없습니다.",
+                            Toast.LENGTH_LONG).show();
+                }, holder));
+
+        panel.addView(appActionRow(
+                "2분할 왼쪽 앱으로 지정",
+                "현재 앱을 Split L 슬롯에 저장",
+                "L", false, () -> {
+                    setSplit(KEY_SPLIT_LEFT, app.packageName, "왼쪽");
+                    refresh.run();
+                }, holder));
+
+        panel.addView(appActionRow(
+                "2분할 오른쪽 앱으로 지정",
+                "현재 앱을 Split R 슬롯에 저장",
+                "R", false, () -> {
+                    setSplit(KEY_SPLIT_RIGHT, app.packageName, "오른쪽");
+                    refresh.run();
+                }, holder));
+
+        panel.addView(appActionRow(
+                auto ? "시동 자동실행에서 제거" : "시동 자동실행에 추가",
+                auto ? "BOOT sequence 등록 해제" : "BOOT sequence에 현재 앱 추가",
+                "▶", false, () -> {
+                    toggleAutoStart(app.packageName);
+                    refresh.run();
+                }, holder));
+
+        panel.addView(appActionRow(
+                "앱 정보",
+                "Android 시스템 앱 상세 정보 열기",
+                "i", false, () -> openAppInfo(app.packageName), holder));
+
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this, "APP_ACTION_HMI_RENDER",
+                "variant=glass-vector-v2;rows=7;touch_min_dp=48"
+                        + ";state_badges=" + appStateBadges(app).replace(" · ", ","));
+
+        ScrollView scroll = new ScrollView(this);
+        scroll.setFillViewport(true);
+        scroll.addView(panel);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(scroll)
+                .setNegativeButton("닫기", null)
+                .create();
+        holder[0] = dialog;
+        dialog.setOnShowListener(d -> {
+            Window w = dialog.getWindow();
+            if (w != null) {
+                w.setLayout((int) (getResources().getDisplayMetrics().widthPixels * 0.72f),
+                        (int) (getResources().getDisplayMetrics().heightPixels * 0.90f));
+                w.setDimAmount(0.72f);
+                w.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            }
+        });
+        dialog.show();
+    }
+
+    private View appActionRow(
+            String title, String subtitle, String symbol, boolean danger,
+            Runnable action, AlertDialog[] holder) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(10), dp(7), dp(10), dp(7));
+        row.setClickable(true);
+        row.setFocusable(true);
+        row.setBackground(pressableGradientRound(
+                danger
+                        ? new String[]{"#2A171C","#160D11"}
+                        : new String[]{"#0E222A","#07151B"},
+                danger
+                        ? new String[]{"#402129","#241116"}
+                        : new String[]{"#173440","#0A2028"},
+                16, danger ? "#6D3843" : "#284B57"));
+
+        HmiGlyphView glyph = new HmiGlyphView(this, symbol);
+        glyph.setAccentColor(Color.parseColor(danger ? "#FF9EAA" : "#8CFFE8"));
+        glyph.setBackground(gradientRound(
+                danger
+                        ? new String[]{"#3A2027","#1E1116"}
+                        : new String[]{"#173F46","#0B252A"},
+                15, danger ? "#72404B" : "#2E615F"));
+        LinearLayout.LayoutParams glyphLp = new LinearLayout.LayoutParams(dp(44), dp(44));
+        glyphLp.rightMargin = dp(12);
+        row.addView(glyph, glyphLp);
+
+        LinearLayout copy = new LinearLayout(this);
+        copy.setOrientation(LinearLayout.VERTICAL);
+        TextView titleView = text(title, 13f, Color.WHITE, true);
+        fitSingleLine(titleView, 10, 13);
+        copy.addView(titleView);
+        TextView subtitleView = text(subtitle, 9.5f,
+                Color.parseColor(danger ? "#B8838B" : "#7895A0"), false);
+        fitSingleLine(subtitleView, 8, 10);
+        copy.addView(subtitleView);
+        row.addView(copy, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView arrow = text("›", 22f,
+                Color.parseColor(danger ? "#C27783" : "#5F8F9B"), false);
+        arrow.setGravity(Gravity.CENTER);
+        row.addView(arrow, new LinearLayout.LayoutParams(dp(26), dp(44)));
+
+        row.setOnClickListener(v -> {
+            action.run();
+            if (holder != null && holder.length > 0 && holder[0] != null) {
+                holder[0].dismiss();
+            }
+        });
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(58));
+        lp.bottomMargin = dp(6);
+        row.setLayoutParams(lp);
+        return row;
     }
 
     private void createPinnedSplitShortcut() {
