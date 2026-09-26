@@ -645,6 +645,9 @@ public class VerificationCenterActivity extends Activity {
         if ("AUD-LVDA-001".equals(testId)) {
             return new String[]{"radar_area7_raw","radar_area8_raw","speed_raw"};
         }
+        if ("ADAS-LDW-001".equals(testId) || "ADAS-LDW-002".equals(testId)) {
+            return new String[]{"lane_offset_raw","lks_mode_raw","ldsw_type_raw","tja_raw"};
+        }
         return new String[0];
     }
 
