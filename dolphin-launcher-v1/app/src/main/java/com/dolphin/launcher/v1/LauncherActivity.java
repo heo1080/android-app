@@ -515,12 +515,12 @@ public class LauncherActivity extends Activity {
         primary.setOrientation(LinearLayout.HORIZONTAL);
         primary.setGravity(Gravity.CENTER);
 
-        primary.addView(dockButton("HOME", "⌂", this::showHome), weighted());
-        primary.addView(dockButton("APPS", "▦", this::showAppDrawer), weighted());
-        primary.addView(dockButton("2-SPLIT", "◫", this::launchSplitPair), weighted());
-        primary.addView(dockButton("MAP", "MAP", this::showNavigationPanel), weighted());
-        primary.addView(dockButton("SETTINGS", "⚙", this::showSettings), weighted());
-        primary.addView(dockButton("VERIFY", "✓", this::openVerificationCenter), weighted());
+        primary.addView(dockButton("HOME", "⌂", this::showHome), dockPrimaryWeighted());
+        primary.addView(dockButton("APPS", "▦", this::showAppDrawer), dockPrimaryWeighted());
+        primary.addView(dockButton("2-SPLIT", "◫", this::launchSplitPair), dockPrimaryWeighted());
+        primary.addView(dockButton("MAP", "MAP", this::showNavigationPanel), dockPrimaryWeighted());
+        primary.addView(dockButton("SETTINGS", "⚙", this::showSettings), dockPrimaryWeighted());
+        primary.addView(dockButton("VERIFY", "✓", this::openVerificationCenter), dockPrimaryWeighted());
 
         dock.addView(primary, new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
@@ -548,10 +548,16 @@ public class LauncherActivity extends Activity {
         dock.addView(controls, new LinearLayout.LayoutParams(dp(214),
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
+        DisplayMetrics dockMetrics=getResources().getDisplayMetrics();
+        float dockScreenWidthDp=dockMetrics.widthPixels/Math.max(0.01f,dockMetrics.density);
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this,"REFERENCE_DOCK_RENDER",
                 "primary=HOME,APPS,2-SPLIT,MAP,SETTINGS,VERIFY"
                         +";controls=VOLUME,BRIGHTNESS,DISPLAY,DARK"
+                        +";screen_width_dp="+Math.round(dockScreenWidthDp)
+                        +";dock_min_safe_width_dp=632"
+                        +";touch_target_goal_dp=48"
+                        +";compact_risk="+(dockScreenWidthDp<632f)
                         +";vehicle_hidden_api=false");
         return dock;
     }
@@ -3290,7 +3296,14 @@ public class LauncherActivity extends Activity {
     private LinearLayout.LayoutParams miniWeighted() {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
-        lp.setMargins(dp(2), dp(2), dp(2), dp(2));
+        lp.setMargins(dp(1), dp(2), dp(1), dp(2));
+        return lp;
+    }
+
+    private LinearLayout.LayoutParams dockPrimaryWeighted() {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+        lp.setMargins(dp(3), dp(4), dp(3), dp(4));
         return lp;
     }
 
