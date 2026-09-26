@@ -36,9 +36,11 @@ public final class AppUpdateManager {
     private static final String SHA_ASSET = "DolphinLauncherV1-Evolution.sha256";
     private static final String PREFS = "v1_update";
     private static final String KEY_LAST_AUTO_CHECK = "last_auto_check_ms";
+    private static final String KEY_PENDING_PERMISSION_TAG = "pending_install_permission_tag";
     private static final long AUTO_CHECK_INTERVAL_MS = 6L * 60L * 60L * 1000L;
 
     private static volatile ReleaseInfo pendingPermissionRelease;
+    private static volatile boolean pendingPermissionResumeInFlight;
 
     private AppUpdateManager() {}
 
@@ -88,15 +90,48 @@ public final class AppUpdateManager {
     }
 
     public static void resumePendingInstallPermission(Activity activity) {
-        ReleaseInfo pending = pendingPermissionRelease;
-        if (pending == null || activity == null || activity.isFinishing()) return;
+        if (activity == null || activity.isFinishing()) return;
         if (Build.VERSION.SDK_INT >= 26 &&
                 !activity.getPackageManager().canRequestPackageInstalls()) return;
 
-        pendingPermissionRelease = null;
-        VerificationEvidenceRuntime.recordPassiveEvent(activity, "APP_UPDATE_INSTALL_PERMISSION_GRANTED",
-                "release=" + pending.tagName);
-        beginUpdate(activity, pending);
+        ReleaseInfo pending = pendingPermissionRelease;
+        SharedPreferences prefs = activity.getSharedPreferences(PREFS, Activity.MODE_PRIVATE);
+        String persistedTag = prefs.getString(KEY_PENDING_PERMISSION_TAG, null);
+
+        if (pending != null) {
+            clearPendingInstallPermission(activity);
+            VerificationEvidenceRuntime.recordPassiveEvent(activity,
+                    "APP_UPDATE_INSTALL_PERMISSION_GRANTED",
+                    "release=" + pending.tagName + ";restored_after_process_death=false");
+            beginUpdate(activity, pending);
+            return;
+        }
+
+        if (persistedTag == null || persistedTag.trim().isEmpty()
+                || pendingPermissionResumeInFlight) return;
+        pendingPermissionResumeInFlight = true;
+
+        new Thread(() -> {
+            try {
+                ReleaseInfo restored = fetchV1Release(persistedTag);
+                clearPendingInstallPermission(activity);
+                VerificationEvidenceRuntime.recordPassiveEvent(activity,
+                        "APP_UPDATE_PERMISSION_RESUME_RESTORED",
+                        "release=" + restored.tagName
+                                + ";restored_after_process_death=true");
+                activity.runOnUiThread(() -> {
+                    if (!activity.isFinishing()) beginUpdate(activity, restored);
+                });
+            } catch (Exception e) {
+                VerificationEvidenceRuntime.recordPassiveEvent(activity,
+                        "APP_UPDATE_PERMISSION_RESUME_FAILED",
+                        "release=" + persistedTag
+                                + ";retained=true;error=" + e.getClass().getSimpleName());
+                Log.e(TAG, "permission resume restore failed", e);
+            } finally {
+                pendingPermissionResumeInFlight = false;
+            }
+        }, "V1-Update-Permission-Resume").start();
     }
 
     private static void showUpdateAvailable(Activity activity, ReleaseInfo release) {
@@ -114,20 +149,35 @@ public final class AppUpdateManager {
     private static void beginUpdate(Activity activity, ReleaseInfo release) {
         if (Build.VERSION.SDK_INT >= 26 &&
                 !activity.getPackageManager().canRequestPackageInstalls()) {
+            boolean saved = activity.getSharedPreferences(PREFS, Activity.MODE_PRIVATE)
+                    .edit()
+                    .putString(KEY_PENDING_PERMISSION_TAG, release.tagName)
+                    .commit();
+            if (!saved) {
+                VerificationEvidenceRuntime.recordPassiveEvent(activity,
+                        "APP_UPDATE_PERMISSION_PENDING_SAVE_FAILED",
+                        "release=" + release.tagName + ";settings_opened=false");
+                showMessage(activity, "업데이트 설치 권한",
+                        "업데이트 재개 상태를 저장하지 못해 설정 화면을 열지 않았습니다.");
+                return;
+            }
             pendingPermissionRelease = release;
+            VerificationEvidenceRuntime.recordPassiveEvent(activity,
+                    "APP_UPDATE_PERMISSION_PENDING_SAVED",
+                    "release=" + release.tagName + ";durable=true");
             VerificationEvidenceRuntime.recordPassiveEvent(activity, "APP_UPDATE_INSTALL_PERMISSION_REQUIRED",
                     "release=" + release.tagName);
             new AlertDialog.Builder(activity)
                     .setTitle("업데이트 설치 권한")
                     .setMessage("'이 출처 허용'을 한 번 켜주세요. 앱으로 돌아오면 다운로드를 이어갑니다.")
-                    .setNegativeButton("취소", (d, w) -> pendingPermissionRelease = null)
+                    .setNegativeButton("취소", (d, w) -> clearPendingInstallPermission(activity))
                     .setPositiveButton("설정 열기", (d, w) -> {
                         try {
                             activity.startActivity(new Intent(
                                     Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
                                     Uri.parse("package:" + activity.getPackageName())));
                         } catch (Exception e) {
-                            pendingPermissionRelease = null;
+                            clearPendingInstallPermission(activity);
                             Toast.makeText(activity, "설치 권한 설정을 열지 못했습니다.",
                                     Toast.LENGTH_LONG).show();
                         }
@@ -167,6 +217,10 @@ public final class AppUpdateManager {
     }
 
     private static ReleaseInfo fetchLatestV1Release() throws Exception {
+        return fetchV1Release(null);
+    }
+
+    private static ReleaseInfo fetchV1Release(String requiredTag) throws Exception {
         JSONArray releases = new JSONArray(httpGetText(RELEASES_API));
         ReleaseInfo best = null;
 
@@ -176,6 +230,7 @@ public final class AppUpdateManager {
 
             String tag = root.optString("tag_name", "");
             if (!tag.startsWith(TAG_PREFIX)) continue;
+            if (requiredTag != null && !requiredTag.equals(tag)) continue;
 
             List<Integer> version = parseVersion(tag.substring(TAG_PREFIX.length()));
             if (version == null) continue;
@@ -199,8 +254,22 @@ public final class AppUpdateManager {
             if (best == null || compareVersions(candidate.version, best.version) > 0) best = candidate;
         }
 
-        if (best == null) throw new IllegalStateException("V1 OTA Release가 아직 없습니다.");
+        if (best == null) {
+            if (requiredTag == null) {
+                throw new IllegalStateException("V1 OTA Release가 아직 없습니다.");
+            }
+            throw new IllegalStateException("동의한 V1 OTA Release를 다시 찾지 못했습니다: "
+                    + requiredTag);
+        }
         return best;
+    }
+
+    private static void clearPendingInstallPermission(Activity activity) {
+        pendingPermissionRelease = null;
+        activity.getSharedPreferences(PREFS, Activity.MODE_PRIVATE)
+                .edit()
+                .remove(KEY_PENDING_PERMISSION_TAG)
+                .apply();
     }
 
     private static File downloadAndVerify(Activity activity, ReleaseInfo release) throws Exception {
