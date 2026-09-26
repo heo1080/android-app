@@ -2520,7 +2520,7 @@ public class LauncherActivity extends Activity {
         CockpitPanelGraphicView graphic=new CockpitPanelGraphicView(this,mode);
         graphic.setSignalState(cockpitSignalState(status));
         FrameLayout.LayoutParams graphicLp=new FrameLayout.LayoutParams(
-                dp(300),ViewGroup.LayoutParams.MATCH_PARENT,Gravity.RIGHT);
+                dp(referencePanelGraphicWidthDp()),ViewGroup.LayoutParams.MATCH_PARENT,Gravity.RIGHT);
         hero.addView(graphic,graphicLp);
 
         LinearLayout copy=new LinearLayout(this);
@@ -2534,6 +2534,7 @@ public class LauncherActivity extends Activity {
 
         TextView head=text(title,21f,Color.WHITE,true);
         head.setLetterSpacing(0.03f);
+        fitSingleLine(head,16,21);
         copy.addView(head);
 
         TextView state=text(status,10f,cockpitStatusColor(status),true);
@@ -2547,7 +2548,7 @@ public class LauncherActivity extends Activity {
         copy.addView(desc);
 
         FrameLayout.LayoutParams copyLp=new FrameLayout.LayoutParams(
-                dp(300),ViewGroup.LayoutParams.MATCH_PARENT,Gravity.LEFT);
+                dp(referencePanelCopyWidthDp()),ViewGroup.LayoutParams.MATCH_PARENT,Gravity.LEFT);
         hero.addView(copy,copyLp);
         return hero;
     }
@@ -2571,8 +2572,9 @@ public class LauncherActivity extends Activity {
         icon.setAccentColor(Color.parseColor("#8CFFE8"));
         icon.setBackground(gradientRound(
                 new String[]{"#173F46","#0B252A"},22,"#2E615F"));
+        int utilityIconDp=referenceUtilityIconDp();
         FrameLayout.LayoutParams iconLp=new FrameLayout.LayoutParams(
-                dp(82),dp(82),Gravity.RIGHT|Gravity.CENTER_VERTICAL);
+                dp(utilityIconDp),dp(utilityIconDp),Gravity.RIGHT|Gravity.CENTER_VERTICAL);
         iconLp.rightMargin=dp(18);
         hero.addView(icon,iconLp);
 
@@ -2586,6 +2588,7 @@ public class LauncherActivity extends Activity {
         copy.addView(eye);
         TextView head=text(title,21f,Color.WHITE,true);
         head.setLetterSpacing(0.03f);
+        fitSingleLine(head,16,21);
         copy.addView(head);
         TextView state=text(status,10f,Color.parseColor("#8CFFE8"),true);
         state.setLetterSpacing(0.06f);
@@ -2597,9 +2600,30 @@ public class LauncherActivity extends Activity {
         copy.addView(desc);
 
         FrameLayout.LayoutParams copyLp=new FrameLayout.LayoutParams(
-                dp(330),ViewGroup.LayoutParams.MATCH_PARENT,Gravity.LEFT);
+                dp(referenceUtilityCopyWidthDp()),ViewGroup.LayoutParams.MATCH_PARENT,Gravity.LEFT);
         hero.addView(copy,copyLp);
         return hero;
+    }
+
+    private float referenceScreenWidthDp() {
+        DisplayMetrics dm=getResources().getDisplayMetrics();
+        return dm.widthPixels/Math.max(0.01f,dm.density);
+    }
+
+    private int referencePanelCopyWidthDp() {
+        return Math.max(200,Math.min(300,Math.round(referenceScreenWidthDp()*0.32f)));
+    }
+
+    private int referencePanelGraphicWidthDp() {
+        return Math.max(200,Math.min(300,Math.round(referenceScreenWidthDp()*0.32f)));
+    }
+
+    private int referenceUtilityCopyWidthDp() {
+        return Math.max(200,Math.min(330,Math.round(referenceScreenWidthDp()*0.34f)));
+    }
+
+    private int referenceUtilityIconDp() {
+        return Math.max(60,Math.min(82,Math.round(referenceScreenWidthDp()*0.10f)));
     }
 
     private ScrollView referenceDialogScroll(LinearLayout panel) {
