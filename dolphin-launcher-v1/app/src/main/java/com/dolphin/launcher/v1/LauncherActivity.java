@@ -1160,6 +1160,7 @@ public class LauncherActivity extends Activity {
                 TextView label = text(order + ". " + app.label + "   ·   지연 " + delay + "초",
                         14f, Color.WHITE, true);
                 label.setPadding(dp(12), 0, dp(8), 0);
+                fitSingleLine(label,11,14);
                 infoRow.addView(label, new LinearLayout.LayoutParams(0, dp(48), 1f));
 
                 Switch media = new Switch(this);
@@ -1170,7 +1171,7 @@ public class LauncherActivity extends Activity {
                     AutoStartStore.setMediaEnabled(prefs, app.packageName, checked);
                     VerificationEvidenceRuntime.recordPassiveEvent(this, "AUTOSTART_MEDIA_CHANGED", "package=" + app.packageName + ";enabled=" + checked);
                 });
-                infoRow.addView(media, new LinearLayout.LayoutParams(dp(132), dp(44)));
+                infoRow.addView(media, new LinearLayout.LayoutParams(dp(132), dp(48)));
                 card.addView(infoRow);
 
                 LinearLayout controls = new LinearLayout(this);
@@ -1224,7 +1225,7 @@ public class LauncherActivity extends Activity {
                 });
                 controls.addView(remove, new LinearLayout.LayoutParams(0, dp(38), 1f));
                 LinearLayout.LayoutParams controlsLp = new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, dp(42));
+                        ViewGroup.LayoutParams.MATCH_PARENT, dp(52));
                 controlsLp.topMargin = dp(4);
                 card.addView(controls, controlsLp);
 
@@ -1287,6 +1288,7 @@ public class LauncherActivity extends Activity {
 
             TextView label = text(app.label, 14f, Color.WHITE, false);
             label.setPadding(dp(12), 0, dp(8), 0);
+            fitSingleLine(label,11,14);
             row.addView(label, new LinearLayout.LayoutParams(0, dp(50), 1f));
 
             Button add = button("추가");
@@ -1298,7 +1300,7 @@ public class LauncherActivity extends Activity {
                     row.setVisibility(View.GONE);
                 }
             });
-            row.addView(add, new LinearLayout.LayoutParams(dp(76), dp(40)));
+            row.addView(add, new LinearLayout.LayoutParams(dp(76), dp(48)));
             LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, dp(54));
             rowLp.bottomMargin = dp(6);
@@ -1955,6 +1957,7 @@ public class LauncherActivity extends Activity {
 
         TextView eyebrow = text(status,9.5f,cockpitStatusColor(status),true);
         eyebrow.setLetterSpacing(0.08f);
+        fitSingleLine(eyebrow,8,10);
         if (mode == CockpitPanelGraphicView.MEDIA) homeMediaStatus = eyebrow;
         if (mode == CockpitPanelGraphicView.SAFETY) homeSafetyStatus = eyebrow;
         if (mode == CockpitPanelGraphicView.VEHICLE) homeVehicleStatus = eyebrow;
@@ -1966,6 +1969,9 @@ public class LauncherActivity extends Activity {
 
         TextView sub = text(subtitle,10f,Color.parseColor("#8CA6AF"),false);
         sub.setMaxLines(2);
+        sub.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        sub.setAutoSizeTextTypeUniformWithConfiguration(
+                9,10,1,android.util.TypedValue.COMPLEX_UNIT_SP);
         if (mode == CockpitPanelGraphicView.MEDIA) homeMediaSubtitle = sub;
         if (mode == CockpitPanelGraphicView.SAFETY) homeSafetySubtitle = sub;
         if (mode == CockpitPanelGraphicView.VEHICLE) homeVehicleSubtitle = sub;
@@ -2515,9 +2521,17 @@ public class LauncherActivity extends Activity {
 
         TextView title = text(label, 10f, Color.parseColor("#A8BBC4"), false);
         title.setGravity(Gravity.CENTER);
+        fitSingleLine(title,9,10);
         button.addView(title, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(22)));
         return button;
+    }
+
+    private void fitSingleLine(TextView view,int minSp,int maxSp) {
+        view.setSingleLine(true);
+        view.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        view.setAutoSizeTextTypeUniformWithConfiguration(
+                minSp,maxSp,1,android.util.TypedValue.COMPLEX_UNIT_SP);
     }
 
     private Button button(String label) {
