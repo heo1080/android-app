@@ -497,6 +497,12 @@ jobs:
           assert launcher.find('chip("● LIVE")') == -1
           assert "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java" in features["LIVE_VEHICLE_INFO"].get("source_paths",[])
           assert "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java" in features["FSD_OBJECT_LANE_MODEL"].get("source_paths",[])
+          assert "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HomeHeroGraphicView.java" in features["FSD_OBJECT_LANE_MODEL"].get("source_paths",[])
+          home_hero=(src/"HomeHeroGraphicView.java").read_text(encoding="utf-8")
+          sensor=home_hero.split("private void drawSensorField",1)[1].split("private void drawVehicle",1)[0]
+          assert "FSD_OBJECT_LANE_MODEL is BLOCKED" in sensor
+          assert "canvas.drawArc" in sensor
+          assert "drawCircle" not in sensor and "drawOval" not in sensor, "HOME sensor field must not fabricate object markers"
 
           by_test={c["test_id"]:c for c in contracts.get("contracts",[])}
           for tid in ("UI-HOME-001","UI-HOME-002"):
@@ -506,16 +512,25 @@ jobs:
                             "SYSTEM_SETTINGS_DISPATCH"):
                   assert token in logs,(tid,token)
 
+          fsd_contract=by_test["FSD-OBJ-001"]
+          assert any("decorative arcs/ticks only" in item for item in fsd_contract.get("acceptance",[]))
+
           surface_rows=[s for s in surfaces.get("surfaces",[])
                         if s["feature_id"]=="PREMIUM_HMI_HOME"
                         and s["path"].endswith("/LauncherActivity.java")]
           assert len(surface_rows)==1
+          fsd_home_rows=[s for s in surfaces.get("surfaces",[])
+                         if s["feature_id"]=="FSD_OBJECT_LANE_MODEL"
+                         and s["path"].endswith("/HomeHeroGraphicView.java")]
+          assert len(fsd_home_rows)==1
+          for token in ("drawSensorField","FSD_OBJECT_LANE_MODEL is BLOCKED","must never render fixed dots/rings","canvas.drawArc"):
+              assert any(token in item for item in fsd_home_rows[0].get("tokens",[])),token
           dock_tokens=surface_rows[0].get("tokens",[])
           for token in ("REFERENCE_DOCK_RENDER","showNavigationPanel",
                         "DISPLAY_QUICK_HMI_RENDER","THEME_STATUS_HMI_RENDER"):
               assert token in dock_tokens,token
 
-          print("GOLDEN_REFERENCE_DOCK_OK primary=6 controls=4 vector=true fail_safe=true")
+          print("GOLDEN_REFERENCE_DOCK_OK primary=6 controls=4 vector=true fail_safe=true home_semantic_objects=false")
           PY
 
       - name: Validate V1 correlation evaluator
