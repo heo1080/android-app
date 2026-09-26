@@ -1,0 +1,102 @@
+name: Dolphin Launcher V1 Fixed Voice Assets
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dolphin-launcher-v1-fixed-voice-assets
+    paths:
+      - "dolphin-launcher-v1/tools/generate_fixed_voice_assets.py"
+      - "dolphin-launcher-v1/app/src/main/assets/voice_prompt_manifest.json"
+      - ".github/workflows/dolphin-launcher-v1-fixed-voice.yml"
+  pull_request:
+    branches:
+      - dolphin-launcher-v1-ui-reference-dock
+    paths:
+      - "dolphin-launcher-v1/tools/generate_fixed_voice_assets.py"
+      - "dolphin-launcher-v1/app/src/main/assets/voice_prompt_manifest.json"
+      - ".github/workflows/dolphin-launcher-v1-fixed-voice.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  generate-fixed-voice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      AZURE_SPEECH_KEY: ${{ secrets.AZURE_SPEECH_KEY }}
+      AZURE_SPEECH_REGION: ${{ secrets.AZURE_SPEECH_REGION }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Preflight voice credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${AZURE_SPEECH_KEY:-}" || -z "${AZURE_SPEECH_REGION:-}" ]]; then
+            echo "VOICE_GENERATION_BLOCKED missing=AZURE_SPEECH_KEY_OR_REGION"
+            exit 1
+          fi
+          echo "VOICE_GENERATION_PREFLIGHT_OK credentials=actions-secrets-only"
+
+      - name: Generate all 22 fixed Korean WAV prompts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 dolphin-launcher-v1/tools/generate_fixed_voice_assets.py generate
+          python3 dolphin-launcher-v1/tools/generate_fixed_voice_assets.py check
+
+      - name: Verify generated manifest and secret hygiene
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, re
+          root=pathlib.Path("dolphin-launcher-v1")
+          manifest=json.load(open(root/"app/src/main/assets/voice_prompt_manifest.json",encoding="utf-8"))
+          prompts=manifest.get("prompts",[])
+          assert len(prompts)==22
+          assert {p.get("state") for p in prompts}=={"ASSET_READY"}
+          assert all(p.get("format")=="wav" for p in prompts)
+          assert all(re.fullmatch(r"[0-9a-f]{64}",str(p.get("sha256",""))) for p in prompts)
+          assert all(int(p.get("bytes",0))>1024 for p in prompts)
+          generation=manifest.get("generation",{})
+          assert generation.get("atomic_asset_count")==22
+          assert generation.get("credential_storage")=="environment-only; never persisted"
+          rendered=json.dumps(manifest,ensure_ascii=False)
+          assert "AZURE_SPEECH_KEY" not in rendered
+          print("VOICE_GENERATED_MANIFEST_OK assets=22 state=ASSET_READY secrets_persisted=false")
+          PY
+
+      - name: Verify Android raw assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, wave
+          root=pathlib.Path("dolphin-launcher-v1")
+          manifest=json.load(open(root/"app/src/main/assets/voice_prompt_manifest.json",encoding="utf-8"))
+          raw=root/"app/src/main/res/raw"
+          for prompt in manifest["prompts"]:
+              path=raw/(prompt["resource"]+".wav")
+              assert path.is_file(), path
+              with wave.open(str(path),"rb") as w:
+                  assert w.getnchannels()==1
+                  assert w.getsampwidth()==2
+                  assert w.getframerate()==24000
+                  assert w.getnframes()>0
+          print("VOICE_ANDROID_RAW_OK assets=22 rate=24000 bits=16 channels=1")
+          PY
+
+      - name: Upload generated fixed voice bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: dolphin-v1-fixed-voice-assets
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            dolphin-launcher-v1/app/src/main/res/raw/voice_*.wav
+            dolphin-launcher-v1/app/src/main/assets/voice_prompt_manifest.json
