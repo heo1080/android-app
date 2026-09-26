@@ -2182,7 +2182,8 @@
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java",
-        "dolphin-launcher-v1/tools/evaluate_live_correlations.py"
+        "dolphin-launcher-v1/tools/evaluate_live_correlations.py",
+        "dolphin-launcher-v1/tools/evaluate_diagnostic.py"
       ],
       "test_ids": [
         "GOV-REG-001"
@@ -2259,7 +2260,10 @@
         "UI QUALITY 상세는 touch/ellipsis/clipping, display profile, baseline delta를 표시하고 실제 텍스트 내용은 노출하지 않음",
         "UI QUALITY 상세는 최신 HMI frame p95/max/>32ms를 diagnostic-only로 표시",
         "Evidence ZIP은 최신 structured frame timing JSON을 ui_frame_timing/latest.json으로 포함",
-        "UI frame timing evidence는 diagnostic session ID로 묶어 과거 session latest 파일 혼입을 차단"
+        "UI frame timing evidence는 diagnostic session ID로 묶어 과거 session latest 파일 혼입을 차단",
+        "Evidence evaluator는 canonical Registry/Test Contract/Dependencies/Runtime Surface/Known-Bad/Voice/Evaluation metadata를 runtime success/failure marker 검색 대상에서 제외",
+        "canonical metadata 안에 success_any/failure_any literal이 있어도 Test ID 결과를 PASS/FAIL로 만들 수 없음",
+        "metadata-isolation self-test 실패 시 governance PASS 금지"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2317,10 +2321,13 @@
         "ui_frame_timing/latest.json",
         "UI_FRAME_TIMING",
         "session_id",
-        "same-session timing filter"
+        "same-session timing filter",
+        "DIAGNOSTIC_EVALUATOR_METADATA_ISOLATION_OK",
+        "runtime_evidence_only=true"
       ],
       "known_bad": [
-        "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
+        "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음",
+        "KB-014: evaluator metadata self-match can contaminate success_any/failure_any unless canonical metadata is excluded"
       ],
       "dependencies": [
         "latest source",
@@ -2355,9 +2362,10 @@
         "VerificationEvidenceRuntime addUiLayoutAudits bundle inclusion",
         "Verification Center close control 48dp touch target",
         "Verification Center UI QUALITY summary card",
-        "structured UI frame timing bundle and Verification Center metrics"
+        "structured UI frame timing bundle and Verification Center metrics",
+        "V1 metadata-isolated evaluate_diagnostic.py candidate with synthetic metadata-only/runtime-success/runtime-failure ZIP self-tests"
       ],
-      "next_action": "실차 Evidence ZIP을 최소 2개 session에서 수집하고 evaluator 다중 입력으로 동일 raw 반복성을 비교; cross-session 후보도 수동 검토 전 매핑 활성화 금지",
+      "next_action": "KB-014: V1 metadata-isolated evaluator CI self-test 통과 → diagnostics production evaluator가 동일 runtime-only scope를 사용하도록 전환 → 기존 Evidence 재평가 후에만 GOV-REG-001 PASS 허용",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
@@ -2734,6 +2742,19 @@
       ],
       "close_gate": "remove the APK-static shared upload credential; use an evidence-backed runtime credential/enrollment path with private credential material protected by Android Keystore (or an equally strong non-extractable platform mechanism), prove rotation/revocation behavior, and verify real-car upload receipts without a reusable secret embedded in APK strings",
       "summary": "APK-static BuildConfig upload credential removed from the candidate; evidence ZIP queue now fails closed and remains retained until a server-backed Android Keystore runtime enrollment path is proven."
+    },
+    {
+      "id": "KB-014",
+      "symptom": "Evidence evaluator currently scans canonical metadata in the same blob as runtime evidence, so success_any/failure_any literals embedded in test_log_contracts.json or other metadata can self-satisfy or self-fail Test IDs.",
+      "linked": [
+        "MASTER_VERIFICATION_REGISTRY"
+      ],
+      "severity": "P0",
+      "status": "FIX_CANDIDATE",
+      "required_test_ids": [
+        "GOV-REG-001"
+      ],
+      "close_gate": "V1 and production diagnostics evaluators must exclude canonical Registry/Test Contract/Dependencies/Runtime Surface/Known-Bad/Voice/prior-evaluation metadata from runtime marker matching; synthetic metadata-only ZIP must remain INCONCLUSIVE, explicit runtime success/failure markers must classify correctly, and representative existing Evidence must be re-evaluated before governance PASS is restored"
     }
   ],
   "next_priority": [
