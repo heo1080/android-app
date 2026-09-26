@@ -1826,6 +1826,28 @@
         "getcomptype",
         "VOICE_WAV_PROFILE_SELF_TEST_OK"
       ]
+    },
+    {
+      "feature_id": "IN_APP_TTS_CORE",
+      "path": "dolphin-launcher-v1/tools/generate_ppaso_voice_candidate.py",
+      "tokens": [
+        "MODEL_REPO = \"akamotaco/ppaso-tts-v1\"",
+        "MODEL_REVISION = \"1a1f8d6\"",
+        "PROFILE_ID = \"ppaso-v8-ko-female-24k-pcm-candidate-v1\"",
+        "\"gear_p\": \"피\"",
+        "\"gear_r\": \"알\"",
+        "\"gear_n\": \"엔\"",
+        "\"gear_d\": \"디\"",
+        "\"icc_on\": \"아이씨씨 켜짐\"",
+        "\"icc_off\": \"아이씨씨 꺼짐\"",
+        "candidate generation requires app manifest to remain ASSET_REQUIRED",
+        "resample_to_24k",
+        "write_pcm16_wav",
+        "validate_wav",
+        "PPASO_FIXED_VOICE_CANDIDATE_OK",
+        "candidate_only=true",
+        "app_manifest_unchanged=true"
+      ]
     }
   ],
   "notes": [
