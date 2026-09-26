@@ -343,7 +343,21 @@
         "DISPLAY PROFILE",
         "THEME STATUS",
         "rendered_supported_nav=",
-        "launch_only=true"
+        "launch_only=true",
+        "referenceDialogScroll",
+        "showReferenceDialog",
+        "scroll_safe=true",
+        "dialog_profile=media",
+        "dialog_profile=vehicle",
+        "dialog_profile=safety",
+        "dialog_profile=map",
+        "dialog_profile=display",
+        "dialog_profile=dark",
+        "0.80f,0.88f",
+        "0.76f,0.84f",
+        "0.68f,0.84f",
+        "0.66f,0.82f",
+        "0.62f,0.74f"
       ]
     },
     {
@@ -515,7 +529,11 @@
         "DISPLAY PROFILE",
         "LIVE METRICS",
         "variant=golden-reference-v3",
-        "panel_hero=true"
+        "panel_hero=true",
+        "referenceDialogScroll",
+        "showReferenceDialog",
+        "scroll_safe=true",
+        "dialog_profile=display"
       ]
     },
     {
@@ -637,7 +655,12 @@
         "referenceUtilityHero",
         "SUPPORTED NAV APPS",
         "rendered_supported_nav=",
-        "launch_only=true"
+        "launch_only=true",
+        "referenceDialogScroll",
+        "showReferenceDialog",
+        "scroll_safe=true",
+        "dialog_profile=safety",
+        "dialog_profile=map"
       ]
     },
     {
@@ -975,7 +998,11 @@
         "TARGET MEDIA SESSION",
         "golden-reference-v3",
         "panel_hero=true",
-        "target_scoped=true"
+        "target_scoped=true",
+        "referenceDialogScroll",
+        "showReferenceDialog",
+        "scroll_safe=true",
+        "dialog_profile=media"
       ]
     },
     {
@@ -1427,7 +1454,11 @@
         "vehicle_source_live=",
         "normalized=false",
         "actuation=false",
-        "panel_hero=true"
+        "panel_hero=true",
+        "referenceDialogScroll",
+        "showReferenceDialog",
+        "scroll_safe=true",
+        "dialog_profile=vehicle"
       ]
     },
     {
