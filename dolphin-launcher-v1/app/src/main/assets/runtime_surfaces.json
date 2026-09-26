@@ -1327,8 +1327,8 @@
         "applicationId = \"com.dolphin.launcher.v1\"",
         "minSdk = 29",
         "targetSdk = 35",
-        "versionCode = 5",
-        "versionName = \"1.2.2-v1-auto-evidence-beta\"",
+        "versionCode = 6",
+        "versionName = \"1.2.3-v1-premium-realcar-beta\"",
         "buildConfigField(\"boolean\", \"VOICE_PREVIEW_BUILD\", \"false\")",
         "create(\"voicePreview\")",
         "applicationIdSuffix = \".voicepreview\"",
@@ -1959,9 +1959,9 @@
       "feature_id": "LAUNCHER_ENTRY_IDENTITY",
       "path": "dolphin-launcher-v1/app/src/main/res/drawable/ic_launcher_foreground.xml",
       "tokens": [
-        "ic_launcher_foreground",
         "#6FFFE0",
-        "M19,62 C30,35 53,22 87,39"
+        "M19,62 C30,35 53,22 87,39",
+        "M54,29 L67,43 L63,68 L54,78 L45,68 L41,43 Z"
       ]
     },
     {
