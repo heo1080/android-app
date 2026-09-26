@@ -3,8 +3,11 @@
   "preferred_voice": {
     "language": "ko-KR",
     "gender": "female",
+    "voice": "ko-KR-SunHiNeural",
+    "provider": "Azure Speech",
     "style": "calm OEM-like",
     "delivery": "pre-generated fixed assets",
+    "output_format": "riff-24khz-16bit-mono-pcm",
     "fallback": "Android TextToSpeech; gender not guaranteed"
   },
   "verification_policy": {
@@ -190,5 +193,13 @@
       "phrase": "오른쪽 주의",
       "state": "ASSET_REQUIRED"
     }
-  ]
+  ],
+  "generation_policy": {
+    "generator": "dolphin-launcher-v1/tools/generate_fixed_voice_assets.py",
+    "profile_id": "azure-sunhi-ko-kr-24k-pcm-v1",
+    "atomic_asset_count": 22,
+    "credentials": "AZURE_SPEECH_KEY/AZURE_SPEECH_REGION environment only; never committed or packaged",
+    "build_time_network_generation": false,
+    "ready_state_requires_sha256": true
+  }
 }
