@@ -285,11 +285,13 @@ public final class CockpitPanelGraphicView extends View {
                 : signalState == SIGNAL_STALE ? "STALE"
                 : signalState == SIGNAL_BLOCKED ? "BLOCKED" : "WAITING";
 
-        float left = w * 0.54f;
-        float right = w * 0.94f;
-        float top = h * 0.075f;
-        float bottom = top + dp(24);
-        float centerY = (top + bottom) * 0.5f;
+        float left = w * 0.48f;
+        float right = w * 0.95f;
+        float top = h * 0.06f;
+        float bottom = top + dp(34);
+        float innerLeft = left + dp(14);
+        float innerRight = right - dp(7);
+        float availableTextWidth = Math.max(dp(42), innerRight - innerLeft);
 
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.argb(154, 3, 13, 18));
@@ -302,18 +304,27 @@ public final class CockpitPanelGraphicView extends View {
 
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(accent(220));
-        canvas.drawCircle(left + dp(8), centerY, dp(2.5f), paint);
+        canvas.drawCircle(left + dp(8), top + dp(10), dp(2.5f), paint);
 
         textPaint.setTextAlign(Paint.Align.LEFT);
-        textPaint.setTextSize(dp(7.2f));
+        textPaint.setTextSize(fitLegendTextSize(scope, availableTextWidth, 7.2f, 5.8f));
         textPaint.setColor(Color.argb(210, 204, 226, 228));
-        canvas.drawText(scope, left + dp(14), centerY + dp(2.4f), textPaint);
+        canvas.drawText(scope, innerLeft, top + dp(12), textPaint);
 
+        String stateLabel = "SOURCE " + state;
         textPaint.setTextAlign(Paint.Align.RIGHT);
-        textPaint.setTextSize(dp(7.4f));
+        textPaint.setTextSize(fitLegendTextSize(stateLabel, availableTextWidth, 7.4f, 5.8f));
         textPaint.setColor(accent(230));
-        canvas.drawText("SOURCE " + state, right - dp(7), centerY + dp(2.5f), textPaint);
+        canvas.drawText(stateLabel, innerRight, bottom - dp(7), textPaint);
         textPaint.setTextAlign(Paint.Align.LEFT);
+    }
+
+    private float fitLegendTextSize(String text, float maxWidth, float preferredDp, float minDp) {
+        float preferredPx = dp(preferredDp);
+        textPaint.setTextSize(preferredPx);
+        float measured = textPaint.measureText(text);
+        if (measured <= maxWidth || measured <= 0f) return preferredPx;
+        return Math.max(dp(minDp), preferredPx * maxWidth / measured);
     }
 
     private int accent(int alpha) {
