@@ -283,7 +283,10 @@
         "UI 검증 스냅샷",
         "UiGoldenScreenshotRuntime.capture",
         "UI_GOLDEN_SCREENSHOT_FAILED",
-        "golden_screenshot=true"
+        "golden_screenshot=true",
+        "fitSingleLine",
+        "setAutoSizeTextTypeUniformWithConfiguration",
+        "dp(48)"
       ]
     },
     {
@@ -817,7 +820,10 @@
         "AutoStartStore.add",
         "AutoStartStore.remove",
         "AUTOSTART_DELAY_CHANGED",
-        "AUTOSTART_MEDIA_CHANGED"
+        "AUTOSTART_MEDIA_CHANGED",
+        "fitSingleLine",
+        "dp(48)",
+        "AUTOSTART_ORDER_CHANGED"
       ]
     },
     {
