@@ -2546,6 +2546,7 @@ public class LauncherActivity extends Activity {
         NavSafetyStatusRuntime.Snapshot nav=NavSafetyStatusRuntime.read(this);
         String safetyState=registryFeatureState("NAV_SAFETY_FEED","BETA");
         String fsdState=registryFeatureState("FSD_OBJECT_LANE_MODEL","BLOCKED");
+        String sourceStatus=safetyStatusLine(nav,safetyState,fsdState);
 
         LinearLayout panel=new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
@@ -2553,16 +2554,36 @@ public class LauncherActivity extends Activity {
         panel.setBackground(gradientRound(
                 new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
         panel.addView(hmiDialogHeader(
-                "SAFETY SOURCE","Navigation provenance · parser pending","✓"));
+                "FSD · SAFETY","Navigation provenance · FSD evidence boundary","✓"));
         panel.addView(hmiInfoStrip(
                 "지원 내비 notification source만 표시 · 카메라/속도/거리 의미 추정 금지"));
+
+        panel.addView(referencePanelHero(
+                CockpitPanelGraphicView.SAFETY,
+                "PROVENANCE LAYER",
+                nav.available ? "NAV SOURCE "+(nav.fresh?"LIVE":"STALE") : "SOURCE WAITING",
+                sourceStatus,
+                "semantic parser locked · object/lane model remains "+fsdState),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(118)));
+
+        panel.addView(referenceSectionLabel(
+                "VERIFICATION BOUNDARY","source facts only"),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(34)));
 
         LinearLayout row1=new LinearLayout(this);
         row1.setOrientation(LinearLayout.HORIZONTAL);
         row1.addView(vehicleMetric("NAV STATE",safetyState),weighted());
         row1.addView(vehicleMetric("FSD MODEL",fsdState),weighted());
+        row1.addView(vehicleMetric("SEMANTICS","LOCKED"),weighted());
         panel.addView(row1,new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,dp(78)));
+
+        panel.addView(referenceSectionLabel(
+                "SOURCE PROVENANCE","package · age · payload only"),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(34)));
 
         LinearLayout row2=new LinearLayout(this);
         row2.setOrientation(LinearLayout.HORIZONTAL);
@@ -2576,12 +2597,14 @@ public class LauncherActivity extends Activity {
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this,"SAFETY_SOURCE_HMI_RENDER",
-                "available="+nav.available
+                "variant=golden-reference-v3;available="+nav.available
                         +";active="+nav.active
                         +";fresh="+nav.fresh
                         +";package="+String.valueOf(nav.packageName)
                         +";age_ms="+nav.ageMs
                         +";text_length="+nav.textLength
+                        +";panel_hero=true"
+                        +";fsd_state="+fsdState
                         +";parser=none;semantic_values=false");
 
         new AlertDialog.Builder(this)
@@ -2895,10 +2918,29 @@ public class LauncherActivity extends Activity {
         panel.setBackground(gradientRound(
                 new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
 
+        String vehicleState=registryFeatureState("LIVE_VEHICLE_INFO","BETA");
+        boolean vehicleLive=vehicleGearRaw!=null||vehicleSpeedRaw!=null
+                ||vehicleTurnLeftRaw!=null||vehicleTurnRightRaw!=null
+                ||tpmsFlKpa!=null||tpmsFrKpa!=null||tpmsRlKpa!=null||tpmsRrKpa!=null;
+
         panel.addView(hmiDialogHeader(
                 "VEHICLE INFO","TPMS · read-only vehicle layer","◉"));
         panel.addView(hmiInfoStrip(
                 "차량 제어 없음 · GEAR/SPEED/TURN은 의미·단위 확정 전 RAW로만 표시"));
+
+        panel.addView(referencePanelHero(
+                CockpitPanelGraphicView.VEHICLE,
+                "READ-ONLY VEHICLE BUS",
+                vehicleLive ? "RAW SOURCE ACTIVE" : "SOURCE WAITING",
+                vehicleState+" · READ ONLY",
+                "normalization locked · no vehicle write · TPMS thresholds unverified"),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(118)));
+
+        panel.addView(referenceSectionLabel(
+                "RAW TELEMETRY","meaning/unit not inferred"),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(34)));
 
         LinearLayout telemetry=new LinearLayout(this);
         telemetry.setOrientation(LinearLayout.HORIZONTAL);
@@ -2909,29 +2951,31 @@ public class LauncherActivity extends Activity {
         panel.addView(telemetry,new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,dp(78)));
 
-        LinearLayout row1=new LinearLayout(this);
-        row1.setOrientation(LinearLayout.HORIZONTAL);
-        row1.addView(vehicleMetric("FL",tpmsDisplay(tpmsFlKpa)),weighted());
-        row1.addView(vehicleMetric("FR",tpmsDisplay(tpmsFrKpa)),weighted());
-        panel.addView(row1,new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,dp(78)));
+        panel.addView(referenceSectionLabel(
+                "TYRE PRESSURE","read-only · no safe/unsafe inference"),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(34)));
 
-        LinearLayout row2=new LinearLayout(this);
-        row2.setOrientation(LinearLayout.HORIZONTAL);
-        row2.addView(vehicleMetric("RL",tpmsDisplay(tpmsRlKpa)),weighted());
-        row2.addView(vehicleMetric("RR",tpmsDisplay(tpmsRrKpa)),weighted());
-        panel.addView(row2,new LinearLayout.LayoutParams(
+        LinearLayout tyres=new LinearLayout(this);
+        tyres.setOrientation(LinearLayout.HORIZONTAL);
+        tyres.addView(vehicleMetric("FL",tpmsDisplay(tpmsFlKpa)),weighted());
+        tyres.addView(vehicleMetric("FR",tpmsDisplay(tpmsFrKpa)),weighted());
+        tyres.addView(vehicleMetric("RL",tpmsDisplay(tpmsRlKpa)),weighted());
+        tyres.addView(vehicleMetric("RR",tpmsDisplay(tpmsRrKpa)),weighted());
+        panel.addView(tyres,new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,dp(78)));
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this,"VEHICLE_INFO_HMI_RENDER",
-                "variant=glass-vector-v2;tpms_live="
+                "variant=golden-reference-v3;tpms_live="
                         + (tpmsFlKpa!=null||tpmsFrKpa!=null||tpmsRlKpa!=null||tpmsRrKpa!=null)
+                        +";vehicle_source_live="+vehicleLive
+                        +";panel_hero=true"
                         +";gear_raw="+String.valueOf(vehicleGearRaw)
                         +";speed_raw="+String.valueOf(vehicleSpeedRaw)
                         +";turn_left_raw="+String.valueOf(vehicleTurnLeftRaw)
                         +";turn_right_raw="+String.valueOf(vehicleTurnRightRaw)
-                        +";normalized=false");
+                        +";normalized=false;actuation=false");
 
         new AlertDialog.Builder(this)
                 .setView(panel)
