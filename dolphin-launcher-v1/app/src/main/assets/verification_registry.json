@@ -257,7 +257,8 @@
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootReceiver.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchRuntime.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AutoStartStore.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchReceiver.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchReceiver.java",
+        "dolphin-launcher-v1/app/src/main/AndroidManifest.xml"
       ],
       "test_ids": [
         "LCH-BOOT-001",
@@ -273,7 +274,9 @@
         "LauncherActivity 진입으로 동일 boot dispatch를 중복 실행하지 않음",
         "앱별 미디어 자동재생은 대상 MediaSession 경로로 넘기며 PLAY 요청 자체를 실제 재생 성공으로 간주하지 않음",
         "Android 12+ exact-alarm access가 없으면 불확실한 inexact fallback 대신 명시적으로 실패 기록",
-        "시동 자동실행의 지연/순서/삭제/추가/미디어 스위치 조작 영역은 48dp 이상 터치 높이를 사용"
+        "시동 자동실행의 지연/순서/삭제/추가/미디어 스위치 조작 영역은 48dp 이상 터치 높이를 사용",
+        "AlarmManager PendingIntent 수신용 BootAutoLaunchReceiver가 packaged Manifest에 enabled=true/exported=false로 등록",
+        "LauncherActivity의 legacy pending_autostart는 앱을 실행하지 않고 stale flag만 소비해 BootAutoLaunchRuntime과 중복 dispatch하지 않음"
       ],
       "required_logs": [
         "BOOT_COMPLETED",
@@ -291,14 +294,16 @@
       "known_bad": [
         "과거 최신 설치본에서 여러 앱 추가 버튼이 사라졌다고 보고",
         "기존 Handler.postDelayed 부팅 예약은 BroadcastReceiver 종료 후 프로세스 생존에 의존했음",
-        "BYD Android 10에서 background activity start 허용 여부는 실차 재검증 필요"
+        "BYD Android 10에서 background activity start 허용 여부는 실차 재검증 필요",
+        "과거 V1 소스에서 BootAutoLaunchReceiver 클래스는 존재했지만 Manifest 등록이 누락되어 예약 broadcast 전달이 불가능할 수 있었음"
       ],
       "dependencies": [
         "BOOT_COMPLETED broadcast",
         "AlarmManager exact alarm delivery",
         "PackageManager launch intent",
         "Android background activity-start policy",
-        "BACKGROUND_MEDIA_AUTOPLAY behavior for media-enabled entries"
+        "BACKGROUND_MEDIA_AUTOPLAY behavior for media-enabled entries",
+        "AndroidManifest static BootAutoLaunchReceiver registration"
       ],
       "real_vehicle_test": [
         "앱 2개 이상 등록하고 서로 다른 지연시간 저장",
@@ -315,7 +320,9 @@
         "BootReceiver BootAutoLaunchRuntime.dispatch",
         "BootAutoLaunchRuntime AlarmManager exact scheduling",
         "BootAutoLaunchReceiver process-independent execution",
-        "48dp autostart manager touch-target hardening"
+        "48dp autostart manager touch-target hardening",
+        "AndroidManifest registers BootAutoLaunchReceiver as non-exported static receiver for AlarmManager delivery",
+        "LauncherActivity legacy pending_autostart flag is consumed without launching apps; boot execution ownership remains BootAutoLaunchRuntime only"
       ],
       "next_action": "BYD Android 10 실차 재부팅 2회에서 AlarmManager delivery, background activity dispatch, 2개 이상 앱 순차 실행 및 중복 방지 evidence 수집",
       "confidence": {
@@ -1848,7 +1855,8 @@
         "DISPLAY quick panel은 실제 width/height/densityDpi/fontScale을 표시하고 OEM display spoof/write를 수행하지 않음",
         "DARK quick panel은 앱 dark HMI와 system night 상태를 구분 표시하며 system night mode 강제 변경을 하지 않음",
         "도크 MAP은 설치된 지원 내비만 보여주며 선택 시 해당 앱 launch만 수행하고 navigation semantic 값을 추정하지 않음",
-        "Golden Reference 도크 아이콘 MAP/VOL/SUN/DSP/MOON은 HmiGlyphView Canvas vector로 렌더링"
+        "Golden Reference 도크 아이콘 MAP/VOL/SUN/DSP/MOON은 HmiGlyphView Canvas vector로 렌더링",
+        "Hero 상단 상태 chip은 고정 LIVE가 아니라 SOURCE LAYER로 표시해 source availability를 과장하지 않음"
       ],
       "required_logs": [
         "display profile",
@@ -1945,7 +1953,8 @@
         "HomeHeroGraphicView truthful source telemetry rail",
         "Golden Reference safe reference dock restored in LauncherActivity",
         "HmiGlyphView vector glyphs for MAP/VOL/SUN/DSP/MOON",
-        "system settings dispatch keeps volume/brightness/display actuation outside unverified BYD hidden APIs"
+        "system settings dispatch keeps volume/brightness/display actuation outside unverified BYD hidden APIs",
+        "static HOME LIVE chip removed; source rail remains the truthful MEDIA/NAV/VEH availability indicator"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
@@ -2247,7 +2256,9 @@
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AutoStartStore.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchRuntime.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BackgroundMediaRuntime.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/MediaNowPlayingRuntime.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/MediaNowPlayingRuntime.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchReceiver.java",
+        "dolphin-launcher-v1/app/src/main/AndroidManifest.xml"
       ],
       "test_ids": [
         "MED-BG-001",
@@ -2262,7 +2273,8 @@
         "PLAY 요청/PlaybackState readback/실패 evidence 기록",
         "실차에서 지정 앱 재생과 순정 안전 경고음 공존을 확인하기 전 VERIFIED 금지",
         "MEDIA CENTER UI는 AutoStartStore mediaEnabled=true 앱만 표시하고 실제 재생 성공으로 간주하지 않음",
-        "Now Playing metadata는 mediaEnabled target package 세션에서만 읽고 전역 세션 metadata를 표시하지 않음"
+        "Now Playing metadata는 mediaEnabled target package 세션에서만 읽고 전역 세션 metadata를 표시하지 않음",
+        "앱 실행→target MediaSession 탐색→PLAY→PlaybackState readback 후속 단계는 AlarmManager+BootAutoLaunchReceiver로 process-independent하게 이어짐"
       ],
       "required_logs": [
         "AUTOSTART_MEDIA_CHANGED",
@@ -2275,17 +2287,22 @@
         "BACKGROUND_MEDIA_SESSION_ACCESS_REQUIRED",
         "BACKGROUND_MEDIA_PLAY_FAILED",
         "MEDIA_CENTER_HMI_RENDER",
-        "NOW_PLAYING_SNAPSHOT"
+        "NOW_PLAYING_SNAPSHOT",
+        "BACKGROUND_MEDIA_STAGE_SCHEDULED",
+        "BACKGROUND_MEDIA_STAGE_SCHEDULE_FAILED",
+        "BACKGROUND_MEDIA_PLAYBACK_READBACK_FAILED"
       ],
       "known_bad": [
         "대상 앱이 활성 MediaSession을 노출하는지 앱별 차이가 있으며 BYD Android 10 실차 재검증 필요",
-        "Notification Listener 기반 active-session 조회 권한이 차량 설정에서 허용되는지 실차 재검증 필요"
+        "Notification Listener 기반 active-session 조회 권한이 차량 설정에서 허용되는지 실차 재검증 필요",
+        "과거 BackgroundMediaRuntime의 1.2초 session discovery/0.9초 readback Handler 지연은 BroadcastReceiver 종료 후 프로세스 수명에 의존했음"
       ],
       "dependencies": [
         "BOOT_MULTI_APP_AUTOLAUNCH",
         "MediaSessionManager active-session access",
         "NavNotificationEvidenceService notification-listener access",
-        "target app MediaSession behavior"
+        "target app MediaSession behavior",
+        "AlarmManager exact alarm delivery for media continuation stages"
       ],
       "real_vehicle_test": [
         "미디어 앱 1개를 자동재생 ON으로 등록하고 Notification access 허용",
@@ -2297,7 +2314,8 @@
         "순정 안전 경고음이 정상 우선 출력되는지 확인"
       ],
       "evidence": [
-        "MediaNowPlayingRuntime active target session metadata readback"
+        "MediaNowPlayingRuntime active target session metadata readback",
+        "BackgroundMediaRuntime AlarmManager stages re-enter BootAutoLaunchReceiver for target session PLAY/readback without global media-key fallback"
       ],
       "next_action": "1.2.2 BETA 실차에서 target MediaSession discovery/play/readback 및 순정 안전 오디오 arbitration evidence 수집",
       "confidence": {
@@ -2379,7 +2397,8 @@
       "status": "OPEN",
       "required_test_ids": [
         "LCH-BOOT-001"
-      ]
+      ],
+      "close_gate": "two repeatable real-car ignition cycles with 2+ registered apps, packaged BootAutoLaunchReceiver delivery, saved per-app delays, AUTOSTART_ALARM_FIRED for each entry, correct target launches/media path, and no duplicate batch after opening V1"
     },
     {
       "id": "KB-007",
