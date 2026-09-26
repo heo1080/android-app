@@ -540,6 +540,12 @@ jobs:
           assert cockpit_graphic.count("paint.setColor(accent(") >= 6, "cockpit signal-state accent wiring incomplete"
           assert "SIGNAL_WAITING" in cockpit_graphic and "SIGNAL_LIVE" in cockpit_graphic
           assert "SIGNAL_STALE" in cockpit_graphic and "SIGNAL_BLOCKED" in cockpit_graphic
+          assert "drawSourceLegend" in cockpit_graphic
+          source_legend=cockpit_graphic.split("private void drawSourceLegend",1)[1].split("private int accent",1)[0]
+          for token in ("TARGET SESSION","SEMANTICS LOCKED","RAW SOURCE",'SOURCE " + state',
+                        "source availability;","it never upgrades the Registry feature state",
+                        "audible playback","semantic perception","normalized telemetry"):
+              assert token in source_legend,token
 
           media_graphic=cockpit_graphic.split("private void drawMedia",1)[1].split("private void drawSafety",1)[0]
           assert "Target-media identity graphic only." in media_graphic
@@ -717,15 +723,21 @@ jobs:
                             "SYSTEM_SETTINGS_DISPATCH","cockpit_copy_dp=",
                             "dock_items=6"):
                   assert token in logs,(tid,token)
+              acceptance=by_test[tid].get("acceptance",[])
+              assert any("TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE" in item for item in acceptance),tid
+              assert any("source availability only" in item for item in acceptance),tid
 
           fsd_contract=by_test["FSD-OBJ-001"]
           assert any("decorative arcs/ticks only" in item for item in fsd_contract.get("acceptance",[]))
           assert any("abstract shield/padlock/arcs/ticks" in item for item in fsd_contract.get("acceptance",[]))
+          assert any("SEMANTICS LOCKED plus source state" in item for item in fsd_contract.get("acceptance",[]))
 
           assert any("HOME perspective deck contains no lane boundaries" in item for item in fsd_contract.get("acceptance",[]))
           for tid in ("MED-BG-001","MED-BG-002"):
               assert any("fixed PLAY symbol" in item for item in by_test[tid].get("acceptance",[])),tid
+              assert any("TARGET SESSION plus source state" in item for item in by_test[tid].get("acceptance",[])),tid
           assert any("decorative/read-only" in item for item in by_test["VEH-INFO-001"].get("acceptance",[]))
+          assert any("RAW SOURCE plus source state" in item for item in by_test["VEH-INFO-001"].get("acceptance",[]))
 
           for tid in ("DIA-CAP-001","DIA-UP-001"):
               logs=by_test[tid].get("required_logs",[])
@@ -757,19 +769,22 @@ jobs:
                            if s["feature_id"]=="FSD_OBJECT_LANE_MODEL"
                            and s["path"].endswith("/CockpitPanelGraphicView.java")]
           assert len(fsd_safety_rows)==1
-          for token in ("drawSafety","Non-semantic verification-boundary graphic only.","FSD_OBJECT_LANE_MODEL is BLOCKED","no fixed detections or lane/object semantics."):
+          for token in ("drawSafety","Non-semantic verification-boundary graphic only.","FSD_OBJECT_LANE_MODEL is BLOCKED","no fixed detections or lane/object semantics.",
+                        "drawSourceLegend","SEMANTICS LOCKED",'SOURCE " + state',"semantic perception"):
               assert any(token in item for item in fsd_safety_rows[0].get("tokens",[])),token
           media_graphic_rows=[s for s in surfaces.get("surfaces",[])
                               if s["feature_id"]=="BACKGROUND_MEDIA_AUTOPLAY"
                               and s["path"].endswith("/CockpitPanelGraphicView.java")]
           assert len(media_graphic_rows)==1
-          for token in ("drawMedia","Target-media identity graphic only.","fixed PLAY symbol","REVERIFY_REQUIRED"):
+          for token in ("drawMedia","Target-media identity graphic only.","fixed PLAY symbol","REVERIFY_REQUIRED",
+                        "drawSourceLegend","TARGET SESSION",'SOURCE " + state',"audible playback"):
               assert any(token in item for item in media_graphic_rows[0].get("tokens",[])),token
           vehicle_graphic_rows=[s for s in surfaces.get("surfaces",[])
                                 if s["feature_id"]=="LIVE_VEHICLE_INFO"
                                 and s["path"].endswith("/CockpitPanelGraphicView.java")]
           assert len(vehicle_graphic_rows)==1
-          for token in ("drawVehicle","Read-only ego-vehicle sculpture.","Accent reflects source state only","geometry never infers gear, speed, turn state, or vehicle health."):
+          for token in ("drawVehicle","Read-only ego-vehicle sculpture.","Accent reflects source state only","geometry never infers gear, speed, turn state, or vehicle health.",
+                        "drawSourceLegend","RAW SOURCE",'SOURCE " + state',"normalized telemetry"):
               assert any(token in item for item in vehicle_graphic_rows[0].get("tokens",[])),token
           dock_tokens=surface_rows[0].get("tokens",[])
           for token in ("REFERENCE_DOCK_RENDER","showNavigationPanel",
@@ -777,7 +792,7 @@ jobs:
               assert token in dock_tokens,token
 
           print("AUTO_EVIDENCE_OTA_GATE_OK upload_receipt=true ota_evidence=true")
-          print("GOLDEN_REFERENCE_DOCK_OK primary=6 controls=4 vector=true fail_safe=true home_semantic_objects=false safety_semantics=false home_lane_semantics=false media_play_claim=false vehicle_normalization=false cockpit_copy_adaptive=true dock_items=6")
+          print("GOLDEN_REFERENCE_DOCK_OK primary=6 controls=4 vector=true fail_safe=true home_semantic_objects=false safety_semantics=false home_lane_semantics=false media_play_claim=false vehicle_normalization=false cockpit_source_legend=true cockpit_copy_adaptive=true dock_items=6")
           PY
 
       - name: Validate V1 correlation evaluator
