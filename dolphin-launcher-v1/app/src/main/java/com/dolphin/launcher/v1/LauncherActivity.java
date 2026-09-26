@@ -681,6 +681,10 @@ public class LauncherActivity extends Activity {
                         + ";nav_source_status=notification-provenance-only"
                         + ";cockpit_graphic_state=registry-aware"
                         + ";live_binding_ms=2000"
+                        + ";screen_width_dp=" + Math.round(referenceScreenWidthDp())
+                        + ";screen_height_dp=" + Math.round(referenceScreenHeightDp())
+                        + ";home_hero_height_dp=238;home_cockpit_height_dp=168"
+                        + ";topbar_height_dp=60;dock_height_dp=84"
                         + ";tpms_cards=4;tpms_visual=vector-wheel-gauge"
                         + ";quick_cards=4;dock_items=5");
 
@@ -932,7 +936,10 @@ public class LauncherActivity extends Activity {
                 this,"NAV_LAUNCHER_HMI_RENDER",
                 "variant=golden-reference-v3;installed_supported_nav="+installed
                         +";rendered_supported_nav="+rendered
-                        +";panel_hero=true;launch_only=true"
+                        +";panel_hero=true;adaptive_hero=true"
+                        +";utility_copy_dp="+referenceUtilityCopyWidthDp()
+                        +";utility_icon_dp="+referenceUtilityIconDp()
+                        +";launch_only=true"
                         +";scroll_safe=true;dialog_profile=map;semantic_parse=false");
 
         AlertDialog dialog=new AlertDialog.Builder(this)
@@ -1055,7 +1062,10 @@ public class LauncherActivity extends Activity {
                         +";density_dpi="+dm.densityDpi
                         +";font_scale="+cfg.fontScale
                         +";variant=golden-reference-v3"
-                        +";panel_hero=true;scroll_safe=true;dialog_profile=display;actuation=false");
+                        +";panel_hero=true;adaptive_hero=true"
+                        +";utility_copy_dp="+referenceUtilityCopyWidthDp()
+                        +";utility_icon_dp="+referenceUtilityIconDp()
+                        +";scroll_safe=true;dialog_profile=display;actuation=false");
 
         AlertDialog dialog=new AlertDialog.Builder(this)
                 .setView(referenceDialogScroll(panel))
@@ -1112,7 +1122,10 @@ public class LauncherActivity extends Activity {
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this,"THEME_STATUS_HMI_RENDER",
                 "variant=golden-reference-v3;app_theme=dark;system_night="+systemNight
-                        +";panel_hero=true;scroll_safe=true;dialog_profile=dark;actuation=false");
+                        +";panel_hero=true;adaptive_hero=true"
+                        +";utility_copy_dp="+referenceUtilityCopyWidthDp()
+                        +";utility_icon_dp="+referenceUtilityIconDp()
+                        +";scroll_safe=true;dialog_profile=dark;actuation=false");
 
         AlertDialog dialog=new AlertDialog.Builder(this)
                 .setView(referenceDialogScroll(panel))
@@ -2610,6 +2623,11 @@ public class LauncherActivity extends Activity {
         return dm.widthPixels/Math.max(0.01f,dm.density);
     }
 
+    private float referenceScreenHeightDp() {
+        DisplayMetrics dm=getResources().getDisplayMetrics();
+        return dm.heightPixels/Math.max(0.01f,dm.density);
+    }
+
     private int referencePanelCopyWidthDp() {
         return Math.max(200,Math.min(300,Math.round(referenceScreenWidthDp()*0.32f)));
     }
@@ -2738,6 +2756,9 @@ public class LauncherActivity extends Activity {
                         +";age_ms="+nav.ageMs
                         +";text_length="+nav.textLength
                         +";panel_hero=true"
+                        +";adaptive_hero=true"
+                        +";hero_copy_dp="+referencePanelCopyWidthDp()
+                        +";hero_graphic_dp="+referencePanelGraphicWidthDp()
                         +";fsd_state="+fsdState
                         +";scroll_safe=true;dialog_profile=safety"
                         +";parser=none;semantic_values=false");
@@ -2879,6 +2900,9 @@ public class LauncherActivity extends Activity {
                         +";now_playing_available="+nowPlaying.available
                         +";now_playing_state="+nowPlaying.playback
                         +";panel_hero=true"
+                        +";adaptive_hero=true"
+                        +";hero_copy_dp="+referencePanelCopyWidthDp()
+                        +";hero_graphic_dp="+referencePanelGraphicWidthDp()
                         +";target_scoped=true"
                         +";scroll_safe=true;dialog_profile=media"
                         +";playback_verified=false");
@@ -3109,6 +3133,9 @@ public class LauncherActivity extends Activity {
                         + (tpmsFlKpa!=null||tpmsFrKpa!=null||tpmsRlKpa!=null||tpmsRrKpa!=null)
                         +";vehicle_source_live="+vehicleLive
                         +";panel_hero=true"
+                        +";adaptive_hero=true"
+                        +";hero_copy_dp="+referencePanelCopyWidthDp()
+                        +";hero_graphic_dp="+referencePanelGraphicWidthDp()
                         +";gear_raw="+String.valueOf(vehicleGearRaw)
                         +";speed_raw="+String.valueOf(vehicleSpeedRaw)
                         +";turn_left_raw="+String.valueOf(vehicleTurnLeftRaw)
