@@ -16,15 +16,28 @@ public final class CockpitPanelGraphicView extends View {
     public static final int SAFETY = 2;
     public static final int VEHICLE = 3;
 
+    public static final int SIGNAL_WAITING = 0;
+    public static final int SIGNAL_LIVE = 1;
+    public static final int SIGNAL_STALE = 2;
+    public static final int SIGNAL_BLOCKED = 3;
+
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path path = new Path();
     private final RectF rect = new RectF();
     private final int mode;
+    private int signalState = SIGNAL_WAITING;
 
     public CockpitPanelGraphicView(Context context, int mode) {
         super(context);
         this.mode = mode;
         setWillNotDraw(false);
+    }
+
+    public void setSignalState(int state) {
+        int next = Math.max(SIGNAL_WAITING, Math.min(SIGNAL_BLOCKED, state));
+        if (signalState == next) return;
+        signalState = next;
+        invalidate();
     }
 
     @Override
@@ -159,6 +172,20 @@ public final class CockpitPanelGraphicView extends View {
             paint.setStyle(Paint.Style.FILL);
             paint.setColor(Color.rgb(107, 255, 225));
         }
+    }
+
+    private int accent(int alpha) {
+        int r, g, b;
+        if (signalState == SIGNAL_LIVE) {
+            r = 111; g = 255; b = 223;
+        } else if (signalState == SIGNAL_STALE) {
+            r = 255; g = 209; b = 102;
+        } else if (signalState == SIGNAL_BLOCKED) {
+            r = 255; g = 138; b = 128;
+        } else {
+            r = 111; g = 151; b = 163;
+        }
+        return Color.argb(Math.max(0, Math.min(255, alpha)), r, g, b);
     }
 
     private float dp(float value) {
