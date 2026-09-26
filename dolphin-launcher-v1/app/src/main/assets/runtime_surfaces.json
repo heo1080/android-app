@@ -424,7 +424,11 @@
         "Math.max(150, Math.min(206, target))",
         "cockpit_copy_dp=",
         "dp(cockpitCopyWidthDp())",
-        "dock_items=6"
+        "dock_items=6",
+        "actionCard(\"고정 음성\", \"22개 · 실차 청취\"",
+        "showFixedVoicePreview",
+        "VOICE_FIXED_PREVIEW_HMI_RENDER",
+        "sound_lab_cards=3"
       ]
     },
     {
@@ -1858,6 +1862,31 @@
         "\"original_duration_ms\"",
         "\"trim_policy\"",
         "silence_trim_db=-60"
+      ]
+    },
+    {
+      "feature_id": "IN_APP_TTS_CORE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleVoicePolicy.java",
+      "tokens": [
+        "promptIds",
+        "phraseForPromptId",
+        "PROMPTS.values()",
+        "PromptSpec",
+        "playFixedPrompt"
+      ]
+    },
+    {
+      "feature_id": "IN_APP_TTS_CORE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+      "tokens": [
+        "showFixedVoicePreview",
+        "VehicleVoicePolicy.promptIds()",
+        "VehicleVoicePolicy.phraseForPromptId",
+        "VOICE_FIXED_PREVIEW_HMI_RENDER",
+        "VOICE_FIXED_PREVIEW_REQUESTED",
+        "prompt_count=",
+        "vehicle_write=false",
+        "vehiclePromptPlayer.play(promptId, phrase)"
       ]
     }
   ],
