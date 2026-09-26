@@ -24,6 +24,10 @@ public final class DisplayDiagnostics {
         try{
             DisplayMetrics dm=activity.getResources().getDisplayMetrics();
             Configuration cfg=activity.getResources().getConfiguration();
+            Display display=activity.getWindowManager().getDefaultDisplay();
+            DisplayMetrics realDm=new DisplayMetrics();
+            display.getRealMetrics(realDm);
+            Display.Mode activeMode=display.getMode();
             Rect bounds=null;
             if(android.os.Build.VERSION.SDK_INT>=30){
                 bounds=activity.getSystemService(WindowManager.class).getCurrentWindowMetrics().getBounds();
@@ -33,7 +37,7 @@ public final class DisplayDiagnostics {
             String userRotation=readSystem(activity,"user_rotation");
             String fontScaleSetting=readSystem(activity,"font_scale");
             int requestedOrientation=activity.getRequestedOrientation();
-            int displayRotation=activity.getDisplay()==null?-1:activity.getDisplay().getRotation();
+            int displayRotation=display.getRotation();
             int windowingMode=-1;
             try {
                 Object wc=Configuration.class.getField("windowConfiguration").get(cfg);
@@ -41,10 +45,17 @@ public final class DisplayDiagnostics {
                 if(wm instanceof Number) windowingMode=((Number)wm).intValue();
             } catch(Throwable ignored) { }
             String forcedSize=readGlobal(activity,"display_size_forced");
+            String physicalModePx=activeMode==null?"unavailable":
+                    activeMode.getPhysicalWidth()+"x"+activeMode.getPhysicalHeight();
             String detail="densityDpi="+dm.densityDpi
                     +";density="+dm.density
                     +";scaledDensity="+dm.scaledDensity
                     +";px="+dm.widthPixels+"x"+dm.heightPixels
+                    +";resource_px="+dm.widthPixels+"x"+dm.heightPixels
+                    +";real_px="+realDm.widthPixels+"x"+realDm.heightPixels
+                    +";physical_mode_px="+physicalModePx
+                    +";display_mode_id="+(activeMode==null?-1:activeMode.getModeId())
+                    +";refresh_hz="+(activeMode==null?-1f:activeMode.getRefreshRate())
                     +";dp="+cfg.screenWidthDp+"x"+cfg.screenHeightDp
                     +";smallestWidthDp="+cfg.smallestScreenWidthDp
                     +";fontScale="+cfg.fontScale
