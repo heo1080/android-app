@@ -442,6 +442,7 @@ jobs:
           assert "utility_copy_dp=" in launcher and "utility_icon_dp=" in launcher
           assert "screen_height_dp=" in launcher
           assert "home_hero_height_dp=238" in launcher and "home_cockpit_height_dp=168" in launcher
+          assert "dock_items=6" in launcher and "dock_items=5" not in launcher, "dock evidence count drift"
           assert "referenceDialogScroll" in launcher and "showReferenceDialog" in launcher
           for profile in ("media","vehicle","safety","map","display","dark"):
               assert "dialog_profile="+profile in launcher, profile
@@ -540,7 +541,7 @@ jobs:
                         "SYSTEM_SETTINGS_DISPATCH","variant=golden-reference-v3",
                         "panel_hero=true","target_scoped=true",
                         "vehicle_source_live=","fsd_state=",
-                        "cockpit_copy_dp="):
+                        "cockpit_copy_dp=","dock_items=6"):
               assert token in ui.get("required_logs",[]), token
 
           assert launcher.find('chip("● LIVE")') == -1
@@ -566,7 +567,8 @@ jobs:
               logs=by_test[tid].get("required_logs",[])
               for token in ("REFERENCE_DOCK_RENDER","NAV_LAUNCHER_HMI_RENDER",
                             "DISPLAY_QUICK_HMI_RENDER","THEME_STATUS_HMI_RENDER",
-                            "SYSTEM_SETTINGS_DISPATCH","cockpit_copy_dp="):
+                            "SYSTEM_SETTINGS_DISPATCH","cockpit_copy_dp=",
+                            "dock_items=6"):
                   assert token in logs,(tid,token)
 
           fsd_contract=by_test["FSD-OBJ-001"]
@@ -621,7 +623,7 @@ jobs:
               assert token in dock_tokens,token
 
           print("AUTO_EVIDENCE_OTA_GATE_OK upload_receipt=true ota_evidence=true")
-          print("GOLDEN_REFERENCE_DOCK_OK primary=6 controls=4 vector=true fail_safe=true home_semantic_objects=false safety_semantics=false home_lane_semantics=false media_play_claim=false vehicle_normalization=false cockpit_copy_adaptive=true")
+          print("GOLDEN_REFERENCE_DOCK_OK primary=6 controls=4 vector=true fail_safe=true home_semantic_objects=false safety_semantics=false home_lane_semantics=false media_play_claim=false vehicle_normalization=false cockpit_copy_adaptive=true dock_items=6")
           PY
 
       - name: Validate V1 correlation evaluator
