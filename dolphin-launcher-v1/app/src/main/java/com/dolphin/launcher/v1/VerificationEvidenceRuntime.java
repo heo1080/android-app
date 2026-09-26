@@ -51,6 +51,7 @@ public final class VerificationEvidenceRuntime {
     private static final ExecutorService IO = Executors.newSingleThreadExecutor();
     private static final ConcurrentHashMap<String,String> LIVE_CORRELATION_STATE = new ConcurrentHashMap<>();
     private static boolean PROCESS_SESSION_STARTED = false;
+    private static volatile boolean CREDENTIAL_UNAVAILABLE_RECORDED = false;
     private static boolean NETWORK_CALLBACK_REGISTERED = false;
     private static ConnectivityManager.NetworkCallback NETWORK_CALLBACK;
 
@@ -486,9 +487,16 @@ public final class VerificationEvidenceRuntime {
 
     private static void retryPendingUploads(Context context) {
         if (!networkAvailable(context)) return;
-        String key = BuildConfig.EVIDENCE_UPLOAD_KEY;
+        String key = runtimeUploadCredential(context);
         if (key == null || key.isEmpty()) {
-            Log.w(TAG, "evidence upload key unavailable; queue retained");
+            if (!CREDENTIAL_UNAVAILABLE_RECORDED) {
+                CREDENTIAL_UNAVAILABLE_RECORDED = true;
+                recordPassiveEvent(context, "EVIDENCE_UPLOAD_CREDENTIAL_UNAVAILABLE",
+                        "queue_retained=true;network_upload=false"
+                                + ";apk_static_secret=false"
+                                + ";runtime_enrollment=unavailable");
+            }
+            Log.w(TAG, "runtime evidence credential unavailable; queue retained");
             return;
         }
         File[] files = queueDir(context).listFiles((dir, name) -> name.endsWith(".zip"));
@@ -502,6 +510,13 @@ public final class VerificationEvidenceRuntime {
                 Log.w(TAG, "upload retained for retry: " + zip.getName(), e);
             }
         }
+    }
+
+    private static String runtimeUploadCredential(Context context) {
+        // Fail closed until the server provides a proven per-device enrollment
+        // contract whose private credential material can be held by Android Keystore.
+        // Never restore an APK-static shared secret here.
+        return null;
     }
 
     private static void uploadOne(Context context, File zip, String key) throws Exception {
