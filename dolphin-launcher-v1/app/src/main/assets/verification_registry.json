@@ -1734,7 +1734,8 @@
       "requirement": "10인치에서 고해상도 HOME이 live vehicle/media/TPMS를 명확히 보여주고 clipping/desktop 오인 없이 동작한다.",
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HomeHeroGraphicView.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HomeHeroGraphicView.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HmiGlyphView.java"
       ],
       "test_ids": [
         "UI-HOME-001",
@@ -1749,14 +1750,17 @@
         "HOME→각 메뉴 navigation 정상",
         "10인치 홈 hero는 bitmap 확대 없이 Canvas vector로 렌더링되어 DPI 변화에도 선명도 유지",
         "HOME은 hero/quick control/sound lab/tyre monitor/favorites의 시각 계층을 명확히 구분",
-        "action card와 dock은 pressed state를 제공하고 야간 대비를 유지"
+        "action card와 dock은 pressed state를 제공하고 야간 대비를 유지",
+        "HOME quick card와 bottom dock 핵심 아이콘은 font glyph가 아닌 HmiGlyphView vector path로 렌더링",
+        "앱서랍은 HOME과 동일한 glass-vector-v2 surface/pressed state/icon well을 사용"
       ],
       "required_logs": [
         "display profile",
         "render/frame timing",
         "navigation action",
         "PREMIUM_HMI_RENDER",
-        "variant=glass-vector-v2"
+        "variant=glass-vector-v2",
+        "APP_DRAWER_HMI_RENDER"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1774,7 +1778,9 @@
       "evidence": [
         "premium HMI commits and HomeHmiView",
         "HomeHeroGraphicView pure Canvas/vector cockpit graphic",
-        "glass-vector-v2 LauncherActivity home hierarchy"
+        "glass-vector-v2 LauncherActivity home hierarchy",
+        "HmiGlyphView vector icon system for HOME/dock",
+        "glass-vector-v2 app drawer and app icon wells"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {

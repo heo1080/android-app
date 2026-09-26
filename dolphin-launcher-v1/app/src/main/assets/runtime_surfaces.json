@@ -211,7 +211,11 @@
         "gradientRound",
         "pressableGradientRound",
         "PREMIUM_HMI_RENDER",
-        "glass-vector-v2"
+        "glass-vector-v2",
+        "HmiGlyphView",
+        "APP_DRAWER_HMI_RENDER",
+        "app_icons=system-drawable",
+        "iconWell"
       ]
     },
     {
@@ -1004,6 +1008,22 @@
         "Canvas",
         "LinearGradient",
         "bitmap"
+      ]
+    },
+    {
+      "feature_id": "PREMIUM_HMI_HOME",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HmiGlyphView.java",
+      "tokens": [
+        "HmiGlyphView",
+        "drawHome",
+        "drawApps",
+        "drawSplit",
+        "drawPlay",
+        "drawSettings",
+        "drawVerify",
+        "drawEq",
+        "drawTarget",
+        "drawTyre"
       ]
     }
   ],

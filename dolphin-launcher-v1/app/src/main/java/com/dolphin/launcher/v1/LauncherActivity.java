@@ -663,13 +663,22 @@ public class LauncherActivity extends Activity {
         LinearLayout panel = new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(24), dp(18), dp(24), dp(18));
-        panel.setBackground(round("#0D1920", 22, "#294451"));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E","#07151B","#040A0E"}, 24, "#315A68"));
+        panel.setElevation(dp(4));
 
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.HORIZONTAL);
         head.setGravity(Gravity.CENTER_VERTICAL);
-        head.addView(text("APP DRAWER", 24f, Color.WHITE, true),
-                new LinearLayout.LayoutParams(0, dp(52), 1f));
+        LinearLayout drawerTitle = new LinearLayout(this);
+        drawerTitle.setOrientation(LinearLayout.VERTICAL);
+        TextView drawerHead = text("APP DRAWER", 23f, Color.WHITE, true);
+        drawerHead.setLetterSpacing(0.06f);
+        drawerTitle.addView(drawerHead);
+        drawerTitle.addView(text("Launch · Pin · Split · Autostart", 10f,
+                Color.parseColor("#6E8C97"), false));
+        head.addView(drawerTitle,
+                new LinearLayout.LayoutParams(0, dp(54), 1f));
         TextView count = chip(apps.size() + " APPS");
         head.addView(count, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, dp(34)));
@@ -681,8 +690,9 @@ public class LauncherActivity extends Activity {
         search.setTextColor(Color.WHITE);
         search.setHintTextColor(Color.parseColor("#718894"));
         search.setTextSize(15f);
-        search.setPadding(dp(16), 0, dp(16), 0);
-        search.setBackground(round("#071116", 16, "#233E4B"));
+        search.setPadding(dp(18), 0, dp(18), 0);
+        search.setBackground(gradientRound(
+                new String[]{"#0B1D24","#061117"}, 17, "#274B58"));
         LinearLayout.LayoutParams searchLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(48));
         searchLp.bottomMargin = dp(12);
@@ -720,7 +730,10 @@ public class LauncherActivity extends Activity {
                         14f, Color.WHITE, true);
                 split.setGravity(Gravity.CENTER_VERTICAL);
                 split.setPadding(dp(18), 0, dp(18), 0);
-                split.setBackground(round("#0B2928", 16, "#34BDA2"));
+                split.setBackground(pressableGradientRound(
+                        new String[]{"#103A37","#09241F"},
+                        new String[]{"#175049","#0C312B"},
+                        17, "#3BC9AF"));
                 split.setOnClickListener(v -> {
                     dialog.dismiss();
                     launchSplitPair();
@@ -756,6 +769,9 @@ public class LauncherActivity extends Activity {
             rebuild.run();
         });
 
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this, "APP_DRAWER_HMI_RENDER",
+                "variant=glass-vector-v2;glyphs=vector;app_icons=system-drawable");
         dialog.show();
     }
 
@@ -764,15 +780,26 @@ public class LauncherActivity extends Activity {
         tile.setOrientation(LinearLayout.VERTICAL);
         tile.setGravity(Gravity.CENTER);
         tile.setPadding(dp(8), dp(10), dp(8), dp(8));
-        tile.setBackground(round("#0A171D", 18, "#1C3440"));
+        tile.setBackground(pressableGradientRound(
+                new String[]{"#0E222A","#07151B","#050C10"},
+                new String[]{"#173440","#0A2028","#071419"},
+                19, "#244753"));
+        tile.setElevation(dp(1));
         tile.setClickable(true);
         tile.setFocusable(true);
 
+        int iconSize = compact ? 48 : 56;
+        FrameLayout iconWell = new FrameLayout(this);
+        iconWell.setBackground(gradientRound(
+                new String[]{"#17323A","#0A1A20"}, 17, "#2A515D"));
         ImageView icon = new ImageView(this);
         icon.setImageDrawable(app.icon);
         icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        int iconSize = compact ? 48 : 56;
-        tile.addView(icon, new LinearLayout.LayoutParams(dp(iconSize), dp(iconSize)));
+        int innerIcon = compact ? 38 : 44;
+        FrameLayout.LayoutParams innerLp = new FrameLayout.LayoutParams(
+                dp(innerIcon), dp(innerIcon), Gravity.CENTER);
+        iconWell.addView(icon, innerLp);
+        tile.addView(iconWell, new LinearLayout.LayoutParams(dp(iconSize), dp(iconSize)));
 
         TextView label = text(app.label, compact ? 12f : 13f, Color.WHITE, false);
         label.setGravity(Gravity.CENTER);
@@ -1534,8 +1561,8 @@ public class LauncherActivity extends Activity {
         card.setFocusable(true);
         card.setOnClickListener(v -> action.run());
 
-        TextView icon = text(symbol, 27f, Color.parseColor("#88FFE5"), true);
-        icon.setGravity(Gravity.CENTER);
+        HmiGlyphView icon = new HmiGlyphView(this, symbol);
+        icon.setAccentColor(Color.parseColor("#88FFE5"));
         icon.setBackground(gradientRound(
                 new String[]{"#163F46","#0A242A"}, 18, "#2B615F"));
         LinearLayout.LayoutParams iconLp = new LinearLayout.LayoutParams(dp(48), dp(48));
@@ -1567,8 +1594,8 @@ public class LauncherActivity extends Activity {
         button.setFocusable(true);
         button.setOnClickListener(v -> action.run());
 
-        TextView icon = text(symbol, 21f, Color.parseColor("#8CFFE8"), true);
-        icon.setGravity(Gravity.CENTER);
+        HmiGlyphView icon = new HmiGlyphView(this, symbol);
+        icon.setAccentColor(Color.parseColor("#8CFFE8"));
         button.addView(icon, new LinearLayout.LayoutParams(dp(34), dp(32)));
 
         TextView title = text(label, 10f, Color.parseColor("#A8BBC4"), false);
