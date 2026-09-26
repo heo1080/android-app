@@ -1994,9 +1994,9 @@
       "feature_id": "LAUNCHER_ENTRY_IDENTITY",
       "path": "dolphin-launcher-v1/app/src/voicePreview/res/drawable/ic_launcher_preview_foreground.xml",
       "tokens": [
-        "ic_launcher_preview_foreground",
         "#FFC857",
-        "M72,67 L76,67"
+        "M72,67 L76,67",
+        "#7CFFE4"
       ]
     },
     {
