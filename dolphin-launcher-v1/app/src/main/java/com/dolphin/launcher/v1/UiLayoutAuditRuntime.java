@@ -13,8 +13,11 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -163,6 +166,12 @@ public final class UiLayoutAuditRuntime {
         out.put("partial_clip_examples",clipExamples);
         out.put("text_content_logged",false);
 
+        JSONObject comparison=findComparablePrevious(
+                activity,safeLabel,root.getWidth(),root.getHeight(),
+                dm.densityDpi,cfg.fontScale,cfg.uiMode & Configuration.UI_MODE_NIGHT_MASK,
+                touchViolations,ellipsizedTexts,partialClips);
+        out.put("comparison",comparison);
+
         File file=new File(
                 auditDir(activity),
                 "DolphinV1_UI_Audit_"+session+"_"+safeLabel+"_"+capturedAt+".json");
@@ -181,8 +190,73 @@ public final class UiLayoutAuditRuntime {
                         +";ellipsized_texts="+ellipsizedTexts
                         +";partial_clips="+partialClips
                         +";text_content_logged=false");
+
+        if(comparison.optBoolean("baseline_available",false)){
+            boolean regression=comparison.optBoolean("regression",false);
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    activity,
+                    regression ? "UI_LAYOUT_REGRESSION" : "UI_LAYOUT_BASELINE_COMPARE",
+                    "label="+safeLabel
+                            +";delta_touch="+comparison.optInt("delta_touch",0)
+                            +";delta_ellipsis="+comparison.optInt("delta_ellipsis",0)
+                            +";delta_clips="+comparison.optInt("delta_clips",0)
+                            +";regression="+regression);
+        }
         trimOld(activity,12);
         return file;
+    }
+
+    private static JSONObject findComparablePrevious(
+            Context context,String label,int widthPx,int heightPx,int densityDpi,
+            float fontScale,int nightMode,int touch,int ellipsis,int clips){
+        JSONObject result=new JSONObject();
+        try{
+            result.put("baseline_available",false);
+            File[] files=auditDir(context).listFiles((d,name)->name.endsWith(".json"));
+            if(files==null || files.length==0)return result;
+            Arrays.sort(files,(a,b)->Long.compare(b.lastModified(),a.lastModified()));
+            for(File file:files){
+                JSONObject previous=readJson(file);
+                if(previous==null)continue;
+                if(!label.equals(previous.optString("label","")))continue;
+                if(previous.optInt("width_px",-1)!=widthPx)continue;
+                if(previous.optInt("height_px",-1)!=heightPx)continue;
+                if(previous.optInt("density_dpi",-1)!=densityDpi)continue;
+                if(Math.abs((float)previous.optDouble("font_scale",-1)-fontScale)>0.001f)continue;
+                if(previous.optInt("night_mode",-1)!=nightMode)continue;
+
+                JSONObject summary=previous.optJSONObject("summary");
+                if(summary==null)continue;
+                int prevTouch=summary.optInt("touch_target_violations",0);
+                int prevEllipsis=summary.optInt("ellipsized_texts",0);
+                int prevClips=summary.optInt("partial_clips",0);
+                int dTouch=touch-prevTouch;
+                int dEllipsis=ellipsis-prevEllipsis;
+                int dClips=clips-prevClips;
+
+                result.put("baseline_available",true);
+                result.put("baseline_file",file.getName());
+                result.put("same_display_profile",true);
+                result.put("delta_touch",dTouch);
+                result.put("delta_ellipsis",dEllipsis);
+                result.put("delta_clips",dClips);
+                result.put("regression",dTouch>0 || dEllipsis>0 || dClips>0);
+                return result;
+            }
+        }catch(Exception ignored){}
+        return result;
+    }
+
+    private static JSONObject readJson(File file){
+        try(BufferedReader reader=new BufferedReader(new InputStreamReader(
+                new FileInputStream(file),StandardCharsets.UTF_8))){
+            StringBuilder b=new StringBuilder();
+            String line;
+            while((line=reader.readLine())!=null)b.append(line);
+            return new JSONObject(b.toString());
+        }catch(Exception ignored){
+            return null;
+        }
     }
 
     private static void addExample(
