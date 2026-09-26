@@ -9,9 +9,8 @@ from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ASSETS = ROOT / "app/src/main/assets"
-CONTRACTS = ASSETS / "test_log_contracts.json"
-REGISTRY = ASSETS / "verification_registry.json"
+CONTRACTS = ROOT / "verification/test_log_contracts.json"
+REGISTRY = ROOT / "verification/master_registry.json"
 LEDGER_NAME = "verification_evidence.jsonl"
 
 # These files define how evidence is interpreted. They are not evidence themselves.
@@ -369,7 +368,7 @@ def main():
         for key in ["PASS", "FAIL", "INCONCLUSIVE", "NEED_MORE_DATA"]
     }
     output = {
-        "schema_version": 3,
+        "schema_version": 2,
         "input": str(path),
         "evidence_scope": "runtime-only; canonical metadata excluded",
         "structured_event_count": len(events),
