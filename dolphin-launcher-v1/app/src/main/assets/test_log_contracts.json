@@ -826,7 +826,7 @@
         "open-license Ppaso candidate generation never changes app ASSET_REQUIRED/ASSET_READY state or packaged res/raw assets",
         "candidate bundle contains exactly 22 RIFF/WAVE 24kHz 16-bit mono files plus SHA-256/byte/duration metadata",
         "P/R/N/D and ICC candidate synthesis may use Korean pronunciation text while event/value/id/manifest phrase semantics remain unchanged",
-        "Ppaso candidate trims model-added leading silence at -60dB while retaining 30ms pre-roll and 60ms post-roll",
+        "Ppaso candidate trims model-added leading silence at -60dB while retaining 30ms pre-roll and up to 60ms of available trailing source silence",
         "candidate trim metrics are diagnostic only and do not replace manual audible quality/pronunciation verification"
       ],
       "required_logs": [
@@ -915,7 +915,7 @@
         "open-license Ppaso candidate generation never changes app ASSET_REQUIRED/ASSET_READY state or packaged res/raw assets",
         "candidate bundle contains exactly 22 RIFF/WAVE 24kHz 16-bit mono files plus SHA-256/byte/duration metadata",
         "P/R/N/D and ICC candidate synthesis may use Korean pronunciation text while event/value/id/manifest phrase semantics remain unchanged",
-        "Ppaso candidate trims model-added leading silence at -60dB while retaining 30ms pre-roll and 60ms post-roll",
+        "Ppaso candidate trims model-added leading silence at -60dB while retaining 30ms pre-roll and up to 60ms of available trailing source silence",
         "candidate trim metrics are diagnostic only and do not replace manual audible quality/pronunciation verification"
       ],
       "required_logs": [
