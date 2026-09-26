@@ -239,7 +239,11 @@
         "vehiclePanelSummary",
         "showVehicleInfoPanel",
         "VEHICLE_INFO_HMI_RENDER",
-        "layout=media-safety-vehicle"
+        "layout=media-safety-vehicle",
+        "tpmsCard",
+        "TyreGaugeView",
+        "tpms_visual=vector-wheel-gauge",
+        "● LIVE · BETA"
       ]
     },
     {
@@ -1061,6 +1065,16 @@
         "drawMedia",
         "drawSafety",
         "drawVehicle"
+      ]
+    },
+    {
+      "feature_id": "PREMIUM_HMI_HOME",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/TyreGaugeView.java",
+      "tokens": [
+        "TyreGaugeView",
+        "setLive",
+        "drawArc",
+        "does not infer safe/unsafe pressure thresholds"
       ]
     }
   ],

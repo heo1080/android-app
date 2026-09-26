@@ -1488,7 +1488,8 @@
       "acceptance": [
         "4 wheel 값/상태 read",
         "단위 확인 전 임의 conversion 금지",
-        "unavailable 처리"
+        "unavailable 처리",
+        "UI는 pressure threshold를 추정하지 않고 연결 여부와 raw-derived 표시값만 시각화"
       ],
       "required_logs": [
         "raw tyre values",
@@ -1505,7 +1506,8 @@
         "순정 TPMS 화면과 raw 값 비교"
       ],
       "evidence": [
-        "TpmsReader explicit no-unit-guess policy"
+        "TpmsReader explicit no-unit-guess policy",
+        "TyreGaugeView decorative live/waiting state without safety threshold inference"
       ],
       "next_action": "실차 unit/mapping 확정",
       "confidence": {
@@ -1736,7 +1738,8 @@
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HomeHeroGraphicView.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HmiGlyphView.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/CockpitPanelGraphicView.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/CockpitPanelGraphicView.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/TyreGaugeView.java"
       ],
       "test_ids": [
         "UI-HOME-001",
@@ -1761,7 +1764,9 @@
         "EQ와 음장 위치 다이얼로그도 HOME과 동일한 glass-vector-v2 header/info strip/pressed state를 사용",
         "HOME primary cockpit은 좌 MEDIA CENTER / 중앙 FSD·SAFETY / 우 VEHICLE INFO의 3분할 구조를 고정",
         "FSD·SAFETY 패널은 검증 전 상태를 BETA/read-only evidence로 명확히 표시하고 작동 확정처럼 표현하지 않음",
-        "VEHICLE INFO 패널은 TPMS read-only 값만 표시하고 차량 제어/미검증 의미 추정을 하지 않음"
+        "VEHICLE INFO 패널은 TPMS read-only 값만 표시하고 차량 제어/미검증 의미 추정을 하지 않음",
+        "TPMS 4개 wheel card는 전용 TyreGaugeView vector gauge와 LIVE/WAITING 상태를 사용",
+        "TPMS UI는 실차 기준 압력 임계값이 확정되기 전 정상/위험 색 판정을 하지 않음"
       ],
       "required_logs": [
         "display profile",
@@ -1777,7 +1782,8 @@
         "SOUND_POSITION_HMI_RENDER",
         "cockpit_panels=3",
         "layout=media-safety-vehicle",
-        "VEHICLE_INFO_HMI_RENDER"
+        "VEHICLE_INFO_HMI_RENDER",
+        "tpms_visual=vector-wheel-gauge"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1803,7 +1809,8 @@
         "responsive heroCopyWidthDp clamp for 10-inch DPI variants",
         "glass-vector-v2 Sound EQ and Sound Position dialogs",
         "CockpitPanelGraphicView vector media/safety/vehicle scenes",
-        "three-panel primary cockpit restores requested media-safety-vehicle hierarchy"
+        "three-panel primary cockpit restores requested media-safety-vehicle hierarchy",
+        "TyreGaugeView vector wheel gauges"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {

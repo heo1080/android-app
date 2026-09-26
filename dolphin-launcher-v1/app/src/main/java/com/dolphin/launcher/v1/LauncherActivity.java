@@ -539,10 +539,10 @@ public class LauncherActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(88));
         tpmsLp.topMargin = dp(12);
         content.addView(tpms, tpmsLp);
-        tpms.addView(actionCard("FL · 앞좌측", tpmsDisplay(tpmsFlKpa), "◉", () -> {}), weighted());
-        tpms.addView(actionCard("FR · 앞우측", tpmsDisplay(tpmsFrKpa), "◉", () -> {}), weighted());
-        tpms.addView(actionCard("RL · 뒤좌측", tpmsDisplay(tpmsRlKpa), "◉", () -> {}), weighted());
-        tpms.addView(actionCard("RR · 뒤우측", tpmsDisplay(tpmsRrKpa), "◉", () -> {}), weighted());
+        tpms.addView(tpmsCard("FL","앞좌측",tpmsFlKpa), weighted());
+        tpms.addView(tpmsCard("FR","앞우측",tpmsFrKpa), weighted());
+        tpms.addView(tpmsCard("RL","뒤좌측",tpmsRlKpa), weighted());
+        tpms.addView(tpmsCard("RR","뒤우측",tpmsRrKpa), weighted());
 
         LinearLayout titleRow = new LinearLayout(this);
         titleRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -577,7 +577,8 @@ public class LauncherActivity extends Activity {
                 "variant=glass-vector-v2;hero=canvas-vector;bitmap_assets=false"
                         + ";hero_copy_dp=" + heroCopyWidthDp()
                         + ";cockpit_panels=3;layout=media-safety-vehicle"
-                        + ";tpms_cards=4;quick_cards=4;dock_items=5");
+                        + ";tpms_cards=4;tpms_visual=vector-wheel-gauge"
+                        + ";quick_cards=4;dock_items=5");
 
         TextView footer = text(
                 "앱 길게 누르기  →  홈 고정 · 2분할 좌/우 · 시동 자동실행 · 앱 정보",
@@ -1689,6 +1690,34 @@ public class LauncherActivity extends Activity {
 
     private String tpmsDisplay(Integer kpa) {
         return kpa == null ? "-- psi · 연결 대기" : tpmsPsi(kpa) + " · BETA";
+    }
+
+    private View tpmsCard(String code,String position,Integer kpa) {
+        LinearLayout card=new LinearLayout(this);
+        card.setOrientation(LinearLayout.HORIZONTAL);
+        card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setPadding(dp(12),dp(8),dp(12),dp(8));
+        card.setBackground(gradientRound(
+                new String[]{"#102831","#09171D","#061014"},18,"#244C59"));
+
+        TyreGaugeView gauge=new TyreGaugeView(this,kpa!=null);
+        LinearLayout.LayoutParams gaugeLp=new LinearLayout.LayoutParams(dp(52),dp(52));
+        gaugeLp.rightMargin=dp(8);
+        card.addView(gauge,gaugeLp);
+
+        LinearLayout copy=new LinearLayout(this);
+        copy.setOrientation(LinearLayout.VERTICAL);
+        TextView head=text(code+"  ·  "+position,11f,Color.parseColor("#BFD2D8"),true);
+        head.setLetterSpacing(0.04f);
+        copy.addView(head);
+        TextView pressure=text(kpa==null?"-- psi":tpmsPsi(kpa),15f,Color.WHITE,true);
+        copy.addView(pressure);
+        TextView state=text(kpa==null?"● WAITING":"● LIVE · BETA",9.5f,
+                Color.parseColor(kpa==null?"#738A94":"#72E8D0"),true);
+        copy.addView(state);
+        card.addView(copy,new LinearLayout.LayoutParams(
+                0,ViewGroup.LayoutParams.WRAP_CONTENT,1f));
+        return card;
     }
 
     private View buildCockpitDeck() {
