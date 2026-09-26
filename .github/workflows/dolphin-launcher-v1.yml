@@ -358,6 +358,14 @@ jobs:
           legacy_autostart=launcher_ui.split("private void runPendingAutostart()",1)[1].split("private void toggleFavorite",1)[0]
           assert "handler.postDelayed" not in legacy_autostart, "legacy LauncherActivity boot autostart must not schedule apps"
           assert "AUTOSTART_LEGACY_PENDING_IGNORED" in legacy_autostart, "legacy pending flag must be fail-safe consumed"
+          boot_entry_receiver=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootReceiver.java").read_text(encoding="utf-8")
+          boot_autostart_runtime=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchRuntime.java").read_text(encoding="utf-8")
+          assert "BootAutoLaunchRuntime.dispatch(app, action)" in boot_entry_receiver, "boot action source must reach autostart dedup guard"
+          assert "claimBootDispatch" in boot_autostart_runtime, "single-batch boot claim missing"
+          assert "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED" in boot_autostart_runtime, "duplicate boot evidence missing"
+          assert "duplicate_dispatch=false" in boot_autostart_runtime, "duplicate boot suppression result missing"
+          assert "now>=lastElapsed" in boot_autostart_runtime, "elapsed-realtime reboot epoch reset guard missing"
+          assert "CROSS_ACTION_DUPLICATE_WINDOW_MS" in boot_autostart_runtime, "cross-action boot dedup window missing"
 
           manifest_source=pathlib.Path("dolphin-launcher-v1/app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
           boot_receiver=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchReceiver.java").read_text(encoding="utf-8")
