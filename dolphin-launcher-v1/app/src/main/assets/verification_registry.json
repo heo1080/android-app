@@ -2383,128 +2383,170 @@
   "known_bad_library": [
     {
       "id": "KB-001",
-      "symptom": "Drive NORMAL 음성 누락",
+      "symptom": "real-car ECO raw=1 and SPORT raw=2 restored behind evidence-gated mapping; NORMAL remains deliberately unmapped pending fresh V1 correlation",
       "linked": [
         "DRIVE_MODE_VOICE"
       ],
       "severity": "P0",
-      "status": "OPEN",
+      "status": "FIX_CANDIDATE",
       "required_test_ids": [
-        "AUD-DRV-001"
-      ]
+        "AUD-DRV-001",
+        "AUD-DRV-002"
+      ],
+      "close_gate": "three repeatable V1 real-car ECO/NORMAL/SPORT cycles with exact raw mapping, correct prompt once per edge, silent baseline, and zero cross-label speech"
     },
     {
       "id": "KB-002",
-      "symptom": "Regen STANDARD를 ECO로 오안내",
+      "symptom": "real-car HIGH raw=2 restored; STANDARD remains deliberately unmapped so historical STANDARD cross-label speech cannot recur",
       "linked": [
         "REGEN_MODE_VOICE"
       ],
       "severity": "P0",
-      "status": "OPEN",
+      "status": "FIX_CANDIDATE",
       "required_test_ids": [
-        "AUD-REG-001"
-      ]
+        "AUD-REG-001",
+        "AUD-REG-002"
+      ],
+      "close_gate": "three repeatable V1 real-car STANDARD/HIGH cycles with exact raw correlation, correct prompt once per edge, silent baseline, and zero cross-label speech"
     },
     {
       "id": "KB-003",
-      "symptom": "Snow OFF 음성 누락",
+      "symptom": "legacy real-car evidence proves roadSurface raw 2=Snow ON and raw 1=Snow OFF; V1 now implements both edges with silent baseline, pending fresh real-car verification",
       "linked": [
         "SNOW_MODE_VOICE"
       ],
       "severity": "P0",
-      "status": "OPEN",
+      "status": "FIX_CANDIDATE",
       "required_test_ids": [
+        "AUD-SNOW-001",
         "AUD-SNOW-002"
-      ]
+      ],
+      "close_gate": "three repeatable V1 real-car Snow OFF->ON->OFF cycles with raw 1/2 correlation, exactly one correct prompt per edge, silent baseline, and no drive-mode confusion"
     },
     {
       "id": "KB-004",
-      "symptom": "분할화면 미작동",
+      "symptom": "split launch now requires primary/secondary readback; V1 also passively records BYD camera-exit candidates and post-camera split readback, while automatic restore remains disabled pending real-car proof",
       "linked": [
         "SPLIT_SCREEN_TWO_APP"
       ],
       "severity": "P0",
-      "status": "OPEN",
+      "status": "FIX_CANDIDATE",
       "required_test_ids": [
-        "WIN-SPLIT-001"
-      ]
+        "WIN-SPLIT-001",
+        "WIN-SPLIT-002"
+      ],
+      "close_gate": "two repeatable real-car sessions with left_primary=true, right_secondary=true, readback_verified=true, visible two-app split, proven camera-exit lifecycle, safe camera return, and zero premature restore actuation"
     },
     {
       "id": "KB-005",
-      "symptom": "앱서랍 바로가기 생성 기능 누락",
+      "symptom": "pinned app shortcut request/callback/invocation/disable path restored; BYD launcher icon visibility and disabled-state behavior pending real-car verification",
       "linked": [
         "APP_DRAWER_SHORTCUTS"
       ],
       "severity": "P1",
-      "status": "OPEN",
+      "status": "FIX_CANDIDATE",
       "required_test_ids": [
-        "LCH-DRW-001"
-      ]
+        "LCH-DRW-001",
+        "LCH-DRW-002"
+      ],
+      "close_gate": "two repeatable real-car sessions with APP_SHORTCUT_PIN_CONFIRMED, visible pinned icon, cold-start target launch, and disable/remove behavior observed"
     },
     {
       "id": "KB-006",
-      "symptom": "시동 자동실행 여러 앱 추가 버튼 누락",
+      "symptom": "multi-app persistence/UI restored; boot delays now use process-independent AlarmManager scheduling, pending BYD Android 10 background-launch verification",
       "linked": [
         "BOOT_MULTI_APP_AUTOLAUNCH"
       ],
       "severity": "P1",
-      "status": "OPEN",
+      "status": "FIX_CANDIDATE",
       "required_test_ids": [
-        "LCH-BOOT-001"
+        "LCH-BOOT-001",
+        "LCH-BOOT-002"
       ],
       "close_gate": "two repeatable real-car ignition cycles with 2+ registered apps, packaged BootAutoLaunchReceiver delivery, saved per-app delays, AUTOSTART_ALARM_FIRED for each entry, correct target launches/media path, and no duplicate batch after opening V1"
     },
     {
       "id": "KB-007",
-      "symptom": "TTS 미리듣기가 즉시 나오지 않고 비프 뒤 지연 재생",
+      "symptom": "TTS preview delayed until later audio action",
       "linked": [
         "IN_APP_TTS_CORE"
       ],
       "severity": "P1",
       "status": "OPEN",
       "required_test_ids": [
-        "AUD-TTS-001"
-      ]
+        "AUD-TTS-001",
+        "AUD-TTS-002"
+      ],
+      "close_gate": "real-car immediate prompt playback evidence across repeated trials"
     },
     {
       "id": "KB-008",
-      "symptom": "실내등 API 성공 반환과 실제 램프 반응 불일치",
+      "symptom": "API success did not match physical interior-light response; V1 now performs passive method inventory and door-link getter readback only, with whole-lamp actuation/readback still fail-closed and unproven",
       "linked": [
         "INTERIOR_LIGHT"
       ],
       "severity": "P0",
       "status": "OPEN",
       "required_test_ids": [
-        "COMF-LIGHT-001"
-      ]
+        "COMF-LIGHT-001",
+        "COMF-LIGHT-002"
+      ],
+      "close_gate": "physical lamp response plus independent readback/observation; return code alone insufficient"
     },
     {
       "id": "KB-009",
-      "symptom": "운전석 오디오 route API 성공/AudioTrack write와 실제 청취 결과 불일치 가능",
+      "symptom": "app-owned driver-only audio remains unproven; V1 now inventories output devices and routing permission passively, labeling BUS/builtin/aux candidates as candidate-only until seat-by-seat audible proof",
       "linked": [
-        "DRIVER_ONLY_APP_OWNED_AUDIO",
+        "DRIVER_ONLY_APP_OWNED_AUDIO"
+      ],
+      "severity": "P0",
+      "status": "OPEN",
+      "required_test_ids": [
+        "AUD-DRVSPK-001"
+      ],
+      "close_gate": "real-car driver-seat-only audible output on a proven device route, other-seat silence, OEM warning arbitration preserved, and no candidate-only inference"
+    },
+    {
+      "id": "KB-010",
+      "symptom": "BYD Korean Dolphin previously rejected a V1 APK as a desktop app when HOME launcher role was advertised; current candidate installs as a normal LAUNCHER app with HOME disabled pending real-car compatibility proof",
+      "linked": [
+        "BUILD_IDENTITY"
+      ],
+      "severity": "P0",
+      "status": "REAL_CAR_RETEST",
+      "required_test_ids": [
+        "BLD-ID-001",
+        "BLD-ID-002",
+        "LCH-ID-001"
+      ],
+      "close_gate": "current candidate installs on BYD without desktop-app rejection; packaged APK has exactly one LauncherActivity LAUNCHER entry, no HOME category, and build identity matches package/version/source/APK hash"
+    },
+    {
+      "id": "KB-011",
+      "symptom": "third-party per-app driver-speaker routing remains blocked; V1 passively records routing permission and output candidates but performs no UID affinity/AudioPolicy/BYD DSP write",
+      "linked": [
         "PER_APP_DRIVER_SPEAKER_ROUTING"
       ],
       "severity": "P0",
       "status": "OPEN",
       "required_test_ids": [
-        "AUD-DRVSPK-001",
         "AUD-APPROUTE-001"
-      ]
+      ],
+      "close_gate": "real-car target-app-only driver output on a proven physical route, non-target media unchanged, stock safety warning preemption, stock restore after target removal, and explicit routing permission evidence"
     },
     {
-      "id": "KB-010",
-      "symptom": "빌드/설치 identity 및 versionCode 불일치로 update 실패",
+      "id": "KB-012",
+      "symptom": "target-scoped MediaSession autoplay implemented; notification-listener access, target session discovery, audible playback, and stock safety-audio coexistence pending real-car verification",
       "linked": [
-        "BUILD_IDENTITY",
-        "APP_UPDATE"
+        "BACKGROUND_MEDIA_AUTOPLAY"
       ],
-      "severity": "P0",
-      "status": "OPEN",
+      "severity": "P1",
+      "status": "FIX_CANDIDATE",
       "required_test_ids": [
-        "BLD-ID-001",
-        "UPD-001"
-      ]
+        "MED-BG-001",
+        "MED-BG-002"
+      ],
+      "close_gate": "real-car target session package match, process-independent media stage delivery, configured delay, audible target playback, non-target media unchanged, global fallback absent, and stock safety warning audio remains functional"
     }
   ],
   "next_priority": [
