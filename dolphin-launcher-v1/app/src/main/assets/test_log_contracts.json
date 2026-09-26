@@ -1904,7 +1904,8 @@
         "HOME/FSD Safety panel remains BLOCKED and semantics LOCKED while no verified object/lane pipeline exists",
         "UI does not fabricate object/lane semantics",
         "HOME hero sensor field uses decorative arcs/ticks only while BLOCKED and does not render fixed object dots/rings",
-        "FSD Safety cockpit graphic uses only abstract shield/padlock/arcs/ticks while BLOCKED and renders no fixed road/lane/object/warning target semantics"
+        "FSD Safety cockpit graphic uses only abstract shield/padlock/arcs/ticks while BLOCKED and renders no fixed road/lane/object/warning target semantics",
+        "HOME perspective deck contains no lane boundaries, centerline dashes, drivable-space, or navigation semantics"
       ],
       "required_logs": [
         "camera source",
@@ -2005,7 +2006,8 @@
         "golden-reference-v3 hero shows READ ONLY and source LIVE/WAITING from observed raw presence",
         "vehicle panel performs no actuation",
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
-        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries",
+        "Vehicle cockpit graphic is decorative/read-only and never normalizes RAW telemetry"
       ],
       "required_logs": [
         "getter result",
@@ -2407,7 +2409,9 @@
         "MAP/DISPLAY/DARK quick panels use Golden Reference utility hero while preserving safe boundaries",
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
         "dock records screen-width compact risk while preserving 48dp touch-target goal",
-        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries",
+        "HOME hero uses non-semantic depth geometry instead of lane/centerline visuals",
+        "Media/Vehicle cockpit vectors preserve verification boundaries while improving visual depth"
       ],
       "required_logs": [
         "display profile",
@@ -2473,7 +2477,9 @@
         "MAP/DISPLAY/DARK quick panels use Golden Reference utility hero while preserving safe boundaries",
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
         "dock records screen-width compact risk while preserving 48dp touch-target goal",
-        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries",
+        "HOME hero uses non-semantic depth geometry instead of lane/centerline visuals",
+        "Media/Vehicle cockpit vectors preserve verification boundaries while improving visual depth"
       ],
       "required_logs": [
         "display profile",
@@ -2772,7 +2778,8 @@
         "session discovery/play/readback continuation survives sender receiver process exit by AlarmManager receiver stages",
         "golden-reference-v3 Media hero remains target-scoped and does not treat UI state as audible playback verification",
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
-        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries",
+        "Media cockpit graphic does not use a fixed PLAY symbol as audible playback evidence"
       ],
       "required_logs": [
         "target package",
@@ -2844,7 +2851,8 @@
         "session discovery/play/readback continuation survives sender receiver process exit by AlarmManager receiver stages",
         "golden-reference-v3 Media hero remains target-scoped and does not treat UI state as audible playback verification",
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
-        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries",
+        "Media cockpit graphic does not use a fixed PLAY symbol as audible playback evidence"
       ],
       "required_logs": [
         "target package",
