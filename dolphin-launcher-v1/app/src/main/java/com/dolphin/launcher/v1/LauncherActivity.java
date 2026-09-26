@@ -82,6 +82,11 @@ public class LauncherActivity extends Activity {
     private volatile Integer tpmsFlKpa, tpmsFrKpa, tpmsRlKpa, tpmsRrKpa;
     private volatile Integer vehicleGearRaw, vehicleSpeedRaw;
     private volatile Integer vehicleTurnLeftRaw, vehicleTurnRightRaw;
+    private TextView homeMediaStatus, homeMediaSubtitle;
+    private TextView homeVehicleStatus, homeVehicleSubtitle;
+    private final TextView[] homeTpmsPressure = new TextView[4];
+    private final TextView[] homeTpmsState = new TextView[4];
+    private final TyreGaugeView[] homeTpmsGauge = new TyreGaugeView[4];
     private final VehicleVoicePolicy.Output vehicleVoiceOutput = (promptId, phrase) -> {
         if (vehiclePromptPlayer == null) {
             VerificationEvidenceRuntime.recordPassiveEvent(
@@ -98,6 +103,14 @@ public class LauncherActivity extends Activity {
                 timeView.setText(new SimpleDateFormat("h:mm a", Locale.getDefault()).format(new Date()));
             }
             handler.postDelayed(this, 15000L);
+        }
+    };
+
+    private final Runnable homeLiveTick = new Runnable() {
+        @Override
+        public void run() {
+            refreshHomeLiveBindings();
+            handler.postDelayed(this, 2000L);
         }
     };
 
@@ -204,6 +217,8 @@ public class LauncherActivity extends Activity {
         if (bodyHost != null) showHome();
         handler.removeCallbacks(clockTick);
         handler.post(clockTick);
+        handler.removeCallbacks(homeLiveTick);
+        handler.post(homeLiveTick);
         if (!isSplitShortcutIntent(getIntent()) && !isAppShortcutIntent(getIntent())) runPendingAutostart();
         AppUpdateManager.resumePendingInstallPermission(this);
     }
@@ -212,6 +227,7 @@ public class LauncherActivity extends Activity {
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(clockTick);
+        handler.removeCallbacks(homeLiveTick);
     }
 
     private void startVehicleReadOnlyRuntime() {
@@ -501,6 +517,15 @@ public class LauncherActivity extends Activity {
 
     private void showHome() {
         if (bodyHost == null) return;
+        homeMediaStatus = null;
+        homeMediaSubtitle = null;
+        homeVehicleStatus = null;
+        homeVehicleSubtitle = null;
+        for (int i = 0; i < 4; i++) {
+            homeTpmsPressure[i] = null;
+            homeTpmsState[i] = null;
+            homeTpmsGauge[i] = null;
+        }
         bodyHost.removeAllViews();
 
         ScrollView scroll = new ScrollView(this);
@@ -599,6 +624,7 @@ public class LauncherActivity extends Activity {
                         + ";hero_copy_dp=" + heroCopyWidthDp()
                         + ";cockpit_panels=3;layout=media-safety-vehicle"
                         + ";cockpit_state_source=verification_registry"
+                        + ";live_binding_ms=2000"
                         + ";tpms_cards=4;tpms_visual=vector-wheel-gauge"
                         + ";quick_cards=4;dock_items=5");
 
@@ -1723,6 +1749,8 @@ public class LauncherActivity extends Activity {
                 new String[]{"#102831","#09171D","#061014"},18,"#244C59"));
 
         TyreGaugeView gauge=new TyreGaugeView(this,kpa!=null);
+        int tpmsIndex = tpmsIndex(code);
+        if (tpmsIndex >= 0) homeTpmsGauge[tpmsIndex] = gauge;
         LinearLayout.LayoutParams gaugeLp=new LinearLayout.LayoutParams(dp(52),dp(52));
         gaugeLp.rightMargin=dp(8);
         card.addView(gauge,gaugeLp);
@@ -1733,13 +1761,67 @@ public class LauncherActivity extends Activity {
         head.setLetterSpacing(0.04f);
         copy.addView(head);
         TextView pressure=text(kpa==null?"-- psi":tpmsPsi(kpa),15f,Color.WHITE,true);
+        if (tpmsIndex >= 0) homeTpmsPressure[tpmsIndex] = pressure;
         copy.addView(pressure);
         TextView state=text(kpa==null?"● WAITING":"● LIVE · BETA",9.5f,
                 Color.parseColor(kpa==null?"#738A94":"#72E8D0"),true);
+        if (tpmsIndex >= 0) homeTpmsState[tpmsIndex] = state;
         copy.addView(state);
         card.addView(copy,new LinearLayout.LayoutParams(
                 0,ViewGroup.LayoutParams.WRAP_CONTENT,1f));
         return card;
+    }
+
+    private int tpmsIndex(String code) {
+        if ("FL".equals(code)) return 0;
+        if ("FR".equals(code)) return 1;
+        if ("RL".equals(code)) return 2;
+        if ("RR".equals(code)) return 3;
+        return -1;
+    }
+
+    private void refreshHomeLiveBindings() {
+        if (homeMediaStatus == null && homeVehicleSubtitle == null
+                && homeTpmsPressure[0] == null) return;
+
+        if (homeMediaStatus != null || homeMediaSubtitle != null) {
+            MediaNowPlayingRuntime.Snapshot snapshot = mediaNowPlayingSnapshot(false);
+            String mediaState = registryFeatureState(
+                    "BACKGROUND_MEDIA_AUTOPLAY","REVERIFY_REQUIRED");
+            if (homeMediaStatus != null) {
+                String status = mediaState + (snapshot.available
+                        ? " · " + snapshot.playback : "");
+                homeMediaStatus.setText(status);
+                homeMediaStatus.setTextColor(cockpitStatusColor(status));
+            }
+            if (homeMediaSubtitle != null) {
+                homeMediaSubtitle.setText(mediaPanelSummary(snapshot));
+            }
+        }
+
+        if (homeVehicleStatus != null) {
+            String state = registryFeatureState("LIVE_VEHICLE_INFO","BETA")
+                    + " · READ ONLY";
+            homeVehicleStatus.setText(state);
+            homeVehicleStatus.setTextColor(cockpitStatusColor(state));
+        }
+        if (homeVehicleSubtitle != null) {
+            homeVehicleSubtitle.setText(vehiclePanelSummary());
+        }
+
+        Integer[] values = new Integer[]{tpmsFlKpa,tpmsFrKpa,tpmsRlKpa,tpmsRrKpa};
+        for (int i = 0; i < values.length; i++) {
+            Integer kpa = values[i];
+            if (homeTpmsPressure[i] != null) {
+                homeTpmsPressure[i].setText(kpa == null ? "-- psi" : tpmsPsi(kpa));
+            }
+            if (homeTpmsState[i] != null) {
+                homeTpmsState[i].setText(kpa == null ? "● WAITING" : "● LIVE · BETA");
+                homeTpmsState[i].setTextColor(Color.parseColor(
+                        kpa == null ? "#738A94" : "#72E8D0"));
+            }
+            if (homeTpmsGauge[i] != null) homeTpmsGauge[i].setLive(kpa != null);
+        }
     }
 
     private View buildCockpitDeck() {
@@ -1807,6 +1889,8 @@ public class LauncherActivity extends Activity {
 
         TextView eyebrow = text(status,9.5f,cockpitStatusColor(status),true);
         eyebrow.setLetterSpacing(0.08f);
+        if (mode == CockpitPanelGraphicView.MEDIA) homeMediaStatus = eyebrow;
+        if (mode == CockpitPanelGraphicView.VEHICLE) homeVehicleStatus = eyebrow;
         copy.addView(eyebrow);
 
         TextView head = text(title,16f,Color.WHITE,true);
@@ -1815,6 +1899,8 @@ public class LauncherActivity extends Activity {
 
         TextView sub = text(subtitle,10f,Color.parseColor("#8CA6AF"),false);
         sub.setMaxLines(2);
+        if (mode == CockpitPanelGraphicView.MEDIA) homeMediaSubtitle = sub;
+        if (mode == CockpitPanelGraphicView.VEHICLE) homeVehicleSubtitle = sub;
         copy.addView(sub);
 
         FrameLayout.LayoutParams copyLp = new FrameLayout.LayoutParams(
@@ -1904,17 +1990,23 @@ public class LauncherActivity extends Activity {
     }
 
     private MediaNowPlayingRuntime.Snapshot mediaNowPlayingSnapshot() {
+        return mediaNowPlayingSnapshot(true);
+    }
+
+    private MediaNowPlayingRuntime.Snapshot mediaNowPlayingSnapshot(boolean recordEvidence) {
         LinkedHashSet<String> targets=new LinkedHashSet<>();
         for(AppEntry app:mediaAutoStartApps()) targets.add(app.packageName);
         MediaNowPlayingRuntime.Snapshot snapshot=
                 MediaNowPlayingRuntime.read(this,targets);
-        VerificationEvidenceRuntime.recordPassiveEvent(
-                this,"NOW_PLAYING_SNAPSHOT",
-                "available="+snapshot.available
-                        +";package="+String.valueOf(snapshot.packageName)
-                        +";playback="+snapshot.playback
-                        +";reason="+snapshot.reason
-                        +";metadata_logged=false");
+        if (recordEvidence) {
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this,"NOW_PLAYING_SNAPSHOT",
+                    "available="+snapshot.available
+                            +";package="+String.valueOf(snapshot.packageName)
+                            +";playback="+snapshot.playback
+                            +";reason="+snapshot.reason
+                            +";metadata_logged=false");
+        }
         return snapshot;
     }
 
