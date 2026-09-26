@@ -77,6 +77,50 @@
     {
       "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
       "depends_on": "BOOT_MULTI_APP_AUTOLAUNCH"
+    },
+    {
+      "feature_id": "CONTINUOUS_PARKING_RECORDING",
+      "depends_on": "AVM_DVR_CAPTURE"
+    },
+    {
+      "feature_id": "CONTINUOUS_PARKING_RECORDING",
+      "depends_on": "SD_CARD_PRIMARY_STORAGE"
+    },
+    {
+      "feature_id": "PARKING_OBJECT_EVENT_DETECTION",
+      "depends_on": "AVM_DVR_CAPTURE"
+    },
+    {
+      "feature_id": "COMPANION_REMOTE_VIDEO",
+      "depends_on": "AVM_DVR_CAPTURE"
+    },
+    {
+      "feature_id": "COMPANION_VEHICLE_STATUS",
+      "depends_on": "LIVE_VEHICLE_INFO"
+    },
+    {
+      "feature_id": "BVM_FISHEYE_CORRECTION",
+      "depends_on": "AVM_DVR_CAPTURE"
+    },
+    {
+      "feature_id": "SAFE_MODE",
+      "depends_on": "APP_HEALTH"
+    },
+    {
+      "feature_id": "SAFE_MODE",
+      "depends_on": "POLICY_CONTROL_PLANE"
+    },
+    {
+      "feature_id": "POLICY_CONTROL_PLANE",
+      "depends_on": "MASTER_VERIFICATION_REGISTRY"
+    },
+    {
+      "feature_id": "RECOVERY_BOOTSTRAP",
+      "depends_on": "BUILD_IDENTITY"
+    },
+    {
+      "feature_id": "RECOVERY_BOOTSTRAP",
+      "depends_on": "MASTER_VERIFICATION_REGISTRY"
     }
   ]
 }
