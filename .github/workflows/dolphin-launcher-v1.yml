@@ -475,6 +475,19 @@ jobs:
           assert "handler.postDelayed" not in legacy
           assert "AUTOSTART_LEGACY_PENDING_IGNORED" in legacy
 
+          boot_entry_receiver=(src/"BootReceiver.java").read_text(encoding="utf-8")
+          boot_autostart_runtime=(src/"BootAutoLaunchRuntime.java").read_text(encoding="utf-8")
+          assert "BootAutoLaunchRuntime.dispatch(app, action)" in boot_entry_receiver, "boot action source must reach autostart dedup guard"
+          assert "claimBootDispatch" in boot_autostart_runtime, "single-batch boot claim missing"
+          assert "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED" in boot_autostart_runtime, "duplicate boot evidence missing"
+          assert "duplicate_dispatch=false" in boot_autostart_runtime, "duplicate boot suppression result missing"
+          assert "Settings.Global.BOOT_COUNT" in boot_autostart_runtime, "public boot epoch identity missing"
+          assert "storedBootCount==bootCount" in boot_autostart_runtime, "persisted dedup must be scoped to the same boot count"
+          assert "AUTOSTART_DEDUP_BOOT_ID_UNAVAILABLE" in boot_autostart_runtime, "boot identity unavailable evidence missing"
+          assert "persisted_elapsed_guard=false" in boot_autostart_runtime, "unknown boot identity must fail open across processes"
+          assert "now>=lastElapsed" in boot_autostart_runtime, "same-epoch elapsed guard missing"
+          assert "CROSS_ACTION_DUPLICATE_WINDOW_MS" in boot_autostart_runtime, "cross-action boot dedup window missing"
+
           assert 'android:name=".BootAutoLaunchReceiver"' in manifest
           assert "ACTION_MEDIA_PLAY_STAGE" in receiver and "ACTION_MEDIA_READBACK_STAGE" in receiver
           assert "executeTargetSessionPlay" in receiver and "recordTargetReadback" in receiver
