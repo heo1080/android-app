@@ -79,15 +79,53 @@ jobs:
           echo "$BADGING" | grep -q "versionName='1.2.2-v1-auto-evidence-beta'"
           printf '%s\n' "$BADGING_ALL" | grep -q "^sdkVersion:'29'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^targetSdkVersion:'35'$"
-          test "$(printf '%s\n' "$BADGING_ALL" | grep -c "^launchable-activity:")" -eq 1
           printf '%s\n' "$BADGING_ALL" | grep -q "^launchable-activity: name='com.dolphin.launcher.v1.LauncherActivity'"
+          python3 - dolphin-launcher-v1/app/src/main/AndroidManifest.xml <<'PY'
+          import sys, xml.etree.ElementTree as ET
+          manifest=ET.parse(sys.argv[1]).getroot()
+          ns="{http://schemas.android.com/apk/res/android}"
+          app=manifest.find("application")
+          assert app is not None
+          activities=app.findall("activity")
+          def name(a): return a.get(ns+"name","")
+          def categories(a):
+              return {
+                  c.get(ns+"name","")
+                  for f in a.findall("intent-filter")
+                  for c in f.findall("category")
+              }
+          def actions(a):
+              return {
+                  x.get(ns+"name","")
+                  for f in a.findall("intent-filter")
+                  for x in f.findall("action")
+              }
+          main=next((a for a in activities if name(a)==".LauncherActivity"),None)
+          assert main is not None
+          assert main.get(ns+"enabled","true")!="false"
+          assert "android.intent.action.MAIN" in actions(main)
+          assert "android.intent.category.LAUNCHER" in categories(main)
+          slots=[a for a in activities if name(a).startswith(".DrawerSlotActivities$Slot")]
+          assert len(slots)==16, len(slots)
+          for slot in slots:
+              assert slot.get(ns+"enabled")=="false", name(slot)
+              assert slot.get(ns+"exported")=="true", name(slot)
+              assert "android.intent.action.MAIN" in actions(slot), name(slot)
+              assert "android.intent.category.LAUNCHER" in categories(slot), name(slot)
+              assert "android.intent.category.HOME" not in categories(slot), name(slot)
+          assert all(
+              "android.intent.category.HOME" not in categories(a)
+              for a in activities
+          )
+          print("MANIFEST_IDENTITY_OK main_launcher=1 drawer_slots=16 disabled_slots=16 home=0")
+          PY
           MANIFEST_TREE="$("$AAPT" dump xmltree "$APK" AndroidManifest.xml)"
           printf '%s\n' "$MANIFEST_TREE" | grep -q "android.intent.category.LAUNCHER"
           if printf '%s\n' "$MANIFEST_TREE" | grep -q "android.intent.category.HOME"; then
             echo "HOME category must remain disabled until BYD real-car compatibility is proven" >&2
             exit 1
           fi
-          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=5 minSdk=29 targetSdk=35 launchable=1 home=0"
+          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=5 minSdk=29 targetSdk=35 main_launcher=1 drawer_slots=16_disabled home=0"
 
       - name: Validate Registry v3 payload
         shell: bash
