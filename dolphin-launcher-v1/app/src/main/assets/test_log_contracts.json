@@ -819,7 +819,10 @@
         "play request and real-car audible success are recorded separately",
         "vehicle event to audible start latency is recorded",
         "fixed asset loading state never falls through to Android TTS",
-        "fixed asset loading race produces VOICE_FIXED_ASSET_LOADING_DROP instead of mixed voice"
+        "fixed asset loading race produces VOICE_FIXED_ASSET_LOADING_DROP instead of mixed voice",
+        "fixed voice manifest remains atomic: all 22 prompts are ASSET_REQUIRED or all 22 are ASSET_READY",
+        "ASSET_READY requires 22 packaged RIFF/WAVE assets with manifest SHA-256 and byte-count parity",
+        "fixed voice generation credentials are never persisted into APK/source/manifest/logs"
       ],
       "required_logs": [
         "VOICE_ASSET_READY",
@@ -830,7 +833,10 @@
         "audible/operator result",
         "event timestamp",
         "VOICE_FIXED_ASSET_LOADING_DROP",
-        "tts_fallback=false"
+        "tts_fallback=false",
+        "VOICE_FIXED_ASSET_STATE",
+        "atomic=true",
+        "sha256=verified"
       ]
     },
     {
@@ -881,7 +887,10 @@
         "each fallback request uses a unique utterance id so QUEUE_FLUSH stop/start ordering is attributable",
         "fallback TTS uses navigation-guidance audio attributes without claiming BYD driver-speaker routing",
         "TTS not-ready fallback requests are dropped immediately and never replayed after readiness",
-        "no deferred phrase queue exists for fallback prompts"
+        "no deferred phrase queue exists for fallback prompts",
+        "fixed voice manifest remains atomic: all 22 prompts are ASSET_REQUIRED or all 22 are ASSET_READY",
+        "ASSET_READY requires 22 packaged RIFF/WAVE assets with manifest SHA-256 and byte-count parity",
+        "fixed voice generation credentials are never persisted into APK/source/manifest/logs"
       ],
       "required_logs": [
         "VOICE_TTS_READY",
@@ -901,7 +910,10 @@
         "driver_speaker_route=not_proven",
         "VOICE_TTS_FALLBACK_DROPPED_NOT_READY",
         "queued=false",
-        "delayed_replay=false"
+        "delayed_replay=false",
+        "VOICE_FIXED_ASSET_STATE",
+        "atomic=true",
+        "sha256=verified"
       ]
     },
     {
