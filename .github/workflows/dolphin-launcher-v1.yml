@@ -513,8 +513,13 @@ jobs:
           update_manager=(src/"AppUpdateManager.java").read_text(encoding="utf-8")
           update_receiver=(src/"UpdateInstallReceiver.java").read_text(encoding="utf-8")
           boot_receiver=(src/"BootReceiver.java").read_text(encoding="utf-8")
-          for token in ("APP_UPDATE_RELEASE_CHECK","APP_UPDATE_PACKAGE_VERIFIED","APP_UPDATE_INSTALL_STAGED","signature_match=true"):
+          for token in ("APP_UPDATE_RELEASE_CHECK","APP_UPDATE_PACKAGE_VERIFIED","APP_UPDATE_INSTALL_STAGED","signature_match=true",
+                        "KEY_PENDING_PERMISSION_TAG","APP_UPDATE_PERMISSION_PENDING_SAVED",
+                        "APP_UPDATE_PERMISSION_RESUME_RESTORED","APP_UPDATE_PERMISSION_RESUME_FAILED",
+                        "fetchV1Release(persistedTag)","requiredTag.equals(tag)"):
               assert token in update_manager,token
+          assert ".putString(KEY_PENDING_PERMISSION_TAG, release.tagName)" in update_manager
+          assert ".commit()" in update_manager, "pending OTA consent must be durable before Settings launch"
           assert "APP_UPDATE_INSTALL_STATUS" in update_receiver
           assert "AppUpdateManager.checkForUpdates(this, false)" in launcher
           assert "AppUpdateManager.resumePendingInstallPermission(this)" in launcher
@@ -586,7 +591,9 @@ jobs:
                   assert token in logs,(tid,token)
           for tid in ("UPD-001","UPD-002"):
               logs=by_test[tid].get("required_logs",[])
-              for token in ("APP_UPDATE_RELEASE_CHECK","APP_UPDATE_PACKAGE_VERIFIED","APP_UPDATE_INSTALL_STAGED","APP_UPDATE_INSTALL_STATUS"):
+              for token in ("APP_UPDATE_RELEASE_CHECK","APP_UPDATE_PACKAGE_VERIFIED","APP_UPDATE_INSTALL_STAGED","APP_UPDATE_INSTALL_STATUS",
+                            "APP_UPDATE_PERMISSION_PENDING_SAVED","APP_UPDATE_PERMISSION_RESUME_RESTORED",
+                            "APP_UPDATE_PERMISSION_RESUME_FAILED"):
                   assert token in logs,(tid,token)
 
           surface_rows=[s for s in surfaces.get("surfaces",[])
