@@ -128,19 +128,16 @@ public final class HomeHeroGraphicView extends View {
             canvas.drawArc(oval, 205f, 130f, false, paint);
         }
 
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.argb(165, 89, 255, 218));
-        float[][] points = new float[][]{
-                {0.38f,0.50f},{0.83f,0.43f},{0.89f,0.66f},{0.33f,0.72f}
-        };
-        for (float[] p : points) {
-            canvas.drawCircle(w * p[0], h * p[1], dp(3.2f), paint);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(dp(1));
-            paint.setColor(Color.argb(70, 89, 255, 218));
-            canvas.drawCircle(w * p[0], h * p[1], dp(8.5f), paint);
-            paint.setStyle(Paint.Style.FILL);
-            paint.setColor(Color.argb(165, 89, 255, 218));
+        // Decorative sensor-range arcs only. FSD_OBJECT_LANE_MODEL is BLOCKED,
+        // so this hero must never render fixed dots/rings that could be mistaken
+        // for detected people, vehicles, lanes, or other semantic objects.
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(1));
+        paint.setColor(Color.argb(44, 89, 255, 218));
+        for (int i = 0; i < 5; i++) {
+            float x = w * (0.47f + i * 0.07f);
+            float y = h * 0.885f;
+            canvas.drawLine(x, y, x, y - dp(4), paint);
         }
     }
 
