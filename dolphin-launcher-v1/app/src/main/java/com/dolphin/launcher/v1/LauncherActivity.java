@@ -313,6 +313,19 @@ public class LauncherActivity extends Activity {
                         LauncherActivity.this, "ICC_TJA_RAW_TRANSITION",
                         "tja_raw=" + raw + ";voice=suppressed-pending-icc-correlation");
             }
+            @Override public void onLaneOffsetRaw(
+                    Integer laneOffsetRaw, Integer lksModeRaw,
+                    Integer ldswTypeRaw, Integer tjaRaw) {
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        LauncherActivity.this, "LANE_OFFSET_RAW_TRANSITION",
+                        "lane_offset_raw=" + laneOffsetRaw
+                                + ";lks_mode_raw=" + lksModeRaw
+                                + ";ldsw_type_raw=" + ldswTypeRaw
+                                + ";tja_raw=" + tjaRaw
+                                + ";direction_semantic=unmapped"
+                                + ";voice=suppressed-pending-left-right-correlation"
+                                + ";vehicle_write=false");
+            }
             @Override public void onFrontRadarRaw(Integer leftMid, Integer rightMid) {
                 VerificationEvidenceRuntime.recordPassiveEvent(
                         LauncherActivity.this, "LEADING_OBJECT_RADAR_RAW",
