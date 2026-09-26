@@ -2160,7 +2160,19 @@
         "builtin_tone_path=unproven",
         "lock_trigger_path=unproven",
         "vehicle_write=false",
-        "actuation=false"
+        "actuation=false",
+        "BODYWORK_CLASS_CANDIDATES",
+        "BYDAutoBodyworkDevice",
+        "AbsBYDAutoBodyworkListener",
+        "AVAS_TRIGGER_CAPABILITY_METHOD",
+        "AVAS_TRIGGER_CAPABILITY_CONSTANT",
+        "GENERIC_BRIDGE_METHODS",
+        "getSystemService(\"auto\")",
+        "EXTERNAL_AVAS_GENERIC_SERVICE_METHOD",
+        "EXTERNAL_AVAS_GENERIC_SERVICE",
+        "feature_mapping=unproven",
+        "generic_service_available=",
+        "generic_bridge_methods="
       ]
     },
     {
