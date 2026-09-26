@@ -85,6 +85,7 @@ public class LauncherActivity extends Activity {
     private TextView homeMediaStatus, homeMediaSubtitle;
     private TextView homeSafetyStatus, homeSafetySubtitle;
     private TextView homeVehicleStatus, homeVehicleSubtitle;
+    private CockpitPanelGraphicView homeMediaGraphic, homeSafetyGraphic, homeVehicleGraphic;
     private final TextView[] homeTpmsPressure = new TextView[4];
     private final TextView[] homeTpmsState = new TextView[4];
     private final TyreGaugeView[] homeTpmsGauge = new TyreGaugeView[4];
@@ -523,6 +524,9 @@ public class LauncherActivity extends Activity {
         homeSafetyStatus = null;
         homeSafetySubtitle = null;
         homeVehicleStatus = null;
+        homeMediaGraphic = null;
+        homeSafetyGraphic = null;
+        homeVehicleGraphic = null;
         homeVehicleSubtitle = null;
         for (int i = 0; i < 4; i++) {
             homeTpmsPressure[i] = null;
@@ -628,6 +632,7 @@ public class LauncherActivity extends Activity {
                         + ";cockpit_panels=3;layout=media-safety-vehicle"
                         + ";cockpit_state_source=verification_registry"
                         + ";nav_source_status=notification-provenance-only"
+                        + ";cockpit_graphic_state=registry-aware"
                         + ";live_binding_ms=2000"
                         + ";tpms_cards=4;tpms_visual=vector-wheel-gauge"
                         + ";quick_cards=4;dock_items=5");
@@ -1797,6 +1802,9 @@ public class LauncherActivity extends Activity {
                         ? " · " + snapshot.playback : "");
                 homeMediaStatus.setText(status);
                 homeMediaStatus.setTextColor(cockpitStatusColor(status));
+                if (homeMediaGraphic != null) {
+                    homeMediaGraphic.setSignalState(cockpitSignalState(status));
+                }
             }
             if (homeMediaSubtitle != null) {
                 homeMediaSubtitle.setText(mediaPanelSummary(snapshot));
@@ -1811,6 +1819,9 @@ public class LauncherActivity extends Activity {
             if (homeSafetyStatus != null) {
                 homeSafetyStatus.setText(status);
                 homeSafetyStatus.setTextColor(cockpitStatusColor(status));
+                if (homeSafetyGraphic != null) {
+                    homeSafetyGraphic.setSignalState(cockpitSignalState(status));
+                }
             }
             if (homeSafetySubtitle != null) {
                 homeSafetySubtitle.setText(safetyPanelSummary(nav));
@@ -1822,6 +1833,14 @@ public class LauncherActivity extends Activity {
                     + " · READ ONLY";
             homeVehicleStatus.setText(state);
             homeVehicleStatus.setTextColor(cockpitStatusColor(state));
+            if (homeVehicleGraphic != null) {
+                boolean live = vehicleGearRaw != null || vehicleSpeedRaw != null
+                        || tpmsFlKpa != null || tpmsFrKpa != null
+                        || tpmsRlKpa != null || tpmsRrKpa != null;
+                homeVehicleGraphic.setSignalState(live
+                        ? CockpitPanelGraphicView.SIGNAL_LIVE
+                        : CockpitPanelGraphicView.SIGNAL_WAITING);
+            }
         }
         if (homeVehicleSubtitle != null) {
             homeVehicleSubtitle.setText(vehiclePanelSummary());
@@ -1897,6 +1916,10 @@ public class LauncherActivity extends Activity {
         card.setOnClickListener(v -> action.run());
 
         CockpitPanelGraphicView graphic = new CockpitPanelGraphicView(this, mode);
+        graphic.setSignalState(cockpitSignalState(status));
+        if (mode == CockpitPanelGraphicView.MEDIA) homeMediaGraphic = graphic;
+        if (mode == CockpitPanelGraphicView.SAFETY) homeSafetyGraphic = graphic;
+        if (mode == CockpitPanelGraphicView.VEHICLE) homeVehicleGraphic = graphic;
         card.addView(graphic, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
@@ -2004,6 +2027,18 @@ public class LauncherActivity extends Activity {
                 .setPositiveButton("검증 센터",(d,w)->openVerificationCenter())
                 .setNegativeButton("닫기",null)
                 .show();
+    }
+
+    private int cockpitSignalState(String status) {
+        String s=status==null?"":status.toUpperCase(Locale.ROOT);
+        if(s.contains("BLOCKED")) return CockpitPanelGraphicView.SIGNAL_BLOCKED;
+        if(s.contains("REVERIFY") || s.contains("STALE") || s.contains("REMOVED")) {
+            return CockpitPanelGraphicView.SIGNAL_STALE;
+        }
+        if(s.contains("LIVE") || s.contains("PLAYING")) {
+            return CockpitPanelGraphicView.SIGNAL_LIVE;
+        }
+        return CockpitPanelGraphicView.SIGNAL_WAITING;
     }
 
     private int cockpitStatusColor(String status) {
