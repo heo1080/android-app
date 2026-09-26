@@ -381,7 +381,8 @@
         "+ app button exists and 2+ packages persist in order",
         "saved per-app delay_ms is preserved after reboot",
         "BOOT_COMPLETED schedules each item through AlarmManager rather than Handler-only delayed work",
-        "Android 12+ missing exact-alarm access fails explicitly instead of silently using an hour-scale inexact fallback"
+        "Android 12+ missing exact-alarm access fails explicitly instead of silently using an hour-scale inexact fallback",
+        "BootAutoLaunchReceiver is packaged as enabled non-exported manifest receiver"
       ],
       "required_logs": [
         "BOOT_COMPLETED",
@@ -391,7 +392,8 @@
         "registered list",
         "package",
         "delay_ms",
-        "index"
+        "index",
+        "packaged manifest BootAutoLaunchReceiver registration"
       ]
     },
     {
@@ -436,7 +438,8 @@
         "normal entries dispatch their exact target package",
         "media-enabled entries use BACKGROUND_MEDIA_AUTOPLAY target-session path",
         "opening LauncherActivity does not duplicate the boot batch",
-        "behavior repeats in a second ignition cycle"
+        "behavior repeats in a second ignition cycle",
+        "scheduled AlarmManager broadcast is delivered through BootAutoLaunchReceiver before target dispatch"
       ],
       "required_logs": [
         "AUTOSTART_ALARM_FIRED",
@@ -446,7 +449,8 @@
         "package",
         "delay_ms",
         "index",
-        "operator launch order observation"
+        "operator launch order observation",
+        "BootAutoLaunchReceiver delivery path"
       ]
     },
     {
@@ -2604,7 +2608,8 @@
         "configured target media app launches after configured delay",
         "target package matching active MediaSession receives play()",
         "no global media-key fallback is used",
-        "PLAY request/readback is not treated as audible playback success"
+        "PLAY request/readback is not treated as audible playback success",
+        "session discovery/play/readback continuation survives sender receiver process exit by AlarmManager receiver stages"
       ],
       "required_logs": [
         "target package",
@@ -2615,7 +2620,10 @@
         "BACKGROUND_MEDIA_PLAYBACK_READBACK",
         "audible playback observation",
         "non-target media observation",
-        "safety warning observation"
+        "safety warning observation",
+        "BACKGROUND_MEDIA_STAGE_SCHEDULED",
+        "BACKGROUND_MEDIA_STAGE_SCHEDULE_FAILED",
+        "BACKGROUND_MEDIA_PLAYBACK_READBACK_FAILED"
       ]
     },
     {
@@ -2663,7 +2671,8 @@
         "real-car audible target playback confirmed",
         "non-target media session remains unaffected",
         "stock safety audio remains functional",
-        "session access failure produces fail-closed evidence instead of global key dispatch"
+        "session access failure produces fail-closed evidence instead of global key dispatch",
+        "session discovery/play/readback continuation survives sender receiver process exit by AlarmManager receiver stages"
       ],
       "required_logs": [
         "target package",
@@ -2674,7 +2683,10 @@
         "BACKGROUND_MEDIA_PLAYBACK_READBACK",
         "audible playback observation",
         "non-target media observation",
-        "safety warning observation"
+        "safety warning observation",
+        "BACKGROUND_MEDIA_STAGE_SCHEDULED",
+        "BACKGROUND_MEDIA_STAGE_SCHEDULE_FAILED",
+        "BACKGROUND_MEDIA_PLAYBACK_READBACK_FAILED"
       ]
     }
   ]
