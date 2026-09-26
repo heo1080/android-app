@@ -438,7 +438,8 @@
         "baseline 비교는 width/height/densityDpi/fontScale/nightMode가 모두 같은 audit만 대상으로 하여 다른 display profile을 직접 비교하지 않음",
         "도크 DISPLAY quick panel에서 현재 width/height px, densityDpi, density, fontScale, width/height dp를 즉시 확인",
         "DISPLAY quick panel은 OEM display spoof/write를 하지 않고 Android Display settings와 Golden Screenshot 진입만 제공",
-        "DISPLAY utility hero는 현재 resolution/DPI/fontScale을 read-only 상태로 요약"
+        "DISPLAY utility hero는 현재 resolution/DPI/fontScale을 read-only 상태로 요약",
+        "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임"
       ],
       "required_logs": [
         "densityDpi",
@@ -457,7 +458,8 @@
         "SYSTEM_SETTINGS_DISPATCH",
         "actuation=false",
         "variant=golden-reference-v3",
-        "panel_hero=true"
+        "panel_hero=true",
+        "scroll_safe=true"
       ],
       "known_bad": [
         "DPI 변경 시 순정 UI 일부 잘림",
@@ -1450,7 +1452,8 @@
         "MAP launcher는 앱 실행 surface이며 notification parser/카메라 의미 추론과 분리하고 semantic_parse=false를 기록",
         "FSD·SAFETY visual hero는 notification provenance freshness와 FSD_OBJECT_LANE_MODEL 상태를 함께 보여주되 semantic parser는 LOCKED 유지",
         "source detail은 package/age/payload length로 제한",
-        "MAP launcher utility hero는 설치 지원 앱 수와 rendered target 수를 분리 기록하고 launch_only=true를 유지"
+        "MAP launcher utility hero는 설치 지원 앱 수와 rendered target 수를 분리 기록하고 launch_only=true를 유지",
+        "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임"
       ],
       "required_logs": [
         "source package/version",
@@ -1467,7 +1470,8 @@
         "fsd_state=",
         "semantic_values=false",
         "rendered_supported_nav=",
-        "launch_only=true"
+        "launch_only=true",
+        "scroll_safe=true"
       ],
       "known_bad": [
         "외부 앱 업데이트로 parser 파손 가능"
@@ -1513,7 +1517,8 @@
         "getCurrentSpeed/getCurrentGear는 의미·단위 상관 완료 전 UI에서 RAW로만 표시",
         "turn signal 값도 좌/우 raw provenance만 표시하고 ON/OFF 의미를 추정하지 않음",
         "VEHICLE INFO visual hero는 source LIVE/WAITING을 raw 값 존재 여부로만 표시하고 기어/속도/회전 의미를 정규화하지 않음",
-        "상세 패널은 normalized=false 및 actuation=false 경계를 명시"
+        "상세 패널은 normalized=false 및 actuation=false 경계를 명시",
+        "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임"
       ],
       "required_logs": [
         "getter result",
@@ -1525,7 +1530,8 @@
         "variant=golden-reference-v3",
         "vehicle_source_live=",
         "panel_hero=true",
-        "actuation=false"
+        "actuation=false",
+        "scroll_safe=true"
       ],
       "known_bad": [],
       "dependencies": [
@@ -1894,7 +1900,9 @@
         "MAP/DISPLAY/DARK quick panel도 Golden Reference utility hero를 사용해 상태와 안전 경계를 첫 화면에 표시",
         "MAP utility hero는 LAUNCH ONLY · SEMANTICS LOCKED를 표시",
         "DISPLAY utility hero는 현재 resolution/DPI/fontScale을 표시하고 READ ONLY 유지",
-        "DARK utility hero는 앱 DARK HMI와 system night 상태를 구분하고 system actuation 없음"
+        "DARK utility hero는 앱 DARK HMI와 system night 상태를 구분하고 system actuation 없음",
+        "Golden Reference 상세/utility 패널은 ScrollView와 화면 비율 기반 dialog frame을 사용해 10인치·큰 fontScale·긴 목록에서 vertical clipping을 완화",
+        "Media/Vehicle/Safety/Map/Display/Dark render evidence는 scroll_safe=true와 dialog_profile을 기록"
       ],
       "required_logs": [
         "display profile",
@@ -1956,7 +1964,14 @@
         "visible_touch_geometry",
         "referenceUtilityHero",
         "launch_only=true",
-        "rendered_supported_nav="
+        "rendered_supported_nav=",
+        "scroll_safe=true",
+        "dialog_profile=media",
+        "dialog_profile=vehicle",
+        "dialog_profile=safety",
+        "dialog_profile=map",
+        "dialog_profile=display",
+        "dialog_profile=dark"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -2012,7 +2027,8 @@
         "FSD Safety golden-reference-v3 provenance boundary panel",
         "UiLayoutAuditRuntime visible-geometry touch target measurement",
         "UiFrameTimingRuntime session-bound sample and VerificationEvidenceRuntime same-session ZIP filter",
-        "referenceUtilityHero unifies MAP/DISPLAY/DARK quick panels without expanding vehicle actuation"
+        "referenceUtilityHero unifies MAP/DISPLAY/DARK quick panels without expanding vehicle actuation",
+        "referenceDialogScroll + showReferenceDialog provide bounded scroll-safe Golden Reference panels"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
@@ -2338,7 +2354,8 @@
         "Now Playing metadata는 mediaEnabled target package 세션에서만 읽고 전역 세션 metadata를 표시하지 않음",
         "앱 실행→target MediaSession 탐색→PLAY→PlaybackState readback 후속 단계는 AlarmManager+BootAutoLaunchReceiver로 process-independent하게 이어짐",
         "MEDIA CENTER visual hero는 target MediaSession의 실제 availability/playback만 표시하고 audible success를 추정하지 않음",
-        "configured autoplay target 목록은 Now Playing source와 분리해 표시"
+        "configured autoplay target 목록은 Now Playing source와 분리해 표시",
+        "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임"
       ],
       "required_logs": [
         "AUTOSTART_MEDIA_CHANGED",
@@ -2357,7 +2374,8 @@
         "BACKGROUND_MEDIA_PLAYBACK_READBACK_FAILED",
         "variant=golden-reference-v3",
         "panel_hero=true",
-        "target_scoped=true"
+        "target_scoped=true",
+        "scroll_safe=true"
       ],
       "known_bad": [
         "대상 앱이 활성 MediaSession을 노출하는지 앱별 차이가 있으며 BYD Android 10 실차 재검증 필요",
