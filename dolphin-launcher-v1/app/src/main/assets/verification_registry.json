@@ -2699,7 +2699,8 @@
       "requirement": "후진 주차 시작 시 R 진입으로 비상등을 켜고 주차 중 기어변속 동안 유지한 뒤 최종 P가 10초 지속되면 끄되, 검증된 hazard setter/readback pair가 확보되기 전에는 실제 차량 write를 수행하지 않는다.",
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/ParkingHazardAutomationProbe.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java"
       ],
       "test_ids": [
         "PARK-HAZ-001",
@@ -2713,7 +2714,8 @@
         "최종 P가 10초 연속 유지된 경우에만 desired_hazard=OFF 계획을 기록",
         "getDoubleFlashLightState readback은 passive evidence로만 사용",
         "실제 hazard setter signature, 호출 권한, 물리 점멸, 독립 readback이 모두 입증되기 전 actuation=false",
-        "현재 BETA는 would_request_only=true이며 vehicle_write=false"
+        "현재 BETA는 would_request_only=true이며 vehicle_write=false",
+        "Verification Center에서 PARK-HAZ Test 시작 즉시 hazard capability를 active correlation 안에서 재수집"
       ],
       "required_logs": [
         "PARK_HAZARD_CAPABILITY_METHOD",
@@ -2724,7 +2726,8 @@
         "hazard_raw",
         "setter_proven=false",
         "would_request_only=true",
-        "vehicle_write=false"
+        "vehicle_write=false",
+        "TEST_CAPABILITY_REFRESH"
       ],
       "known_bad": [
         "legacy DiLink evidence proves getDoubleFlashLightState() readback but no public hazard setter was proven",
@@ -2761,7 +2764,8 @@
       "requirement": "일반 주행과 ICC/ACC 작동 중 실제 좌/우 차선 이탈 방향이 검증된 경우에만 각각 '왼쪽 차선 이탈', '오른쪽 차선 이탈' 음성 경고를 출력한다.",
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LaneDepartureCapabilityProbe.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java"
       ],
       "test_ids": [
         "ADAS-LDW-001",
@@ -2775,7 +2779,8 @@
         "LKS mode 존재만으로 좌/우 차선 이탈을 추론하지 않음",
         "directional_signal_proven=false 동안 production voice와 fixed voice asset 추가를 금지",
         "source availability 또는 메서드 존재를 VERIFIED로 승격하지 않음",
-        "probe는 unknown method를 invoke하지 않고 vehicle_write=false 유지"
+        "probe는 unknown method를 invoke하지 않고 vehicle_write=false 유지",
+        "Verification Center에서 ADAS-LDW Test 시작 즉시 lane/assist capability를 active correlation 안에서 재수집"
       ],
       "required_logs": [
         "LANE_DEPARTURE_CAPABILITY_METHOD",
@@ -2788,7 +2793,8 @@
         "normal_drive_voice_enabled=false",
         "icc_acc_voice_enabled=false",
         "fixed_voice_asset_added=false",
-        "vehicle_write=false"
+        "vehicle_write=false",
+        "TEST_CAPABILITY_REFRESH"
       ],
       "known_bad": [
         "public BYD SDK research exposes LKS state callbacks but does not by itself prove left/right lane-departure direction on the Korean Dolphin",
