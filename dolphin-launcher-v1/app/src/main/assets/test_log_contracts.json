@@ -2411,7 +2411,8 @@
         "dock records screen-width compact risk while preserving 48dp touch-target goal",
         "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries",
         "HOME hero uses non-semantic depth geometry instead of lane/centerline visuals",
-        "Media/Vehicle cockpit vectors preserve verification boundaries while improving visual depth"
+        "Media/Vehicle cockpit vectors preserve verification boundaries while improving visual depth",
+        "3-panel cockpit copy width adapts to screen width and remains clamped to 150~206dp"
       ],
       "required_logs": [
         "display profile",
@@ -2435,7 +2436,8 @@
         "hero_copy_dp=",
         "hero_graphic_dp=",
         "utility_copy_dp=",
-        "utility_icon_dp="
+        "utility_icon_dp=",
+        "cockpit_copy_dp="
       ]
     },
     {
@@ -2479,7 +2481,8 @@
         "dock records screen-width compact risk while preserving 48dp touch-target goal",
         "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries",
         "HOME hero uses non-semantic depth geometry instead of lane/centerline visuals",
-        "Media/Vehicle cockpit vectors preserve verification boundaries while improving visual depth"
+        "Media/Vehicle cockpit vectors preserve verification boundaries while improving visual depth",
+        "3-panel cockpit copy width adapts to screen width and remains clamped to 150~206dp"
       ],
       "required_logs": [
         "display profile",
@@ -2503,7 +2506,8 @@
         "hero_copy_dp=",
         "hero_graphic_dp=",
         "utility_copy_dp=",
-        "utility_icon_dp="
+        "utility_icon_dp=",
+        "cockpit_copy_dp="
       ]
     },
     {
