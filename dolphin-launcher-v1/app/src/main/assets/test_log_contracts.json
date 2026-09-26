@@ -3205,7 +3205,9 @@
         "directional raw 후보는 실제 좌/우 차선이탈 operator observation과 별도 correlation 필요",
         "directional_signal_proven=false 동안 왼쪽/오른쪽 차선이탈 음성을 출력하지 않음",
         "BLOCKED 상태에서는 fixed voice asset을 추가하지 않고 NEED_MORE_DATA만 허용",
-        "Test 시작 후 capability refresh가 active correlation 안에서 기록됨"
+        "Test 시작 후 capability refresh가 active correlation 안에서 기록됨",
+        "lane_offset_raw numeric meaning is never inferred from public SDK names alone",
+        "left/right operator marker stores lane_offset_raw/lks_mode_raw/ldsw_type_raw/tja_raw snapshot"
       ],
       "required_logs": [
         "LANE_DEPARTURE_CAPABILITY_METHOD",
@@ -3217,7 +3219,13 @@
         "normal_drive_voice_enabled=false",
         "fixed_voice_asset_added=false",
         "vehicle_write=false",
-        "TEST_CAPABILITY_REFRESH"
+        "TEST_CAPABILITY_REFRESH",
+        "LANE_OFFSET_RAW_TRANSITION",
+        "lane_offset_raw",
+        "lks_mode_raw",
+        "ldsw_type_raw",
+        "tja_raw",
+        "direction_semantic=unmapped"
       ]
     },
     {
@@ -3252,7 +3260,9 @@
         "assist_context_surface_present만으로 ICC/ACC active 상태를 추정하지 않음",
         "directional_signal_proven=false 동안 ICC/ACC 차선이탈 음성을 출력하지 않음",
         "BLOCKED 상태에서는 fixed voice asset을 추가하지 않고 NEED_MORE_DATA만 허용",
-        "Test 시작 후 capability refresh가 active correlation 안에서 기록됨"
+        "Test 시작 후 capability refresh가 active correlation 안에서 기록됨",
+        "lane_offset_raw numeric meaning is never inferred from public SDK names alone",
+        "left/right operator marker stores lane_offset_raw/lks_mode_raw/ldsw_type_raw/tja_raw snapshot"
       ],
       "required_logs": [
         "LANE_DEPARTURE_CAPABILITY_METHOD",
@@ -3263,7 +3273,13 @@
         "icc_acc_voice_enabled=false",
         "fixed_voice_asset_added=false",
         "vehicle_write=false",
-        "TEST_CAPABILITY_REFRESH"
+        "TEST_CAPABILITY_REFRESH",
+        "LANE_OFFSET_RAW_TRANSITION",
+        "lane_offset_raw",
+        "lks_mode_raw",
+        "ldsw_type_raw",
+        "tja_raw",
+        "direction_semantic=unmapped"
       ]
     }
   ]
