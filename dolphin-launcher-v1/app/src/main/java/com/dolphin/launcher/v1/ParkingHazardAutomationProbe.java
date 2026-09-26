@@ -33,15 +33,16 @@ public final class ParkingHazardAutomationProbe {
     private boolean parkOffArmed;
     private String lastGear;
 
-    private final Runnable parkComplete = () -> {
-        parkOffArmed = false;
-        if (!parkingSession || !"P".equals(lastGear)) return;
-        recordPlan("PARK_COMPLETE", "OFF", "final_p_stable_10s");
-        parkingSession = false;
-    };
+    private final Runnable parkComplete;
 
     public ParkingHazardAutomationProbe(Context context) {
         this.app = context.getApplicationContext();
+        this.parkComplete = () -> {
+            parkOffArmed = false;
+            if (!parkingSession || !"P".equals(lastGear)) return;
+            recordPlan("PARK_COMPLETE", "OFF", "final_p_stable_10s");
+            parkingSession = false;
+        };
     }
 
     public static void captureCapability(Context context) {
