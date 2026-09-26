@@ -1967,7 +1967,8 @@
         "FSD·Safety cockpit graphic keeps state-aware visual quality while avoiding road/lane/object semantics until FSD_OBJECT_LANE_MODEL is verified",
         "HOME hero perspective layer uses non-semantic depth arcs/ticks rather than fixed lane/centerline geometry",
         "Media cockpit vector avoids a fixed PLAY symbol so REVERIFY_REQUIRED state cannot be mistaken for audible playback success",
-        "Vehicle cockpit vector uses source-state accent only and does not infer gear/speed/turn/health from decorative geometry"
+        "Vehicle cockpit vector uses source-state accent only and does not infer gear/speed/turn/health from decorative geometry",
+        "HOME 3-panel cockpit copy width is screen-width adaptive (150~206dp clamp) so compact 10-inch profiles preserve vector graphic space"
       ],
       "required_logs": [
         "display profile",
@@ -2050,7 +2051,8 @@
         "home_hero_height_dp=238",
         "home_cockpit_height_dp=168",
         "topbar_height_dp=60",
-        "dock_height_dp=84"
+        "dock_height_dp=84",
+        "cockpit_copy_dp="
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -2115,7 +2117,8 @@
         "CockpitPanelGraphicView Safety hero uses abstract shield/padlock/arcs/ticks only; no fixed detection markers",
         "HomeHeroGraphicView drawPerspectiveDeck replaces lane-like converging lines with non-semantic depth arcs/ticks",
         "CockpitPanelGraphicView Media uses target-media identity rings/waveform without a fixed PLAY triangle",
-        "CockpitPanelGraphicView Vehicle uses decorative read-only sculpture with state-aware accent and no telemetry normalization"
+        "CockpitPanelGraphicView Vehicle uses decorative read-only sculpture with state-aware accent and no telemetry normalization",
+        "LauncherActivity cockpitCopyWidthDp uses screen width dp * 0.22 with 150~206dp clamp and records cockpit_copy_dp"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
