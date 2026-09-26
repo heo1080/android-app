@@ -1096,7 +1096,9 @@
         "UiLayoutAuditRuntime.auditDir",
         "addUiFrameTiming",
         "ui_frame_timing/latest.json",
-        "UiFrameTimingRuntime.latestFile"
+        "UiFrameTimingRuntime.latestFile",
+        "addUiFrameTiming(context, out, sessionId)",
+        "sessionId.equals(timing.optString(\"session_id\",\"\"))"
       ]
     },
     {
@@ -1328,7 +1330,9 @@
         "delta_clips",
         "UI_LAYOUT_REGRESSION",
         "UI_LAYOUT_BASELINE_COMPARE",
-        "latestAudit"
+        "latestAudit",
+        "visible.width()/Math.max",
+        "visible.height()/Math.max"
       ]
     },
     {
@@ -1364,7 +1368,9 @@
         "over_32ms",
         "over_50ms",
         "thresholds_are_diagnostic",
-        "UI_FRAME_TIMING"
+        "UI_FRAME_TIMING",
+        "out.put(\"session_id\",sessionId)",
+        "VerificationEvidenceRuntime.currentSessionId"
       ]
     },
     {
