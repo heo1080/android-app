@@ -439,7 +439,8 @@
         "도크 DISPLAY quick panel에서 현재 width/height px, densityDpi, density, fontScale, width/height dp를 즉시 확인",
         "DISPLAY quick panel은 OEM display spoof/write를 하지 않고 Android Display settings와 Golden Screenshot 진입만 제공",
         "DISPLAY utility hero는 현재 resolution/DPI/fontScale을 read-only 상태로 요약",
-        "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임"
+        "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임",
+        "도크 렌더 시 current screen width dp와 compact-risk threshold를 함께 기록"
       ],
       "required_logs": [
         "densityDpi",
@@ -459,7 +460,9 @@
         "actuation=false",
         "variant=golden-reference-v3",
         "panel_hero=true",
-        "scroll_safe=true"
+        "scroll_safe=true",
+        "screen_width_dp=",
+        "compact_risk="
       ],
       "known_bad": [
         "DPI 변경 시 순정 UI 일부 잘림",
@@ -1902,7 +1905,9 @@
         "DISPLAY utility hero는 현재 resolution/DPI/fontScale을 표시하고 READ ONLY 유지",
         "DARK utility hero는 앱 DARK HMI와 system night 상태를 구분하고 system actuation 없음",
         "Golden Reference 상세/utility 패널은 ScrollView와 화면 비율 기반 dialog frame을 사용해 10인치·큰 fontScale·긴 목록에서 vertical clipping을 완화",
-        "Media/Vehicle/Safety/Map/Display/Dark render evidence는 scroll_safe=true와 dialog_profile을 기록"
+        "Media/Vehicle/Safety/Map/Display/Dark render evidence는 scroll_safe=true와 dialog_profile을 기록",
+        "Golden Reference dock primary 6개와 quick control 4개의 horizontal margin을 분리 최적화해 48dp touch target 확보 여유를 높임",
+        "도크는 screen_width_dp와 632dp 최소 안전 기준을 기록하고 좁은 profile이면 compact_risk=true로 증거화"
       ],
       "required_logs": [
         "display profile",
@@ -1971,7 +1976,11 @@
         "dialog_profile=safety",
         "dialog_profile=map",
         "dialog_profile=display",
-        "dialog_profile=dark"
+        "dialog_profile=dark",
+        "screen_width_dp=",
+        "dock_min_safe_width_dp=632",
+        "touch_target_goal_dp=48",
+        "compact_risk="
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -2028,7 +2037,8 @@
         "UiLayoutAuditRuntime visible-geometry touch target measurement",
         "UiFrameTimingRuntime session-bound sample and VerificationEvidenceRuntime same-session ZIP filter",
         "referenceUtilityHero unifies MAP/DISPLAY/DARK quick panels without expanding vehicle actuation",
-        "referenceDialogScroll + showReferenceDialog provide bounded scroll-safe Golden Reference panels"
+        "referenceDialogScroll + showReferenceDialog provide bounded scroll-safe Golden Reference panels",
+        "dockPrimaryWeighted and miniWeighted reduce horizontal dead space while preserving 6+4 reference layout"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
