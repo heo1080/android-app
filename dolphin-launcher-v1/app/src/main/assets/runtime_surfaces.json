@@ -641,7 +641,15 @@
         "dock_min_safe_width_dp=632",
         "touch_target_goal_dp=48",
         "compact_risk=",
-        "adaptive_hero=true"
+        "adaptive_hero=true",
+        "APP PX",
+        "REAL PX",
+        "MODE PX",
+        "resource_px=",
+        "real_px=",
+        "physical_mode_px=",
+        "display_mode_id=",
+        "refresh_hz="
       ]
     },
     {
