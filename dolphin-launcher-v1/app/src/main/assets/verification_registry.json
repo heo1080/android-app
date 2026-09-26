@@ -214,7 +214,9 @@
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AppDrawerShortcutManager.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/ShortcutPinReceiver.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/ShortcutPinReceiver.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DrawerSlotActivities.java",
+        "dolphin-launcher-v1/app/src/main/AndroidManifest.xml"
       ],
       "test_ids": [
         "LCH-DRW-001",
@@ -222,37 +224,44 @@
       ],
       "state": "REVERIFY_REQUIRED",
       "acceptance": [
-        "선택 앱의 pinned shortcut 생성 요청",
-        "런처 callback으로 생성 요청 수락 evidence 기록",
-        "바로가기 실행 시 선택 앱 dispatch",
-        "사용자 요청 시 app-owned shortcut 비활성화"
+        "BYD 순정 런처에서 requestPinShortcut에 의존하지 않고 app-owned MAIN+LAUNCHER slot component를 사용자 요청 시 enable",
+        "slot assignment/persistence 성공은 launcher icon visibility 성공으로 간주하지 않음",
+        "실제 순정 앱서랍 아이콘 표시는 operator observation으로 별도 확인",
+        "slot 실행 시 생성 당시 선택 앱 package를 LauncherActivity OPEN_PACKAGE 경로로 dispatch",
+        "사용자 요청 시 해당 app-owned slot component를 disable하고 assignment를 제거",
+        "기존 V1 pinned shortcut callback은 이전 설치본 호환 evidence 경로로만 유지"
       ],
       "required_logs": [
-        "APP_SHORTCUT_PIN_REQUEST",
-        "APP_SHORTCUT_PIN_CONFIRMED",
+        "APP_SHORTCUT_SLOT_ASSIGNED",
+        "APP_SHORTCUT_SLOT_ASSIGN_FAILED",
         "APP_SHORTCUT_INVOKED",
+        "APP_SHORTCUT_LAUNCH_DISPATCHED",
         "APP_SHORTCUT_DISABLED",
-        "APP_SHORTCUT_LAUNCH_FAILED"
+        "APP_SHORTCUT_DISABLE_FAILED",
+        "OPERATOR_OBSERVATION"
       ],
       "known_bad": [
         "과거 설치본에서 앱서랍 바로가기 생성 기능 누락 보고"
       ],
       "dependencies": [
-        "Android ShortcutManager",
+        "PackageManager launcher component enable/disable",
+        "SharedPreferences slot persistence",
         "PackageManager launch intent"
       ],
       "real_vehicle_test": [
-        "앱서랍에서 앱 1개 길게 눌러 바로가기 생성",
-        "BYD launcher에서 아이콘 표시 확인",
-        "아이콘으로 대상 앱 실행",
-        "제거/비활성화 동작과 launcher 표시 상태 확인"
+        "앱 1개를 선택해 순정 앱서랍 바로가기 슬롯 생성",
+        "BYD launcher에서 Dolphin 바로가기 슬롯 아이콘 표시 확인",
+        "아이콘으로 생성 당시 대상 앱 실행",
+        "비활성화 후 launcher 표시 상태와 실행 차단 확인",
+        "재부팅 후 slot persistence와 대상 앱 실행을 반복 확인"
       ],
       "evidence": [
-        "AppDrawerShortcutManager requestPinShortcut",
-        "ShortcutPinReceiver callback",
-        "LauncherActivity OPEN_PACKAGE cold-start handler"
+        "legacy real-car AppDrawerShortcutManager documents that BYD stock launcher blocks requestPinShortcut/home shortcuts and uses disabled MAIN+LAUNCHER component slots",
+        "V1 AppDrawerShortcutManager persists app/split slot assignment and enables only the selected component",
+        "DrawerSlotActivities dispatch captured assignment through LauncherActivity",
+        "slot assignment logs launcher_visibility_verified=false until operator evidence"
       ],
-      "next_action": "최신 APK 실차에서 pinned shortcut 표시·실행·제거 동작 재검증",
+      "next_action": "최신 V1 APK 실차에서 component-slot 아이콘 표시·대상 앱 실행·비활성화·재부팅 persistence를 반복 검증",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
@@ -360,7 +369,10 @@
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SplitCapabilityProbe.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/SplitExecutionBridge.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/ShortcutPinReceiver.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/ShortcutPinReceiver.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AppDrawerShortcutManager.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DrawerSlotActivities.java",
+        "dolphin-launcher-v1/app/src/main/AndroidManifest.xml"
       ],
       "test_ids": [
         "WIN-SPLIT-001",
@@ -371,12 +383,12 @@
         "두 앱 launch shell command가 성공",
         "dumpsys/activity stack readback에서 좌 앱이 split primary(mode 3), 우 앱이 split secondary(mode 4)로 확인",
         "shell exit code만으로 성공 처리하지 않음",
-        "2분할 pinned shortcut 요청과 실제 pin-success callback을 구분해 기록",
-        "고정 바로가기 실행 시 생성 당시 좌/우 패키지 쌍을 사용",
+        "2분할 app-drawer slot assignment와 실제 BYD launcher 아이콘 visibility를 구분해 기록",
+        "앱서랍 slot 실행 시 생성 당시 좌/우 패키지 쌍을 사용",
         "비율 적용은 별도 실차 근거가 확보될 때까지 추정하지 않음",
         "카메라 종료 후 안전한 복원",
         "실제 2분할 화면과 카메라 복귀를 operator marker로 readback과 별도 확인",
-        "바로가기 pin 표시와 바로가기 실행 후 실제 split을 operator marker로 별도 확인",
+        "앱서랍 slot 아이콘 표시와 slot 실행 후 실제 split을 operator marker로 별도 확인",
         "실차 operator marker는 active correlation에서 각 3회 이상 기록되어야 PASS 선택 가능",
         "OEM 360/파노라마 종료 broadcast 후보를 passive evidence로 수집",
         "카메라 종료 후보 700ms 후 저장된 좌/우 pair의 primary/secondary readback만 수행",
@@ -389,8 +401,6 @@
         "left/right package",
         "left/right windowing mode readback",
         "dumpsys activity/am stack context",
-        "SPLIT_SHORTCUT_REQUEST",
-        "SPLIT_SHORTCUT_PIN_CONFIRMED",
         "OPERATOR_OBSERVATION",
         "SPLIT_TWO_APP_VISIBLE",
         "SPLIT_CAMERA_RETURN_OK",
@@ -401,7 +411,11 @@
         "SPLIT_POST_CAMERA_READBACK",
         "SPLIT_READBACK_PASSIVE",
         "restore_attempted=false",
-        "actuation=false"
+        "actuation=false",
+        "SPLIT_SHORTCUT_SLOT_ASSIGNED",
+        "SPLIT_SHORTCUT_SLOT_ASSIGN_FAILED",
+        "SPLIT_SHORTCUT_INVOKED",
+        "SPLIT_SHORTCUT_LAUNCH_DISPATCHED"
       ],
       "known_bad": [
         "사용자 실차에서 분할화면 미작동 보고",
@@ -423,7 +437,8 @@
         "SplitScreenManager readback implementation",
         "v32.2 regression guard",
         "V1 passive camera lifecycle receiver observes BYD pano/auto-video exit candidates",
-        "SplitExecutionBridge.inspectCurrentPair performs dumpsys/am stack readback without actuation"
+        "SplitExecutionBridge.inspectCurrentPair performs dumpsys/am stack readback without actuation",
+        "V1 split shortcut uses the same BYD launcher component-slot pool and never treats component enable as visible-icon proof"
       ],
       "next_action": "실차 WIN-SPLIT-001에서 카메라 진입/종료 broadcast와 700ms post-camera readback을 반복 수집해 split 유지/붕괴를 확정; 자동 restore는 그 전까지 금지",
       "confidence": {
