@@ -74,20 +74,21 @@ jobs:
           BADGING="$(printf '%s\n' "$BADGING_ALL" | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -q "package: name='com.dolphin.launcher.v1'"
-          echo "$BADGING" | grep -q "versionCode='5'"
-          echo "$BADGING" | grep -q "versionName='1.2.2-v1-auto-evidence-beta'"
+          echo "$BADGING" | grep -q "versionCode='6'"
+          echo "$BADGING" | grep -q "versionName='1.3.0-v1-full-inventory-beta'"
           printf '%s\n' "$BADGING_ALL" | grep -q "^sdkVersion:'29'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^targetSdkVersion:'35'$"
           test "$(printf '%s\n' "$BADGING_ALL" | grep -c "^launchable-activity:")" -eq 1
           printf '%s\n' "$BADGING_ALL" | grep -q "^launchable-activity: name='com.dolphin.launcher.v1.LauncherActivity'"
           MANIFEST_TREE="$("$AAPT" dump xmltree "$APK" AndroidManifest.xml)"
           printf '%s\n' "$MANIFEST_TREE" | grep -q "android.intent.category.LAUNCHER"
-          if printf '%s\n' "$MANIFEST_TREE" | grep -q "android.intent.category.HOME"; then
-            echo "HOME category must remain disabled until BYD real-car compatibility is proven" >&2
-            exit 1
-          fi
+          printf '%s\n' "$MANIFEST_TREE" | grep -q "android.intent.category.HOME"
+          printf '%s\n' "$MANIFEST_TREE" | grep -q "android.intent.category.DEFAULT"
+          printf '%s\n' "$MANIFEST_TREE" | grep -q "HomeLauncherAlias"
+          grep -q 'android:name=".HomeLauncherAlias"' dolphin-launcher-v1/app/src/main/AndroidManifest.xml
+          grep -A5 'android:name=".HomeLauncherAlias"' dolphin-launcher-v1/app/src/main/AndroidManifest.xml | grep -q 'android:enabled="false"'
           printf '%s\n' "$MANIFEST_TREE" | grep -q "BootAutoLaunchReceiver"
-          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=5 minSdk=29 targetSdk=35 launchable=1 home=0 boot_autolaunch_receiver=1"
+          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=6 minSdk=29 targetSdk=35 launchable=1 home_alias=disabled boot_autolaunch_receiver=1"
 
       - name: Validate Registry v3 payload
         shell: bash
@@ -505,6 +506,6 @@ jobs:
               --repo "$GITHUB_REPOSITORY" \
               --target "$GITHUB_SHA" \
               --title "Dolphin Launcher V1 ${SEMVER}" \
-              --notes "Dolphin Launcher V1 OTA BETA. Package com.dolphin.launcher.v1. Android installer confirmation remains required." \
+              --notes "Dolphin Launcher V1 OTA BETA. Package=com.dolphin.launcher.v1. Version=${VERSION}. Source SHA=${GITHUB_SHA}. CI run=${GITHUB_RUN_ID}. Registry schema=3. Test count=69. Status=BETA. HOME+LAUNCHER packaged with HOME alias disabled-by-default. Android installer confirmation remains required." \
               --prerelease
           fi
