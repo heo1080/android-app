@@ -117,6 +117,7 @@ public final class LaneDepartureCapabilityProbe {
     private static boolean matches(String lower) {
         return lower.contains("lks")
                 || lower.contains("ldw")
+                || lower.contains("ldsw")
                 || lower.contains("ldp")
                 || lower.contains("lane")
                 || lower.contains("elk")
@@ -128,6 +129,7 @@ public final class LaneDepartureCapabilityProbe {
     private static void updateFlags(ScanSummary summary, String lower) {
         boolean lane = lower.contains("lks")
                 || lower.contains("ldw")
+                || lower.contains("ldsw")
                 || lower.contains("ldp")
                 || lower.contains("lane")
                 || lower.contains("elk");
