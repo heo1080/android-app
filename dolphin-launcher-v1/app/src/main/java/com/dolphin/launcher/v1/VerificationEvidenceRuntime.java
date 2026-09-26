@@ -497,6 +497,8 @@ public final class VerificationEvidenceRuntime {
             try {
                 uploadOne(context, zip, key);
             } catch (Exception e) {
+                recordPassiveEvent(context, "EVIDENCE_UPLOAD_RETRY_RETAINED",
+                        "bundle=" + zip.getName() + ";error=" + e.getClass().getSimpleName());
                 Log.w(TAG, "upload retained for retry: " + zip.getName(), e);
             }
         }
@@ -508,6 +510,9 @@ public final class VerificationEvidenceRuntime {
         }
         String sha = sha256(zip);
         String sessionId = sessionFromBundleName(zip.getName());
+        recordPassiveEvent(context, "EVIDENCE_UPLOAD_ATTEMPT",
+                "session_id=" + sessionId + ";sha256=" + sha
+                        + ";bytes=" + zip.length() + ";bundle=" + zip.getName());
         HttpURLConnection conn = (HttpURLConnection) new URL(UPLOAD_URL).openConnection();
         conn.setConnectTimeout(15000);
         conn.setReadTimeout(30000);
@@ -544,6 +549,8 @@ public final class VerificationEvidenceRuntime {
         if (!sha.equalsIgnoreCase(receiptSha) || !sessionId.equals(receiptSession)) {
             throw new IllegalStateException("receipt identity mismatch");
         }
+        recordPassiveEvent(context, "EVIDENCE_UPLOAD_RECEIPT",
+                "session_id=" + sessionId + ";sha256=" + sha + ";receipt_verified=true");
         prefs(context).edit().putString(KEY_LAST_UPLOAD, receipt.toString()).apply();
         if (!zip.delete()) Log.w(TAG, "uploaded bundle could not be deleted " + zip.getName());
     }
