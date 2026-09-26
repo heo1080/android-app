@@ -96,39 +96,68 @@ public final class CockpitPanelGraphicView extends View {
     }
 
     private void drawSafety(Canvas canvas, float w, float h) {
+        // Non-semantic verification-boundary graphic only.
+        // FSD_OBJECT_LANE_MODEL is BLOCKED, so do not draw road/lane guides,
+        // fixed object dots/rings, warning targets, people, or vehicle detections.
         float cx = w * 0.76f;
-        float horizon = h * 0.18f;
+        float cy = h * 0.50f;
+        float radius = Math.min(w, h) * 0.19f;
 
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setStrokeWidth(dp(1.8f));
-        paint.setColor(accent(155));
-
-        canvas.drawLine(cx - w * 0.03f, horizon, cx - w * 0.22f, h * 0.92f, paint);
-        canvas.drawLine(cx + w * 0.03f, horizon, cx + w * 0.22f, h * 0.92f, paint);
-
-        paint.setStrokeWidth(dp(1.1f));
-        paint.setColor(Color.argb(85, 110, 190, 205));
-        for (int i = 0; i < 5; i++) {
-            float y0 = h * (0.30f + i * 0.12f);
-            float y1 = y0 + h * 0.055f;
-            canvas.drawLine(cx, y0, cx, y1, paint);
+        paint.setStrokeWidth(dp(1.4f));
+        for (int i = 0; i < 3; i++) {
+            float r = radius * (0.72f + i * 0.18f);
+            rect.set(cx - r, cy - r * 0.68f, cx + r, cy + r * 0.68f);
+            paint.setColor(accent(118 - i * 22));
+            canvas.drawArc(rect, 205f, 130f, false, paint);
+            canvas.drawArc(rect, 25f, 130f, false, paint);
         }
 
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.argb(185, 255, 185, 96));
+        // Shield outline communicates a safety boundary without implying live perception.
+        float shieldW = w * 0.105f;
+        float shieldTop = h * 0.28f;
+        float shieldBottom = h * 0.68f;
         path.reset();
-        path.moveTo(w * 0.60f, h * 0.28f);
-        path.lineTo(w * 0.64f, h * 0.36f);
-        path.lineTo(w * 0.56f, h * 0.36f);
+        path.moveTo(cx, shieldTop);
+        path.lineTo(cx - shieldW, shieldTop + h * 0.06f);
+        path.lineTo(cx - shieldW * 0.86f, h * 0.50f);
+        path.quadTo(cx - shieldW * 0.60f, shieldBottom - h * 0.04f, cx, shieldBottom);
+        path.quadTo(cx + shieldW * 0.60f, shieldBottom - h * 0.04f, cx + shieldW * 0.86f, h * 0.50f);
+        path.lineTo(cx + shieldW, shieldTop + h * 0.06f);
         path.close();
+
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.argb(26, 116, 190, 204));
+        canvas.drawPath(path, paint);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(1.5f));
+        paint.setColor(accent(180));
         canvas.drawPath(path, paint);
 
-        paint.setColor(accent(190));
-        canvas.drawCircle(cx, h * 0.67f, dp(4), paint);
+        // Padlock motif = semantic layer intentionally locked.
+        float lockW = w * 0.060f;
+        float lockTop = h * 0.43f;
+        float lockBottom = h * 0.58f;
         paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(accent(82));
-        canvas.drawCircle(cx, h * 0.67f, dp(13), paint);
+        paint.setStrokeWidth(dp(1.7f));
+        paint.setColor(accent(190));
+        rect.set(cx - lockW * 0.62f, lockTop - h * 0.075f,
+                cx + lockW * 0.62f, lockTop + h * 0.045f);
+        canvas.drawArc(rect, 190f, 160f, false, paint);
+        rect.set(cx - lockW, lockTop, cx + lockW, lockBottom);
+        canvas.drawRoundRect(rect, dp(5), dp(5), paint);
+
+        // Abstract status ticks; no fixed detections or lane/object semantics.
+        paint.setStrokeWidth(dp(1.2f));
+        paint.setColor(accent(105));
+        for (int i = 0; i < 5; i++) {
+            float x = w * (0.61f + i * 0.075f);
+            float y = h * 0.82f;
+            float tick = h * (0.035f + (i % 2) * 0.014f);
+            canvas.drawLine(x, y, x, y - tick, paint);
+        }
+        paint.setStrokeCap(Paint.Cap.BUTT);
     }
 
     private void drawVehicle(Canvas canvas, float w, float h) {
