@@ -1476,7 +1476,8 @@
         "HOME/FSD·SAFETY UI는 Feature가 BLOCKED인 동안 객체/차선 semantic 시각화를 생성하지 않고 BLOCKED/LOCKED 경계만 표시",
         "HOME hero의 sensor field는 FSD BLOCKED 동안 decorative range arc만 사용하고 고정 object dot/ring을 렌더링하지 않음",
         "FSD·Safety panel vector는 BLOCKED 동안 shield/padlock/arcs/ticks 같은 non-semantic boundary만 사용하고 road/lane/object/warning target을 렌더링하지 않음",
-        "HOME hero depth layer does not render lane boundaries, center lane dashes, drivable-space, or navigation guidance while FSD_OBJECT_LANE_MODEL is BLOCKED"
+        "HOME hero depth layer does not render lane boundaries, center lane dashes, drivable-space, or navigation guidance while FSD_OBJECT_LANE_MODEL is BLOCKED",
+        "FSD·Safety cockpit vector carries an explicit SEMANTICS LOCKED scope label and BLOCKED/source-state rail while semantic object/lane rendering remains prohibited"
       ],
       "required_logs": [
         "camera source",
@@ -1609,7 +1610,8 @@
         "상세 패널은 normalized=false 및 actuation=false 경계를 명시",
         "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임",
         "해당 Golden Reference hero는 실제 screen width dp 기반 adaptive geometry를 사용",
-        "Vehicle vector accent may reflect source WAITING/LIVE/STALE/BLOCKED but decorative geometry never normalizes RAW gear/speed/turn or vehicle health"
+        "Vehicle vector accent may reflect source WAITING/LIVE/STALE/BLOCKED but decorative geometry never normalizes RAW gear/speed/turn or vehicle health",
+        "Vehicle cockpit vector carries RAW SOURCE plus source-state text and never normalizes raw telemetry through decorative graphics"
       ],
       "required_logs": [
         "getter result",
@@ -2030,7 +2032,9 @@
         "Media cockpit vector avoids a fixed PLAY symbol so REVERIFY_REQUIRED state cannot be mistaken for audible playback success",
         "Vehicle cockpit vector uses source-state accent only and does not infer gear/speed/turn/health from decorative geometry",
         "HOME 3-panel cockpit copy width is screen-width adaptive (150~206dp clamp) so compact 10-inch profiles preserve vector graphic space",
-        "PREMIUM_HMI_RENDER evidence reports the actual 6 primary dock items"
+        "PREMIUM_HMI_RENDER evidence reports the actual 6 primary dock items",
+        "HOME primary cockpit vectors render an in-graphic source scope + current WAITING/LIVE/STALE/BLOCKED state rail without introducing new semantic vehicle claims",
+        "Media/Safety/Vehicle vector scope labels remain TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE so source state cannot be confused with feature verification state"
       ],
       "required_logs": [
         "display profile",
@@ -2522,7 +2526,8 @@
         "해당 Golden Reference hero는 실제 screen width dp 기반 adaptive geometry를 사용",
         "Media vector state is source-scoped and a fixed PLAY symbol is not rendered as a substitute for audible playback evidence",
         "target media play/readback Alarm PendingIntent는 package+stage data URI identity로 분리",
-        "play stage와 readback stage 또는 서로 다른 target package가 PendingIntent overwrite로 섞이지 않음"
+        "play stage와 readback stage 또는 서로 다른 target package가 PendingIntent overwrite로 섞이지 않음",
+        "Media cockpit vector carries TARGET SESSION plus source-state text and never turns source LIVE into an audible-playback VERIFIED claim"
       ],
       "required_logs": [
         "AUTOSTART_MEDIA_CHANGED",
