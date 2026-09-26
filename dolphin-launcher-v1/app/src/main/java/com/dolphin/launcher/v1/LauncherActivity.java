@@ -829,6 +829,254 @@ public class LauncherActivity extends Activity {
         panel.addView(bar,new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,dp(54)));
     }
 
+    private boolean isSupportedNavPackage(String pkg) {
+        return "com.nhn.android.nmap".equals(pkg)
+                || "com.skt.tmap.ku".equals(pkg)
+                || "com.locnall.KimGiSa".equals(pkg)
+                || "com.mappers.AtlanSmart".equals(pkg);
+    }
+
+    private void showNavigationPanel() {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(18), dp(16), dp(18), dp(16));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E","#07151B","#040A0E"}, 24, "#315A68"));
+        panel.addView(hmiDialogHeader(
+                "NAVIGATION","NAVER · TMAP · KakaoNavi · ATLAN","MAP"));
+        panel.addView(hmiInfoStrip(
+                "설치된 지원 내비만 표시 · 선택 시 해당 앱 실행"));
+
+        int installed=0;
+        for (AppEntry app : apps) {
+            if (!isSupportedNavPackage(app.packageName)) continue;
+            installed++;
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            row.setPadding(dp(10), dp(6), dp(10), dp(6));
+            row.setBackground(pressableGradientRound(
+                    new String[]{"#0E222A","#07151B"},
+                    new String[]{"#173440","#0A2028"},
+                    16,"#284B57"));
+
+            FrameLayout iconWell = new FrameLayout(this);
+            iconWell.setBackground(gradientRound(
+                    new String[]{"#17323A","#0A1A20"}, 15, "#2A515D"));
+            ImageView icon = new ImageView(this);
+            icon.setImageDrawable(app.icon);
+            icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            iconWell.addView(icon, new FrameLayout.LayoutParams(
+                    dp(34),dp(34),Gravity.CENTER));
+            LinearLayout.LayoutParams iconLp = new LinearLayout.LayoutParams(dp(46),dp(46));
+            iconLp.rightMargin=dp(10);
+            row.addView(iconWell,iconLp);
+
+            LinearLayout copy = new LinearLayout(this);
+            copy.setOrientation(LinearLayout.VERTICAL);
+            TextView name = text(app.label,13f,Color.WHITE,true);
+            fitSingleLine(name,10,13);
+            copy.addView(name);
+            TextView pkg = text(app.packageName,9f,Color.parseColor("#7895A0"),false);
+            fitSingleLine(pkg,8,9);
+            copy.addView(pkg);
+            row.addView(copy,new LinearLayout.LayoutParams(
+                    0,ViewGroup.LayoutParams.WRAP_CONTENT,1f));
+
+            HmiGlyphView pin = new HmiGlyphView(this,"MAP");
+            pin.setAccentColor(Color.parseColor("#8CFFE8"));
+            row.addView(pin,new LinearLayout.LayoutParams(dp(38),dp(38)));
+            row.setOnClickListener(v -> launchPackage(app.packageName));
+
+            LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,dp(58));
+            rowLp.bottomMargin=dp(6);
+            panel.addView(row,rowLp);
+        }
+
+        if(installed==0){
+            TextView empty=text(
+                    "지원 내비 앱을 찾지 못했습니다.\n"
+                            + "NAVER Map, TMAP, KakaoNavi, ATLAN 설치 여부를 확인하세요.",
+                    12f,Color.parseColor("#9AB0B8"),false);
+            empty.setGravity(Gravity.CENTER);
+            empty.setPadding(dp(12),dp(18),dp(12),dp(18));
+            empty.setBackground(gradientRound(
+                    new String[]{"#0D2027","#071318"},16,"#254957"));
+            panel.addView(empty,new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,dp(88)));
+        }
+
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this,"NAV_LAUNCHER_HMI_RENDER",
+                "installed_supported_nav="+installed+";semantic_parse=false");
+
+        AlertDialog dialog=new AlertDialog.Builder(this)
+                .setView(panel)
+                .setNegativeButton("닫기",null)
+                .create();
+        dialog.setOnShowListener(d -> {
+            Window w=dialog.getWindow();
+            if(w!=null){
+                w.setLayout((int)(getResources().getDisplayMetrics().widthPixels*0.62f),
+                        (int)(getResources().getDisplayMetrics().heightPixels*0.78f));
+                w.setDimAmount(0.72f);
+                w.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            }
+        });
+        dialog.show();
+    }
+
+    private void openSystemSettings(String action,String source) {
+        try {
+            Intent intent=new Intent(action);
+            startActivity(intent);
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this,"SYSTEM_SETTINGS_DISPATCH",
+                    "source="+source+";action="+action+";success=true");
+        } catch (Throwable t) {
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this,"SYSTEM_SETTINGS_DISPATCH",
+                    "source="+source+";action="+action
+                            +";success=false;error="+t.getClass().getSimpleName());
+            Toast.makeText(this,"시스템 설정을 열 수 없습니다.",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void captureHomeGoldenScreenshot() {
+        showHome();
+        handler.postDelayed(() -> {
+            try {
+                java.io.File file=UiGoldenScreenshotRuntime.capture(this,"home");
+                VerificationEvidenceRuntime.queueBundleAndUpload(
+                        this,"ui-golden-home");
+                Toast.makeText(
+                        this,"HOME UI 스냅샷 저장 · "+file.getName(),
+                        Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        this,"UI_GOLDEN_SCREENSHOT_FAILED",
+                        "error="+e.getClass().getSimpleName());
+                Toast.makeText(
+                        this,"UI 스냅샷 실패: "+e.getMessage(),
+                        Toast.LENGTH_LONG).show();
+            }
+        },350L);
+    }
+
+    private void showDisplayQuickPanel() {
+        DisplayMetrics dm=getResources().getDisplayMetrics();
+        android.content.res.Configuration cfg=getResources().getConfiguration();
+
+        LinearLayout panel=new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(18),dp(16),dp(18),dp(16));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
+        panel.addView(hmiDialogHeader(
+                "DISPLAY","Resolution · DPI · Font Scale","DSP"));
+        panel.addView(hmiInfoStrip(
+                "실제 Android display profile · OEM display spoof는 근거 확보 전 차단"));
+
+        LinearLayout metrics1=new LinearLayout(this);
+        metrics1.setOrientation(LinearLayout.HORIZONTAL);
+        metrics1.addView(vehicleMetric("PIXELS",
+                dm.widthPixels+"×"+dm.heightPixels),weighted());
+        metrics1.addView(vehicleMetric("DPI",
+                String.valueOf(dm.densityDpi)),weighted());
+        metrics1.addView(vehicleMetric("FONT",
+                String.format(Locale.US,"%.2f",cfg.fontScale)),weighted());
+        panel.addView(metrics1,new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(78)));
+
+        float widthDp=dm.widthPixels/Math.max(0.01f,dm.density);
+        float heightDp=dm.heightPixels/Math.max(0.01f,dm.density);
+        LinearLayout metrics2=new LinearLayout(this);
+        metrics2.setOrientation(LinearLayout.HORIZONTAL);
+        metrics2.addView(vehicleMetric("WIDTH DP",
+                String.format(Locale.US,"%.0f",widthDp)),weighted());
+        metrics2.addView(vehicleMetric("HEIGHT DP",
+                String.format(Locale.US,"%.0f",heightDp)),weighted());
+        metrics2.addView(vehicleMetric("DENSITY",
+                String.format(Locale.US,"%.2f",dm.density)),weighted());
+        panel.addView(metrics2,new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(78)));
+
+        final AlertDialog[] holder=new AlertDialog[1];
+        Button system=button("Android 디스플레이 설정");
+        system.setOnClickListener(v -> {
+            if(holder[0]!=null)holder[0].dismiss();
+            openSystemSettings(Settings.ACTION_DISPLAY_SETTINGS,"display-panel");
+        });
+        panel.addView(system,new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(48)));
+
+        Button snapshot=button("HOME UI 검증 스냅샷");
+        snapshot.setOnClickListener(v -> {
+            if(holder[0]!=null)holder[0].dismiss();
+            captureHomeGoldenScreenshot();
+        });
+        LinearLayout.LayoutParams snapLp=new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(48));
+        snapLp.topMargin=dp(8);
+        panel.addView(snapshot,snapLp);
+
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this,"DISPLAY_QUICK_HMI_RENDER",
+                "width_px="+dm.widthPixels+";height_px="+dm.heightPixels
+                        +";density_dpi="+dm.densityDpi
+                        +";font_scale="+cfg.fontScale
+                        +";actuation=false");
+
+        AlertDialog dialog=new AlertDialog.Builder(this)
+                .setView(panel)
+                .setNegativeButton("닫기",null)
+                .create();
+        holder[0]=dialog;
+        dialog.show();
+    }
+
+    private void showThemeStatusPanel() {
+        int night=getResources().getConfiguration().uiMode
+                & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+        String systemNight=night==android.content.res.Configuration.UI_MODE_NIGHT_YES
+                ? "NIGHT" : night==android.content.res.Configuration.UI_MODE_NIGHT_NO
+                ? "DAY" : "UNDEFINED";
+
+        LinearLayout panel=new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(18),dp(16),dp(18),dp(16));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
+        panel.addView(hmiDialogHeader(
+                "DARK MODE","HMI theme · system night status","MOON"));
+        panel.addView(hmiInfoStrip(
+                "Launcher는 dark HMI 유지 · 시스템 night mode는 상태만 읽고 강제 변경하지 않음"));
+
+        LinearLayout row=new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.addView(vehicleMetric("APP THEME","DARK HMI"),weighted());
+        row.addView(vehicleMetric("SYSTEM",systemNight),weighted());
+        row.addView(vehicleMetric("CONTROL","READ ONLY"),weighted());
+        panel.addView(row,new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(78)));
+
+        Button display=button("Android 디스플레이 설정");
+        display.setOnClickListener(v ->
+                openSystemSettings(Settings.ACTION_DISPLAY_SETTINGS,"dark-panel"));
+        panel.addView(display,new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(48)));
+
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this,"THEME_STATUS_HMI_RENDER",
+                "app_theme=dark;system_night="+systemNight+";actuation=false");
+
+        new AlertDialog.Builder(this)
+                .setView(panel)
+                .setNegativeButton("닫기",null)
+                .show();
+    }
+
     private void showAppDrawer() {
         LinearLayout panel = new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
@@ -1640,24 +1888,7 @@ public class LauncherActivity extends Activity {
                 "UI 검증 스냅샷", "HOME PNG · Evidence ZIP 자동 포함", "◎", false,
                 () -> {
                     if (holder[0] != null) holder[0].dismiss();
-                    showHome();
-                    handler.postDelayed(() -> {
-                        try {
-                            java.io.File file=UiGoldenScreenshotRuntime.capture(this,"home");
-                            VerificationEvidenceRuntime.queueBundleAndUpload(
-                                    this,"ui-golden-home");
-                            Toast.makeText(
-                                    this,"HOME UI 스냅샷 저장 · "+file.getName(),
-                                    Toast.LENGTH_LONG).show();
-                        } catch (Exception e) {
-                            VerificationEvidenceRuntime.recordPassiveEvent(
-                                    this,"UI_GOLDEN_SCREENSHOT_FAILED",
-                                    "error="+e.getClass().getSimpleName());
-                            Toast.makeText(
-                                    this,"UI 스냅샷 실패: "+e.getMessage(),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    },350L);
+                    captureHomeGoldenScreenshot();
                 }));
 
         panel.addView(settingsRow(
