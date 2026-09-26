@@ -2123,16 +2123,6 @@
         "windowing_mode_request=false",
         "actuation=false"
       ]
-    },
-    {
-      "feature_id": "BUILD_IDENTITY",
-      "path": ".github/workflows/dolphin-launcher-v1.yml",
-      "tokens": [
-        "VERSION_CODE=",
-        "\"version_code\":int(version_code)",
-        "REALCAR_BETA_METADATA_VERSION_MATCH",
-        "versionCode $VERSION_CODE"
-      ]
     }
   ],
   "notes": [
