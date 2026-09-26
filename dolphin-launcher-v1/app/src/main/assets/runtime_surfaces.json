@@ -179,7 +179,11 @@
         "candidate only · PASS 아님",
         "rawKeysForTest",
         "filterRawSnapshot",
-        "live vehicle raw 대상 아님"
+        "live vehicle raw 대상 아님",
+        "filteredRawSnapshotForTest",
+        "DRIVE_ECO_VISIBLE",
+        "DRIVE_SPORT_VISIBLE",
+        "REGEN_HIGH_VISIBLE"
       ]
     },
     {
@@ -886,7 +890,9 @@
         "active test must finish before session rollover",
         "loadTestContracts",
         "test_log_contracts.json",
-        "loadKnownBadRegistry"
+        "loadKnownBadRegistry",
+        "rawSnapshot != null",
+        "latest_raw="
       ]
     },
     {
@@ -912,7 +918,12 @@
         "matching_stable_sessions",
         "DISTINCT_GROUPS",
         "mapping_conflicts",
-        "conflict_need_more_data"
+        "conflict_need_more_data",
+        "DRIVE_ECO_VISIBLE",
+        "DRIVE_SPORT_VISIBLE",
+        "REGEN_HIGH_VISIBLE",
+        "drive_modes",
+        "regen_modes"
       ]
     },
     {

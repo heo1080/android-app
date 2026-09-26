@@ -647,7 +647,8 @@
         "NORMAL raw 값은 최신 V1 실차 상관관계가 확정되기 전 음성 억제",
         "앱 시작 baseline은 음성 억제",
         "미확인 값은 말하지 않음",
-        "최종 VERIFIED 전 ECO/NORMAL/SPORT 왕복 실차 검증"
+        "최종 VERIFIED 전 ECO/NORMAL/SPORT 왕복 실차 검증",
+        "AUD-DRV-001 PASS 선택 전 ECO와 SPORT operator marker를 각각 최소 3회 기록"
       ],
       "required_logs": [
         "VEHICLE_BASELINE",
@@ -658,7 +659,9 @@
         "timestamp",
         "OPERATOR_OBSERVATION",
         "elapsed_realtime_ms",
-        "latest_raw snapshot"
+        "latest_raw snapshot",
+        "DRIVE_ECO_VISIBLE",
+        "DRIVE_SPORT_VISIBLE"
       ],
       "known_bad": [
         "실차에서 NORMAL 음성 누락",
@@ -676,7 +679,8 @@
       ],
       "evidence": [
         "diagnostics 20260918/19: DRIVE_MODE ECO raw=1, SPORT raw=2 반복",
-        "VehicleReadOnlyMonitor evidence-gated partial mapping"
+        "VehicleReadOnlyMonitor evidence-gated partial mapping",
+        "Verification Center marker gate for ECO/SPORT repeatability"
       ],
       "next_action": "최신 V1 실차에서 NORMAL 전환 raw를 OEM UI와 3회 상관해 남은 NORMAL mapping 확정",
       "confidence": {
@@ -705,7 +709,8 @@
         "STANDARD raw 값 확정 전 STANDARD나 다른 라벨을 추정 발화하지 않음",
         "STANDARD를 ECO라고 말하는 과거 회귀가 재발하지 않음",
         "앱 시작 baseline은 음성 억제",
-        "최종 VERIFIED 전 STANDARD↔HIGH 실차 왕복 검증"
+        "최종 VERIFIED 전 STANDARD↔HIGH 실차 왕복 검증",
+        "AUD-REG-001 PASS 선택 전 HIGH operator marker를 최소 3회 기록"
       ],
       "required_logs": [
         "VEHICLE_BASELINE",
@@ -715,7 +720,8 @@
         "VEHICLE_VOICE",
         "OPERATOR_OBSERVATION",
         "elapsed_realtime_ms",
-        "latest_raw snapshot"
+        "latest_raw snapshot",
+        "REGEN_HIGH_VISIBLE"
       ],
       "known_bad": [
         "STANDARD 전환 시 ECO라고 잘못 안내된 과거 회귀",
@@ -733,7 +739,8 @@
       ],
       "evidence": [
         "diagnostics 20260918/19: REGEN HIGH raw=2 반복 및 실제 TTS 기록",
-        "VehicleReadOnlyMonitor evidence-gated partial mapping"
+        "VehicleReadOnlyMonitor evidence-gated partial mapping",
+        "Verification Center marker gate for HIGH repeatability"
       ],
       "next_action": "최신 V1 실차에서 STANDARD 전환 raw를 OEM UI와 3회 상관해 남은 STANDARD mapping 확정",
       "confidence": {
@@ -1838,7 +1845,10 @@
         "진행 중 Test 화면은 liveCorrelationSnapshot 최신 raw 후보를 candidate only로 표시하고 PASS 근거로 취급하지 않음",
         "실차 조작 전 최신 raw 후보를 다시 읽을 수 있도록 raw 새로고침 UI를 제공",
         "진행 중 Test의 raw 후보 표시는 해당 Test ID에 관련된 raw key만 노출하고 무관한 차량 상태값은 숨김",
-        "live vehicle raw 대상이 아닌 Test ID는 event/evidence 로그 확인 대상으로 명확히 표시"
+        "live vehicle raw 대상이 아닌 Test ID는 event/evidence 로그 확인 대상으로 명확히 표시",
+        "OPERATOR_OBSERVATION의 latest_raw는 active Test ID 관련 raw key만 기록하고 무관한 차량 raw는 evidence에 섞지 않음",
+        "DRIVE ECO/SPORT와 REGEN HIGH도 markerPlanForTest 반복 마커 3회 PASS 잠금을 적용",
+        "correlation evaluator는 DRIVE ECO/NORMAL/SPORT 및 REGEN STANDARD/HIGH raw 충돌을 distinct group으로 탐지"
       ],
       "required_logs": [
         "registry schema/version",
@@ -1878,7 +1888,13 @@
         "raw 새로고침",
         "candidate only · PASS 아님",
         "rawKeysForTest",
-        "filterRawSnapshot"
+        "filterRawSnapshot",
+        "filteredRawSnapshotForTest",
+        "DRIVE_ECO_VISIBLE",
+        "DRIVE_SPORT_VISIBLE",
+        "REGEN_HIGH_VISIBLE",
+        "drive_modes",
+        "regen_modes"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
@@ -1906,7 +1922,9 @@
         "Verification Center P0 queue is sourced from known_bad_registry.json",
         "CI validates canonical tokens-only runtime surface schema",
         "Verification Center active capture displays live raw candidate snapshot without auto-verification",
-        "Verification Center scopes live raw preview to the active Test ID"
+        "Verification Center scopes live raw preview to the active Test ID",
+        "Verification Center writes Test-ID-scoped latest_raw into OPERATOR_OBSERVATION",
+        "evaluator checks drive/regen cross-label raw collisions"
       ],
       "next_action": "실차 Evidence ZIP을 최소 2개 session에서 수집하고 evaluator 다중 입력으로 동일 raw 반복성을 비교; cross-session 후보도 수동 검토 전 매핑 활성화 금지",
       "confidence": {

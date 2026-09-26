@@ -212,10 +212,17 @@ public final class VerificationEvidenceRuntime {
 
     public static void operatorObservation(Context context, String testId, String correlationId,
                                            String observation, String note) {
+        operatorObservation(context, testId, correlationId, observation, note,
+                liveCorrelationSnapshot());
+    }
+
+    public static void operatorObservation(Context context, String testId, String correlationId,
+                                           String observation, String note, String rawSnapshot) {
         String detail = "observation=" + observation;
         if (note != null && !note.trim().isEmpty()) detail += ";" + note.trim();
-        String snapshot = liveCorrelationSnapshot();
-        if (!snapshot.isEmpty()) detail += ";latest_raw=" + snapshot;
+        if (rawSnapshot != null && !rawSnapshot.trim().isEmpty()) {
+            detail += ";latest_raw=" + rawSnapshot.trim();
+        }
         append(context, "OPERATOR_OBSERVATION", testId, correlationId, "OBSERVED", detail);
     }
 

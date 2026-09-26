@@ -508,12 +508,17 @@ public class VerificationCenterActivity extends Activity {
         if (keys.length == 0) {
             return "최근 raw 후보 · 이 Test ID는 live vehicle raw 대상 아님 · event/evidence 로그 확인";
         }
-        String snapshot = VerificationEvidenceRuntime.liveCorrelationSnapshot();
-        String filtered = filterRawSnapshot(snapshot, keys);
+        String filtered = filteredRawSnapshotForTest(activeTestId);
         if (filtered.isEmpty()) {
             return "최근 raw 후보(candidate only · PASS 아님) · 아직 없음";
         }
         return "최근 raw 후보(candidate only · PASS 아님) · " + filtered;
+    }
+
+    private String filteredRawSnapshotForTest(String testId) {
+        return filterRawSnapshot(
+                VerificationEvidenceRuntime.liveCorrelationSnapshot(),
+                rawKeysForTest(testId));
     }
 
     private String[] rawKeysForTest(String testId) {
@@ -569,7 +574,8 @@ public class VerificationCenterActivity extends Activity {
         if (activeTestId == null || activeCorrelationId == null) return;
         VerificationEvidenceRuntime.operatorObservation(
                 this, activeTestId, activeCorrelationId, observation,
-                "Verification Center live correlation marker");
+                "Verification Center live correlation marker",
+                filteredRawSnapshotForTest(activeTestId));
         refreshLedger();
         refreshActiveCaptureUi();
         Toast.makeText(this, "관찰 마커 기록: " + observation,
@@ -580,8 +586,12 @@ public class VerificationCenterActivity extends Activity {
         if ("AUD-GEAR-001".equals(testId)) return new String[][]{
                 {"P","GEAR_P_VISIBLE"},{"R","GEAR_R_VISIBLE"},
                 {"N","GEAR_N_VISIBLE"},{"D","GEAR_D_VISIBLE"}};
+        if ("AUD-DRV-001".equals(testId)) return new String[][]{
+                {"ECO","DRIVE_ECO_VISIBLE"},{"SPORT","DRIVE_SPORT_VISIBLE"}};
         if ("AUD-DRV-002".equals(testId)) return new String[][]{
                 {"OEM NORMAL","OEM_NORMAL_VISIBLE"}};
+        if ("AUD-REG-001".equals(testId)) return new String[][]{
+                {"HIGH","REGEN_HIGH_VISIBLE"}};
         if ("AUD-REG-002".equals(testId)) return new String[][]{
                 {"OEM STANDARD","OEM_STANDARD_VISIBLE"}};
         if ("AUD-SNOW-001".equals(testId)) return new String[][]{
