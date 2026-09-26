@@ -61,7 +61,9 @@
         "packaged minSdk=29 and targetSdk=35",
         "voicePreview audition artifact uses com.dolphin.launcher.v1.voicepreview while canonical release package remains com.dolphin.launcher.v1",
         "voicePreview and canonical release use the same stable signer but remain distinct install identities",
-        "Real-car BETA release metadata version_code는 Gradle/APK manifest versionCode와 정확히 일치"
+        "Real-car BETA release metadata version_code는 Gradle/APK manifest versionCode와 정확히 일치",
+        "real-car BETA immutable success requires release target SHA to equal current source commit and canonical APK/SHA/metadata assets to be complete",
+        "Fixed Voice Preview cannot create the real-car BETA release and may attach only after canonical assets are complete"
       ],
       "required_logs": [
         "source commit",
@@ -74,7 +76,11 @@
         "sdkVersion=29",
         "targetSdkVersion=35",
         "BUILD_IDENTITY_OK",
-        "REALCAR_BETA_METADATA_VERSION_MATCH"
+        "REALCAR_BETA_METADATA_VERSION_MATCH",
+        "REALCAR_BETA_CANONICAL_ASSETS_OK",
+        "REALCAR_BETA_RELEASE_INCOMPLETE_EXISTING",
+        "VOICE_PREVIEW_WAIT_CANONICAL_RELEASE",
+        "VOICE_PREVIEW_CANONICAL_RELEASE_READY"
       ]
     },
     {
@@ -111,7 +117,9 @@
         "packaged minSdk=29 and targetSdk=35",
         "voicePreview audition artifact uses com.dolphin.launcher.v1.voicepreview while canonical release package remains com.dolphin.launcher.v1",
         "voicePreview and canonical release use the same stable signer but remain distinct install identities",
-        "Real-car BETA release metadata version_code는 Gradle/APK manifest versionCode와 정확히 일치"
+        "Real-car BETA release metadata version_code는 Gradle/APK manifest versionCode와 정확히 일치",
+        "real-car BETA immutable success requires release target SHA to equal current source commit and canonical APK/SHA/metadata assets to be complete",
+        "Fixed Voice Preview cannot create the real-car BETA release and may attach only after canonical assets are complete"
       ],
       "required_logs": [
         "source commit",
@@ -124,7 +132,11 @@
         "sdkVersion=29",
         "targetSdkVersion=35",
         "BUILD_IDENTITY_OK",
-        "REALCAR_BETA_METADATA_VERSION_MATCH"
+        "REALCAR_BETA_METADATA_VERSION_MATCH",
+        "REALCAR_BETA_CANONICAL_ASSETS_OK",
+        "REALCAR_BETA_RELEASE_INCOMPLETE_EXISTING",
+        "VOICE_PREVIEW_WAIT_CANONICAL_RELEASE",
+        "VOICE_PREVIEW_CANONICAL_RELEASE_READY"
       ]
     },
     {
