@@ -414,7 +414,7 @@ public final class VerificationEvidenceRuntime {
             addSessionLedger(context, out, sessionId);
             addUiScreenshots(context, out, sessionId);
             addUiLayoutAudits(context, out, sessionId);
-            addUiFrameTiming(context, out);
+            addUiFrameTiming(context, out, sessionId);
 
             JSONObject identity = new JSONObject();
             identity.put("package", context.getPackageName());
@@ -657,7 +657,9 @@ public final class VerificationEvidenceRuntime {
     }
 
     private static void addUiFrameTiming(
-            Context context, ZipOutputStream out) throws Exception {
+            Context context, ZipOutputStream out, String sessionId) throws Exception {
+        JSONObject timing=UiFrameTimingRuntime.latest(context);
+        if(timing==null || !sessionId.equals(timing.optString("session_id",""))) return;
         File file=UiFrameTimingRuntime.latestFile(context);
         if(file.exists() && file.isFile()){
             addFile(out,file,"ui_frame_timing/latest.json");
