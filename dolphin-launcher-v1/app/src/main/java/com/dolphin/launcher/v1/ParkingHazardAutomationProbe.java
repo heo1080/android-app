@@ -213,7 +213,9 @@ public final class ParkingHazardAutomationProbe {
                     .invoke(null, bydContext);
             if (instance == null) return null;
             Object raw = getter.invoke(instance);
-            return raw instanceof Number ? ((Number) raw).intValue() : null;
+            Integer value = raw instanceof Number ? ((Number) raw).intValue() : null;
+            VerificationEvidenceRuntime.updateLiveCorrelationValue("hazard_raw", value);
+            return value;
         } catch (Throwable t) {
             return null;
         }
