@@ -675,6 +675,7 @@ public class LauncherActivity extends Activity {
                 this, "PREMIUM_HMI_RENDER",
                 "variant=glass-vector-v2;hero=canvas-vector;bitmap_assets=false"
                         + ";hero_copy_dp=" + heroCopyWidthDp()
+                        + ";cockpit_copy_dp=" + cockpitCopyWidthDp()
                         + ";hero_source_rail=MEDIA,NAV,VEH"
                         + ";cockpit_panels=3;layout=media-safety-vehicle"
                         + ";cockpit_state_source=verification_registry"
@@ -2504,6 +2505,7 @@ public class LauncherActivity extends Activity {
 
         TextView head = text(title,16.5f,Color.WHITE,true);
         head.setLetterSpacing(0.05f);
+        fitSingleLine(head,13,17);
         copy.addView(head);
 
         TextView sub = text(subtitle,10f,Color.parseColor("#91AAB3"),false);
@@ -2517,7 +2519,7 @@ public class LauncherActivity extends Activity {
         copy.addView(sub);
 
         FrameLayout.LayoutParams copyLp = new FrameLayout.LayoutParams(
-                dp(206), ViewGroup.LayoutParams.MATCH_PARENT);
+                dp(cockpitCopyWidthDp()), ViewGroup.LayoutParams.MATCH_PARENT);
         copyLp.gravity = Gravity.LEFT;
         card.addView(copy,copyLp);
         return card;
@@ -3231,6 +3233,13 @@ public class LauncherActivity extends Activity {
         float widthDp = metrics.widthPixels / Math.max(1f, metrics.density);
         int target = Math.round(widthDp * 0.36f);
         return Math.max(276, Math.min(372, target));
+    }
+
+    private int cockpitCopyWidthDp() {
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        float widthDp = metrics.widthPixels / Math.max(1f, metrics.density);
+        int target = Math.round(widthDp * 0.22f);
+        return Math.max(150, Math.min(206, target));
     }
 
     private View sectionHeader(String title, String subtitle) {
