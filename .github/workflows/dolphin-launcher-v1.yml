@@ -364,7 +364,11 @@ jobs:
           assert "claimBootDispatch" in boot_autostart_runtime, "single-batch boot claim missing"
           assert "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED" in boot_autostart_runtime, "duplicate boot evidence missing"
           assert "duplicate_dispatch=false" in boot_autostart_runtime, "duplicate boot suppression result missing"
-          assert "now>=lastElapsed" in boot_autostart_runtime, "elapsed-realtime reboot epoch reset guard missing"
+          assert "Settings.Global.BOOT_COUNT" in boot_autostart_runtime, "public boot epoch identity missing"
+          assert "storedBootCount==bootCount" in boot_autostart_runtime, "persisted dedup must be scoped to the same boot count"
+          assert "AUTOSTART_DEDUP_BOOT_ID_UNAVAILABLE" in boot_autostart_runtime, "boot identity unavailable evidence missing"
+          assert "persisted_elapsed_guard=false" in boot_autostart_runtime, "unknown boot identity must fail open across processes"
+          assert "now>=lastElapsed" in boot_autostart_runtime, "same-epoch elapsed guard missing"
           assert "CROSS_ACTION_DUPLICATE_WINDOW_MS" in boot_autostart_runtime, "cross-action boot dedup window missing"
 
           manifest_source=pathlib.Path("dolphin-launcher-v1/app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
