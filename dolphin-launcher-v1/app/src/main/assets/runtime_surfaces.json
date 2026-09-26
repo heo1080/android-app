@@ -994,7 +994,8 @@
       "tokens": [
         "BOOT_COMPLETED",
         "BootAutoLaunchRuntime.dispatch",
-        "BOOT_UPLOAD_RETRY_FINISHED"
+        "BOOT_UPLOAD_RETRY_FINISHED",
+        "BootAutoLaunchRuntime.dispatch(app, action)"
       ]
     },
     {
@@ -1012,7 +1013,16 @@
         "AUTOSTART_LAUNCH_DISPATCHED",
         "AUTOSTART_LAUNCH_FAILED",
         "BackgroundMediaRuntime.requestPlay",
-        "process_independent=true"
+        "process_independent=true",
+        "claimBootDispatch",
+        "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED",
+        "duplicate_dispatch=false",
+        "CROSS_ACTION_DUPLICATE_WINDOW_MS",
+        "Settings.Global.BOOT_COUNT",
+        "storedBootCount==bootCount",
+        "AUTOSTART_DEDUP_BOOT_ID_UNAVAILABLE",
+        "persisted_elapsed_guard=false",
+        "boot_count="
       ]
     },
     {
