@@ -59,6 +59,7 @@ jobs:
               "REALCAR_BETA_RELEASE_OK",
               "REALCAR_BETA_RELEASE_IMMUTABLE",
               "REALCAR_BETA_CANONICAL_ASSETS_OK",
+              "REALCAR_BETA_CREATE_ATOMIC_WITH_ASSETS",
               "REALCAR_BETA_RELEASE_INCOMPLETE_EXISTING",
               "upload=false",
               "--prerelease",
@@ -1233,14 +1234,13 @@ jobs:
             echo "REALCAR_BETA_RELEASE_IMMUTABLE tag=$TAG upload=false canonical_assets_complete=true"
             echo "REALCAR_BETA_CANONICAL_ASSETS_OK tag=$TAG target=$RELEASE_TARGET"
           else
-            gh release create "$TAG" \
+            gh release create "$TAG" "$APK" "$SHA" "$META" \
               --repo "$GITHUB_REPOSITORY" \
               --target "$GITHUB_SHA" \
               --title "Dolphin Launcher V1 ${SEMVER} Real-Car BETA" \
               --notes-file "$NOTES" \
               --prerelease
-            gh release upload "$TAG" "$APK" "$SHA" "$META" \
-              --repo "$GITHUB_REPOSITORY"
+            echo "REALCAR_BETA_CREATE_ATOMIC_WITH_ASSETS tag=$TAG canonical_assets=3"
             ASSET_NAMES="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
             for REQUIRED_ASSET in "$CANONICAL_APK_NAME" "$CANONICAL_SHA_NAME" "$CANONICAL_META_NAME"; do
               grep -Fxq "$REQUIRED_ASSET" <<< "$ASSET_NAMES"
