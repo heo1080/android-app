@@ -1309,7 +1309,8 @@
         "LIVE label은 실제 source가 있는 값만",
         "stale data expiry",
         "없는 객체 생성 금지",
-        "render latency 기록"
+        "render latency 기록",
+        "speed/gear/turn은 source가 존재해도 의미 검증 전 raw-only label을 유지"
       ],
       "required_logs": [
         "DriveFrame source/provenance",
@@ -1448,12 +1449,17 @@
       "acceptance": [
         "값 provenance 존재",
         "unavailable은 unknown 표시",
-        "mock value 사용 금지"
+        "mock value 사용 금지",
+        "getCurrentSpeed/getCurrentGear는 의미·단위 상관 완료 전 UI에서 RAW로만 표시",
+        "turn signal 값도 좌/우 raw provenance만 표시하고 ON/OFF 의미를 추정하지 않음"
       ],
       "required_logs": [
         "getter result",
         "UI bound value",
-        "timestamp"
+        "timestamp",
+        "LIVE_VEHICLE_SPEED_RAW",
+        "LIVE_VEHICLE_GEAR_RAW",
+        "TURN_SIGNAL_RAW_TRANSITION"
       ],
       "known_bad": [],
       "dependencies": [
@@ -1463,7 +1469,8 @@
         "계기판/순정 화면 값과 비교"
       ],
       "evidence": [
-        "HomeHmiView source says no mock numbers"
+        "HomeHmiView source says no mock numbers",
+        "continuous read-only getCurrentSpeed raw telemetry"
       ],
       "next_action": "각 field별 getter mapping 등록",
       "confidence": {
@@ -1739,7 +1746,8 @@
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HomeHeroGraphicView.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HmiGlyphView.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/CockpitPanelGraphicView.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/TyreGaugeView.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/TyreGaugeView.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/MediaNowPlayingRuntime.java"
       ],
       "test_ids": [
         "UI-HOME-001",
@@ -1772,7 +1780,9 @@
         "BACKGROUND_MEDIA_AUTOPLAY가 REVERIFY_REQUIRED이면 MEDIA CENTER를 ready/verified로 표현하지 않음",
         "cockpit status badge 색상은 Registry state 의미와 동기화되어 BLOCKED/REVERIFY_REQUIRED/BETA/VERIFIED를 시각 구분",
         "MEDIA CENTER cockpit panel은 전용 glass-vector-v2 surface를 열고 미디어 자동재생 등록 앱/지연시간을 표시",
-        "MEDIA CENTER는 실차 재생 검증 전 playback_verified=false와 REVERIFY 상태를 유지"
+        "MEDIA CENTER는 실차 재생 검증 전 playback_verified=false와 REVERIFY 상태를 유지",
+        "MEDIA CENTER Now Playing은 configured target package의 활성 MediaSession metadata만 표시하고 접근 실패 시 unavailable로 degrade",
+        "VEHICLE INFO는 gear/speed/turn의 미확정 값을 RAW 라벨로만 표시하고 P/R/N/D·km/h 등 의미를 추정하지 않음"
       ],
       "required_logs": [
         "display profile",
@@ -1793,7 +1803,10 @@
         "cockpit_state_source=verification_registry",
         "HMI_REGISTRY_STATE_FALLBACK",
         "cockpitStatusColor",
-        "MEDIA_CENTER_HMI_RENDER"
+        "MEDIA_CENTER_HMI_RENDER",
+        "NOW_PLAYING_SNAPSHOT",
+        "LIVE_VEHICLE_SPEED_RAW",
+        "LIVE_VEHICLE_GEAR_RAW"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1823,7 +1836,9 @@
         "TyreGaugeView vector wheel gauges",
         "registryFeatureState drives cockpit status badges",
         "state-aware cockpit badge palette",
-        "premium media center lists target-scoped autoplay apps"
+        "premium media center lists target-scoped autoplay apps",
+        "MediaNowPlayingRuntime target-scoped read-only metadata snapshot",
+        "raw-only gear/speed/turn cockpit telemetry"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
@@ -2122,7 +2137,8 @@
         "대상 세션/권한이 없으면 전역 media key fallback 없이 fail-closed",
         "PLAY 요청/PlaybackState readback/실패 evidence 기록",
         "실차에서 지정 앱 재생과 순정 안전 경고음 공존을 확인하기 전 VERIFIED 금지",
-        "MEDIA CENTER UI는 AutoStartStore mediaEnabled=true 앱만 표시하고 실제 재생 성공으로 간주하지 않음"
+        "MEDIA CENTER UI는 AutoStartStore mediaEnabled=true 앱만 표시하고 실제 재생 성공으로 간주하지 않음",
+        "Now Playing metadata는 mediaEnabled target package 세션에서만 읽고 전역 세션 metadata를 표시하지 않음"
       ],
       "required_logs": [
         "AUTOSTART_MEDIA_CHANGED",
@@ -2134,7 +2150,8 @@
         "BACKGROUND_MEDIA_PLAYBACK_READBACK",
         "BACKGROUND_MEDIA_SESSION_ACCESS_REQUIRED",
         "BACKGROUND_MEDIA_PLAY_FAILED",
-        "MEDIA_CENTER_HMI_RENDER"
+        "MEDIA_CENTER_HMI_RENDER",
+        "NOW_PLAYING_SNAPSHOT"
       ],
       "known_bad": [
         "대상 앱이 활성 MediaSession을 노출하는지 앱별 차이가 있으며 BYD Android 10 실차 재검증 필요",
@@ -2155,7 +2172,9 @@
         "비대상 미디어가 재생/중단되지 않는지 확인",
         "순정 안전 경고음이 정상 우선 출력되는지 확인"
       ],
-      "evidence": [],
+      "evidence": [
+        "MediaNowPlayingRuntime active target session metadata readback"
+      ],
       "next_action": "1.2.2 BETA 실차에서 target MediaSession discovery/play/readback 및 순정 안전 오디오 arbitration evidence 수집",
       "confidence": {
         "behavior": "MEDIUM",

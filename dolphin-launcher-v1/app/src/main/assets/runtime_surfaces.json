@@ -257,7 +257,14 @@
         "mediaAutoStartApps",
         "mediaCenterRow",
         "MEDIA_CENTER_HMI_RENDER",
-        "playback_verified=false"
+        "playback_verified=false",
+        "mediaNowPlayingSnapshot",
+        "nowPlayingCard",
+        "NOW_PLAYING_SNAPSHOT",
+        "vehicleSpeedRaw",
+        "vehicleGearRaw",
+        "rawValue",
+        "normalized=false"
       ]
     },
     {
@@ -604,7 +611,11 @@
         "PERIOD_MS=500L",
         "VEHICLE_RAW",
         "VEHICLE_BASELINE",
-        "TPMS_AREA_UNRESOLVED"
+        "TPMS_AREA_UNRESOLVED",
+        "onSpeedRaw",
+        "getCurrentSpeed",
+        "speed.current",
+        "speed_raw"
       ]
     },
     {
@@ -838,7 +849,10 @@
         "mediaAutoStartApps",
         "mediaCenterRow",
         "MEDIA_CENTER_HMI_RENDER",
-        "playback_verified=false"
+        "playback_verified=false",
+        "MediaNowPlayingRuntime",
+        "NOW_PLAYING_SNAPSHOT",
+        "nowPlayingCard"
       ]
     },
     {
@@ -1094,6 +1108,29 @@
         "setLive",
         "drawArc",
         "does not infer safe/unsafe pressure thresholds"
+      ]
+    },
+    {
+      "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/MediaNowPlayingRuntime.java",
+      "tokens": [
+        "MediaNowPlayingRuntime",
+        "getActiveSessions",
+        "targetPackages",
+        "MediaMetadata",
+        "PlaybackState",
+        "notification-listener-access-required",
+        "target-session-unavailable"
+      ]
+    },
+    {
+      "feature_id": "PREMIUM_HMI_HOME",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/MediaNowPlayingRuntime.java",
+      "tokens": [
+        "MediaNowPlayingRuntime",
+        "Snapshot",
+        "playbackLabel",
+        "metadataString"
       ]
     }
   ],

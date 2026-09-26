@@ -31,6 +31,7 @@ public final class VehicleReadOnlyMonitor {
 
     public interface Listener {
         void onGear(String value);
+        void onSpeedRaw(Integer raw);
         void onDriveMode(String value);
         void onRegen(String value);
         void onEpb(boolean held);
@@ -89,6 +90,10 @@ public final class VehicleReadOnlyMonitor {
         Integer gear=read(GEARBOX,"getCurrentGear");
         VerificationEvidenceRuntime.updateLiveCorrelationValue("gear_raw",gear);
         if(changed("gear.current",gear)) post(()->listener.onRaw("gear.candidate.unmapped",gear));
+
+        Integer speed=read(SPEED,"getCurrentSpeed");
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("speed_raw",speed);
+        if(changed("speed.current",speed)) post(()->listener.onSpeedRaw(speed));
 
         Integer epb=read(GEARBOX,"getEPBState");
         VerificationEvidenceRuntime.updateLiveCorrelationValue("epb_raw",epb);
@@ -223,7 +228,6 @@ public final class VehicleReadOnlyMonitor {
         boolean liveAutoHold=autoHoldTest
                 && VerificationEvidenceRuntime.activeTestWithin(app,10L*60L*1000L);
         if(liveAutoHold || avhChanged || avhSwitchChanged){
-            Integer speed=read(SPEED,"getCurrentSpeed");
             Integer brakeDepth=read(SPEED,"getBrakeDeepness");
             Integer accelDepth=read(SPEED,"getAccelerateDeepness");
             Integer brakePedal=read(GEARBOX,"getBrakePedalState");

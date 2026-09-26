@@ -80,6 +80,8 @@ public class LauncherActivity extends Activity {
     private boolean splitCameraEvidenceReceiverRegistered;
     private final Runnable splitPostCameraReadback = this::captureSplitPostCameraReadback;
     private volatile Integer tpmsFlKpa, tpmsFrKpa, tpmsRlKpa, tpmsRrKpa;
+    private volatile Integer vehicleGearRaw, vehicleSpeedRaw;
+    private volatile Integer vehicleTurnLeftRaw, vehicleTurnRightRaw;
     private final VehicleVoicePolicy.Output vehicleVoiceOutput = (promptId, phrase) -> {
         if (vehiclePromptPlayer == null) {
             VerificationEvidenceRuntime.recordPassiveEvent(
@@ -218,6 +220,13 @@ public class LauncherActivity extends Activity {
             @Override public void onGear(String value) {
                 VehicleVoicePolicy.gear(LauncherActivity.this, vehicleVoiceOutput, value);
             }
+            @Override public void onSpeedRaw(Integer raw) {
+                vehicleSpeedRaw = raw;
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        LauncherActivity.this, "LIVE_VEHICLE_SPEED_RAW",
+                        "source=BYDAutoSpeedDevice.getCurrentSpeed;speed_raw=" + raw
+                                + ";unit=unverified;ui=raw-only");
+            }
             @Override public void onDriveMode(String value) {
                 VehicleVoicePolicy.driveMode(LauncherActivity.this, vehicleVoiceOutput, value);
             }
@@ -244,6 +253,8 @@ public class LauncherActivity extends Activity {
                         "bsd_raw=" + raw + ";voice=suppressed-pending-side-correlation");
             }
             @Override public void onTurnRaw(Integer leftRaw, Integer rightRaw) {
+                vehicleTurnLeftRaw = leftRaw;
+                vehicleTurnRightRaw = rightRaw;
                 VerificationEvidenceRuntime.recordPassiveEvent(
                         LauncherActivity.this, "TURN_SIGNAL_RAW_TRANSITION",
                         "left_raw=" + leftRaw + ";right_raw=" + rightRaw
@@ -294,6 +305,13 @@ public class LauncherActivity extends Activity {
                 tpmsRlKpa = validTpmsKpa(rl); tpmsRrKpa = validTpmsKpa(rr);
             }
             @Override public void onRaw(String signal, Integer raw) {
+                if ("gear.candidate.unmapped".equals(signal)) {
+                    vehicleGearRaw = raw;
+                    VerificationEvidenceRuntime.recordPassiveEvent(
+                            LauncherActivity.this, "LIVE_VEHICLE_GEAR_RAW",
+                            "source=BYDAutoGearboxDevice.getCurrentGear;gear_raw=" + raw
+                                    + ";mapping=unverified;ui=raw-only");
+                }
                 // AVH/BSD and other not-yet-normalized signals remain evidence-only.
             }
         });
@@ -1737,10 +1755,11 @@ public class LauncherActivity extends Activity {
         String vehicleState = registryFeatureState(
                 "LIVE_VEHICLE_INFO","BETA");
 
+        MediaNowPlayingRuntime.Snapshot nowPlaying = mediaNowPlayingSnapshot();
         deck.addView(cockpitPanel(
                 "MEDIA CENTER",
-                "대상 MediaSession · 실차 재검증",
-                mediaState,
+                mediaPanelSummary(nowPlaying),
+                mediaState + (nowPlaying.available ? " · " + nowPlaying.playback : ""),
                 HmiGlyphView.class,
                 CockpitPanelGraphicView.MEDIA,
                 this::showMediaCenter), weighted());
@@ -1828,6 +1847,11 @@ public class LauncherActivity extends Activity {
         panel.addView(hmiInfoStrip(
                 "전역 media key 미사용 · 대상 MediaSession만 PLAY 요청 · 실차 재검증 필요"));
 
+        MediaNowPlayingRuntime.Snapshot nowPlaying = mediaNowPlayingSnapshot();
+        panel.addView(nowPlayingCard(nowPlaying),
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(92)));
+
         List<AppEntry> mediaApps = mediaAutoStartApps();
         if (mediaApps.isEmpty()) {
             TextView empty = text(
@@ -1869,12 +1893,77 @@ public class LauncherActivity extends Activity {
                 this,"MEDIA_CENTER_HMI_RENDER",
                 "variant=glass-vector-v2;state="+state
                         +";configured_media_apps="+mediaApps.size()
+                        +";now_playing_available="+nowPlaying.available
+                        +";now_playing_state="+nowPlaying.playback
                         +";playback_verified=false");
 
         new AlertDialog.Builder(this)
                 .setView(panel)
                 .setPositiveButton("완료",null)
                 .show();
+    }
+
+    private MediaNowPlayingRuntime.Snapshot mediaNowPlayingSnapshot() {
+        LinkedHashSet<String> targets=new LinkedHashSet<>();
+        for(AppEntry app:mediaAutoStartApps()) targets.add(app.packageName);
+        MediaNowPlayingRuntime.Snapshot snapshot=
+                MediaNowPlayingRuntime.read(this,targets);
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this,"NOW_PLAYING_SNAPSHOT",
+                "available="+snapshot.available
+                        +";package="+String.valueOf(snapshot.packageName)
+                        +";playback="+snapshot.playback
+                        +";reason="+snapshot.reason
+                        +";metadata_logged=false");
+        return snapshot;
+    }
+
+    private String mediaPanelSummary(MediaNowPlayingRuntime.Snapshot snapshot) {
+        if(snapshot==null || !snapshot.available) {
+            return "대상 MediaSession · " + (snapshot==null
+                    ? "UNAVAILABLE" : snapshot.reason);
+        }
+        return snapshot.title + " · " + snapshot.artist;
+    }
+
+    private View nowPlayingCard(MediaNowPlayingRuntime.Snapshot snapshot) {
+        LinearLayout row=new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(14),dp(10),dp(14),dp(10));
+        row.setBackground(gradientRound(
+                new String[]{"#11313A","#081A20","#051014"},18,"#2C5963"));
+
+        HmiGlyphView icon=new HmiGlyphView(this,"▶");
+        icon.setAccentColor(Color.parseColor(
+                snapshot.available ? "#8CFFE8" : "#7B929B"));
+        icon.setBackground(gradientRound(
+                new String[]{"#173F46","#0B252A"},16,"#2E615F"));
+        LinearLayout.LayoutParams iconLp=new LinearLayout.LayoutParams(dp(48),dp(48));
+        iconLp.rightMargin=dp(12);
+        row.addView(icon,iconLp);
+
+        LinearLayout copy=new LinearLayout(this);
+        copy.setOrientation(LinearLayout.VERTICAL);
+        TextView eyebrow=text(
+                snapshot.available ? "NOW PLAYING · "+snapshot.playback
+                        : "NOW PLAYING · UNAVAILABLE",
+                9.5f,
+                Color.parseColor(snapshot.available ? "#72E8D0" : "#8297A0"),
+                true);
+        eyebrow.setLetterSpacing(0.07f);
+        copy.addView(eyebrow);
+        copy.addView(text(
+                snapshot.available ? snapshot.title : snapshot.reason,
+                14f,Color.WHITE,true));
+        copy.addView(text(
+                snapshot.available
+                        ? snapshot.artist+" · "+appLabel(snapshot.packageName)
+                        : "활성 target MediaSession 또는 권한 확인 필요",
+                10f,Color.parseColor("#7E99A4"),false));
+        row.addView(copy,new LinearLayout.LayoutParams(
+                0,ViewGroup.LayoutParams.WRAP_CONTENT,1f));
+        return row;
     }
 
     private List<AppEntry> mediaAutoStartApps() {
@@ -1960,9 +2049,11 @@ public class LauncherActivity extends Activity {
         if (tpmsFrKpa != null) live++;
         if (tpmsRlKpa != null) live++;
         if (tpmsRrKpa != null) live++;
-        return live == 0
-                ? "TPMS 연결 대기 · 차량 raw 수집"
-                : "TPMS " + live + "/4 wheel · read-only";
+        String speed = vehicleSpeedRaw == null ? "speed RAW --"
+                : "speed RAW " + vehicleSpeedRaw;
+        String gear = vehicleGearRaw == null ? "gear RAW --"
+                : "gear RAW " + vehicleGearRaw;
+        return gear + " · " + speed + " · TPMS " + live + "/4";
     }
 
     private void showVehicleInfoPanel() {
@@ -1975,7 +2066,16 @@ public class LauncherActivity extends Activity {
         panel.addView(hmiDialogHeader(
                 "VEHICLE INFO","TPMS · read-only vehicle layer","◉"));
         panel.addView(hmiInfoStrip(
-                "차량 제어 없음 · 검증 전 raw 값을 의미로 추정하지 않음"));
+                "차량 제어 없음 · GEAR/SPEED/TURN은 의미·단위 확정 전 RAW로만 표시"));
+
+        LinearLayout telemetry=new LinearLayout(this);
+        telemetry.setOrientation(LinearLayout.HORIZONTAL);
+        telemetry.addView(vehicleMetric("GEAR RAW",rawValue(vehicleGearRaw)),weighted());
+        telemetry.addView(vehicleMetric("SPEED RAW",rawValue(vehicleSpeedRaw)),weighted());
+        telemetry.addView(vehicleMetric("TURN RAW",
+                "L "+rawValue(vehicleTurnLeftRaw)+" · R "+rawValue(vehicleTurnRightRaw)),weighted());
+        panel.addView(telemetry,new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(78)));
 
         LinearLayout row1=new LinearLayout(this);
         row1.setOrientation(LinearLayout.HORIZONTAL);
@@ -1994,12 +2094,21 @@ public class LauncherActivity extends Activity {
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this,"VEHICLE_INFO_HMI_RENDER",
                 "variant=glass-vector-v2;tpms_live="
-                        + (tpmsFlKpa!=null||tpmsFrKpa!=null||tpmsRlKpa!=null||tpmsRrKpa!=null));
+                        + (tpmsFlKpa!=null||tpmsFrKpa!=null||tpmsRlKpa!=null||tpmsRrKpa!=null)
+                        +";gear_raw="+String.valueOf(vehicleGearRaw)
+                        +";speed_raw="+String.valueOf(vehicleSpeedRaw)
+                        +";turn_left_raw="+String.valueOf(vehicleTurnLeftRaw)
+                        +";turn_right_raw="+String.valueOf(vehicleTurnRightRaw)
+                        +";normalized=false");
 
         new AlertDialog.Builder(this)
                 .setView(panel)
                 .setPositiveButton("완료",null)
                 .show();
+    }
+
+    private String rawValue(Integer value) {
+        return value == null ? "--" : String.valueOf(value);
     }
 
     private View vehicleMetric(String label,String value) {
