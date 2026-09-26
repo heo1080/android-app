@@ -2404,11 +2404,11 @@ public class LauncherActivity extends Activity {
         FrameLayout card = new FrameLayout(this);
         card.setClickable(true);
         card.setFocusable(true);
-        card.setElevation(dp(2));
+        card.setElevation(dp(3));
         card.setBackground(pressableGradientRound(
                 new String[]{"#102831","#09171D","#061014"},
                 new String[]{"#173B47","#0D252E","#09181E"},
-                22,"#244C59"));
+                22,"#2B5662"));
         card.setOnClickListener(v -> action.run());
 
         CockpitPanelGraphicView graphic = new CockpitPanelGraphicView(this, mode);
@@ -2419,6 +2419,18 @@ public class LauncherActivity extends Activity {
         card.addView(graphic, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
+
+        String role = mode == CockpitPanelGraphicView.MEDIA ? "MEDIA"
+                : mode == CockpitPanelGraphicView.SAFETY ? "SOURCE" : "RAW";
+        TextView roleBadge = chip(role);
+        roleBadge.setTextColor(Color.parseColor(
+                mode == CockpitPanelGraphicView.SAFETY ? "#FFD166" : "#8CFFE8"));
+        roleBadge.setGravity(Gravity.CENTER);
+        FrameLayout.LayoutParams roleLp = new FrameLayout.LayoutParams(
+                dp(66),dp(28),Gravity.TOP|Gravity.RIGHT);
+        roleLp.topMargin=dp(12);
+        roleLp.rightMargin=dp(12);
+        card.addView(roleBadge,roleLp);
 
         LinearLayout copy = new LinearLayout(this);
         copy.setOrientation(LinearLayout.VERTICAL);
@@ -2433,11 +2445,11 @@ public class LauncherActivity extends Activity {
         if (mode == CockpitPanelGraphicView.VEHICLE) homeVehicleStatus = eyebrow;
         copy.addView(eyebrow);
 
-        TextView head = text(title,16f,Color.WHITE,true);
-        head.setLetterSpacing(0.04f);
+        TextView head = text(title,16.5f,Color.WHITE,true);
+        head.setLetterSpacing(0.05f);
         copy.addView(head);
 
-        TextView sub = text(subtitle,10f,Color.parseColor("#8CA6AF"),false);
+        TextView sub = text(subtitle,10f,Color.parseColor("#91AAB3"),false);
         sub.setMaxLines(2);
         sub.setEllipsize(android.text.TextUtils.TruncateAt.END);
         sub.setAutoSizeTextTypeUniformWithConfiguration(
@@ -2448,10 +2460,60 @@ public class LauncherActivity extends Activity {
         copy.addView(sub);
 
         FrameLayout.LayoutParams copyLp = new FrameLayout.LayoutParams(
-                (int)(dp(190)), ViewGroup.LayoutParams.MATCH_PARENT);
+                dp(206), ViewGroup.LayoutParams.MATCH_PARENT);
         copyLp.gravity = Gravity.LEFT;
         card.addView(copy,copyLp);
         return card;
+    }
+
+    private View referencePanelHero(int mode,String kicker,String title,
+                                    String status,String detail) {
+        FrameLayout hero=new FrameLayout(this);
+        hero.setBackground(gradientRound(
+                new String[]{"#12313A","#091A20","#050D12"},22,"#32606A"));
+        hero.setElevation(dp(2));
+
+        CockpitPanelGraphicView graphic=new CockpitPanelGraphicView(this,mode);
+        graphic.setSignalState(cockpitSignalState(status));
+        FrameLayout.LayoutParams graphicLp=new FrameLayout.LayoutParams(
+                dp(300),ViewGroup.LayoutParams.MATCH_PARENT,Gravity.RIGHT);
+        hero.addView(graphic,graphicLp);
+
+        LinearLayout copy=new LinearLayout(this);
+        copy.setOrientation(LinearLayout.VERTICAL);
+        copy.setGravity(Gravity.CENTER_VERTICAL);
+        copy.setPadding(dp(18),dp(12),dp(8),dp(12));
+
+        TextView eye=text(kicker,9.5f,Color.parseColor("#77CFC4"),true);
+        eye.setLetterSpacing(0.13f);
+        copy.addView(eye);
+
+        TextView head=text(title,21f,Color.WHITE,true);
+        head.setLetterSpacing(0.03f);
+        copy.addView(head);
+
+        TextView state=text(status,10f,cockpitStatusColor(status),true);
+        state.setLetterSpacing(0.06f);
+        fitSingleLine(state,8,10);
+        copy.addView(state);
+
+        TextView desc=text(detail,9.5f,Color.parseColor("#88A3AC"),false);
+        desc.setMaxLines(2);
+        desc.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        copy.addView(desc);
+
+        FrameLayout.LayoutParams copyLp=new FrameLayout.LayoutParams(
+                dp(300),ViewGroup.LayoutParams.MATCH_PARENT,Gravity.LEFT);
+        hero.addView(copy,copyLp);
+        return hero;
+    }
+
+    private TextView referenceSectionLabel(String title,String subtitle) {
+        TextView label=text(title+"  ·  "+subtitle,10f,Color.parseColor("#84A6AF"),true);
+        label.setLetterSpacing(0.08f);
+        label.setGravity(Gravity.CENTER_VERTICAL);
+        label.setPadding(dp(10),0,dp(10),0);
+        return label;
     }
 
     private String safetyStatusLine(
