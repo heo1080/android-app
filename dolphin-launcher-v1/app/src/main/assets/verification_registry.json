@@ -2344,7 +2344,8 @@
         "UI frame timing evidence는 diagnostic session ID로 묶어 과거 session latest 파일 혼입을 차단",
         "Evidence evaluator는 canonical Registry/Test Contract/Dependencies/Runtime Surface/Known-Bad/Voice/Evaluation metadata를 runtime success/failure marker 검색 대상에서 제외",
         "canonical metadata 안에 success_any/failure_any literal이 있어도 Test ID 결과를 PASS/FAIL로 만들 수 없음",
-        "metadata-isolation self-test 실패 시 governance PASS 금지"
+        "metadata-isolation self-test 실패 시 governance PASS 금지",
+      "Build Dolphin Launcher V1 pull_request validation은 dolphin-launcher-v1와 dolphin-launcher-v1-ui-reference-dock 두 기준 브랜치를 모두 merge 전에 검증"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2404,7 +2405,9 @@
         "session_id",
         "same-session timing filter",
         "DIAGNOSTIC_EVALUATOR_METADATA_ISOLATION_OK",
-        "runtime_evidence_only=true"
+        "runtime_evidence_only=true",
+      "V1_PR_CI_TARGET_OK",
+      "pull_request_targets=dolphin-launcher-v1,dolphin-launcher-v1-ui-reference-dock"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음",
@@ -2444,7 +2447,8 @@
         "Verification Center close control 48dp touch target",
         "Verification Center UI QUALITY summary card",
         "structured UI frame timing bundle and Verification Center metrics",
-        "V1 and production diagnostic evaluators implement runtime-only metadata isolation with synthetic metadata-only/runtime-success/runtime-failure self-tests"
+        "V1 and production diagnostic evaluators implement runtime-only metadata isolation with synthetic metadata-only/runtime-success/runtime-failure self-tests",
+      "Build workflow PR target coverage guard for dolphin-launcher-v1 and dolphin-launcher-v1-ui-reference-dock"
       ],
       "next_action": "KB-014: V1/production runtime-only metadata isolation 구현 상태를 유지하고 기존 대표 Evidence를 재평가 → metadata contamination 제거가 확인되기 전 FIX_CANDIDATE 유지 → 재평가 후에만 lifecycle 전환 및 GOV-REG-001 PASS 검토",
       "confidence": {

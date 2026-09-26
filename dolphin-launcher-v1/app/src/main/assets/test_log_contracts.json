@@ -2722,7 +2722,8 @@
         "runtime_surfaces uses tokens only; legacy required_tokens is rejected",
         "every runtime surface has non-empty tokens verified against source",
         "evaluator marker matching excludes canonical Registry/Test Contract/Runtime Surface/Known-Bad/Voice metadata from runtime evidence",
-        "canonical metadata containing success_any/failure_any literals cannot satisfy or fail a Test ID by itself"
+        "canonical metadata containing success_any/failure_any literals cannot satisfy or fail a Test ID by itself",
+        "Build Dolphin Launcher V1 pull_request trigger covers both dolphin-launcher-v1 and dolphin-launcher-v1-ui-reference-dock before merge"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2751,7 +2752,9 @@
         "legacy required_tokens schema forbidden",
         "surface tokens missing",
         "DIAGNOSTIC_EVALUATOR_METADATA_ISOLATION_OK",
-        "runtime_evidence_only=true"
+        "runtime_evidence_only=true",
+        "V1_PR_CI_TARGET_OK",
+        "pull_request_targets=dolphin-launcher-v1,dolphin-launcher-v1-ui-reference-dock"
       ]
     },
     {
