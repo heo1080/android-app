@@ -1752,7 +1752,10 @@
         "HOME은 hero/quick control/sound lab/tyre monitor/favorites의 시각 계층을 명확히 구분",
         "action card와 dock은 pressed state를 제공하고 야간 대비를 유지",
         "HOME quick card와 bottom dock 핵심 아이콘은 font glyph가 아닌 HmiGlyphView vector path로 렌더링",
-        "앱서랍은 HOME과 동일한 glass-vector-v2 surface/pressed state/icon well을 사용"
+        "앱서랍은 HOME과 동일한 glass-vector-v2 surface/pressed state/icon well을 사용",
+        "설정/시동 자동실행 주요 surface도 HOME과 동일한 glass-vector-v2 디자인 시스템을 사용",
+        "설정의 destructive action은 별도 danger palette로 시각 구분",
+        "시동 자동실행 앱 카드에서 지연/순서/미디어 옵션의 기존 기능 연결을 유지"
       ],
       "required_logs": [
         "display profile",
@@ -1760,7 +1763,9 @@
         "navigation action",
         "PREMIUM_HMI_RENDER",
         "variant=glass-vector-v2",
-        "APP_DRAWER_HMI_RENDER"
+        "APP_DRAWER_HMI_RENDER",
+        "SETTINGS_HMI_RENDER",
+        "AUTOSTART_HMI_RENDER"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1780,7 +1785,9 @@
         "HomeHeroGraphicView pure Canvas/vector cockpit graphic",
         "glass-vector-v2 LauncherActivity home hierarchy",
         "HmiGlyphView vector icon system for HOME/dock",
-        "glass-vector-v2 app drawer and app icon wells"
+        "glass-vector-v2 app drawer and app icon wells",
+        "premium settings rows with vector glyphs and danger states",
+        "premium autostart manager surface"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {

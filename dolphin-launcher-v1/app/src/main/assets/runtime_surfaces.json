@@ -215,7 +215,13 @@
         "HmiGlyphView",
         "APP_DRAWER_HMI_RENDER",
         "app_icons=system-drawable",
-        "iconWell"
+        "iconWell",
+        "settingsRow",
+        "SETTINGS_HMI_RENDER",
+        "AUTOSTART_HMI_RENDER",
+        "SYSTEM CONTROL",
+        "AUTO START",
+        "danger_rows=2"
       ]
     },
     {

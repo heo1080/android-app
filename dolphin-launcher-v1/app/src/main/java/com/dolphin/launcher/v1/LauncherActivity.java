@@ -956,16 +956,45 @@ public class LauncherActivity extends Activity {
     private void showAutoStartManager() {
         LinearLayout panel = new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setPadding(dp(18), dp(8), dp(18), dp(8));
+        panel.setPadding(dp(18), dp(14), dp(18), dp(14));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E","#07151B","#040A0E"}, 24, "#315A68"));
+
+        LinearLayout autoHead = new LinearLayout(this);
+        autoHead.setOrientation(LinearLayout.HORIZONTAL);
+        autoHead.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout autoLabels = new LinearLayout(this);
+        autoLabels.setOrientation(LinearLayout.VERTICAL);
+        TextView autoTitle = text("AUTO START", 22f, Color.WHITE, true);
+        autoTitle.setLetterSpacing(0.08f);
+        autoLabels.addView(autoTitle);
+        autoLabels.addView(text("Ignition launch · delay · media session", 10f,
+                Color.parseColor("#6E8C97"), false));
+        autoHead.addView(autoLabels, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        HmiGlyphView autoGlyph = new HmiGlyphView(this, "▶");
+        autoGlyph.setAccentColor(Color.parseColor("#8CFFE8"));
+        autoGlyph.setBackground(gradientRound(
+                new String[]{"#173F46","#0B252A"}, 17, "#2E615F"));
+        autoHead.addView(autoGlyph, new LinearLayout.LayoutParams(dp(44), dp(44)));
+        LinearLayout.LayoutParams autoHeadLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(58));
+        autoHeadLp.bottomMargin = dp(8);
+        panel.addView(autoHead, autoHeadLp);
 
         Switch master = new Switch(this);
         master.setText("시동 후 등록 앱 자동 실행");
         master.setTextColor(Color.WHITE);
         master.setChecked(prefs.getBoolean(KEY_AUTOSTART_ENABLED, true));
+        master.setBackground(gradientRound(
+                new String[]{"#0E222A","#07151B"}, 16, "#254A57"));
+        master.setPadding(dp(14), 0, dp(14), 0);
         master.setOnCheckedChangeListener((buttonView, checked) ->
                 prefs.edit().putBoolean(KEY_AUTOSTART_ENABLED, checked).apply());
-        panel.addView(master, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, dp(54)));
+        LinearLayout.LayoutParams masterLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(54));
+        masterLp.bottomMargin = dp(10);
+        panel.addView(master, masterLp);
 
         Button addApp = button("+ 앱 추가");
         addApp.setOnClickListener(v -> showAutoStartAppPicker());
@@ -988,8 +1017,10 @@ public class LauncherActivity extends Activity {
                 final int delay = (int) Math.round(delayMs / 1000.0);
                 LinearLayout card = new LinearLayout(this);
                 card.setOrientation(LinearLayout.VERTICAL);
-                card.setPadding(dp(12), dp(8), dp(12), dp(8));
-                card.setBackground(round("#101D24", 16, "#294451"));
+                card.setPadding(dp(12), dp(9), dp(12), dp(9));
+                card.setBackground(gradientRound(
+                        new String[]{"#10262F","#09181E","#061014"}, 17, "#2A4F5C"));
+                card.setElevation(dp(1));
 
                 LinearLayout infoRow = new LinearLayout(this);
                 infoRow.setOrientation(LinearLayout.HORIZONTAL);
@@ -1081,17 +1112,32 @@ public class LauncherActivity extends Activity {
         ScrollView scroll = new ScrollView(this);
         scroll.addView(panel);
 
-        new AlertDialog.Builder(this)
-                .setTitle("시동 자동실행")
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this, "AUTOSTART_HMI_RENDER",
+                "variant=glass-vector-v2;cards=" + selected.size()
+                        + ";master=" + prefs.getBoolean(KEY_AUTOSTART_ENABLED, true));
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(scroll)
                 .setPositiveButton("닫기", null)
-                .show();
+                .create();
+        dialog.setOnShowListener(d -> {
+            Window w = dialog.getWindow();
+            if (w != null) {
+                w.setLayout((int) (getResources().getDisplayMetrics().widthPixels * 0.82f),
+                        (int) (getResources().getDisplayMetrics().heightPixels * 0.88f));
+                w.setDimAmount(0.70f);
+                w.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            }
+        });
+        dialog.show();
     }
 
     private void showAutoStartAppPicker() {
         LinearLayout panel = new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setPadding(dp(14), dp(10), dp(14), dp(10));
+        panel.setPadding(dp(16), dp(12), dp(16), dp(12));
+        panel.setBackground(gradientRound(
+                new String[]{"#0F232B","#07151B","#040A0E"}, 22, "#2A5260"));
 
         Set<String> selected = autoStartPackages();
         boolean hasCandidate = false;
@@ -1102,7 +1148,11 @@ public class LauncherActivity extends Activity {
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setPadding(dp(8), dp(5), dp(8), dp(5));
+            row.setPadding(dp(10), dp(6), dp(10), dp(6));
+            row.setBackground(pressableGradientRound(
+                    new String[]{"#0D2027","#071318"},
+                    new String[]{"#15313B","#0A2027"},
+                    15, "#213E49"));
 
             ImageView icon = new ImageView(this);
             icon.setImageDrawable(app.icon);
@@ -1122,7 +1172,10 @@ public class LauncherActivity extends Activity {
                 }
             });
             row.addView(add, new LinearLayout.LayoutParams(dp(76), dp(40)));
-            panel.addView(row);
+            LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, dp(54));
+            rowLp.bottomMargin = dp(6);
+            panel.addView(row, rowLp);
         }
 
         if (!hasCandidate) {
@@ -1155,58 +1208,163 @@ public class LauncherActivity extends Activity {
     }
 
     private void showSettings() {
-        String[] actions = new String[] {
-                "HOME 역할 · 1.2.2 BETA 재검증",
-                "앱 업데이트 확인",
-                "실차 검증 센터",
-                "즐겨찾기 초기화",
-                "2분할 지정 초기화",
-                "Dolphin Launcher V1 정보"
-        };
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(18), dp(16), dp(18), dp(16));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E","#07151B","#040A0E"}, 24, "#315A68"));
 
-        new AlertDialog.Builder(this)
-                .setTitle("Dolphin Launcher V1")
-                .setItems(actions, (dialog, which) -> {
-                    if (which == 0) {
-                        VerificationEvidenceRuntime.recordPassiveEvent(
-                                this, "HOME_ROLE_REVERIFY_REQUIRED",
-                                "HOME/DEFAULT category intentionally disabled after BYD desktop-app install failure");
-                        new AlertDialog.Builder(this)
-                                .setTitle("HOME 역할 · 재검증 필요")
-                                .setMessage("1.2.0은 HOME/DEFAULT 선언 상태에서 BYD 차량 설치기가 'desktop apps' 설치 실패를 반환했습니다. " +
-                                        "1.2.1부터 설치 호환성 확인을 위해 HOME 역할을 임시 비활성화했습니다.\n\n" +
-                                        "현재 빌드에서 Android 기본 HOME 선택 화면을 여는 것은 실제 역할과 맞지 않으므로 제공하지 않습니다. " +
-                                        "설치 호환성과 HOME 복원 경로가 실차에서 확인될 때까지 BETA/REVERIFY_REQUIRED로 유지합니다.")
-                                .setPositiveButton("확인", null)
-                                .show();
-                    }
-                    if (which == 1) {
-                        AppUpdateManager.checkForUpdates(this, true);
-                    }
-                    if (which == 2) {
-                        openVerificationCenter();
-                    }
-                    if (which == 3) {
-                        prefs.edit().remove(KEY_FAVORITES).apply();
-                        seedFavorites();
-                        showHome();
-                    }
-                    if (which == 4) {
-                        prefs.edit().remove(KEY_SPLIT_LEFT).remove(KEY_SPLIT_RIGHT).apply();
-                        refreshSplitChip();
-                        showHome();
-                    }
-                    if (which == 5) {
-                        new AlertDialog.Builder(this)
-                                .setTitle("Dolphin Launcher V1 OTA")
-                                .setMessage("독립 패키지: com.dolphin.launcher.v1\n" +
-                                        "버전: " + BuildConfig.VERSION_NAME + "\n\n" +
-                                        "Registry v3 + 앱내 서명검증 OTA 업데이트 통합 빌드입니다.")
-                                .setPositiveButton("확인", null)
-                                .show();
-                    }
-                })
-                .show();
+        LinearLayout head = new LinearLayout(this);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+
+        LinearLayout labels = new LinearLayout(this);
+        labels.setOrientation(LinearLayout.VERTICAL);
+        TextView title = text("SYSTEM CONTROL", 22f, Color.WHITE, true);
+        title.setLetterSpacing(0.08f);
+        labels.addView(title);
+        labels.addView(text("Launcher · OTA · Evidence · Layout", 10f,
+                Color.parseColor("#6E8C97"), false));
+        head.addView(labels, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        HmiGlyphView gear = new HmiGlyphView(this, "⚙");
+        gear.setAccentColor(Color.parseColor("#8CFFE8"));
+        gear.setBackground(gradientRound(
+                new String[]{"#173F46","#0B252A"}, 17, "#2E615F"));
+        head.addView(gear, new LinearLayout.LayoutParams(dp(44), dp(44)));
+        LinearLayout.LayoutParams headLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(60));
+        headLp.bottomMargin = dp(8);
+        panel.addView(head, headLp);
+
+        final AlertDialog[] holder = new AlertDialog[1];
+
+        panel.addView(settingsRow(
+                "HOME 역할", "1.2.2 BETA · BYD 설치 호환성 재검증", "⌂", false,
+                () -> {
+                    VerificationEvidenceRuntime.recordPassiveEvent(
+                            this, "HOME_ROLE_REVERIFY_REQUIRED",
+                            "HOME/DEFAULT category intentionally disabled after BYD desktop-app install failure");
+                    new AlertDialog.Builder(this)
+                            .setTitle("HOME 역할 · 재검증 필요")
+                            .setMessage("1.2.0은 HOME/DEFAULT 선언 상태에서 BYD 차량 설치기가 'desktop apps' 설치 실패를 반환했습니다. "
+                                    + "1.2.1부터 설치 호환성 확인을 위해 HOME 역할을 임시 비활성화했습니다.\n\n"
+                                    + "현재 빌드에서 Android 기본 HOME 선택 화면을 여는 것은 실제 역할과 맞지 않으므로 제공하지 않습니다. "
+                                    + "설치 호환성과 HOME 복원 경로가 실차에서 확인될 때까지 BETA/REVERIFY_REQUIRED로 유지합니다.")
+                            .setPositiveButton("확인", null)
+                            .show();
+                }));
+
+        panel.addView(settingsRow(
+                "앱 업데이트", "서명검증 OTA · 최신 릴리스 확인", "▶", false,
+                () -> AppUpdateManager.checkForUpdates(this, true)));
+
+        panel.addView(settingsRow(
+                "실차 검증 센터", "Registry v3 · Test ID · Evidence", "✓", false,
+                () -> {
+                    if (holder[0] != null) holder[0].dismiss();
+                    openVerificationCenter();
+                }));
+
+        panel.addView(settingsRow(
+                "즐겨찾기 초기화", "HOME 즐겨찾기 기본값 복원", "◎", true,
+                () -> {
+                    prefs.edit().remove(KEY_FAVORITES).apply();
+                    seedFavorites();
+                    showHome();
+                    if (holder[0] != null) holder[0].dismiss();
+                }));
+
+        panel.addView(settingsRow(
+                "2분할 지정 초기화", "좌/우 앱 지정값 제거", "◫", true,
+                () -> {
+                    prefs.edit().remove(KEY_SPLIT_LEFT).remove(KEY_SPLIT_RIGHT).apply();
+                    refreshSplitChip();
+                    showHome();
+                    if (holder[0] != null) holder[0].dismiss();
+                }));
+
+        panel.addView(settingsRow(
+                "Dolphin Launcher V1", "빌드 · 패키지 · Registry 정보", "⚙", false,
+                () -> new AlertDialog.Builder(this)
+                        .setTitle("Dolphin Launcher V1 OTA")
+                        .setMessage("독립 패키지: com.dolphin.launcher.v1\n"
+                                + "버전: " + BuildConfig.VERSION_NAME + "\n\n"
+                                + "Registry v3 + 앱내 서명검증 OTA 업데이트 통합 빌드입니다.")
+                        .setPositiveButton("확인", null)
+                        .show()));
+
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this, "SETTINGS_HMI_RENDER",
+                "variant=glass-vector-v2;rows=6;danger_rows=2");
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(panel)
+                .setNegativeButton("닫기", null)
+                .create();
+        holder[0] = dialog;
+        dialog.setOnShowListener(d -> {
+            Window w = dialog.getWindow();
+            if (w != null) {
+                w.setLayout((int) (getResources().getDisplayMetrics().widthPixels * 0.74f),
+                        (int) (getResources().getDisplayMetrics().heightPixels * 0.90f));
+                w.setDimAmount(0.72f);
+                w.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            }
+        });
+        dialog.show();
+    }
+
+    private View settingsRow(String title, String subtitle, String symbol,
+                             boolean danger, Runnable action) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(12), dp(8), dp(12), dp(8));
+        row.setBackground(pressableGradientRound(
+                danger
+                        ? new String[]{"#2A171C","#160D11"}
+                        : new String[]{"#0E222A","#07151B"},
+                danger
+                        ? new String[]{"#402129","#241116"}
+                        : new String[]{"#173440","#0A2028"},
+                17,
+                danger ? "#6D3843" : "#284B57"));
+        row.setClickable(true);
+        row.setFocusable(true);
+        row.setOnClickListener(v -> action.run());
+
+        HmiGlyphView icon = new HmiGlyphView(this, symbol);
+        icon.setAccentColor(Color.parseColor(danger ? "#FF9EAA" : "#8CFFE8"));
+        icon.setBackground(gradientRound(
+                danger
+                        ? new String[]{"#3A2027","#1E1116"}
+                        : new String[]{"#173F46","#0B252A"},
+                16,
+                danger ? "#72404B" : "#2E615F"));
+        LinearLayout.LayoutParams iconLp = new LinearLayout.LayoutParams(dp(44), dp(44));
+        iconLp.rightMargin = dp(12);
+        row.addView(icon, iconLp);
+
+        LinearLayout copy = new LinearLayout(this);
+        copy.setOrientation(LinearLayout.VERTICAL);
+        copy.addView(text(title, 14f, Color.WHITE, true));
+        copy.addView(text(subtitle, 10f,
+                Color.parseColor(danger ? "#B8838B" : "#7F99A4"), false));
+        row.addView(copy, new LinearLayout.LayoutParams(
+                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        TextView arrow = text("›", 24f,
+                Color.parseColor(danger ? "#C27783" : "#5F8F9B"), false);
+        arrow.setGravity(Gravity.CENTER);
+        row.addView(arrow, new LinearLayout.LayoutParams(dp(28), dp(44)));
+
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(62));
+        lp.bottomMargin = dp(7);
+        row.setLayoutParams(lp);
+        return row;
     }
 
     private void runPendingAutostart() {
