@@ -58,7 +58,9 @@
         "동일 signing certificate 유지",
         "packaged APK has exactly one launchable LauncherActivity",
         "packaged APK contains LAUNCHER category and no HOME category",
-        "packaged minSdk=29 and targetSdk=35"
+        "packaged minSdk=29 and targetSdk=35",
+        "voicePreview audition artifact uses com.dolphin.launcher.v1.voicepreview while canonical release package remains com.dolphin.launcher.v1",
+        "voicePreview and canonical release use the same stable signer but remain distinct install identities"
       ],
       "required_logs": [
         "source commit",
@@ -104,7 +106,9 @@
         "동일 signing certificate 유지",
         "packaged APK has exactly one launchable LauncherActivity",
         "packaged APK contains LAUNCHER category and no HOME category",
-        "packaged minSdk=29 and targetSdk=35"
+        "packaged minSdk=29 and targetSdk=35",
+        "voicePreview audition artifact uses com.dolphin.launcher.v1.voicepreview while canonical release package remains com.dolphin.launcher.v1",
+        "voicePreview and canonical release use the same stable signer but remain distinct install identities"
       ],
       "required_logs": [
         "source commit",
@@ -830,7 +834,11 @@
         "candidate trim metrics are diagnostic only and do not replace manual audible quality/pronunciation verification",
         "fixed voice review panel enumerates exactly 22 VehicleVoicePolicy prompt IDs without duplicated Launcher phrase catalog",
         "preview button dispatch is app-owned audio only and does not mutate vehicle state",
-        "VOICE_FIXED_PREVIEW_REQUESTED remains a request marker and does not count as audible success"
+        "VOICE_FIXED_PREVIEW_REQUESTED remains a request marker and does not count as audible success",
+        "voicePreview package is com.dolphin.launcher.v1.voicepreview and remains isolated from the canonical install",
+        "preview preparation starts from canonical ASSET_REQUIRED, verifies 22 candidate WAV SHA-256 values, and changes only the CI workspace manifest/resources",
+        "signed preview APK packages exactly 22 fixed WAV assets while repository canonical assets remain unmodified",
+        "preview APK audible review does not promote feature state without operator evidence"
       ],
       "required_logs": [
         "VOICE_ASSET_READY",
@@ -855,7 +863,11 @@
         "VOICE_FIXED_PREVIEW_HMI_RENDER",
         "VOICE_FIXED_PREVIEW_REQUESTED",
         "prompt_count=22",
-        "vehicle_write=false"
+        "vehicle_write=false",
+        "VOICE_PREVIEW_PACKAGE_READY",
+        "preview_package=com.dolphin.launcher.v1.voicepreview",
+        "canonical_manifest_unchanged=true",
+        "preview_assets=22"
       ]
     },
     {
@@ -917,7 +929,11 @@
         "candidate trim metrics are diagnostic only and do not replace manual audible quality/pronunciation verification",
         "fixed voice review panel enumerates exactly 22 VehicleVoicePolicy prompt IDs without duplicated Launcher phrase catalog",
         "preview button dispatch is app-owned audio only and does not mutate vehicle state",
-        "VOICE_FIXED_PREVIEW_REQUESTED remains a request marker and does not count as audible success"
+        "VOICE_FIXED_PREVIEW_REQUESTED remains a request marker and does not count as audible success",
+        "voicePreview package is com.dolphin.launcher.v1.voicepreview and remains isolated from the canonical install",
+        "preview preparation starts from canonical ASSET_REQUIRED, verifies 22 candidate WAV SHA-256 values, and changes only the CI workspace manifest/resources",
+        "signed preview APK packages exactly 22 fixed WAV assets while repository canonical assets remain unmodified",
+        "preview APK audible review does not promote feature state without operator evidence"
       ],
       "required_logs": [
         "VOICE_TTS_READY",
@@ -951,7 +967,11 @@
         "VOICE_FIXED_PREVIEW_HMI_RENDER",
         "VOICE_FIXED_PREVIEW_REQUESTED",
         "prompt_count=22",
-        "vehicle_write=false"
+        "vehicle_write=false",
+        "VOICE_PREVIEW_PACKAGE_READY",
+        "preview_package=com.dolphin.launcher.v1.voicepreview",
+        "canonical_manifest_unchanged=true",
+        "preview_assets=22"
       ]
     },
     {
@@ -2395,7 +2415,9 @@
         "same-prefix stable releases are ignored and cannot become OTA candidates",
         "process-death exact-tag restore still requires prerelease=true plus APK/SHA asset completeness",
         "APP_UPDATE_INSTALL_STAGED and final APP_UPDATE_INSTALL_STATUS share session_id and selected release tag",
-        "PENDING_USER_ACTION / SUCCESS / FAILURE status evidence retains install session/release identity"
+        "PENDING_USER_ACTION / SUCCESS / FAILURE status evidence retains install session/release identity",
+        "VOICE_PREVIEW_BUILD suppresses automatic/manual OTA release discovery and pending-install resume before any network or installer action",
+        "preview package never consumes the canonical Dolphin Launcher V1 OTA release channel"
       ],
       "required_logs": [
         "release metadata",
@@ -2410,7 +2432,10 @@
         "APP_UPDATE_PERMISSION_RESUME_FAILED",
         "release_prerelease=true",
         "APP_UPDATE_INSTALL_STATUS session_id",
-        "APP_UPDATE_INSTALL_STATUS release tag"
+        "APP_UPDATE_INSTALL_STATUS release tag",
+        "APP_UPDATE_SUPPRESSED_PREVIEW_BUILD",
+        "voice_preview=true",
+        "network_check=false"
       ]
     },
     {
@@ -2451,7 +2476,9 @@
         "same-prefix stable releases are ignored and cannot become OTA candidates",
         "process-death exact-tag restore still requires prerelease=true plus APK/SHA asset completeness",
         "APP_UPDATE_INSTALL_STAGED and final APP_UPDATE_INSTALL_STATUS share session_id and selected release tag",
-        "PENDING_USER_ACTION / SUCCESS / FAILURE status evidence retains install session/release identity"
+        "PENDING_USER_ACTION / SUCCESS / FAILURE status evidence retains install session/release identity",
+        "VOICE_PREVIEW_BUILD suppresses automatic/manual OTA release discovery and pending-install resume before any network or installer action",
+        "preview package never consumes the canonical Dolphin Launcher V1 OTA release channel"
       ],
       "required_logs": [
         "release metadata",
@@ -2466,7 +2493,10 @@
         "APP_UPDATE_PERMISSION_RESUME_FAILED",
         "release_prerelease=true",
         "APP_UPDATE_INSTALL_STATUS session_id",
-        "APP_UPDATE_INSTALL_STATUS release tag"
+        "APP_UPDATE_INSTALL_STATUS release tag",
+        "APP_UPDATE_SUPPRESSED_PREVIEW_BUILD",
+        "voice_preview=true",
+        "network_check=false"
       ]
     },
     {
