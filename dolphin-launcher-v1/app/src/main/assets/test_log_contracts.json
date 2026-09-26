@@ -611,14 +611,19 @@
       "acceptance": [
         "DisplayMetrics/WindowMetrics/fontScale/orientation 수집",
         "DPI 변경 성공 여부와 readback 기록",
-        "복원 경로 존재"
+        "복원 경로 존재",
+        "DISPLAY quick panel shows current width/height, densityDpi, density and fontScale without OEM display write",
+        "Golden Screenshot entry remains available from DISPLAY panel"
       ],
       "required_logs": [
         "densityDpi",
         "width/height px/dp",
         "smallestWidth",
         "fontScale",
-        "forced settings"
+        "forced settings",
+        "DISPLAY_QUICK_HMI_RENDER",
+        "SYSTEM_SETTINGS_DISPATCH",
+        "actuation=false"
       ]
     },
     {
@@ -649,14 +654,19 @@
       "acceptance": [
         "DisplayMetrics/WindowMetrics/fontScale/orientation 수집",
         "DPI 변경 성공 여부와 readback 기록",
-        "복원 경로 존재"
+        "복원 경로 존재",
+        "DISPLAY quick panel shows current width/height, densityDpi, density and fontScale without OEM display write",
+        "Golden Screenshot entry remains available from DISPLAY panel"
       ],
       "required_logs": [
         "densityDpi",
         "width/height px/dp",
         "smallestWidth",
         "fontScale",
-        "forced settings"
+        "forced settings",
+        "DISPLAY_QUICK_HMI_RENDER",
+        "SYSTEM_SETTINGS_DISPATCH",
+        "actuation=false"
       ]
     },
     {
@@ -1880,13 +1890,18 @@
         "지원 package만 처리",
         "원문 parser 실패 시 추측하지 않음",
         "앱 버전별 contract test",
-        "stale expiry"
+        "stale expiry",
+        "MAP launcher lists only installed supported navigation packages",
+        "MAP launcher records semantic_parse=false and does not infer camera/speed semantics"
       ],
       "required_logs": [
         "source package/version",
         "notification text hash/redacted",
         "parsed type/distance/speed",
-        "timestamp"
+        "timestamp",
+        "NAV_LAUNCHER_HMI_RENDER",
+        "installed_supported_nav",
+        "semantic_parse=false"
       ]
     },
     {
@@ -2290,12 +2305,22 @@
         "터치 target 정상",
         "야간 가독성",
         "LIVE 값 provenance",
-        "HOME→각 메뉴 navigation 정상"
+        "HOME→각 메뉴 navigation 정상",
+        "Golden Reference dock primary actions remain HOME/APPS/2-SPLIT/MAP/SETTINGS/VERIFY",
+        "right-side safe quick controls remain VOLUME/BRIGHTNESS/DISPLAY/DARK",
+        "quick controls do not use unverified vehicle hidden APIs",
+        "MAP launcher only exposes installed supported navigation packages",
+        "DISPLAY/DARK panels remain read-only except explicit Android system settings dispatch"
       ],
       "required_logs": [
         "display profile",
         "render/frame timing",
-        "navigation action"
+        "navigation action",
+        "REFERENCE_DOCK_RENDER",
+        "NAV_LAUNCHER_HMI_RENDER",
+        "DISPLAY_QUICK_HMI_RENDER",
+        "THEME_STATUS_HMI_RENDER",
+        "SYSTEM_SETTINGS_DISPATCH"
       ]
     },
     {
@@ -2328,12 +2353,22 @@
         "터치 target 정상",
         "야간 가독성",
         "LIVE 값 provenance",
-        "HOME→각 메뉴 navigation 정상"
+        "HOME→각 메뉴 navigation 정상",
+        "Golden Reference dock primary actions remain HOME/APPS/2-SPLIT/MAP/SETTINGS/VERIFY",
+        "right-side safe quick controls remain VOLUME/BRIGHTNESS/DISPLAY/DARK",
+        "quick controls do not use unverified vehicle hidden APIs",
+        "MAP launcher only exposes installed supported navigation packages",
+        "DISPLAY/DARK panels remain read-only except explicit Android system settings dispatch"
       ],
       "required_logs": [
         "display profile",
         "render/frame timing",
-        "navigation action"
+        "navigation action",
+        "REFERENCE_DOCK_RENDER",
+        "NAV_LAUNCHER_HMI_RENDER",
+        "DISPLAY_QUICK_HMI_RENDER",
+        "THEME_STATUS_HMI_RENDER",
+        "SYSTEM_SETTINGS_DISPATCH"
       ]
     },
     {
