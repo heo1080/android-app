@@ -2036,7 +2036,8 @@
         "HOME 3-panel cockpit copy width is screen-width adaptive (150~206dp clamp) so compact 10-inch profiles preserve vector graphic space",
         "PREMIUM_HMI_RENDER evidence reports the actual 6 primary dock items",
         "HOME primary cockpit vectors render an in-graphic source scope + current WAITING/LIVE/STALE/BLOCKED state rail without introducing new semantic vehicle claims",
-        "Media/Safety/Vehicle vector scope labels remain TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE so source state cannot be confused with feature verification state"
+        "Media/Safety/Vehicle vector scope labels remain TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE so source state cannot be confused with feature verification state",
+        "cockpit source legend는 scope와 SOURCE 상태를 두 줄로 분리하고 실제 가용 폭에 맞춰 글자 크기를 축소해 compact 10-inch 폭에서 상호 겹침을 방지"
       ],
       "required_logs": [
         "display profile",
@@ -2189,7 +2190,8 @@
         "CockpitPanelGraphicView Vehicle uses decorative read-only sculpture with state-aware accent and no telemetry normalization",
         "LauncherActivity cockpitCopyWidthDp uses screen width dp * 0.22 with 150~206dp clamp and records cockpit_copy_dp",
         "LauncherActivity corrects legacy dock_items=5 evidence drift to dock_items=6",
-        "CockpitPanelGraphicView drawSourceLegend renders truthful scope + WAITING/LIVE/STALE/BLOCKED source-state text without changing Registry feature state"
+        "CockpitPanelGraphicView drawSourceLegend renders truthful scope + WAITING/LIVE/STALE/BLOCKED source-state text without changing Registry feature state",
+        "CockpitPanelGraphicView fitLegendTextSize + two-line source legend layout"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
