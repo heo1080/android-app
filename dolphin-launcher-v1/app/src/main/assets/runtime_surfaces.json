@@ -176,7 +176,10 @@
         "NORMAL_APP_LAUNCH_VISIBLE",
         "latestRawCandidateText",
         "raw 새로고침",
-        "candidate only · PASS 아님"
+        "candidate only · PASS 아님",
+        "rawKeysForTest",
+        "filterRawSnapshot",
+        "live vehicle raw 대상 아님"
       ]
     },
     {

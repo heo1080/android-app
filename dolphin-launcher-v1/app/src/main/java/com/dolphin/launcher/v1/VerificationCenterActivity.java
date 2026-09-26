@@ -504,12 +504,58 @@ public class VerificationCenterActivity extends Activity {
     }
 
     private String latestRawCandidateText() {
+        String[] keys = rawKeysForTest(activeTestId);
+        if (keys.length == 0) {
+            return "최근 raw 후보 · 이 Test ID는 live vehicle raw 대상 아님 · event/evidence 로그 확인";
+        }
         String snapshot = VerificationEvidenceRuntime.liveCorrelationSnapshot();
-        if (snapshot == null || snapshot.trim().isEmpty()) {
+        String filtered = filterRawSnapshot(snapshot, keys);
+        if (filtered.isEmpty()) {
             return "최근 raw 후보(candidate only · PASS 아님) · 아직 없음";
         }
-        return "최근 raw 후보(candidate only · PASS 아님) · "
-                + snapshot.replace(";", " · ");
+        return "최근 raw 후보(candidate only · PASS 아님) · " + filtered;
+    }
+
+    private String[] rawKeysForTest(String testId) {
+        if ("AUD-GEAR-001".equals(testId)) return new String[]{"gear_raw"};
+        if ("AUD-DRV-001".equals(testId) || "AUD-DRV-002".equals(testId)) {
+            return new String[]{"operation_raw"};
+        }
+        if ("AUD-REG-001".equals(testId) || "AUD-REG-002".equals(testId)) {
+            return new String[]{"energy_feedback_raw"};
+        }
+        if ("AUD-SNOW-001".equals(testId) || "AUD-SNOW-002".equals(testId)) {
+            return new String[]{"road_surface_raw"};
+        }
+        if ("AUD-AVH-001".equals(testId) || "AUD-AVH-002".equals(testId)) {
+            return new String[]{"avh_raw","avh_enable_raw","speed_raw",
+                    "brake_pedal_raw","brake_depth_raw","accel_depth_raw"};
+        }
+        if ("AUD-EPB-001".equals(testId)) return new String[]{"epb_raw"};
+        if ("AUD-ICC-001".equals(testId)) return new String[]{"tja_raw"};
+        if ("AUD-BSD-001".equals(testId)) {
+            return new String[]{"bsd_raw","turn_left_raw","turn_right_raw"};
+        }
+        if ("AUD-LVDA-001".equals(testId)) {
+            return new String[]{"radar_area7_raw","radar_area8_raw","speed_raw"};
+        }
+        return new String[0];
+    }
+
+    private String filterRawSnapshot(String snapshot, String[] keys) {
+        if (snapshot == null || snapshot.trim().isEmpty()) return "";
+        java.util.LinkedHashSet<String> wanted = new java.util.LinkedHashSet<>();
+        java.util.Collections.addAll(wanted, keys);
+        StringBuilder out = new StringBuilder();
+        for (String part : snapshot.split(";")) {
+            int split = part.indexOf('=');
+            if (split <= 0) continue;
+            String key = part.substring(0, split).trim();
+            if (!wanted.contains(key)) continue;
+            if (out.length() > 0) out.append(" · ");
+            out.append(part.trim());
+        }
+        return out.toString();
     }
 
     private void addMarkerButton(LinearLayout row, String label, String observation) {
