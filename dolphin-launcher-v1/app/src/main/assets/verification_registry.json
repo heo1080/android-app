@@ -523,7 +523,8 @@
         "DISPLAY utility hero는 현재 resolution/DPI/fontScale을 read-only 상태로 요약",
         "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임",
         "도크 렌더 시 current screen width dp와 compact-risk threshold를 함께 기록",
-        "해당 Golden Reference hero는 실제 screen width dp 기반 adaptive geometry를 사용"
+        "해당 Golden Reference hero는 실제 screen width dp 기반 adaptive geometry를 사용",
+        "resource/logical px, getRealMetrics real px, active Display.Mode physical px를 분리 기록해 1280x720 논리화면과 1920x1080 물리모드 가설을 추정 없이 실차 evidence로 판별"
       ],
       "required_logs": [
         "densityDpi",
@@ -546,7 +547,12 @@
         "scroll_safe=true",
         "screen_width_dp=",
         "compact_risk=",
-        "adaptive_hero=true"
+        "adaptive_hero=true",
+        "resource_px=",
+        "real_px=",
+        "physical_mode_px=",
+        "display_mode_id=",
+        "refresh_hz="
       ],
       "known_bad": [
         "DPI 변경 시 순정 UI 일부 잘림",
@@ -567,9 +573,10 @@
         "UiLayoutAuditRuntime screenshot-coupled display/layout metrics",
         "display-profile-scoped layout regression comparison",
         "LauncherActivity showDisplayQuickPanel read-only profile surface",
-        "display quick panel links Golden Screenshot without changing density/fontScale"
+        "display quick panel links Golden Screenshot without changing density/fontScale",
+        "DisplayDiagnostics separates resource metrics, real metrics and active physical Display.Mode without display write"
       ],
-      "next_action": "12/15인치 profile spoof 가능성은 실제 property/display mode 근거 확보 전 BLOCKED",
+      "next_action": "10인치 실차에서 resource_px/real_px/physical_mode_px를 먼저 확보하고 12/15인치 evidence와 비교한다. OEM profile spoof/write는 실제 property/display-mode 및 복원 근거 확보 전 계속 차단",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "MEDIUM",
@@ -1208,7 +1215,10 @@
       "acceptance": [
         "지원 내비 notification/확인된 차량 신호에서만 트리거",
         "오탐 최소화",
-        "동일 이벤트 중복 음성 없음"
+        "동일 이벤트 중복 음성 없음",
+        "radar area7/8 후보와 speed_raw/tja_raw를 같은 샘플에서 기록해 일반 주행과 ICC/ACC/TJA 활성 문맥을 분리 비교",
+        "tja_raw numeric meaning이나 radar object class는 메서드/상수 이름만으로 추정하지 않음",
+        "assist context와 실제 앞차 출발의 반복 correlation이 입증되기 전 음성 출력 금지"
       ],
       "required_logs": [
         "source package",
@@ -1217,24 +1227,37 @@
         "phrase",
         "OPERATOR_OBSERVATION",
         "latest_raw snapshot",
-        "elapsed_realtime_ms"
+        "elapsed_realtime_ms",
+        "LEADING_CAR_CONTEXT_SAMPLE",
+        "radar_area7_raw",
+        "radar_area8_raw",
+        "speed_raw",
+        "tja_raw",
+        "assist_context_semantic=unmapped",
+        "object_semantic=false",
+        "voice_enabled=false",
+        "vehicle_write=false"
       ],
       "known_bad": [
         "내비 parsing과 차량 signal 후보가 섞일 수 있어 provenance 필수"
       ],
       "dependencies": [
         "NotificationListener/Accessibility",
-        "TTS Core"
+        "TTS Core",
+        "BYDAutoRadarDevice raw distance candidates",
+        "ADAS TJA/ICC raw context"
       ],
       "real_vehicle_test": [
         "지원 내비별 실제 전방차 출발 알림 capture",
         "오탐 negative test",
-        "주행 중 수동 marker 입력이 필요하면 운전자가 화면을 조작하지 않고 동승자/안전한 시험 환경에서 기록"
+        "주행 중 수동 marker 입력이 필요하면 운전자가 화면을 조작하지 않고 동승자/안전한 시험 환경에서 기록",
+        "정차 상태 앞차 출발을 일반 주행 문맥과 ICC/ACC/TJA 활성 문맥으로 분리해 동승자 marker와 radar/tja raw를 반복 수집"
       ],
       "evidence": [
-        "NavGuidanceParser internal leading-car action"
+        "NavGuidanceParser internal leading-car action",
+        "VehicleReadOnlyMonitor LEADING_CAR_CONTEXT_SAMPLE couples radar candidates with speed/tja context without classification"
       ],
-      "next_action": "AUD-LVDA-001 operator marker와 radar area7/8 raw를 반복 상관하되 차량/객체 provenance 확정 전 음성 금지",
+      "next_action": "AUD-LVDA-001에서 일반 주행과 ICC/ACC/TJA 활성 상태를 별도 세션으로 반복해 radar area7/8 + speed_raw + tja_raw를 상관한다. assist-state와 object provenance가 충돌 없이 입증되기 전에는 전방차 출발 음성을 활성화하지 않는다",
       "confidence": {
         "behavior": "LOW",
         "root_cause": "MEDIUM",
@@ -1530,7 +1553,8 @@
         "HOME hero의 sensor field는 FSD BLOCKED 동안 decorative range arc만 사용하고 고정 object dot/ring을 렌더링하지 않음",
         "FSD·Safety panel vector는 BLOCKED 동안 shield/padlock/arcs/ticks 같은 non-semantic boundary만 사용하고 road/lane/object/warning target을 렌더링하지 않음",
         "HOME hero depth layer does not render lane boundaries, center lane dashes, drivable-space, or navigation guidance while FSD_OBJECT_LANE_MODEL is BLOCKED",
-        "FSD·Safety cockpit vector carries an explicit SEMANTICS LOCKED scope label and BLOCKED/source-state rail while semantic object/lane rendering remains prohibited"
+        "FSD·Safety cockpit vector carries an explicit SEMANTICS LOCKED scope label and BLOCKED/source-state rail while semantic object/lane rendering remains prohibited",
+        "ICC/ACC/TJA 활성 중에만 보이는 ADAS raw가 있어도 이를 일반 주행에서 항상 이용 가능한 FSD sensor source로 외삽하지 않음"
       ],
       "required_logs": [
         "camera source",
@@ -1545,10 +1569,12 @@
       ],
       "dependencies": [
         "camera/AVM/ADAS access",
-        "AI model registry"
+        "AI model registry",
+        "normal-drive signal-source proof separate from ICC/ACC/TJA active-context evidence"
       ],
       "real_vehicle_test": [
-        "sensor access proof 전 visual-only mock 금지"
+        "sensor access proof 전 visual-only mock 금지",
+        "동일 도로/객체 조건에서 일반 주행과 ICC/ACC/TJA 활성 상태의 read-only signal availability를 비교하고 source provenance를 기록"
       ],
       "evidence": [
         "current Surrounding Vision intentionally read-only/raw",
@@ -1558,7 +1584,7 @@
         "HomeHeroGraphicView drawPerspectiveDeck explicitly carries no road/lane/object/drivable-space/navigation semantics",
         "CockpitPanelGraphicView Safety source legend explicitly renders SEMANTICS LOCKED while semantic perception remains BLOCKED"
       ],
-      "next_action": "sensor capability research 우선",
+      "next_action": "일반 주행과 ICC/ACC/TJA 활성 상태의 sensor/raw availability를 분리 연구하고, 정상 주행에서도 provenance가 확인되는 source 또는 독립 camera/model pipeline이 확보되기 전 BLOCKED 유지",
       "confidence": {
         "behavior": "LOW",
         "root_cause": "HIGH",
@@ -2592,6 +2618,64 @@
       "next_action": "read-only audio routing/DSP capability evidence 확보",
       "confidence": {
         "behavior": "MEDIUM",
+        "root_cause": "LOW",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-AUDIO-013",
+      "feature_id": "EXTERIOR_AVAS_CUSTOM_SOUND",
+      "area": "audio",
+      "requirement": "주행/후진 AVAS 및 도어 잠금·열림 시 외부 스피커 커스텀 사운드 가능성을 조사하되, 한국 Dolphin 실차에서 출력 경로·트리거·readback이 입증되기 전 실제 AVAS/차량 오디오 write를 수행하지 않는다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AudioCapabilityProbe.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java"
+      ],
+      "test_ids": [
+        "AUD-AVAS-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "AVAS/exterior/engine/simulator/prompt/buffer 관련 runtime method/constant는 candidate inventory로만 기록",
+        "method/constant 이름만으로 외부 스피커 custom audio upload 또는 built-in tone 출력 가능성을 확정하지 않음",
+        "도어 lock/unlock trigger path는 실제 read-only event source가 입증되기 전 unproven 유지",
+        "커스텀 WAV/MP3 경로와 내장 tone/preset 경로를 별도 capability로 취급",
+        "독립 readback과 실제 외부 가청 반응이 입증되기 전 vehicle_write=false 및 actuation=false",
+        "BLOCKED 상태에서는 PASS를 허용하지 않고 NEED_MORE_DATA만 허용"
+      ],
+      "required_logs": [
+        "EXTERNAL_AVAS_CAPABILITY_METHOD",
+        "EXTERNAL_AVAS_CAPABILITY_CONSTANT",
+        "EXTERNAL_AVAS_CAPABILITY_SCAN",
+        "candidate_only=true",
+        "custom_audio_path=unproven",
+        "builtin_tone_path=unproven",
+        "lock_trigger_path=unproven",
+        "vehicle_write=false",
+        "actuation=false",
+        "TEST_CAPABILITY_REFRESH"
+      ],
+      "known_bad": [
+        "외부 AVAS speaker에 arbitrary media file을 출력할 수 있다고 가정하면 안 됨",
+        "setter/FID 성공값만으로 실제 외부 출력 성공을 판정하면 안 됨"
+      ],
+      "dependencies": [
+        "BYD exterior AVAS/audio runtime capability evidence",
+        "independent exterior audible/readback proof",
+        "door lock/unlock read-only trigger provenance"
+      ],
+      "real_vehicle_test": [
+        "AUD-AVAS-001 시작 후 capability inventory를 active correlation 안에서 수집",
+        "순정 주행/후진 AVAS와 도어 lock/unlock 동작을 정차·안전 환경에서 관찰하되 앱은 출력 write를 하지 않음",
+        "실제 candidate API가 확인되더라도 별도 setter/readback 계약과 물리 외부 출력 증거가 생기기 전 실행 금지"
+      ],
+      "evidence": [
+        "AudioCapabilityProbe emits EXTERNAL_AVAS_CAPABILITY_* candidate inventory without invoking methods or reading/writing vehicle values"
+      ],
+      "next_action": "1.2.7 실차 Evidence에서 AVAS/exterior 관련 runtime surface 존재 여부와 도어 lock/unlock read-only trigger source를 먼저 확정. 커스텀 파일 출력과 내장 tone/preset 출력은 별도 경로로 검증하고 write는 계속 차단",
+      "confidence": {
+        "behavior": "LOW",
         "root_cause": "LOW",
         "safety": "HIGH",
         "compatibility": "LOW"
