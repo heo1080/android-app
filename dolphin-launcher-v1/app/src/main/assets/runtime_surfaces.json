@@ -336,7 +336,14 @@
         "fsd_state=",
         "SEMANTICS",
         "LOCKED",
-        "roleBadge"
+        "roleBadge",
+        "referenceUtilityHero",
+        "SUPPORTED NAV APPS",
+        "LAUNCH ONLY · SEMANTICS LOCKED",
+        "DISPLAY PROFILE",
+        "THEME STATUS",
+        "rendered_supported_nav=",
+        "launch_only=true"
       ]
     },
     {
@@ -503,7 +510,12 @@
         "font_scale=",
         "actuation=false",
         "captureHomeGoldenScreenshot",
-        "Settings.ACTION_DISPLAY_SETTINGS"
+        "Settings.ACTION_DISPLAY_SETTINGS",
+        "referenceUtilityHero",
+        "DISPLAY PROFILE",
+        "LIVE METRICS",
+        "variant=golden-reference-v3",
+        "panel_hero=true"
       ]
     },
     {
@@ -621,7 +633,11 @@
         "golden-reference-v3",
         "panel_hero=true",
         "fsd_state=",
-        "semantic_values=false"
+        "semantic_values=false",
+        "referenceUtilityHero",
+        "SUPPORTED NAV APPS",
+        "rendered_supported_nav=",
+        "launch_only=true"
       ]
     },
     {
