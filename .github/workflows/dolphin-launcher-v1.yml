@@ -450,8 +450,19 @@ jobs:
               "voice_preview=true;network_check=false;installer=false",
               'suppressForVoicePreview(activity, "check", manual)',
               'suppressForVoicePreview(activity, "resume", false)',
+              'private static final String APK_ASSET = "DolphinLauncherV1-Evolution.apk"',
+              'private static final String SHA_ASSET = "DolphinLauncherV1-Evolution.sha256"',
+              "if (APK_ASSET.equals(name)) apkUrl = url",
+              "if (SHA_ASSET.equals(name)) shaUrl = url",
           ):
               assert token in update_manager,token
+          for preview_asset in (
+              "DolphinLauncherV1-FixedVoicePreview.apk",
+              "DolphinLauncherV1-FixedVoicePreview.sha256",
+          ):
+              assert preview_asset not in update_manager, (
+                  "production OTA must not select voice preview asset", preview_asset
+              )
 
           feature=next(f for f in registry["features"] if f["feature_id"]=="IN_APP_TTS_CORE")
           candidate_source="dolphin-launcher-v1/tools/generate_ppaso_voice_candidate.py"
