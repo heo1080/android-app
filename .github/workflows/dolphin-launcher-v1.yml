@@ -59,10 +59,7 @@ jobs:
           gradle-version: "8.7"
 
       - name: Build release
-        env:
-          DOLPHIN_UPLOAD_KEY: ${{ secrets.DOLPHIN_UPLOAD_KEY }}
         run: |
-          test -n "$DOLPHIN_UPLOAD_KEY"
           gradle -p dolphin-launcher-v1 :app:assembleRelease --stacktrace
 
       - name: Validate identity
@@ -313,6 +310,10 @@ jobs:
           PY
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationCenterActivity"
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationEvidenceRuntime"
+          if unzip -p "$APK" classes.dex | strings | grep -q "EVIDENCE_UPLOAD_KEY"; then
+            echo "APK-static evidence upload credential field is forbidden" >&2
+            exit 1
+          fi
           unzip -p "$APK" classes.dex | strings | grep -q "AppUpdateManager"
           unzip -p "$APK" classes.dex | strings | grep -q "UpdateInstallReceiver"
           AAPT="$(find "$ANDROID_HOME/build-tools" -type f -name aapt | sort -V | tail -n 1)"
@@ -624,10 +625,19 @@ jobs:
           assert "PackageInstaller.SessionParams" in update_manager and "session.commit" in update_manager
           for token in ("EVIDENCE_UPLOAD_ATTEMPT","EVIDENCE_UPLOAD_RECEIPT","EVIDENCE_UPLOAD_RETRY_RETAINED","receipt_verified=true"):
               assert token in evidence,token
-          if "BuildConfig.EVIDENCE_UPLOAD_KEY" in evidence:
-              kb13=next((r for r in known_bad.get("known_bad",[]) if r.get("id")=="KB-013"),None)
-              assert kb13 is not None and kb13.get("state")=="OPEN", "static upload credential must remain explicit Known-Bad"
-              assert kb13.get("severity")=="P0", "static upload credential release gate must remain P0 until fixed"
+          build_gradle=(root/"app/build.gradle.kts").read_text(encoding="utf-8")
+          workflow=pathlib.Path(".github/workflows/dolphin-launcher-v1.yml").read_text(encoding="utf-8")
+          static_field="EVIDENCE_"+"UPLOAD_KEY"
+          static_env="DOLPHIN_"+"UPLOAD_KEY"
+          assert "BuildConfig."+static_field not in evidence, "APK-static upload credential runtime reintroduced"
+          assert static_field not in build_gradle, "APK-static upload credential BuildConfig field reintroduced"
+          assert static_env not in build_gradle and static_env not in workflow, "CI upload secret injection reintroduced"
+          assert "runtimeUploadCredential" in evidence
+          assert "EVIDENCE_UPLOAD_CREDENTIAL_UNAVAILABLE" in evidence
+          assert "apk_static_secret=false" in evidence and "queue_retained=true" in evidence
+          kb13=next((r for r in known_bad.get("known_bad",[]) if r.get("id")=="KB-013"),None)
+          assert kb13 is not None and kb13.get("state")=="FIX_CANDIDATE", "static credential removal must remain a fix candidate"
+          assert kb13.get("severity")=="P0", "secure runtime enrollment remains a P0 release gate"
           assert "sha.equalsIgnoreCase(receiptSha)" in evidence, "upload receipt SHA-256 binding missing"
           assert "sessionId.equals(receiptSession)" in evidence, "upload receipt session binding missing"
           assert "receipt identity mismatch" in evidence
@@ -695,7 +705,8 @@ jobs:
 
           for tid in ("DIA-CAP-001","DIA-UP-001"):
               logs=by_test[tid].get("required_logs",[])
-              for token in ("EVIDENCE_UPLOAD_ATTEMPT","EVIDENCE_UPLOAD_RECEIPT","EVIDENCE_UPLOAD_RETRY_RETAINED","BOOT_UPLOAD_RETRY_FINISHED"):
+              for token in ("EVIDENCE_UPLOAD_ATTEMPT","EVIDENCE_UPLOAD_RECEIPT","EVIDENCE_UPLOAD_RETRY_RETAINED",
+                            "EVIDENCE_UPLOAD_CREDENTIAL_UNAVAILABLE","BOOT_UPLOAD_RETRY_FINISHED"):
                   assert token in logs,(tid,token)
           for tid in ("UPD-001","UPD-002"):
               logs=by_test[tid].get("required_logs",[])
