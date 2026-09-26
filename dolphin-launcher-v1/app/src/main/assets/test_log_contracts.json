@@ -617,7 +617,8 @@
         "DPI 변경 성공 여부와 readback 기록",
         "복원 경로 존재",
         "DISPLAY quick panel shows current width/height, densityDpi, density and fontScale without OEM display write",
-        "Golden Screenshot entry remains available from DISPLAY panel"
+        "Golden Screenshot entry remains available from DISPLAY panel",
+        "DISPLAY utility hero summarizes current profile while actuation remains false"
       ],
       "required_logs": [
         "densityDpi",
@@ -627,7 +628,9 @@
         "forced settings",
         "DISPLAY_QUICK_HMI_RENDER",
         "SYSTEM_SETTINGS_DISPATCH",
-        "actuation=false"
+        "actuation=false",
+        "variant=golden-reference-v3",
+        "panel_hero=true"
       ]
     },
     {
@@ -660,7 +663,8 @@
         "DPI 변경 성공 여부와 readback 기록",
         "복원 경로 존재",
         "DISPLAY quick panel shows current width/height, densityDpi, density and fontScale without OEM display write",
-        "Golden Screenshot entry remains available from DISPLAY panel"
+        "Golden Screenshot entry remains available from DISPLAY panel",
+        "DISPLAY utility hero summarizes current profile while actuation remains false"
       ],
       "required_logs": [
         "densityDpi",
@@ -670,7 +674,9 @@
         "forced settings",
         "DISPLAY_QUICK_HMI_RENDER",
         "SYSTEM_SETTINGS_DISPATCH",
-        "actuation=false"
+        "actuation=false",
+        "variant=golden-reference-v3",
+        "panel_hero=true"
       ]
     },
     {
@@ -1903,7 +1909,8 @@
         "stale expiry",
         "MAP launcher lists only installed supported navigation packages",
         "MAP launcher records semantic_parse=false and does not infer camera/speed semantics",
-        "golden-reference-v3 Safety hero exposes provenance freshness and FSD boundary without semantic inference"
+        "golden-reference-v3 Safety hero exposes provenance freshness and FSD boundary without semantic inference",
+        "MAP utility hero remains launch-only and semantics locked"
       ],
       "required_logs": [
         "source package/version",
@@ -1916,7 +1923,9 @@
         "variant=golden-reference-v3",
         "panel_hero=true",
         "fsd_state=",
-        "semantic_values=false"
+        "semantic_values=false",
+        "rendered_supported_nav=",
+        "launch_only=true"
       ]
     },
     {
@@ -2334,7 +2343,8 @@
         "right-side safe quick controls remain VOLUME/BRIGHTNESS/DISPLAY/DARK",
         "quick controls do not use unverified vehicle hidden APIs",
         "MAP launcher only exposes installed supported navigation packages",
-        "DISPLAY/DARK panels remain read-only except explicit Android system settings dispatch"
+        "DISPLAY/DARK panels remain read-only except explicit Android system settings dispatch",
+        "MAP/DISPLAY/DARK quick panels use Golden Reference utility hero while preserving safe boundaries"
       ],
       "required_logs": [
         "display profile",
@@ -2344,7 +2354,10 @@
         "NAV_LAUNCHER_HMI_RENDER",
         "DISPLAY_QUICK_HMI_RENDER",
         "THEME_STATUS_HMI_RENDER",
-        "SYSTEM_SETTINGS_DISPATCH"
+        "SYSTEM_SETTINGS_DISPATCH",
+        "referenceUtilityHero",
+        "rendered_supported_nav=",
+        "launch_only=true"
       ]
     },
     {
@@ -2382,7 +2395,8 @@
         "right-side safe quick controls remain VOLUME/BRIGHTNESS/DISPLAY/DARK",
         "quick controls do not use unverified vehicle hidden APIs",
         "MAP launcher only exposes installed supported navigation packages",
-        "DISPLAY/DARK panels remain read-only except explicit Android system settings dispatch"
+        "DISPLAY/DARK panels remain read-only except explicit Android system settings dispatch",
+        "MAP/DISPLAY/DARK quick panels use Golden Reference utility hero while preserving safe boundaries"
       ],
       "required_logs": [
         "display profile",
@@ -2392,7 +2406,10 @@
         "NAV_LAUNCHER_HMI_RENDER",
         "DISPLAY_QUICK_HMI_RENDER",
         "THEME_STATUS_HMI_RENDER",
-        "SYSTEM_SETTINGS_DISPATCH"
+        "SYSTEM_SETTINGS_DISPATCH",
+        "referenceUtilityHero",
+        "rendered_supported_nav=",
+        "launch_only=true"
       ]
     },
     {
