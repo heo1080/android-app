@@ -2421,7 +2421,10 @@
         "APP_UPDATE_INSTALL_STAGED and final APP_UPDATE_INSTALL_STATUS share session_id and selected release tag",
         "PENDING_USER_ACTION / SUCCESS / FAILURE status evidence retains install session/release identity",
         "VOICE_PREVIEW_BUILD suppresses automatic/manual OTA release discovery and pending-install resume before any network or installer action",
-        "preview package never consumes the canonical Dolphin Launcher V1 OTA release channel"
+        "preview package never consumes the canonical Dolphin Launcher V1 OTA release channel",
+        "real-car validation OTA candidate is a GitHub prerelease with -realcar-beta tag suffix and explicit stable=false/release_ready=false metadata",
+        "release publication with open P0 Known-Bad remains validation-only and cannot count as Known-Bad closure or feature VERIFIED evidence",
+        "production V1_RELEASE_READY path continues to require the separate zero-open-P0 Known-Bad gate"
       ],
       "required_logs": [
         "release metadata",
@@ -2439,7 +2442,13 @@
         "APP_UPDATE_INSTALL_STATUS release tag",
         "APP_UPDATE_SUPPRESSED_PREVIEW_BUILD",
         "voice_preview=true",
-        "network_check=false"
+        "network_check=false",
+        "REALCAR_BETA_METADATA_OK",
+        "REALCAR_BETA_RELEASE_OK",
+        "channel=REAL_CAR_VALIDATION_BETA",
+        "stable=false",
+        "release_ready=false",
+        "open_p0_known_bad"
       ]
     },
     {
@@ -2482,7 +2491,10 @@
         "APP_UPDATE_INSTALL_STAGED and final APP_UPDATE_INSTALL_STATUS share session_id and selected release tag",
         "PENDING_USER_ACTION / SUCCESS / FAILURE status evidence retains install session/release identity",
         "VOICE_PREVIEW_BUILD suppresses automatic/manual OTA release discovery and pending-install resume before any network or installer action",
-        "preview package never consumes the canonical Dolphin Launcher V1 OTA release channel"
+        "preview package never consumes the canonical Dolphin Launcher V1 OTA release channel",
+        "real-car validation OTA candidate is a GitHub prerelease with -realcar-beta tag suffix and explicit stable=false/release_ready=false metadata",
+        "release publication with open P0 Known-Bad remains validation-only and cannot count as Known-Bad closure or feature VERIFIED evidence",
+        "production V1_RELEASE_READY path continues to require the separate zero-open-P0 Known-Bad gate"
       ],
       "required_logs": [
         "release metadata",
@@ -2500,7 +2512,13 @@
         "APP_UPDATE_INSTALL_STATUS release tag",
         "APP_UPDATE_SUPPRESSED_PREVIEW_BUILD",
         "voice_preview=true",
-        "network_check=false"
+        "network_check=false",
+        "REALCAR_BETA_METADATA_OK",
+        "REALCAR_BETA_RELEASE_OK",
+        "channel=REAL_CAR_VALIDATION_BETA",
+        "stable=false",
+        "release_ready=false",
+        "open_p0_known_bad"
       ]
     },
     {
