@@ -1605,7 +1605,9 @@
       "area": "comfort",
       "requirement": "실내등 ON/OFF/도어연동이 실제 램프 상태와 일치해야 한다.",
       "source_paths": [
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/InteriorLightCapabilityProbe.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
       ],
       "test_ids": [
         "COMF-LIGHT-001",
@@ -1616,7 +1618,7 @@
         "command success가 물리 반응과 일치",
         "ON/OFF readback 또는 독립 관찰",
         "raw fallback은 calibration 모드에서만",
-        "V1 runtime actuation/readback 미구현 상태에서는 Test Contract가 PASS를 허용하지 않음"
+        "V1 whole-lamp actuation/independent readback 미구현 상태에서는 Test Contract가 PASS를 허용하지 않음"
       ],
       "required_logs": [
         "method overload",
@@ -1625,7 +1627,12 @@
         "getter/readback",
         "operator observed result",
         "FEATURE_FAIL_CLOSED",
-        "actuation=false"
+        "actuation=false",
+        "INTERIOR_LIGHT_CAPABILITY_METHOD",
+        "INTERIOR_LIGHT_CAPABILITY",
+        "INTERIOR_LIGHT_READBACK",
+        "door_state_raw",
+        "whole_lamp_readback_proven=false"
       ],
       "known_bad": [
         "실차에서 return success인데 물리 실내등이 작동하지 않은 사례"
@@ -1638,10 +1645,12 @@
         "물리 반응 기록"
       ],
       "evidence": [
-        "InsideLightManager + raw calibration patch",
-        "V1 runtime implementation not present; legacy source is research evidence only"
+        "InsideLightManager + raw calibration patch remains legacy research evidence only",
+        "V1 passive capability inventory records interior-light method signatures with invoked=false and vehicle_write=false",
+        "V1 passively invokes only getInsideLightDoorState() and records door_state_raw; whole-lamp physical readback remains unavailable/unproven",
+        "V1 startup calls InteriorLightCapabilityProbe.capture(this); BlockedCapabilityRuntime keeps actuation fail-closed"
       ],
-      "next_action": "V1 runtime actuation/readback 구현 전 COMF-LIGHT-001/002는 NEED_MORE_DATA만 허용; legacy return success로 PASS 금지",
+      "next_action": "최신 V1 실차 세션에서 INTERIOR_LIGHT_CAPABILITY/READBACK을 수집해 실제 Dolphin API surface와 door_state_raw를 확인한다. whole-lamp ON/OFF의 독립 readback/물리 반응이 입증되기 전에는 write actuation을 계속 차단하고 COMF-LIGHT-001/002는 NEED_MORE_DATA만 허용한다.",
       "confidence": {
         "behavior": "LOW",
         "root_cause": "MEDIUM",

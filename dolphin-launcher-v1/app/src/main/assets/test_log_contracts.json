@@ -2089,7 +2089,9 @@
       "repeatability_required_sessions": 2,
       "required_any": [
         "InsideLightManager",
-        "실내등"
+        "실내등",
+        "INTERIOR_LIGHT_CAPABILITY",
+        "INTERIOR_LIGHT_READBACK"
       ],
       "success_any": [],
       "failure_any": [
@@ -2102,7 +2104,7 @@
         "command success가 물리 반응과 일치",
         "ON/OFF readback 또는 독립 관찰",
         "raw fallback은 calibration 모드에서만",
-        "PASS is unavailable while V1 runtime actuation/readback implementation is absent",
+        "PASS is unavailable while V1 whole-lamp actuation/independent readback implementation is absent; passive door-link readback is evidence only",
         "legacy source or return code alone cannot satisfy the physical lamp test"
       ],
       "required_logs": [
@@ -2112,7 +2114,13 @@
         "getter/readback",
         "operator observed result",
         "FEATURE_FAIL_CLOSED",
-        "actuation=false"
+        "actuation=false",
+        "INTERIOR_LIGHT_CAPABILITY_METHOD",
+        "INTERIOR_LIGHT_CAPABILITY",
+        "INTERIOR_LIGHT_READBACK",
+        "door_state_raw",
+        "whole_lamp_readback_proven=false",
+        "vehicle_write=false"
       ]
     },
     {
@@ -2132,7 +2140,10 @@
       "requires_diagnostic_session": true,
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
-      "required_any": [],
+      "required_any": [
+        "INTERIOR_LIGHT_CAPABILITY",
+        "INTERIOR_LIGHT_READBACK"
+      ],
       "success_any": [],
       "failure_any": [
         "V1 runtime actuation/readback path absent"
@@ -2142,7 +2153,7 @@
         "command success가 물리 반응과 일치",
         "ON/OFF readback 또는 독립 관찰",
         "raw fallback은 calibration 모드에서만",
-        "PASS is unavailable while V1 runtime actuation/readback implementation is absent",
+        "PASS is unavailable while V1 whole-lamp actuation/independent readback implementation is absent; passive door-link readback is evidence only",
         "legacy source or return code alone cannot satisfy the physical lamp test"
       ],
       "required_logs": [
@@ -2152,7 +2163,13 @@
         "getter/readback",
         "operator observed result",
         "FEATURE_FAIL_CLOSED",
-        "actuation=false"
+        "actuation=false",
+        "INTERIOR_LIGHT_CAPABILITY_METHOD",
+        "INTERIOR_LIGHT_CAPABILITY",
+        "INTERIOR_LIGHT_READBACK",
+        "door_state_raw",
+        "whole_lamp_readback_proven=false",
+        "vehicle_write=false"
       ]
     },
     {

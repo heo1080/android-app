@@ -93,7 +93,7 @@
         "COMF-LIGHT-001",
         "COMF-LIGHT-002"
       ],
-      "summary": "API success did not match physical interior-light response",
+      "summary": "API success did not match physical interior-light response; V1 now performs passive method inventory and door-link getter readback only, with whole-lamp actuation/readback still fail-closed and unproven",
       "state": "OPEN",
       "close_gate": "physical lamp response plus independent readback/observation; return code alone insufficient"
     },
