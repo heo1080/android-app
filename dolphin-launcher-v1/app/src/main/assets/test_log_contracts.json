@@ -1856,13 +1856,19 @@
         "calibration",
         "confidence/expiry",
         "latency budget",
-        "no fabricated objects"
+        "no fabricated objects",
+        "HOME/FSD Safety panel remains BLOCKED and semantics LOCKED while no verified object/lane pipeline exists",
+        "UI does not fabricate object/lane semantics"
       ],
       "required_logs": [
         "camera source",
         "model hash",
         "inference latency",
-        "object confidence"
+        "object confidence",
+        "SAFETY_SOURCE_HMI_RENDER",
+        "fsd_state=",
+        "semantic_values=false",
+        "panel_hero=true"
       ]
     },
     {
@@ -1896,7 +1902,8 @@
         "앱 버전별 contract test",
         "stale expiry",
         "MAP launcher lists only installed supported navigation packages",
-        "MAP launcher records semantic_parse=false and does not infer camera/speed semantics"
+        "MAP launcher records semantic_parse=false and does not infer camera/speed semantics",
+        "golden-reference-v3 Safety hero exposes provenance freshness and FSD boundary without semantic inference"
       ],
       "required_logs": [
         "source package/version",
@@ -1905,7 +1912,11 @@
         "timestamp",
         "NAV_LAUNCHER_HMI_RENDER",
         "installed_supported_nav",
-        "semantic_parse=false"
+        "semantic_parse=false",
+        "variant=golden-reference-v3",
+        "panel_hero=true",
+        "fsd_state=",
+        "semantic_values=false"
       ]
     },
     {
@@ -1936,12 +1947,21 @@
       "acceptance": [
         "값 provenance 존재",
         "unavailable은 unknown 표시",
-        "mock value 사용 금지"
+        "mock value 사용 금지",
+        "vehicle panel displays raw-only source state without semantic normalization",
+        "golden-reference-v3 hero shows READ ONLY and source LIVE/WAITING from observed raw presence",
+        "vehicle panel performs no actuation"
       ],
       "required_logs": [
         "getter result",
         "UI bound value",
-        "timestamp"
+        "timestamp",
+        "VEHICLE_INFO_HMI_RENDER",
+        "variant=golden-reference-v3",
+        "vehicle_source_live=",
+        "panel_hero=true",
+        "normalized=false",
+        "actuation=false"
       ]
     },
     {
@@ -2644,7 +2664,8 @@
         "target package matching active MediaSession receives play()",
         "no global media-key fallback is used",
         "PLAY request/readback is not treated as audible playback success",
-        "session discovery/play/readback continuation survives sender receiver process exit by AlarmManager receiver stages"
+        "session discovery/play/readback continuation survives sender receiver process exit by AlarmManager receiver stages",
+        "golden-reference-v3 Media hero remains target-scoped and does not treat UI state as audible playback verification"
       ],
       "required_logs": [
         "target package",
@@ -2658,7 +2679,11 @@
         "safety warning observation",
         "BACKGROUND_MEDIA_STAGE_SCHEDULED",
         "BACKGROUND_MEDIA_STAGE_SCHEDULE_FAILED",
-        "BACKGROUND_MEDIA_PLAYBACK_READBACK_FAILED"
+        "BACKGROUND_MEDIA_PLAYBACK_READBACK_FAILED",
+        "variant=golden-reference-v3",
+        "panel_hero=true",
+        "target_scoped=true",
+        "playback_verified=false"
       ]
     },
     {
@@ -2707,7 +2732,8 @@
         "non-target media session remains unaffected",
         "stock safety audio remains functional",
         "session access failure produces fail-closed evidence instead of global key dispatch",
-        "session discovery/play/readback continuation survives sender receiver process exit by AlarmManager receiver stages"
+        "session discovery/play/readback continuation survives sender receiver process exit by AlarmManager receiver stages",
+        "golden-reference-v3 Media hero remains target-scoped and does not treat UI state as audible playback verification"
       ],
       "required_logs": [
         "target package",
@@ -2721,7 +2747,11 @@
         "safety warning observation",
         "BACKGROUND_MEDIA_STAGE_SCHEDULED",
         "BACKGROUND_MEDIA_STAGE_SCHEDULE_FAILED",
-        "BACKGROUND_MEDIA_PLAYBACK_READBACK_FAILED"
+        "BACKGROUND_MEDIA_PLAYBACK_READBACK_FAILED",
+        "variant=golden-reference-v3",
+        "panel_hero=true",
+        "target_scoped=true",
+        "playback_verified=false"
       ]
     }
   ]
