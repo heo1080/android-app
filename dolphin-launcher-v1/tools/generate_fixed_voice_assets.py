@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import hashlib
+import io
 import json
 import os
 import shutil
@@ -20,6 +21,7 @@ import sys
 import tempfile
 import urllib.error
 import urllib.request
+import wave
 import xml.sax.saxutils as saxutils
 from pathlib import Path
 
@@ -53,9 +55,54 @@ def validate_wav_bytes(data: bytes, resource: str) -> None:
         raise ValueError(f"{resource}: synthesized WAV is unexpectedly small ({len(data)} bytes)")
     if data[:4] != b"RIFF" or data[8:12] != b"WAVE":
         raise ValueError(f"{resource}: expected RIFF/WAVE output")
+    try:
+        with wave.open(io.BytesIO(data), "rb") as stream:
+            profile = (
+                stream.getnchannels(),
+                stream.getsampwidth() * 8,
+                stream.getframerate(),
+                stream.getcomptype(),
+            )
+            frame_count = stream.getnframes()
+    except (EOFError, wave.Error) as exc:
+        raise ValueError(f"{resource}: invalid PCM WAV container: {exc}") from exc
+    expected = (1, 16, 24000, "NONE")
+    if profile != expected:
+        raise ValueError(
+            f"{resource}: WAV profile mismatch expected={expected} actual={profile}"
+        )
+    if frame_count <= 0:
+        raise ValueError(f"{resource}: PCM WAV contains no audio frames")
+
+
+def wav_fixture(sample_rate: int = 24000, channels: int = 1, sample_width: int = 2) -> bytes:
+    buffer = io.BytesIO()
+    with wave.open(buffer, "wb") as stream:
+        stream.setnchannels(channels)
+        stream.setsampwidth(sample_width)
+        stream.setframerate(sample_rate)
+        stream.writeframes(bytes(channels * sample_width * 600))
+    return buffer.getvalue()
+
+
+def wav_profile_self_test() -> None:
+    validate_wav_bytes(wav_fixture(), "selftest_valid")
+    invalid_profiles = {
+        "selftest_rate": wav_fixture(sample_rate=16000),
+        "selftest_channels": wav_fixture(channels=2),
+        "selftest_width": wav_fixture(sample_width=1),
+    }
+    for resource, data in invalid_profiles.items():
+        try:
+            validate_wav_bytes(data, resource)
+        except ValueError:
+            continue
+        raise SystemExit(f"{resource}: invalid WAV profile unexpectedly accepted")
+    print("VOICE_WAV_PROFILE_SELF_TEST_OK rate=24000 bits=16 channels=1 pcm=true")
 
 
 def check_assets(manifest: dict) -> int:
+    wav_profile_self_test()
     prompts = manifest.get("prompts", [])
     if len(prompts) != 22:
         raise SystemExit(f"expected 22 prompts, found {len(prompts)}")
