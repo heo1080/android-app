@@ -1409,7 +1409,13 @@
         "Target-media identity graphic only.",
         "A fixed PLAY symbol is intentionally",
         "Read-only ego-vehicle sculpture.",
-        "geometry never infers gear, speed, turn state, or vehicle health."
+        "geometry never infers gear, speed, turn state, or vehicle health.",
+        "drawSourceLegend",
+        "TARGET SESSION",
+        "SEMANTICS LOCKED",
+        "RAW SOURCE",
+        "SOURCE \" + state",
+        "source availability; it never upgrades the Registry feature state"
       ]
     },
     {
@@ -1647,7 +1653,11 @@
         "FSD_OBJECT_LANE_MODEL is BLOCKED",
         "Shield outline communicates a safety boundary without implying live perception.",
         "Padlock motif = semantic layer intentionally locked.",
-        "no fixed detections or lane/object semantics."
+        "no fixed detections or lane/object semantics.",
+        "drawSourceLegend",
+        "SEMANTICS LOCKED",
+        "SOURCE \" + state",
+        "semantic perception"
       ]
     },
     {
@@ -1659,7 +1669,11 @@
         "A fixed PLAY symbol is intentionally",
         "REVERIFY_REQUIRED",
         "accent(180)",
-        "accent(160)"
+        "accent(160)",
+        "drawSourceLegend",
+        "TARGET SESSION",
+        "SOURCE \" + state",
+        "audible playback"
       ]
     },
     {
@@ -1671,7 +1685,11 @@
         "Accent reflects source state only",
         "geometry never infers gear, speed, turn state, or vehicle health.",
         "accent(190)",
-        "accent(220)"
+        "accent(220)",
+        "drawSourceLegend",
+        "RAW SOURCE",
+        "SOURCE \" + state",
+        "normalized telemetry"
       ]
     },
     {

@@ -1476,7 +1476,8 @@
         "HOME/FSD·SAFETY UI는 Feature가 BLOCKED인 동안 객체/차선 semantic 시각화를 생성하지 않고 BLOCKED/LOCKED 경계만 표시",
         "HOME hero의 sensor field는 FSD BLOCKED 동안 decorative range arc만 사용하고 고정 object dot/ring을 렌더링하지 않음",
         "FSD·Safety panel vector는 BLOCKED 동안 shield/padlock/arcs/ticks 같은 non-semantic boundary만 사용하고 road/lane/object/warning target을 렌더링하지 않음",
-        "HOME hero depth layer does not render lane boundaries, center lane dashes, drivable-space, or navigation guidance while FSD_OBJECT_LANE_MODEL is BLOCKED"
+        "HOME hero depth layer does not render lane boundaries, center lane dashes, drivable-space, or navigation guidance while FSD_OBJECT_LANE_MODEL is BLOCKED",
+        "FSD·Safety cockpit vector carries an explicit SEMANTICS LOCKED scope label and BLOCKED/source-state rail while semantic object/lane rendering remains prohibited"
       ],
       "required_logs": [
         "camera source",
@@ -1501,7 +1502,8 @@
         "LauncherActivity Golden Reference v3 FSD Safety panel displays BLOCKED/semantics LOCKED without fabricated objects",
         "HomeHeroGraphicView removes fixed object markers; sensor field is explicitly non-semantic decorative geometry only",
         "CockpitPanelGraphicView drawSafety removes fixed warning/object dots/rings and road/lane-like guidance; shield/padlock boundary remains state-aware",
-        "HomeHeroGraphicView drawPerspectiveDeck explicitly carries no road/lane/object/drivable-space/navigation semantics"
+        "HomeHeroGraphicView drawPerspectiveDeck explicitly carries no road/lane/object/drivable-space/navigation semantics",
+        "CockpitPanelGraphicView Safety source legend explicitly renders SEMANTICS LOCKED while semantic perception remains BLOCKED"
       ],
       "next_action": "sensor capability research 우선",
       "confidence": {
@@ -1609,7 +1611,8 @@
         "상세 패널은 normalized=false 및 actuation=false 경계를 명시",
         "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임",
         "해당 Golden Reference hero는 실제 screen width dp 기반 adaptive geometry를 사용",
-        "Vehicle vector accent may reflect source WAITING/LIVE/STALE/BLOCKED but decorative geometry never normalizes RAW gear/speed/turn or vehicle health"
+        "Vehicle vector accent may reflect source WAITING/LIVE/STALE/BLOCKED but decorative geometry never normalizes RAW gear/speed/turn or vehicle health",
+        "Vehicle cockpit vector carries RAW SOURCE plus source-state text and never normalizes raw telemetry through decorative graphics"
       ],
       "required_logs": [
         "getter result",
@@ -1637,7 +1640,8 @@
         "continuous read-only getCurrentSpeed raw telemetry",
         "Golden Reference v3 Vehicle Info hero keeps raw-only telemetry boundary",
         "LauncherActivity Golden Reference v3 Vehicle Info panel binds only raw observed values",
-        "CockpitPanelGraphicView drawVehicle is a read-only ego-vehicle sculpture with no normalized telemetry semantics"
+        "CockpitPanelGraphicView drawVehicle is a read-only ego-vehicle sculpture with no normalized telemetry semantics",
+        "CockpitPanelGraphicView Vehicle source legend renders RAW SOURCE + source state without telemetry normalization"
       ],
       "next_action": "각 field별 getter mapping 등록",
       "confidence": {
@@ -2030,7 +2034,9 @@
         "Media cockpit vector avoids a fixed PLAY symbol so REVERIFY_REQUIRED state cannot be mistaken for audible playback success",
         "Vehicle cockpit vector uses source-state accent only and does not infer gear/speed/turn/health from decorative geometry",
         "HOME 3-panel cockpit copy width is screen-width adaptive (150~206dp clamp) so compact 10-inch profiles preserve vector graphic space",
-        "PREMIUM_HMI_RENDER evidence reports the actual 6 primary dock items"
+        "PREMIUM_HMI_RENDER evidence reports the actual 6 primary dock items",
+        "HOME primary cockpit vectors render an in-graphic source scope + current WAITING/LIVE/STALE/BLOCKED state rail without introducing new semantic vehicle claims",
+        "Media/Safety/Vehicle vector scope labels remain TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE so source state cannot be confused with feature verification state"
       ],
       "required_logs": [
         "display profile",
@@ -2182,7 +2188,8 @@
         "CockpitPanelGraphicView Media uses target-media identity rings/waveform without a fixed PLAY triangle",
         "CockpitPanelGraphicView Vehicle uses decorative read-only sculpture with state-aware accent and no telemetry normalization",
         "LauncherActivity cockpitCopyWidthDp uses screen width dp * 0.22 with 150~206dp clamp and records cockpit_copy_dp",
-        "LauncherActivity corrects legacy dock_items=5 evidence drift to dock_items=6"
+        "LauncherActivity corrects legacy dock_items=5 evidence drift to dock_items=6",
+        "CockpitPanelGraphicView drawSourceLegend renders truthful scope + WAITING/LIVE/STALE/BLOCKED source-state text without changing Registry feature state"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
@@ -2522,7 +2529,8 @@
         "해당 Golden Reference hero는 실제 screen width dp 기반 adaptive geometry를 사용",
         "Media vector state is source-scoped and a fixed PLAY symbol is not rendered as a substitute for audible playback evidence",
         "target media play/readback Alarm PendingIntent는 package+stage data URI identity로 분리",
-        "play stage와 readback stage 또는 서로 다른 target package가 PendingIntent overwrite로 섞이지 않음"
+        "play stage와 readback stage 또는 서로 다른 target package가 PendingIntent overwrite로 섞이지 않음",
+        "Media cockpit vector carries TARGET SESSION plus source-state text and never turns source LIVE into an audible-playback VERIFIED claim"
       ],
       "required_logs": [
         "AUTOSTART_MEDIA_CHANGED",
@@ -2573,7 +2581,8 @@
         "BackgroundMediaRuntime AlarmManager stages re-enter BootAutoLaunchReceiver for target session PLAY/readback without global media-key fallback",
         "Golden Reference v3 Media Center preserves playback_verified=false while surfacing target-scoped source state",
         "CockpitPanelGraphicView drawMedia uses target-media identity rings/waveform and avoids a fixed PLAY triangle",
-        "BackgroundMediaRuntime explicit package+stage PendingIntent data URI identity"
+        "BackgroundMediaRuntime explicit package+stage PendingIntent data URI identity",
+        "CockpitPanelGraphicView Media source legend renders TARGET SESSION + source state without claiming audible playback success"
       ],
       "next_action": "1.2.2 BETA 실차에서 target MediaSession discovery/play/readback 및 순정 안전 오디오 arbitration evidence 수집",
       "confidence": {

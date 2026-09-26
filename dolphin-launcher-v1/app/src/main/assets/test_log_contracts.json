@@ -1940,7 +1940,8 @@
         "UI does not fabricate object/lane semantics",
         "HOME hero sensor field uses decorative arcs/ticks only while BLOCKED and does not render fixed object dots/rings",
         "FSD Safety cockpit graphic uses only abstract shield/padlock/arcs/ticks while BLOCKED and renders no fixed road/lane/object/warning target semantics",
-        "HOME perspective deck contains no lane boundaries, centerline dashes, drivable-space, or navigation semantics"
+        "HOME perspective deck contains no lane boundaries, centerline dashes, drivable-space, or navigation semantics",
+        "FSD Safety vector displays SEMANTICS LOCKED plus source state while object/lane semantics remain prohibited"
       ],
       "required_logs": [
         "camera source",
@@ -2042,7 +2043,8 @@
         "vehicle panel performs no actuation",
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
         "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries",
-        "Vehicle cockpit graphic is decorative/read-only and never normalizes RAW telemetry"
+        "Vehicle cockpit graphic is decorative/read-only and never normalizes RAW telemetry",
+        "Vehicle cockpit displays RAW SOURCE plus source state without normalizing raw telemetry"
       ],
       "required_logs": [
         "getter result",
@@ -2456,7 +2458,9 @@
         "HOME hero uses non-semantic depth geometry instead of lane/centerline visuals",
         "Media/Vehicle cockpit vectors preserve verification boundaries while improving visual depth",
         "3-panel cockpit copy width adapts to screen width and remains clamped to 150~206dp",
-        "HOME render evidence reports dock_items=6 for the six primary actions"
+        "HOME render evidence reports dock_items=6 for the six primary actions",
+        "cockpit vectors expose TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE scope labels with WAITING/LIVE/STALE/BLOCKED source-state text",
+        "cockpit source-state text is explicitly source availability only and does not imply feature VERIFIED state"
       ],
       "required_logs": [
         "display profile",
@@ -2528,7 +2532,9 @@
         "HOME hero uses non-semantic depth geometry instead of lane/centerline visuals",
         "Media/Vehicle cockpit vectors preserve verification boundaries while improving visual depth",
         "3-panel cockpit copy width adapts to screen width and remains clamped to 150~206dp",
-        "HOME render evidence reports dock_items=6 for the six primary actions"
+        "HOME render evidence reports dock_items=6 for the six primary actions",
+        "cockpit vectors expose TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE scope labels with WAITING/LIVE/STALE/BLOCKED source-state text",
+        "cockpit source-state text is explicitly source availability only and does not imply feature VERIFIED state"
       ],
       "required_logs": [
         "display profile",
@@ -2833,7 +2839,8 @@
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
         "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries",
         "Media cockpit graphic does not use a fixed PLAY symbol as audible playback evidence",
-        "target-media Alarm PendingIntent identity is package+stage data URI scoped"
+        "target-media Alarm PendingIntent identity is package+stage data URI scoped",
+        "Media cockpit displays TARGET SESSION plus source state without treating SOURCE LIVE as audible playback verification"
       ],
       "required_logs": [
         "target package",
@@ -2909,7 +2916,8 @@
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
         "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries",
         "Media cockpit graphic does not use a fixed PLAY symbol as audible playback evidence",
-        "target-media Alarm PendingIntent identity is package+stage data URI scoped"
+        "target-media Alarm PendingIntent identity is package+stage data URI scoped",
+        "Media cockpit displays TARGET SESSION plus source state without treating SOURCE LIVE as audible playback verification"
       ],
       "required_logs": [
         "target package",

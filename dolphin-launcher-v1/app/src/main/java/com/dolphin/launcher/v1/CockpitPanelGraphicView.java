@@ -22,6 +22,7 @@ public final class CockpitPanelGraphicView extends View {
     public static final int SIGNAL_BLOCKED = 3;
 
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path path = new Path();
     private final RectF rect = new RectF();
     private final int mode;
@@ -30,6 +31,8 @@ public final class CockpitPanelGraphicView extends View {
     public CockpitPanelGraphicView(Context context, int mode) {
         super(context);
         this.mode = mode;
+        textPaint.setTypeface(android.graphics.Typeface.create(
+                android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD));
         setWillNotDraw(false);
     }
 
@@ -50,6 +53,7 @@ public final class CockpitPanelGraphicView extends View {
         if (mode == MEDIA) drawMedia(canvas, w, h);
         else if (mode == SAFETY) drawSafety(canvas, w, h);
         else drawVehicle(canvas, w, h);
+        drawSourceLegend(canvas, w, h);
     }
 
     private void drawBackground(Canvas canvas, float w, float h) {
@@ -270,6 +274,46 @@ public final class CockpitPanelGraphicView extends View {
         bx = w * 0.94f;
         canvas.drawLine(bx - w * 0.035f, by, bx, by, paint);
         canvas.drawLine(bx, by, bx, by + h * 0.10f, paint);
+    }
+
+    private void drawSourceLegend(Canvas canvas, float w, float h) {
+        // SOURCE LIVE means source availability; it never upgrades the Registry feature state.
+        // It proves neither audible playback, semantic perception, nor normalized telemetry.
+        String scope = mode == MEDIA ? "TARGET SESSION"
+                : mode == SAFETY ? "SEMANTICS LOCKED" : "RAW SOURCE";
+        String state = signalState == SIGNAL_LIVE ? "LIVE"
+                : signalState == SIGNAL_STALE ? "STALE"
+                : signalState == SIGNAL_BLOCKED ? "BLOCKED" : "WAITING";
+
+        float left = w * 0.54f;
+        float right = w * 0.94f;
+        float top = h * 0.075f;
+        float bottom = top + dp(24);
+        float centerY = (top + bottom) * 0.5f;
+
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.argb(154, 3, 13, 18));
+        canvas.drawRoundRect(left, top, right, bottom, dp(8), dp(8), paint);
+
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(0.8f));
+        paint.setColor(accent(90));
+        canvas.drawRoundRect(left, top, right, bottom, dp(8), dp(8), paint);
+
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(accent(220));
+        canvas.drawCircle(left + dp(8), centerY, dp(2.5f), paint);
+
+        textPaint.setTextAlign(Paint.Align.LEFT);
+        textPaint.setTextSize(dp(7.2f));
+        textPaint.setColor(Color.argb(210, 204, 226, 228));
+        canvas.drawText(scope, left + dp(14), centerY + dp(2.4f), textPaint);
+
+        textPaint.setTextAlign(Paint.Align.RIGHT);
+        textPaint.setTextSize(dp(7.4f));
+        textPaint.setColor(accent(230));
+        canvas.drawText("SOURCE " + state, right - dp(7), centerY + dp(2.5f), textPaint);
+        textPaint.setTextAlign(Paint.Align.LEFT);
     }
 
     private int accent(int alpha) {
