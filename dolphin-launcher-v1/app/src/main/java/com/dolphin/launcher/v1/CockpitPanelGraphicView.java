@@ -73,7 +73,7 @@ public final class CockpitPanelGraphicView extends View {
     private void drawMedia(Canvas canvas, float w, float h) {
         float base = h * 0.68f;
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.argb(160, 105, 255, 220));
+        paint.setColor(accent(160));
         for (int i = 0; i < 9; i++) {
             float x = w * (0.55f + i * 0.035f);
             float bh = h * (0.08f + (i % 4) * 0.035f);
@@ -82,7 +82,7 @@ public final class CockpitPanelGraphicView extends View {
 
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(dp(1.5f));
-        paint.setColor(Color.argb(165, 137, 255, 232));
+        paint.setColor(accent(180));
         canvas.drawCircle(w * 0.76f, h * 0.32f, h * 0.14f, paint);
 
         paint.setStyle(Paint.Style.FILL);
@@ -91,6 +91,7 @@ public final class CockpitPanelGraphicView extends View {
         path.lineTo(w * 0.815f, h * 0.32f);
         path.lineTo(w * 0.735f, h * 0.385f);
         path.close();
+        paint.setColor(accent(210));
         canvas.drawPath(path, paint);
     }
 
@@ -101,7 +102,7 @@ public final class CockpitPanelGraphicView extends View {
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStrokeWidth(dp(1.8f));
-        paint.setColor(Color.argb(150, 105, 255, 220));
+        paint.setColor(accent(155));
 
         canvas.drawLine(cx - w * 0.03f, horizon, cx - w * 0.22f, h * 0.92f, paint);
         canvas.drawLine(cx + w * 0.03f, horizon, cx + w * 0.22f, h * 0.92f, paint);
@@ -123,10 +124,10 @@ public final class CockpitPanelGraphicView extends View {
         path.close();
         canvas.drawPath(path, paint);
 
-        paint.setColor(Color.argb(180, 107, 255, 225));
+        paint.setColor(accent(190));
         canvas.drawCircle(cx, h * 0.67f, dp(4), paint);
         paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(Color.argb(80, 107, 255, 225));
+        paint.setColor(accent(82));
         canvas.drawCircle(cx, h * 0.67f, dp(13), paint);
     }
 
@@ -153,11 +154,11 @@ public final class CockpitPanelGraphicView extends View {
         canvas.drawPath(path, paint);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(dp(1.3f));
-        paint.setColor(Color.argb(185, 132, 250, 230));
+        paint.setColor(accent(190));
         canvas.drawPath(path, paint);
 
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.rgb(107, 255, 225));
+        paint.setColor(accent(220));
         float[][] wheels = new float[][]{
                 {cx-half*0.95f, h*0.47f},
                 {cx+half*0.95f, h*0.47f},
@@ -167,10 +168,10 @@ public final class CockpitPanelGraphicView extends View {
         for (float[] wheel : wheels) {
             canvas.drawCircle(wheel[0], wheel[1], dp(3.2f), paint);
             paint.setStyle(Paint.Style.STROKE);
-            paint.setColor(Color.argb(75, 107, 255, 225));
+            paint.setColor(accent(76));
             canvas.drawCircle(wheel[0], wheel[1], dp(8.5f), paint);
             paint.setStyle(Paint.Style.FILL);
-            paint.setColor(Color.rgb(107, 255, 225));
+            paint.setColor(accent(220));
         }
     }
 
