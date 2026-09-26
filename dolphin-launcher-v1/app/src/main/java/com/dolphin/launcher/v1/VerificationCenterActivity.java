@@ -389,6 +389,9 @@ public class VerificationCenterActivity extends Activity {
         }
         out.append("\n\n마커는 같은 상태를 최소 3회 기록하세요. 한 세션을 마친 뒤 '새 검증 세션'으로 이전 Evidence를 보존하고 별도 세션에서 다시 반복할 수 있습니다.");
         out.append("\n주행 중 필요한 테스트는 운전자가 화면을 조작하지 말고 동승자 또는 안전한 시험 환경에서 기록하세요.");
+        if (rawKeysForTest(testId).length > 0) {
+            out.append("\n차량 raw 상관 Test는 latest_raw가 실제 기록된 마커만 3회 진행률/PASS 잠금에 반영됩니다.");
+        }
         out.append("\n마커 자체는 PASS가 아니며 raw 상관 후보만 만듭니다.");
         return out.toString();
     }
@@ -461,8 +464,7 @@ public class VerificationCenterActivity extends Activity {
         }
 
         activeCapturePanel.setVisibility(View.VISIBLE);
-        Map<String,Integer> counts = VerificationEvidenceRuntime.operatorObservationCounts(
-                this, activeCorrelationId);
+        Map<String,Integer> counts = activeMarkerCounts();
         long ageMs = VerificationEvidenceRuntime.activeTestAgeMs(this);
         long ageSeconds = ageMs == Long.MAX_VALUE ? -1L : ageMs / 1000L;
         String age = ageSeconds < 0 ? "--:--"
@@ -636,12 +638,21 @@ public class VerificationCenterActivity extends Activity {
         return markers;
     }
 
+    private Map<String,Integer> activeMarkerCounts() {
+        if (activeCorrelationId == null) return new java.util.LinkedHashMap<>();
+        if (rawKeysForTest(activeTestId).length > 0) {
+            return VerificationEvidenceRuntime.operatorObservationCountsWithRaw(
+                    this, activeCorrelationId);
+        }
+        return VerificationEvidenceRuntime.operatorObservationCounts(
+                this, activeCorrelationId);
+    }
+
     private boolean activeCorrelationReadyForPass() {
         if (activeCorrelationId == null) return false;
         String[] required = requiredMarkersForTest(activeTestId);
         if (required.length == 0) return true;
-        Map<String,Integer> counts = VerificationEvidenceRuntime.operatorObservationCounts(
-                this, activeCorrelationId);
+        Map<String,Integer> counts = activeMarkerCounts();
         for (String marker : required) {
             Integer count = counts.get(marker);
             if (count == null || count < 3) return false;
@@ -705,8 +716,7 @@ public class VerificationCenterActivity extends Activity {
             resultMessage += "\n\nTest Contract가 PASS를 허용하지 않습니다. 현재는 NEED_MORE_DATA/허용된 결과만 기록할 수 있습니다.";
         }
         if (markerControlled) {
-            resultMessage += "\n\n" + markerProgressText(
-                    VerificationEvidenceRuntime.operatorObservationCounts(this, activeCorrelationId));
+            resultMessage += "\n\n" + markerProgressText(activeMarkerCounts());
             if (!passReady) {
                 resultMessage += "\nPASS 잠금: 필요한 마커를 각각 3회 기록해야 합니다.";
             } else {

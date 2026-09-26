@@ -1848,7 +1848,9 @@
         "live vehicle raw 대상이 아닌 Test ID는 event/evidence 로그 확인 대상으로 명확히 표시",
         "OPERATOR_OBSERVATION의 latest_raw는 active Test ID 관련 raw key만 기록하고 무관한 차량 raw는 evidence에 섞지 않음",
         "DRIVE ECO/SPORT와 REGEN HIGH도 markerPlanForTest 반복 마커 3회 PASS 잠금을 적용",
-        "correlation evaluator는 DRIVE ECO/NORMAL/SPORT 및 REGEN STANDARD/HIGH raw 충돌을 distinct group으로 탐지"
+        "correlation evaluator는 DRIVE ECO/NORMAL/SPORT 및 REGEN STANDARD/HIGH raw 충돌을 distinct group으로 탐지",
+        "차량 raw 상관 Test의 marker 진행률과 PASS 잠금은 latest_raw가 실제 기록된 OPERATOR_OBSERVATION만 카운트",
+        "raw가 없는 반복 클릭만으로 vehicle correlation Test PASS 잠금 해제 금지"
       ],
       "required_logs": [
         "registry schema/version",
@@ -1894,7 +1896,10 @@
         "DRIVE_SPORT_VISIBLE",
         "REGEN_HIGH_VISIBLE",
         "drive_modes",
-        "regen_modes"
+        "regen_modes",
+        "operatorObservationCountsWithRaw",
+        "hasLatestRawFromNote",
+        "activeMarkerCounts"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
@@ -1924,7 +1929,8 @@
         "Verification Center active capture displays live raw candidate snapshot without auto-verification",
         "Verification Center scopes live raw preview to the active Test ID",
         "Verification Center writes Test-ID-scoped latest_raw into OPERATOR_OBSERVATION",
-        "evaluator checks drive/regen cross-label raw collisions"
+        "evaluator checks drive/regen cross-label raw collisions",
+        "raw-qualified marker counting prevents empty-raw PASS unlock"
       ],
       "next_action": "실차 Evidence ZIP을 최소 2개 session에서 수집하고 evaluator 다중 입력으로 동일 raw 반복성을 비교; cross-session 후보도 수동 검토 전 매핑 활성화 금지",
       "confidence": {

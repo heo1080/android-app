@@ -183,7 +183,10 @@
         "filteredRawSnapshotForTest",
         "DRIVE_ECO_VISIBLE",
         "DRIVE_SPORT_VISIBLE",
-        "REGEN_HIGH_VISIBLE"
+        "REGEN_HIGH_VISIBLE",
+        "activeMarkerCounts",
+        "operatorObservationCountsWithRaw",
+        "latest_raw가 실제 기록된 마커"
       ]
     },
     {
@@ -892,7 +895,11 @@
         "test_log_contracts.json",
         "loadKnownBadRegistry",
         "rawSnapshot != null",
-        "latest_raw="
+        "latest_raw=",
+        "operatorObservationCountsWithRaw",
+        "operatorObservationCountsInternal",
+        "hasLatestRawFromNote",
+        "requireLatestRaw"
       ]
     },
     {

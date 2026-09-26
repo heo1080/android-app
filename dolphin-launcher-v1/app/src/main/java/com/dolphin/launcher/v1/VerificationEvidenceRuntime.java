@@ -313,6 +313,16 @@ public final class VerificationEvidenceRuntime {
 
     public static Map<String,Integer> operatorObservationCounts(
             Context context, String correlationId) {
+        return operatorObservationCountsInternal(context, correlationId, false);
+    }
+
+    public static Map<String,Integer> operatorObservationCountsWithRaw(
+            Context context, String correlationId) {
+        return operatorObservationCountsInternal(context, correlationId, true);
+    }
+
+    private static Map<String,Integer> operatorObservationCountsInternal(
+            Context context, String correlationId, boolean requireLatestRaw) {
         Map<String,Integer> counts = new LinkedHashMap<>();
         if (correlationId == null || correlationId.isEmpty()) return counts;
         File file = evidenceLedger(context);
@@ -325,7 +335,9 @@ public final class VerificationEvidenceRuntime {
                     JSONObject row = new JSONObject(line);
                     if (!"OPERATOR_OBSERVATION".equals(row.optString("event"))) continue;
                     if (!correlationId.equals(row.optString("correlation_id"))) continue;
-                    String observation = observationFromNote(row.optString("note", ""));
+                    String note = row.optString("note", "");
+                    if (requireLatestRaw && !hasLatestRawFromNote(note)) continue;
+                    String observation = observationFromNote(note);
                     if (observation == null || observation.isEmpty()) continue;
                     counts.put(observation, counts.containsKey(observation)
                             ? counts.get(observation) + 1 : 1);
@@ -337,6 +349,16 @@ public final class VerificationEvidenceRuntime {
             Log.e(TAG, "observation count failed", e);
         }
         return counts;
+    }
+
+    private static boolean hasLatestRawFromNote(String note) {
+        if (note == null) return false;
+        for (String part : note.split(";")) {
+            if (!part.startsWith("latest_raw=")) continue;
+            String value = part.substring("latest_raw=".length()).trim();
+            return !value.isEmpty() && value.contains("=");
+        }
+        return false;
     }
 
     private static String observationFromNote(String note) {
