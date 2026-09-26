@@ -9,6 +9,7 @@ on:
   pull_request:
     branches:
       - dolphin-launcher-v1
+      - dolphin-launcher-v1-ui-reference-dock
     paths:
       - "dolphin-launcher-v1/**"
       - ".github/workflows/dolphin-launcher-v1.yml"
@@ -36,6 +37,15 @@ jobs:
           grep -q '^concurrency:' .github/workflows/dolphin-launcher-v1.yml
           grep -q 'cancel-in-progress: true' .github/workflows/dolphin-launcher-v1.yml
           grep -q 'group: dolphin-launcher-v1-' .github/workflows/dolphin-launcher-v1.yml
+          python3 - <<'PY'
+          from pathlib import Path
+          workflow=Path(".github/workflows/dolphin-launcher-v1.yml").read_text(encoding="utf-8")
+          pr_block=workflow.split("  pull_request:",1)[1].split("  workflow_dispatch:",1)[0]
+          targets=("dolphin-launcher-v1","dolphin-launcher-v1-ui-reference-dock")
+          for target in targets:
+              assert f"      - {target}" in pr_block,target
+          print("V1_PR_CI_TARGET_OK pull_request_targets=" + ",".join(targets))
+          PY
           echo "V1_CI_POLICY_OK stale_runs_cancelled=true"
 
       - name: JDK 17
@@ -901,6 +911,12 @@ jobs:
           assert "V1/production runtime-only metadata isolation 구현 상태" in master.get("next_action",""), "MASTER_VERIFICATION_REGISTRY KB-014 next action is stale"
           assert any("KB-014 historical failure mode" in item and "representative existing Evidence" in item for item in master.get("known_bad",[])), "KB-014 historical/fix boundary missing from Registry"
           assert any("V1 and production diagnostic evaluators implement runtime-only metadata isolation" in item for item in master.get("evidence",[])), "landed production/V1 evaluator isolation evidence missing"
+          pr_ci_tokens=("V1_PR_CI_TARGET_OK","pull_request_targets=dolphin-launcher-v1,dolphin-launcher-v1-ui-reference-dock")
+          for token in pr_ci_tokens:
+              assert token in master.get("required_logs",[]),("registry PR CI token missing",token)
+              assert token in by_test["GOV-REG-001"].get("required_logs",[]),("contract PR CI token missing",token)
+          assert any("pull_request validation" in item and "dolphin-launcher-v1-ui-reference-dock" in item for item in master.get("acceptance",[])), "Registry PR target acceptance missing"
+          assert any("pull_request trigger covers both" in item and "dolphin-launcher-v1-ui-reference-dock" in item for item in by_test["GOV-REG-001"].get("acceptance",[])), "Contract PR target acceptance missing"
           for tid in ("UPD-001","UPD-002"):
               logs=by_test[tid].get("required_logs",[])
               for token in ("APP_UPDATE_RELEASE_CHECK","APP_UPDATE_PACKAGE_VERIFIED","APP_UPDATE_INSTALL_STAGED","APP_UPDATE_INSTALL_STATUS",
