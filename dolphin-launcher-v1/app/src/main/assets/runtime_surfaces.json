@@ -326,7 +326,17 @@
         "SYSTEM_SETTINGS_DISPATCH",
         "Settings.ACTION_SOUND_SETTINGS",
         "Settings.ACTION_DISPLAY_SETTINGS",
-        "vehicle_hidden_api=false"
+        "vehicle_hidden_api=false",
+        "referencePanelHero",
+        "referenceSectionLabel",
+        "golden-reference-v3",
+        "panel_hero=true",
+        "target_scoped=true",
+        "vehicle_source_live=",
+        "fsd_state=",
+        "SEMANTICS",
+        "LOCKED",
+        "roleBadge"
       ]
     },
     {
@@ -603,7 +613,15 @@
         "com.locnall.KimGiSa",
         "com.mappers.AtlanSmart",
         "NAV_LAUNCHER_HMI_RENDER",
-        "semantic_parse=false"
+        "semantic_parse=false",
+        "FSD · SAFETY",
+        "PROVENANCE LAYER",
+        "VERIFICATION BOUNDARY",
+        "SOURCE PROVENANCE",
+        "golden-reference-v3",
+        "panel_hero=true",
+        "fsd_state=",
+        "semantic_values=false"
       ]
     },
     {
@@ -936,7 +954,12 @@
         "playback_verified=false",
         "MediaNowPlayingRuntime",
         "NOW_PLAYING_SNAPSHOT",
-        "nowPlayingCard"
+        "nowPlayingCard",
+        "referencePanelHero",
+        "TARGET MEDIA SESSION",
+        "golden-reference-v3",
+        "panel_hero=true",
+        "target_scoped=true"
       ]
     },
     {
@@ -1370,6 +1393,32 @@
         "ACTION_MEDIA_READBACK_STAGE",
         "executeTargetSessionPlay",
         "recordTargetReadback"
+      ]
+    },
+    {
+      "feature_id": "LIVE_VEHICLE_INFO",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+      "tokens": [
+        "showVehicleInfoPanel",
+        "READ-ONLY VEHICLE BUS",
+        "RAW SOURCE ACTIVE",
+        "vehicle_source_live=",
+        "normalized=false",
+        "actuation=false",
+        "panel_hero=true"
+      ]
+    },
+    {
+      "feature_id": "FSD_OBJECT_LANE_MODEL",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+      "tokens": [
+        "FSD · SAFETY",
+        "FSD MODEL",
+        "SEMANTICS",
+        "LOCKED",
+        "fsd_state=",
+        "semantic_values=false",
+        "panel_hero=true"
       ]
     }
   ],
