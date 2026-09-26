@@ -648,7 +648,7 @@ public class VerificationCenterActivity extends Activity {
             return new String[]{"bsd_raw","turn_left_raw","turn_right_raw"};
         }
         if ("AUD-LVDA-001".equals(testId)) {
-            return new String[]{"radar_area7_raw","radar_area8_raw","speed_raw"};
+            return new String[]{"radar_area7_raw","radar_area8_raw","speed_raw","tja_raw"};
         }
         if ("PARK-HAZ-001".equals(testId) || "PARK-HAZ-002".equals(testId)) {
             return new String[]{"gear_raw","hazard_raw"};
