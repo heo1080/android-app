@@ -1765,7 +1765,13 @@
         "mixed fixed-asset states are forbidden",
         "VOICE_FIXED_ASSET_STATE",
         "VOICE_FIXED_ASSET_GENERATION_OK",
-        "sha256_file"
+        "sha256_file",
+        "wave.open",
+        "getnchannels",
+        "getsampwidth",
+        "getframerate",
+        "getcomptype",
+        "VOICE_WAV_PROFILE_SELF_TEST_OK"
       ]
     }
   ],
