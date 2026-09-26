@@ -357,7 +357,13 @@
         "0.76f,0.84f",
         "0.68f,0.84f",
         "0.66f,0.82f",
-        "0.62f,0.74f"
+        "0.62f,0.74f",
+        "dockPrimaryWeighted",
+        "lp.setMargins(dp(1), dp(2), dp(1), dp(2))",
+        "screen_width_dp=",
+        "dock_min_safe_width_dp=632",
+        "touch_target_goal_dp=48",
+        "compact_risk="
       ]
     },
     {
@@ -533,7 +539,13 @@
         "referenceDialogScroll",
         "showReferenceDialog",
         "scroll_safe=true",
-        "dialog_profile=display"
+        "dialog_profile=display",
+        "dockPrimaryWeighted",
+        "lp.setMargins(dp(1), dp(2), dp(1), dp(2))",
+        "screen_width_dp=",
+        "dock_min_safe_width_dp=632",
+        "touch_target_goal_dp=48",
+        "compact_risk="
       ]
     },
     {
