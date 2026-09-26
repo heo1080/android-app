@@ -607,7 +607,9 @@
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehiclePromptPlayer.java",
         "dolphin-launcher-v1/tools/generate_fixed_voice_assets.py",
-        "dolphin-launcher-v1/tools/generate_ppaso_voice_candidate.py"
+        "dolphin-launcher-v1/tools/generate_ppaso_voice_candidate.py",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleVoicePolicy.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
       ],
       "test_ids": [
         "AUD-TTS-001",
@@ -635,7 +637,11 @@
         "Ppaso 후보는 workflow 시작 시 Hugging Face revision을 immutable full commit SHA로 resolve한 뒤 그 SHA에서만 모델을 받고, 22.05kHz 합성 출력을 24kHz/16-bit/mono PCM으로 변환해 SHA-256/byte count와 resolved revision을 candidate manifest에 기록한다",
         "후보 음질과 실차 가청 검증 전 voice_prompt_manifest의 preferred Azure profile과 ASSET_REQUIRED 상태를 변경하지 않는다",
         "Ppaso 후보 WAV는 -60dB activity threshold 기준 선행 무음 trim을 적용하되 30ms pre-roll을 보존하고 후행 원본 무음은 최대 60ms까지 유지해 이벤트 음성 시작 지연을 줄이고 발음 onset 절단을 방지한다",
-        "candidate manifest는 각 prompt의 original_duration_ms/trimmed_leading_ms/trimmed_trailing_ms를 기록하며 trim 자체를 audible quality 성공 증거로 간주하지 않는다"
+        "candidate manifest는 각 prompt의 original_duration_ms/trimmed_leading_ms/trimmed_trailing_ms를 기록하며 trim 자체를 audible quality 성공 증거로 간주하지 않는다",
+        "SOUND LAB 고정 음성 패널은 VehicleVoicePolicy prompt catalog 22개를 단일 원천으로 사용하고 Launcher에 별도 phrase 사본을 두지 않는다",
+        "고정 음성 미리듣기 패널의 각 버튼은 promptId/phrase를 그대로 VehiclePromptPlayer.play()에 전달하며 차량 상태를 변경하지 않는다",
+        "미리듣기 패널 open/request 이벤트는 실제 가청 성공과 분리 기록되며 VOICE_PLAY_REQUESTED만으로 audible PASS 처리하지 않는다",
+        "candidate preview APK에서 packaged fixed asset 청취를 수행할 수 있어야 하며 canonical feature state는 실차 evidence 전 REVERIFY_REQUIRED 유지"
       ],
       "required_logs": [
         "VOICE_ASSET_READY",
@@ -660,7 +666,11 @@
         "VOICE_SYNTHESIZED",
         "VOICE_FIXED_ASSET_GENERATION_OK",
         "atomic=true",
-        "sha256=verified"
+        "sha256=verified",
+        "VOICE_FIXED_PREVIEW_HMI_RENDER",
+        "VOICE_FIXED_PREVIEW_REQUESTED",
+        "prompt_count=22",
+        "vehicle_write=false"
       ],
       "known_bad": [
         "현재 고정 voice_* raw 자산이 아직 공급되지 않아 Android TTS fallback에 의존",
@@ -691,9 +701,10 @@
         "generate_fixed_voice_assets.py validates atomic 22-asset generation, RIFF/WAVE format, manifest SHA-256 and byte counts",
         "voice_prompt_manifest locks Azure Speech ko-KR-SunHiNeural generation profile without persisting credentials",
         "Ppaso-TTS candidate path is generation-only; model weights are not packaged into APK",
-        "Ppaso candidate post-process trims model-added silence only; manual pronunciation/quality review remains mandatory before promotion"
+        "Ppaso candidate post-process trims model-added silence only; manual pronunciation/quality review remains mandatory before promotion",
+        "VehicleVoicePolicy phraseForPromptId + LauncherActivity fixed voice preview panel keep all 22 review buttons bound to the canonical prompt catalog"
       ],
-      "next_action": "Ppaso Apache-2.0 후보 WAV 22개 Actions artifact 생성 → 음질/발음 검토 → 통과 시에만 fixed asset profile 승격 여부 판단; Azure 경로는 유지",
+      "next_action": "고정 음성 preview APK에서 22개 버튼을 연속 청취하고 발음/음질/지연 Evidence를 AUD-TTS-001/002에 기록; 승인 전 REVERIFY_REQUIRED 유지",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
@@ -2054,7 +2065,9 @@
         "PREMIUM_HMI_RENDER evidence reports the actual 6 primary dock items",
         "HOME primary cockpit vectors render an in-graphic source scope + current WAITING/LIVE/STALE/BLOCKED state rail without introducing new semantic vehicle claims",
         "Media/Safety/Vehicle vector scope labels remain TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE so source state cannot be confused with feature verification state",
-        "cockpit source legend는 scope와 SOURCE 상태를 두 줄로 분리하고 실제 가용 폭에 맞춰 글자 크기를 축소해 compact 10-inch 폭에서 상호 겹침을 방지"
+        "cockpit source legend는 scope와 SOURCE 상태를 두 줄로 분리하고 실제 가용 폭에 맞춰 글자 크기를 축소해 compact 10-inch 폭에서 상호 겹침을 방지",
+        "HOME SOUND LAB은 EQ/음장 위치/고정 음성 3개 safe preview card를 제공한다",
+        "고정 음성 card는 22개 prompt를 scroll-safe dialog로 열고 차량 write 없이 app-owned audio만 재생한다"
       ],
       "required_logs": [
         "display profile",
@@ -2139,7 +2152,9 @@
         "topbar_height_dp=60",
         "dock_height_dp=84",
         "cockpit_copy_dp=",
-        "dock_items=6"
+        "dock_items=6",
+        "VOICE_FIXED_PREVIEW_HMI_RENDER",
+        "sound_lab_cards=3"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -2208,7 +2223,8 @@
         "LauncherActivity cockpitCopyWidthDp uses screen width dp * 0.22 with 150~206dp clamp and records cockpit_copy_dp",
         "LauncherActivity corrects legacy dock_items=5 evidence drift to dock_items=6",
         "CockpitPanelGraphicView drawSourceLegend renders truthful scope + WAITING/LIVE/STALE/BLOCKED source-state text without changing Registry feature state",
-        "CockpitPanelGraphicView fitLegendTextSize + two-line source legend layout"
+        "CockpitPanelGraphicView fitLegendTextSize + two-line source legend layout",
+        "LauncherActivity SOUND LAB fixed-voice preview card and 22-prompt scroll-safe review dialog"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
