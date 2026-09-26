@@ -899,7 +899,8 @@ public class LauncherActivity extends Activity {
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this, "APP_DRAWER_HMI_RENDER",
                 "variant=glass-vector-v2;glyphs=vector;app_icons=system-drawable"
-                        + ";state_badges=HOME,AUTO,MEDIA,L,R");
+                        + ";state_badges=HOME,AUTO,MEDIA,L,R"
+                        + ";tile_height_dp=138");
         dialog.show();
     }
 
@@ -932,6 +933,10 @@ public class LauncherActivity extends Activity {
         TextView label = text(app.label, compact ? 12f : 13f, Color.WHITE, false);
         label.setGravity(Gravity.CENTER);
         label.setMaxLines(2);
+        label.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        label.setAutoSizeTextTypeUniformWithConfiguration(
+                compact ? 10 : 11, compact ? 12 : 13, 1,
+                android.util.TypedValue.COMPLEX_UNIT_SP);
         LinearLayout.LayoutParams labelLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f);
         labelLp.topMargin = dp(7);
@@ -1782,7 +1787,7 @@ public class LauncherActivity extends Activity {
     private GridLayout.LayoutParams gridParams() {
         GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
         lp.width = dp(150);
-        lp.height = dp(126);
+        lp.height = dp(138);
         lp.setMargins(dp(5), dp(5), dp(5), dp(5));
         return lp;
     }
