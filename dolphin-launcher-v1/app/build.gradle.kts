@@ -10,8 +10,8 @@ android {
         applicationId = "com.dolphin.launcher.v1"
         minSdk = 29
         targetSdk = 35
-        versionCode = 10
-        versionName = "1.2.7-v1-premium-realcar-beta"
+        versionCode = 11
+        versionName = "1.2.8-v1-premium-realcar-beta"
         buildConfigField("String", "SOURCE_COMMIT", "\"" + (System.getenv("GITHUB_SHA") ?: "LOCAL") + "\"")
         buildConfigField("boolean", "VOICE_PREVIEW_BUILD", "false")
     }

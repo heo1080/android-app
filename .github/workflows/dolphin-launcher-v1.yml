@@ -58,11 +58,22 @@ jobs:
               "versionCode $VERSION_CODE",
               "REALCAR_BETA_RELEASE_OK",
               "REALCAR_BETA_RELEASE_IMMUTABLE",
+              "REALCAR_BETA_RELEASE_INCOMPLETE",
               "upload=false",
+              'gh release create "$TAG" "$APK" "$SHA" "$META"',
               "--prerelease",
           )
           for token in beta_tokens:
               assert token in workflow, ("real-car beta policy drift",token)
+          preview_workflow=Path(".github/workflows/dolphin-launcher-v1-fixed-voice-preview-apk.yml").read_text(encoding="utf-8")
+          for token in (
+              "VOICE_PREVIEW_WAITING_FOR_CANONICAL",
+              "VOICE_PREVIEW_CANONICAL_RELEASE_READY",
+              "VOICE_PREVIEW_RELEASE_INCOMPLETE",
+              "VOICE_PREVIEW_BETA_RELEASE_IMMUTABLE",
+              "canonical_release_required=true",
+          ):
+              assert token in preview_workflow, ("voice preview release ordering drift",token)
           stable_tokens=(
               "Enforce release Known-Bad gate",
               "RELEASE_BLOCKED_OPEN_P0=",
@@ -111,8 +122,8 @@ jobs:
           BADGING="$(printf '%s\n' "$BADGING_ALL" | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -q "package: name='com.dolphin.launcher.v1'"
-          echo "$BADGING" | grep -q "versionCode='10'"
-          echo "$BADGING" | grep -q "versionName='1.2.7-v1-premium-realcar-beta'"
+          echo "$BADGING" | grep -q "versionCode='11'"
+          echo "$BADGING" | grep -q "versionName='1.2.8-v1-premium-realcar-beta'"
           printf '%s\n' "$BADGING_ALL" | grep -q "^sdkVersion:'29'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^targetSdkVersion:'35'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^launchable-activity: name='com.dolphin.launcher.v1.LauncherActivity'"
@@ -191,7 +202,7 @@ jobs:
             echo "HOME category must remain disabled until BYD real-car compatibility is proven" >&2
             exit 1
           fi
-          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=10 minSdk=29 targetSdk=35 main_launcher=1 drawer_slots=16_disabled home=0"
+          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=11 minSdk=29 targetSdk=35 main_launcher=1 drawer_slots=16_disabled home=0"
 
       - name: Validate Registry v3 payload
         shell: bash
@@ -1202,16 +1213,31 @@ jobs:
           EOF
 
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            RELEASE_JSON="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" \
+              --json isPrerelease,assets)"
+            test "$(printf '%s' "$RELEASE_JSON" | jq -r '.isPrerelease')" = "true"
+            ASSET_NAMES="$(printf '%s' "$RELEASE_JSON" | jq -r '.assets[].name')"
+            MISSING=""
+            for REQUIRED in \
+              "DolphinLauncherV1-Evolution.apk" \
+              "DolphinLauncherV1-Evolution.sha256" \
+              "DolphinLauncherV1-RealCarValidation.json"; do
+              if ! grep -Fxq "$REQUIRED" <<<"$ASSET_NAMES"; then
+                MISSING="$MISSING,$REQUIRED"
+              fi
+            done
+            if [ -n "$MISSING" ]; then
+              echo "REALCAR_BETA_RELEASE_INCOMPLETE tag=$TAG missing=${MISSING#,}" >&2
+              exit 1
+            fi
             echo "REALCAR_BETA_RELEASE_IMMUTABLE tag=$TAG upload=false"
           else
-            gh release create "$TAG" \
+            gh release create "$TAG" "$APK" "$SHA" "$META" \
               --repo "$GITHUB_REPOSITORY" \
               --target "$GITHUB_SHA" \
               --title "Dolphin Launcher V1 ${SEMVER} Real-Car BETA" \
               --notes-file "$NOTES" \
               --prerelease
-            gh release upload "$TAG" "$APK" "$SHA" "$META" \
-              --repo "$GITHUB_REPOSITORY"
             echo "REALCAR_BETA_RELEASE_OK tag=$TAG prerelease=true stable=false"
           fi
 
