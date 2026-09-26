@@ -173,7 +173,10 @@
         "P0 실차 검증 큐",
         "knownBadRegistry",
         "APP_DRAWER_ICON_VISIBLE",
-        "NORMAL_APP_LAUNCH_VISIBLE"
+        "NORMAL_APP_LAUNCH_VISIBLE",
+        "latestRawCandidateText",
+        "raw 새로고침",
+        "candidate only · PASS 아님"
       ]
     },
     {

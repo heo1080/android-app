@@ -36,6 +36,7 @@ public class VerificationCenterActivity extends Activity {
     private LinearLayout activeCapturePanel;
     private LinearLayout activeCaptureActions;
     private TextView activeCaptureStatus;
+    private TextView activeRawStatus;
     private String activeTestId;
     private String activeCorrelationId;
     private String activeTestState;
@@ -210,6 +211,11 @@ public class VerificationCenterActivity extends Activity {
 
         activeCaptureStatus = text("실차 캡처 세션 없음", 13f, Color.WHITE, true);
         activeCapturePanel.addView(activeCaptureStatus);
+
+        activeRawStatus = text("최근 raw 후보(candidate only · PASS 아님) · 아직 없음",
+                12f, Color.parseColor("#9CC7D8"), false);
+        activeRawStatus.setPadding(0, dp(6), 0, 0);
+        activeCapturePanel.addView(activeRawStatus);
 
         activeCaptureActions = new LinearLayout(this);
         activeCaptureActions.setOrientation(LinearLayout.VERTICAL);
@@ -447,7 +453,7 @@ public class VerificationCenterActivity extends Activity {
     }
 
     private void refreshActiveCaptureUi() {
-        if (activeCapturePanel == null || activeCaptureActions == null || activeCaptureStatus == null) return;
+        if (activeCapturePanel == null || activeCaptureActions == null || activeCaptureStatus == null || activeRawStatus == null) return;
         if (activeTestId == null || activeCorrelationId == null) {
             activeCapturePanel.setVisibility(View.GONE);
             activeCaptureActions.removeAllViews();
@@ -465,6 +471,7 @@ public class VerificationCenterActivity extends Activity {
                 + " · " + age
                 + "\n" + markerProgressText(counts)
                 + "\n주행 중 필요한 항목은 운전자가 화면을 누르지 말고 동승자가 기록하세요.");
+        activeRawStatus.setText(latestRawCandidateText());
         activeCaptureActions.removeAllViews();
 
         LinearLayout markerRow = new LinearLayout(this);
@@ -480,6 +487,10 @@ public class VerificationCenterActivity extends Activity {
         LinearLayout controlRow = new LinearLayout(this);
         controlRow.setOrientation(LinearLayout.HORIZONTAL);
 
+        Button rawRefresh = button("raw 새로고침");
+        rawRefresh.setOnClickListener(v -> refreshActiveCaptureUi());
+        controlRow.addView(rawRefresh, weighted());
+
         Button finish = button("결과 종료");
         finish.setOnClickListener(v -> finishActiveCaptureDialog());
         controlRow.addView(finish, weighted());
@@ -490,6 +501,15 @@ public class VerificationCenterActivity extends Activity {
 
         activeCaptureActions.addView(controlRow,
                 new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(48)));
+    }
+
+    private String latestRawCandidateText() {
+        String snapshot = VerificationEvidenceRuntime.liveCorrelationSnapshot();
+        if (snapshot == null || snapshot.trim().isEmpty()) {
+            return "최근 raw 후보(candidate only · PASS 아님) · 아직 없음";
+        }
+        return "최근 raw 후보(candidate only · PASS 아님) · "
+                + snapshot.replace(";", " · ");
     }
 
     private void addMarkerButton(LinearLayout row, String label, String observation) {
