@@ -485,7 +485,14 @@
         "RADAR_RUNTIME_CONSTANT",
         "event+\"_SCAN\"",
         "radar_area7_raw",
-        "radar_area8_raw"
+        "radar_area8_raw",
+        "LEADING_CAR_CONTEXT_SAMPLE",
+        "speed_raw",
+        "tja_raw",
+        "assist_context_semantic=unmapped",
+        "object_semantic=false",
+        "voice_enabled=false",
+        "vehicle_write=false"
       ]
     },
     {
@@ -597,7 +604,14 @@
         "windowingMode",
         "accelerometerRotation",
         "userRotation",
-        "fontScaleSetting"
+        "fontScaleSetting",
+        "getRealMetrics",
+        "getMode",
+        "resource_px=",
+        "real_px=",
+        "physical_mode_px=",
+        "display_mode_id=",
+        "refresh_hz="
       ]
     },
     {
@@ -950,7 +964,14 @@
         "balance",
         "fader",
         "AUDIO_CAPABILITY_SCAN",
-        "vehicle_write=false"
+        "vehicle_write=false",
+        "EXTERNAL_AVAS_CAPABILITY_METHOD",
+        "EXTERNAL_AVAS_CAPABILITY_CONSTANT",
+        "EXTERNAL_AVAS_CAPABILITY_SCAN",
+        "custom_audio_path=unproven",
+        "builtin_tone_path=unproven",
+        "lock_trigger_path=unproven",
+        "actuation=false"
       ]
     },
     {
