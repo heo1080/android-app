@@ -1322,7 +1322,11 @@
         "SIGNAL_STALE",
         "SIGNAL_BLOCKED",
         "setSignalState",
-        "accent"
+        "accent",
+        "paint.setColor(accent(160))",
+        "paint.setColor(accent(155))",
+        "paint.setColor(accent(190))",
+        "paint.setColor(accent(220))"
       ]
     },
     {
