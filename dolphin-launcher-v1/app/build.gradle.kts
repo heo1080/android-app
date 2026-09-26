@@ -13,6 +13,7 @@ android {
         versionCode = 5
         versionName = "1.2.2-v1-auto-evidence-beta"
         buildConfigField("String", "SOURCE_COMMIT", "\"" + (System.getenv("GITHUB_SHA") ?: "LOCAL") + "\"")
+        buildConfigField("boolean", "VOICE_PREVIEW_BUILD", "false")
     }
 
     buildFeatures {
@@ -32,6 +33,13 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+        }
+        create("voicePreview") {
+            initWith(getByName("release"))
+            applicationIdSuffix = ".voicepreview"
+            versionNameSuffix = "-voice-preview"
+            buildConfigField("boolean", "VOICE_PREVIEW_BUILD", "true")
+            matchingFallbacks += listOf("release")
         }
     }
 
