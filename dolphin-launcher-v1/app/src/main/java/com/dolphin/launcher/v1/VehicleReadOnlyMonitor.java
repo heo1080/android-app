@@ -41,6 +41,8 @@ public final class VehicleReadOnlyMonitor {
         void onTurnRaw(Integer leftRaw, Integer rightRaw);
         void onSnowRaw(Integer raw);
         void onIccCandidateRaw(Integer raw);
+        void onLaneOffsetRaw(Integer laneOffsetRaw, Integer lksModeRaw,
+                             Integer ldswTypeRaw, Integer tjaRaw);
         void onFrontRadarRaw(Integer leftMid, Integer rightMid);
         void onTpmsRaw(Integer fl, Integer fr, Integer rl, Integer rr,
                        Integer flState, Integer frState, Integer rlState, Integer rrState,
@@ -67,7 +69,7 @@ public final class VehicleReadOnlyMonitor {
         running=true;
         new Thread(() -> {
             captureGearboxConstants();
-            captureStateConstants(ADAS,"ADAS_RUNTIME_CONSTANT",new String[]{"AVH","AUTOHOLD","BSD","TJA","ICC","ACC","LEAD","FRONT","VEHICLE","OBJECT"});
+            captureStateConstants(ADAS,"ADAS_RUNTIME_CONSTANT",new String[]{"AVH","AUTOHOLD","BSD","TJA","ICC","ACC","LKS","LDW","LDSW","LANE","OFFSET","LEAD","FRONT","VEHICLE","OBJECT"});
             captureStateConstants(SETTING,"SETTING_RUNTIME_CONSTANT",new String[]{"AVH","AUTOHOLD"});
             captureStateConstants(ENERGY,"ENERGY_RUNTIME_CONSTANT",new String[]{"SNOW","ROAD","SURFACE"});
             captureStateConstants(RADAR,"RADAR_RUNTIME_CONSTANT",new String[]{"FRONT","AREA","OBJECT","DISTANCE","VEHICLE"});
@@ -154,7 +156,25 @@ public final class VehicleReadOnlyMonitor {
             post(()->listener.onSnowRaw(roadSurface));
         Integer tja=read(ADAS,"getTJAState");
         VerificationEvidenceRuntime.updateLiveCorrelationValue("tja_raw",tja);
-        if(changed("adas.tja",tja)) post(()->listener.onIccCandidateRaw(tja));
+        boolean tjaChanged=changed("adas.tja",tja);
+        if(tjaChanged) post(()->listener.onIccCandidateRaw(tja));
+
+        // Public DiLink SDK evidence exposes getLaneOffsetState(), getLKSMode(),
+        // getLDSWType() and onLaneOffsetStateChanged(). Their Korean-Dolphin
+        // raw semantics are not assumed here: capture values only so real-car
+        // left/right observations can be correlated before any voice mapping.
+        Integer laneOffset=read(ADAS,"getLaneOffsetState");
+        Integer lksMode=read(ADAS,"getLKSMode");
+        Integer ldswType=read(ADAS,"getLDSWType");
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("lane_offset_raw",laneOffset);
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("lks_mode_raw",lksMode);
+        VerificationEvidenceRuntime.updateLiveCorrelationValue("ldsw_type_raw",ldswType);
+        boolean laneContextChanged=changed("adas.laneOffset",laneOffset);
+        laneContextChanged=changed("adas.lksMode",lksMode) || laneContextChanged;
+        laneContextChanged=changed("adas.ldswType",ldswType) || laneContextChanged;
+        if(laneContextChanged || tjaChanged) {
+            post(()->listener.onLaneOffsetRaw(laneOffset,lksMode,ldswType,tja));
+        }
 
         // Areas 7/8 are front-centre parking-radar candidates in the legacy
         // DiLink 3 evidence. V1 records only raw values; it does not call an

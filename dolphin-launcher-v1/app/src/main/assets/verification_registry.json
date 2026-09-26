@@ -1,7 +1,7 @@
 {
   "schema_version": 3,
   "registry_id": "DOLPHIN-MASTER-VERIFICATION-REGISTRY",
-  "generated_at": "2026-09-20",
+  "generated_at": "2026-09-26",
   "source": {
     "repository": "heo1080/android-app",
     "branch_base": "main",
@@ -2312,7 +2312,7 @@
         "Known-Bad required Test ID가 log contract와 연결",
         "핵심 Runtime Surface token 누락 시 CI 실패",
         "차량 Verification Center에서 Test ID별 operator result를 OPERATOR_RESULT 로그로 기록",
-        "54개 모든 Test ID가 test_log_contracts에 1:1로 존재",
+        "58개 모든 Test ID가 test_log_contracts에 1:1로 존재",
         "Test ID별 결과가 append-only evidence ledger에 correlation/build/precondition/session과 함께 기록",
         "BLOCKED/UNSUPPORTED Test ID는 PASS/FAIL 기록 불가",
         "repeatability와 Known-Bad lifecycle을 자동 평가",
@@ -2688,6 +2688,154 @@
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-SAFE-001",
+      "feature_id": "PARKING_REVERSE_HAZARD_AUTOMATION",
+      "area": "vehicle_safety",
+      "requirement": "후진 주차 시작 시 R 진입으로 비상등을 켜고 주차 중 기어변속 동안 유지한 뒤 최종 P가 10초 지속되면 끄되, 검증된 hazard setter/readback pair가 확보되기 전에는 실제 차량 write를 수행하지 않는다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/ParkingHazardAutomationProbe.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java"
+      ],
+      "test_ids": [
+        "PARK-HAZ-001",
+        "PARK-HAZ-002"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "첫 R 진입이 parking session을 시작하고 desired_hazard=ON 계획을 기록",
+        "R 이후 D/N/R 등 주차 중 기어변속에서는 desired_hazard=ON 유지",
+        "parking session 중 P 진입 시 10초 타이머를 arm하고 10초 안에 P 이탈하면 OFF 계획을 취소",
+        "최종 P가 10초 연속 유지된 경우에만 desired_hazard=OFF 계획을 기록",
+        "getDoubleFlashLightState readback은 passive evidence로만 사용",
+        "실제 hazard setter signature, 호출 권한, 물리 점멸, 독립 readback이 모두 입증되기 전 actuation=false",
+        "현재 BETA는 would_request_only=true이며 vehicle_write=false",
+        "Verification Center에서 PARK-HAZ Test 시작 즉시 hazard capability를 active correlation 안에서 재수집",
+        "DoubleFlash/Hazard 관련 public 상수도 read-only inventory로 수집하며 ON/OFF 파라미터를 이름만으로 추정하지 않음",
+        "Verification Center PARK-HAZ 마커에는 gear_raw/hazard_raw snapshot이 함께 기록됨"
+      ],
+      "required_logs": [
+        "PARK_HAZARD_CAPABILITY_METHOD",
+        "PARK_HAZARD_CAPABILITY",
+        "PARK_HAZARD_PLAN",
+        "PARK_HAZARD_PARK_ARMED",
+        "PARK_HAZARD_PARK_CANCELLED",
+        "hazard_raw",
+        "setter_proven=false",
+        "would_request_only=true",
+        "vehicle_write=false",
+        "TEST_CAPABILITY_REFRESH",
+        "PARK_HAZARD_CAPABILITY_CONSTANT",
+        "matching_constants=",
+        "gear_raw"
+      ],
+      "known_bad": [
+        "legacy DiLink evidence proves getDoubleFlashLightState() readback but no public hazard setter was proven",
+        "hazard command success without independent physical/readback proof must never enable automatic actuation"
+      ],
+      "dependencies": [
+        "BYDAutoLightDevice hazard getter",
+        "evidence-backed hazard setter plus independent readback",
+        "normalized gear state"
+      ],
+      "real_vehicle_test": [
+        "정차 또는 안전한 주차 환경에서 R→D/R 반복→P 시퀀스를 수행하고 PARK_HAZARD_PLAN 타임라인이 요청 정책과 일치하는지 확인",
+        "P 진입 후 10초 이내 R/D로 이탈해 PARK_HAZARD_PARK_CANCELLED 확인",
+        "최종 P 10초 후 OFF 계획이 기록되더라도 실제 비상등 write는 발생하지 않는지 확인",
+        "실제 setter 후보가 발견되어도 별도 승인/검증 전 호출하지 않음"
+      ],
+      "evidence": [
+        "legacy HazardLightManager is intentionally read-only and reports setter=UNAVAILABLE",
+        "V1 ParkingHazardAutomationProbe inventories hazard methods without invoking write candidates",
+        "V1 planner records requested R/parking/P+10s policy with vehicle_write=false"
+      ],
+      "next_action": "1.2.3 이후 실차 세션에서 hazard API inventory와 R→주차기어변속→P+10초 planner evidence를 수집하고, 실제 setter/readback pair와 물리 반응이 독립 입증되기 전까지 BLOCKED 유지",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
+    },
+    {
+      "req_id": "REQ-ADAS-001",
+      "feature_id": "LANE_DEPARTURE_DIRECTIONAL_VOICE",
+      "area": "adas_audio",
+      "requirement": "일반 주행과 ICC/ACC 작동 중 실제 좌/우 차선 이탈 방향이 검증된 경우에만 각각 '왼쪽 차선 이탈', '오른쪽 차선 이탈' 음성 경고를 출력한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LaneDepartureCapabilityProbe.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java"
+      ],
+      "test_ids": [
+        "ADAS-LDW-001",
+        "ADAS-LDW-002"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "실차 ADAS device/listener에서 LKS/LDW/LDP/LANE/ELK 관련 surface를 passive inventory",
+        "LEFT/RIGHT 또는 동등한 directional departure raw semantics를 물리 차선 이탈과 반복 correlation",
+        "일반 주행과 ICC/ACC/TJA 작동 중 동일한 방향 semantic이 유지되는지 각각 검증",
+        "LKS mode 존재만으로 좌/우 차선 이탈을 추론하지 않음",
+        "directional_signal_proven=false 동안 production voice와 fixed voice asset 추가를 금지",
+        "source availability 또는 메서드 존재를 VERIFIED로 승격하지 않음",
+        "probe는 unknown method를 invoke하지 않고 vehicle_write=false 유지",
+        "Verification Center에서 ADAS-LDW Test 시작 즉시 lane/assist capability를 active correlation 안에서 재수집",
+        "getLaneOffsetState/getLKSMode/getLDSWType/getTJAState는 read-only raw 값으로만 수집하고 방향 의미를 추정하지 않음",
+        "Verification Center ADAS-LDW 마커에는 lane_offset_raw/lks_mode_raw/ldsw_type_raw/tja_raw snapshot이 함께 기록됨"
+      ],
+      "required_logs": [
+        "LANE_DEPARTURE_CAPABILITY_METHOD",
+        "LANE_DEPARTURE_CAPABILITY_CONSTANT",
+        "LANE_DEPARTURE_CAPABILITY",
+        "lks_surface_present",
+        "directional_candidate_present",
+        "assist_context_surface_present",
+        "directional_signal_proven=false",
+        "normal_drive_voice_enabled=false",
+        "icc_acc_voice_enabled=false",
+        "fixed_voice_asset_added=false",
+        "vehicle_write=false",
+        "TEST_CAPABILITY_REFRESH",
+        "LANE_OFFSET_RAW_TRANSITION",
+        "lane_offset_raw",
+        "lks_mode_raw",
+        "ldsw_type_raw",
+        "tja_raw",
+        "direction_semantic=unmapped"
+      ],
+      "known_bad": [
+        "public BYD SDK research exposes LKS state callbacks but does not by itself prove left/right lane-departure direction on the Korean Dolphin",
+        "V1 currently has no evidence-backed directional lane departure raw mapping"
+      ],
+      "dependencies": [
+        "BYDAutoADASDevice read permission",
+        "directional lane departure raw/event provenance",
+        "normal-drive and ICC/ACC correlation",
+        "fixed prompt assets only after mapping proof"
+      ],
+      "real_vehicle_test": [
+        "동승자 또는 안전한 시험 환경에서 capability inventory 먼저 수집",
+        "방향 후보 signal이 발견된 뒤 좌/우 차선 이탈을 각각 반복하고 raw transition/operator observation을 별도 기록",
+        "동일 시험을 ICC/ACC/TJA 비작동과 작동 상태로 나눠 수행",
+        "방향 mapping이 확정되기 전에는 음성 경고를 활성화하지 않음"
+      ],
+      "evidence": [
+        "public DiLink SDK research documents lane-assistance/LKS callbacks, not proven directional departure semantics",
+        "V1 LaneDepartureCapabilityProbe inventories runtime ADAS device/listener methods and constants without invoking unknown methods",
+        "V1 leaves normal-drive and ICC/ACC directional voice disabled until real-car correlation",
+        "public byd_sdk_33 commit 185346ffd26de5eac18a7d968503f99502ad0c44 exposes onLDSWTypeChanged/onLaneOffsetStateChanged and getLaneOffsetState/getLKSMode/getLDSWType/getTJAState; directional numeric semantics remain unproven on Korean Dolphin"
+      ],
+      "next_action": "실차 ADAS-LDW 세션에서 lane_offset_raw를 좌/우 이탈 마커와 반복 correlation하고, 일반 주행과 ICC/ACC/TJA 문맥에서 값 의미가 동일한지 별도 세션으로 확인한다. 좌/우 raw mapping이 충돌 없이 입증되기 전에는 fixed voice/production voice를 활성화하지 않는다.",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "MEDIUM",
         "safety": "HIGH",
         "compatibility": "LOW"
       }

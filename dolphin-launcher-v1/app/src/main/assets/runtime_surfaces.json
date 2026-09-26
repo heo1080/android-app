@@ -1327,8 +1327,8 @@
         "applicationId = \"com.dolphin.launcher.v1\"",
         "minSdk = 29",
         "targetSdk = 35",
-        "versionCode = 6",
-        "versionName = \"1.2.3-v1-premium-realcar-beta\"",
+        "versionCode = 7",
+        "versionName = \"1.2.4-v1-premium-realcar-beta\"",
         "buildConfigField(\"boolean\", \"VOICE_PREVIEW_BUILD\", \"false\")",
         "create(\"voicePreview\")",
         "applicationIdSuffix = \".voicepreview\"",
@@ -2015,6 +2015,79 @@
         "adaptive-icon",
         "@color/launcher_icon_preview_background",
         "@drawable/ic_launcher_preview_foreground"
+      ]
+    },
+    {
+      "feature_id": "PARKING_REVERSE_HAZARD_AUTOMATION",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/ParkingHazardAutomationProbe.java",
+      "tokens": [
+        "PARK_HAZARD_CAPABILITY",
+        "PARK_HAZARD_PLAN",
+        "PARK_COMPLETE_DELAY_MS",
+        "vehicle_write=false",
+        "PARK_HAZARD_CAPABILITY_CONSTANT",
+        "matching_constants"
+      ]
+    },
+    {
+      "feature_id": "PARKING_REVERSE_HAZARD_AUTOMATION",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+      "tokens": [
+        "ParkingHazardAutomationProbe.captureCapability(this)",
+        "parkingHazardAutomationProbe.onGear(value)"
+      ]
+    },
+    {
+      "feature_id": "LANE_DEPARTURE_DIRECTIONAL_VOICE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LaneDepartureCapabilityProbe.java",
+      "tokens": [
+        "LANE_DEPARTURE_CAPABILITY",
+        "directional_signal_proven=false",
+        "voice_enabled=false",
+        "fixed_voice_asset_added=false",
+        "lower.contains(\"ldsw\")"
+      ]
+    },
+    {
+      "feature_id": "LANE_DEPARTURE_DIRECTIONAL_VOICE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+      "tokens": [
+        "LaneDepartureCapabilityProbe.capture(this)",
+        "LANE_OFFSET_RAW_TRANSITION"
+      ]
+    },
+    {
+      "feature_id": "PARKING_REVERSE_HAZARD_AUTOMATION",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java",
+      "tokens": [
+        "PARK-HAZ-",
+        "ParkingHazardAutomationProbe.captureCapability(this)",
+        "PARKING_REVERSE_START_VISIBLE",
+        "PARKING_P_10S_VISIBLE",
+        "TEST_CAPABILITY_REFRESH"
+      ]
+    },
+    {
+      "feature_id": "LANE_DEPARTURE_DIRECTIONAL_VOICE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java",
+      "tokens": [
+        "ADAS-LDW-",
+        "LaneDepartureCapabilityProbe.capture(this)",
+        "LANE_LEFT_DEPARTURE_VISIBLE",
+        "LANE_LEFT_ASSIST_ON_VISIBLE",
+        "TEST_CAPABILITY_REFRESH",
+        "lane_offset_raw"
+      ]
+    },
+    {
+      "feature_id": "LANE_DEPARTURE_DIRECTIONAL_VOICE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
+      "tokens": [
+        "getLaneOffsetState",
+        "getLKSMode",
+        "getLDSWType",
+        "lane_offset_raw",
+        "onLaneOffsetRaw"
       ]
     }
   ],
