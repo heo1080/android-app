@@ -10,6 +10,9 @@ import android.view.Display;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,6 +54,11 @@ public final class UiFrameTimingRuntime {
 
         Choreographer choreographer=Choreographer.getInstance();
         new Sampler(app,label==null?"screen":label,refreshRate,choreographer).begin();
+    }
+
+    public static File latestFile(Context context){
+        return new File(context.getApplicationContext().getFilesDir(),
+                "ui_frame_timing_latest.json");
     }
 
     public static JSONObject latest(Context context){
@@ -137,6 +145,9 @@ public final class UiFrameTimingRuntime {
 
             app.getSharedPreferences(PREFS,Context.MODE_PRIVATE)
                     .edit().putString(KEY_LATEST,out.toString()).apply();
+            try(FileOutputStream fileOut=new FileOutputStream(latestFile(app))){
+                fileOut.write(out.toString(2).getBytes(StandardCharsets.UTF_8));
+            }
 
             VerificationEvidenceRuntime.recordPassiveEvent(
                     app,"UI_FRAME_TIMING",

@@ -414,6 +414,7 @@ public final class VerificationEvidenceRuntime {
             addSessionLedger(context, out, sessionId);
             addUiScreenshots(context, out, sessionId);
             addUiLayoutAudits(context, out, sessionId);
+            addUiFrameTiming(context, out);
 
             JSONObject identity = new JSONObject();
             identity.put("package", context.getPackageName());
@@ -652,6 +653,14 @@ public final class VerificationEvidenceRuntime {
         int limit = Math.min(6, files.length);
         for (int i = 0; i < limit; i++) {
             addFile(out, files[i], "ui_layout_audits/" + files[i].getName());
+        }
+    }
+
+    private static void addUiFrameTiming(
+            Context context, ZipOutputStream out) throws Exception {
+        File file=UiFrameTimingRuntime.latestFile(context);
+        if(file.exists() && file.isFile()){
+            addFile(out,file,"ui_frame_timing/latest.json");
         }
     }
 
