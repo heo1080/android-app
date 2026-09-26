@@ -249,13 +249,17 @@ public class VerificationCenterActivity extends Activity {
         return root;
     }
 
+    private boolean isActiveP0(JSONObject row) {
+        if (row == null || !"P0".equals(row.optString("severity"))) return false;
+        return !"CLOSED".equals(row.optString("state"));
+    }
+
     private int p0Count() {
         JSONArray rows = knownBadRegistry == null ? null : knownBadRegistry.optJSONArray("known_bad");
         if (rows == null) return 0;
         int count = 0;
         for (int i = 0; i < rows.length(); i++) {
-            JSONObject row = rows.optJSONObject(i);
-            if (row != null && "P0".equals(row.optString("severity"))) count++;
+            if (isActiveP0(rows.optJSONObject(i))) count++;
         }
         return count;
     }
@@ -267,7 +271,7 @@ public class VerificationCenterActivity extends Activity {
         java.util.ArrayList<String> labels = new java.util.ArrayList<>();
         for (int i = 0; i < rows.length(); i++) {
             JSONObject row = rows.optJSONObject(i);
-            if (row == null || !"P0".equals(row.optString("severity"))) continue;
+            if (!isActiveP0(row)) continue;
             p0Rows.add(row);
             labels.add(row.optString("id") + " · " + row.optString("feature_id")
                     + " · " + row.optString("state"));

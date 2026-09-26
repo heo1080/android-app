@@ -186,7 +186,9 @@
         "REGEN_HIGH_VISIBLE",
         "activeMarkerCounts",
         "operatorObservationCountsWithRaw",
-        "latest_raw가 실제 기록된 마커"
+        "latest_raw가 실제 기록된 마커",
+        "isActiveP0",
+        "!\"CLOSED\".equals"
       ]
     },
     {
