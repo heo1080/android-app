@@ -430,6 +430,14 @@ jobs:
 
           assert "referencePanelHero" in launcher and "referenceSectionLabel" in launcher
           assert "referenceUtilityHero" in launcher
+          assert "referenceScreenWidthDp" in launcher and "referenceScreenHeightDp" in launcher
+          assert "referencePanelCopyWidthDp" in launcher and "referencePanelGraphicWidthDp" in launcher
+          assert "referenceUtilityCopyWidthDp" in launcher and "referenceUtilityIconDp" in launcher
+          assert "adaptive_hero=true" in launcher
+          assert "hero_copy_dp=" in launcher and "hero_graphic_dp=" in launcher
+          assert "utility_copy_dp=" in launcher and "utility_icon_dp=" in launcher
+          assert "screen_height_dp=" in launcher
+          assert "home_hero_height_dp=238" in launcher and "home_cockpit_height_dp=168" in launcher
           assert "referenceDialogScroll" in launcher and "showReferenceDialog" in launcher
           for profile in ("media","vehicle","safety","map","display","dark"):
               assert "dialog_profile="+profile in launcher, profile
