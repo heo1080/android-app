@@ -82,8 +82,8 @@ jobs:
           BADGING="$(printf '%s\n' "$BADGING_ALL" | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -q "package: name='com.dolphin.launcher.v1'"
-          echo "$BADGING" | grep -q "versionCode='5'"
-          echo "$BADGING" | grep -q "versionName='1.2.2-v1-auto-evidence-beta'"
+          echo "$BADGING" | grep -q "versionCode='6'"
+          echo "$BADGING" | grep -q "versionName='1.2.3-v1-premium-realcar-beta'"
           printf '%s\n' "$BADGING_ALL" | grep -q "^sdkVersion:'29'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^targetSdkVersion:'35'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^launchable-activity: name='com.dolphin.launcher.v1.LauncherActivity'"
@@ -162,7 +162,7 @@ jobs:
             echo "HOME category must remain disabled until BYD real-car compatibility is proven" >&2
             exit 1
           fi
-          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=5 minSdk=29 targetSdk=35 main_launcher=1 drawer_slots=16_disabled home=0"
+          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=6 minSdk=29 targetSdk=35 main_launcher=1 drawer_slots=16_disabled home=0"
 
       - name: Validate Registry v3 payload
         shell: bash
@@ -1100,6 +1100,69 @@ jobs:
             dolphin-launcher-v1/app/build/outputs/apk/release/DolphinLauncherV1-Evolution.sha256
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish real-car validation BETA prerelease
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dolphin-launcher-v1-ui-reference-dock'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          VERSION="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' dolphin-launcher-v1/app/build.gradle.kts | head -n 1)"
+          SEMVER="$(printf '%s' "$VERSION" | sed -E 's/^([0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
+          TAG="dolphin-launcher-v1-v${SEMVER}-realcar-beta1"
+          APK="dolphin-launcher-v1/app/build/outputs/apk/release/DolphinLauncherV1-Evolution.apk"
+          SHA="dolphin-launcher-v1/app/build/outputs/apk/release/DolphinLauncherV1-Evolution.sha256"
+          META="dolphin-launcher-v1/app/build/outputs/apk/release/DolphinLauncherV1-RealCarValidation.json"
+          NOTES="$RUNNER_TEMP/v1-realcar-beta-notes.md"
+
+          python3 - "$META" "$GITHUB_SHA" "$VERSION" <<'PY'
+          import json, sys
+          out, commit, version = sys.argv[1:]
+          kb=json.load(open("dolphin-launcher-v1/app/src/main/assets/known_bad_registry.json",encoding="utf-8"))
+          open_p0=[r["id"] for r in kb["known_bad"] if r["severity"]=="P0" and r["state"]!="CLOSED"]
+          payload={
+              "schema_version":1,
+              "channel":"REAL_CAR_VALIDATION_BETA",
+              "prerelease":True,
+              "stable":False,
+              "release_ready":False,
+              "package":"com.dolphin.launcher.v1",
+              "version_name":version,
+              "version_code":6,
+              "source_commit":commit,
+              "open_p0_known_bad":open_p0,
+              "promotion_requires_real_car_evidence":True
+          }
+          json.dump(payload,open(out,"w",encoding="utf-8"),ensure_ascii=False,indent=2)
+          print("REALCAR_BETA_METADATA_OK open_p0="+",".join(open_p0))
+          PY
+
+          OPEN_P0="$(python3 - <<'PY'
+          import json
+          kb=json.load(open("dolphin-launcher-v1/app/src/main/assets/known_bad_registry.json",encoding="utf-8"))
+          print(",".join(r["id"] for r in kb["known_bad"] if r["severity"]=="P0" and r["state"]!="CLOSED"))
+          PY
+          )"
+          cat > "$NOTES" <<EOF
+          Dolphin Launcher V1 real-car validation BETA.
+
+          - Package: com.dolphin.launcher.v1
+          - Version: $VERSION (versionCode 6)
+          - Channel: REAL_CAR_VALIDATION_BETA
+          - Prerelease: true
+          - Stable promotion: false
+          - Open P0 Known-Bad: $OPEN_P0
+          - CI success is not vehicle VERIFIED evidence.
+          - Operator/runtime evidence is required before any real-car feature promotion.
+          EOF
+
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$TAG"               --repo "$GITHUB_REPOSITORY"               --target "$GITHUB_SHA"               --title "Dolphin Launcher V1 ${SEMVER} Real-Car BETA"               --notes-file "$NOTES"               --prerelease
+          fi
+          gh release edit "$TAG"             --repo "$GITHUB_REPOSITORY"             --title "Dolphin Launcher V1 ${SEMVER} Real-Car BETA"             --notes-file "$NOTES"             --prerelease
+          gh release upload "$TAG" "$APK" "$SHA" "$META"             --repo "$GITHUB_REPOSITORY"             --clobber
+          echo "REALCAR_BETA_RELEASE_OK tag=$TAG prerelease=true stable=false"
 
       - name: Enforce release Known-Bad gate
         if: github.event_name == 'push' && github.ref == 'refs/heads/dolphin-launcher-v1' && vars.V1_RELEASE_READY == 'true'
