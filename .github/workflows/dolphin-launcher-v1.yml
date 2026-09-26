@@ -340,6 +340,10 @@ jobs:
               "PPASO_FIXED_VOICE_CANDIDATE_OK",
               "candidate_only=true", "app_manifest_unchanged=true",
               "--model-revision", '"model_revision": model_revision',
+              "SILENCE_THRESHOLD_DB = -60.0", "LEADING_PAD_MS = 30",
+              "TRAILING_PAD_MS = 60", "trim_candidate_silence",
+              '"trimmed_leading_ms"', '"trimmed_trailing_ms"',
+              '"original_duration_ms"', '"trim_policy"', "silence_trim_db=-60",
           ):
               assert token in candidate, token
           assert "app/src/main/res/raw" not in candidate, "candidate generator must not write packaged raw assets"
@@ -349,20 +353,30 @@ jobs:
           candidate_source="dolphin-launcher-v1/tools/generate_ppaso_voice_candidate.py"
           assert candidate_source in feature.get("source_paths",[])
           assert any("immutable full commit SHA" in item for item in feature.get("acceptance",[]))
+          assert any("-60dB activity threshold" in item for item in feature.get("acceptance",[]))
+          assert any("30ms pre-roll" in item and "60ms post-roll" in item for item in feature.get("acceptance",[]))
           for tid in ("AUD-TTS-001","AUD-TTS-002"):
               contract=next(c for c in contracts["contracts"] if c["test_id"]==tid)
               assert any("Ppaso candidate generation never changes" in item for item in contract.get("acceptance",[])),tid
-              for token in ("PPASO_FIXED_VOICE_CANDIDATE_OK","candidate_only=true","app_manifest_unchanged=true"):
+              for token in ("PPASO_FIXED_VOICE_CANDIDATE_OK","candidate_only=true","app_manifest_unchanged=true",
+                            "silence_trim_db=-60","leading_pad_ms=30","trailing_pad_ms=60",
+                            "trimmed_leading_ms="):
                   assert token in contract.get("required_logs",[]),(tid,token)
+              assert any("30ms pre-roll" in item and "60ms post-roll" in item
+                         for item in contract.get("acceptance",[])),tid
 
           rows=[r for r in surfaces["surfaces"]
                 if r["feature_id"]=="IN_APP_TTS_CORE" and r["path"]==candidate_source]
           assert len(rows)==1
-          for token in ("DEFAULT_MODEL_REVISION = \"main\"","--model-revision",
-                        "PPASO_FIXED_VOICE_CANDIDATE_OK","candidate_only=true",
-                        "app_manifest_unchanged=true"):
+          for token in ("DEFAULT_MODEL_REVISION = \"53d09664c4f636a5fb6f2ebe3ec22cd83ee249b9\"",
+                        "--model-revision","PPASO_FIXED_VOICE_CANDIDATE_OK",
+                        "candidate_only=true","app_manifest_unchanged=true",
+                        "SILENCE_THRESHOLD_DB = -60.0","LEADING_PAD_MS = 30",
+                        "TRAILING_PAD_MS = 60","trim_candidate_silence",
+                        '"trimmed_leading_ms"','"trimmed_trailing_ms"',
+                        '"original_duration_ms"','"trim_policy"',"silence_trim_db=-60"):
               assert token in rows[0].get("tokens",[]),token
-          print("PPASO_CANDIDATE_STATIC_GUARD_OK candidate_only=true app_manifest_unchanged=true")
+          print("PPASO_CANDIDATE_STATIC_GUARD_OK candidate_only=true app_manifest_unchanged=true silence_trim_db=-60 leading_pad_ms=30 trailing_pad_ms=60")
           PY
           unzip -p "$APK" assets/voice_prompt_manifest.json > "$RUNNER_TEMP/voice_prompt_manifest.json"
           python3 - "$RUNNER_TEMP/voice_prompt_manifest.json" "$APK" <<'PY'
