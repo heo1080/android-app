@@ -2839,6 +2839,67 @@
         "safety": "HIGH",
         "compatibility": "LOW"
       }
+    },
+    {
+      "req_id": "REQ-WIN-002",
+      "feature_id": "POPUP_MULTIWINDOW_APP",
+      "area": "windowing",
+      "requirement": "앱서랍에서 선택한 앱을 BYD 실차가 지원하는 경우 팝업/freeform 멀티윈도우로 실행할 수 있어야 한다.",
+      "source_paths": [
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/PopupMultiWindowCapabilityProbe.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java"
+      ],
+      "test_ids": [
+        "WIN-POP-001"
+      ],
+      "state": "BLOCKED",
+      "acceptance": [
+        "대상 앱의 실제 freeform/popup 실행 경로가 실차 capability evidence로 확인됨",
+        "실행 후 독립 window-state readback으로 popup/freeform 상태를 확인함",
+        "기존 2분할/일반 앱 실행 경로에 회귀가 없음",
+        "지원되지 않는 차량/앱에서는 fail-closed로 실행 요청을 보내지 않음"
+      ],
+      "required_logs": [
+        "POPUP_MULTIWINDOW_CAPABILITY",
+        "target_package",
+        "target_launchable",
+        "freeform_feature",
+        "launch_windowing_api_present",
+        "global_enable_freeform_support",
+        "popup_mode=blocked",
+        "windowing_mode_request=false",
+        "actuation=false",
+        "TEST_CAPABILITY_REFRESH"
+      ],
+      "known_bad": [
+        "이전 V1 inventory에는 팝업 멀티윈도우 요구가 있었지만 Registry Feature ID와 실제 실행 경로가 누락됨",
+        "한국 BYD Dolphin Android 10에서 freeform/windowing-mode 실행 지원 여부가 아직 실차 evidence로 확인되지 않음"
+      ],
+      "dependencies": [
+        "Android/BYD freeform window capability",
+        "target app launchable activity",
+        "independent window-state readback"
+      ],
+      "real_vehicle_test": [
+        "주차 상태에서 Verification Center의 WIN-POP-001 캡처를 시작한다.",
+        "capability evidence의 freeform_feature / launch_windowing_api_present / global_enable_freeform_support 값을 기록한다.",
+        "앱서랍에서 대상 앱을 길게 눌러 팝업 멀티윈도우 BETA 항목을 눌러 target_package capability evidence를 추가한다.",
+        "현재 단계에서는 popup/freeform 실행 명령을 보내지 않는다.",
+        "실차 capability가 확인된 뒤 별도 구현 PR에서 실행 및 window-state readback을 추가한다."
+      ],
+      "evidence": [
+        "read-only capability probe only",
+        "windowing_mode_request=false",
+        "actuation=false"
+      ],
+      "next_action": "한국 Dolphin 실차에서 read-only freeform capability를 확보한 뒤 실행 방식과 readback 계약을 확정",
+      "confidence": {
+        "behavior": "LOW",
+        "root_cause": "HIGH",
+        "safety": "HIGH",
+        "compatibility": "LOW"
+      }
     }
   ],
   "known_bad_library": [

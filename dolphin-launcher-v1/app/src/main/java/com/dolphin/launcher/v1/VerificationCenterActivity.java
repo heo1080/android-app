@@ -523,6 +523,11 @@ public class VerificationCenterActivity extends Activity {
             VerificationEvidenceRuntime.recordPassiveEvent(
                     this, "TEST_CAPABILITY_REFRESH",
                     "test_id=" + testId + ";probe=lane_departure;voice_enabled=false;vehicle_write=false");
+        } else if (testId.startsWith("WIN-POP-")) {
+            PopupMultiWindowCapabilityProbe.capture(this, null);
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "TEST_CAPABILITY_REFRESH",
+                    "test_id=" + testId + ";probe=popup_multiwindow;windowing_mode_request=false;actuation=false");
         }
     }
 
