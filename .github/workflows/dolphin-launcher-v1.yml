@@ -282,6 +282,20 @@ jobs:
           features={f["feature_id"]:set(f.get("test_ids", [])) for f in reg.get("features", [])}
           rows=kb.get("known_bad", [])
           assert [r["id"] for r in rows]==["KB-%03d" % i for i in range(1,14)], "Known-Bad ID drift"
+          library={r["id"]:r for r in reg.get("known_bad_library", [])}
+          lifecycle={r["id"]:r for r in rows}
+          assert set(library)==set(lifecycle), (
+              "registry/lifecycle Known-Bad ID drift",
+              sorted(set(library)-set(lifecycle)), sorted(set(lifecycle)-set(library))
+          )
+          for known_bad_id,row in lifecycle.items():
+              master=library[known_bad_id]
+              assert master.get("status")==row.get("state"), ("Known-Bad state drift",known_bad_id)
+              assert set(master.get("required_test_ids",[]))==set(row.get("test_ids",[])), (
+                  "Known-Bad Test ID drift",known_bad_id
+              )
+              assert master.get("severity")==row.get("severity"), ("Known-Bad severity drift",known_bad_id)
+              assert row.get("feature_id") in master.get("linked",[]), ("Known-Bad feature link drift",known_bad_id)
           allowed={"OPEN","FIX_CANDIDATE","REAL_CAR_RETEST","CLOSED"}
           for row in rows:
               assert row["severity"] in {"P0","P1"}, ("invalid severity", row["id"])
