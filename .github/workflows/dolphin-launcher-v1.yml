@@ -343,6 +343,17 @@ jobs:
           assert "uid_affinity_write=false" in driver_audio
           assert "audio_policy_write=false" in driver_audio
           assert "routing_write=false" in driver_audio
+
+          frame_timing=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UiFrameTimingRuntime.java").read_text(encoding="utf-8")
+          evidence_runtime=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationEvidenceRuntime.java").read_text(encoding="utf-8")
+          layout_audit=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UiLayoutAuditRuntime.java").read_text(encoding="utf-8")
+          launcher_ui=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java").read_text(encoding="utf-8")
+          assert 'out.put("session_id",sessionId)' in frame_timing, "frame timing session binding missing"
+          assert "addUiFrameTiming(context, out, sessionId)" in evidence_runtime, "evidence ZIP frame timing session gate missing"
+          assert 'sessionId.equals(timing.optString("session_id",""))' in evidence_runtime, "stale frame timing filter missing"
+          assert "visible.width()/Math.max(0.01f,dm.density)" in layout_audit, "visible touch width audit missing"
+          assert "visible.height()/Math.max(0.01f,dm.density)" in layout_audit, "visible touch height audit missing"
+          assert 'chip("● LIVE")' not in launcher_ui, "static HOME LIVE chip must not overstate source availability"
           android_manifest=pathlib.Path("dolphin-launcher-v1/app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
           assert 'android.intent.action.TTS_SERVICE' in android_manifest, "Android 11+ TTS service visibility query missing"
           assert r'\\n    <uses-permission' not in android_manifest, "literal \\n drift in AndroidManifest permissions"
