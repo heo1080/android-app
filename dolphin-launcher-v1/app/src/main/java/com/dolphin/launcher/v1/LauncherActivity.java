@@ -577,6 +577,7 @@ public class LauncherActivity extends Activity {
                 "variant=glass-vector-v2;hero=canvas-vector;bitmap_assets=false"
                         + ";hero_copy_dp=" + heroCopyWidthDp()
                         + ";cockpit_panels=3;layout=media-safety-vehicle"
+                        + ";cockpit_state_source=verification_registry"
                         + ";tpms_cards=4;tpms_visual=vector-wheel-gauge"
                         + ";quick_cards=4;dock_items=5");
 
@@ -1724,18 +1725,27 @@ public class LauncherActivity extends Activity {
         LinearLayout deck = new LinearLayout(this);
         deck.setOrientation(LinearLayout.HORIZONTAL);
 
+        String mediaState = registryFeatureState(
+                "BACKGROUND_MEDIA_AUTOPLAY","REVERIFY_REQUIRED");
+        String safetyState = registryFeatureState(
+                "NAV_SAFETY_FEED","BETA");
+        String fsdState = registryFeatureState(
+                "FSD_OBJECT_LANE_MODEL","BLOCKED");
+        String vehicleState = registryFeatureState(
+                "LIVE_VEHICLE_INFO","BETA");
+
         deck.addView(cockpitPanel(
                 "MEDIA CENTER",
-                "백그라운드 재생 · 앱별 자동재생",
-                "MEDIA READY",
+                "대상 MediaSession · 실차 재검증",
+                mediaState,
                 HmiGlyphView.class,
                 CockpitPanelGraphicView.MEDIA,
                 this::showAppDrawer), weighted());
 
         deck.addView(cockpitPanel(
                 "FSD · SAFETY",
-                "객체/차선/안전운전 · BETA",
-                "READ-ONLY EVIDENCE",
+                "안전정보 " + safetyState + " · 객체/차선 " + fsdState,
+                "SAFETY " + safetyState + " · FSD " + fsdState,
                 HmiGlyphView.class,
                 CockpitPanelGraphicView.SAFETY,
                 this::openVerificationCenter), weighted());
@@ -1743,7 +1753,7 @@ public class LauncherActivity extends Activity {
         deck.addView(cockpitPanel(
                 "VEHICLE INFO",
                 vehiclePanelSummary(),
-                "LIVE · READ ONLY",
+                vehicleState + " · READ ONLY",
                 HmiGlyphView.class,
                 CockpitPanelGraphicView.VEHICLE,
                 this::showVehicleInfoPanel), weighted());
@@ -1792,6 +1802,27 @@ public class LauncherActivity extends Activity {
         copyLp.gravity = Gravity.LEFT;
         card.addView(copy,copyLp);
         return card;
+    }
+
+    private String registryFeatureState(String featureId,String fallback) {
+        try {
+            JSONObject root = VerificationEvidenceRuntime.loadRegistry(this);
+            JSONArray features = root.optJSONArray("features");
+            if (features == null) return fallback;
+            for (int i = 0; i < features.length(); i++) {
+                JSONObject feature = features.optJSONObject(i);
+                if (feature == null) continue;
+                if (!featureId.equals(feature.optString("feature_id"))) continue;
+                String state = feature.optString("state",fallback);
+                return state == null || state.trim().isEmpty() ? fallback : state;
+            }
+        } catch (Exception e) {
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this,"HMI_REGISTRY_STATE_FALLBACK",
+                    "feature_id="+featureId+";fallback="+fallback
+                            +";reason="+e.getClass().getSimpleName());
+        }
+        return fallback;
     }
 
     private String vehiclePanelSummary() {

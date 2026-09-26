@@ -243,7 +243,12 @@
         "tpmsCard",
         "TyreGaugeView",
         "tpms_visual=vector-wheel-gauge",
-        "● LIVE · BETA"
+        "● LIVE · BETA",
+        "registryFeatureState",
+        "BACKGROUND_MEDIA_AUTOPLAY",
+        "FSD_OBJECT_LANE_MODEL",
+        "cockpit_state_source=verification_registry",
+        "HMI_REGISTRY_STATE_FALLBACK"
       ]
     },
     {
