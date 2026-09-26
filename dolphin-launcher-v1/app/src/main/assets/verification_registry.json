@@ -1400,7 +1400,8 @@
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BlockedCapabilityRuntime.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HomeHeroGraphicView.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HomeHeroGraphicView.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/CockpitPanelGraphicView.java"
       ],
       "test_ids": [
         "FSD-OBJ-001"
@@ -1413,7 +1414,8 @@
         "latency budget",
         "no fabricated objects",
         "HOME/FSD·SAFETY UI는 Feature가 BLOCKED인 동안 객체/차선 semantic 시각화를 생성하지 않고 BLOCKED/LOCKED 경계만 표시",
-        "HOME hero의 sensor field는 FSD BLOCKED 동안 decorative range arc만 사용하고 고정 object dot/ring을 렌더링하지 않음"
+        "HOME hero의 sensor field는 FSD BLOCKED 동안 decorative range arc만 사용하고 고정 object dot/ring을 렌더링하지 않음",
+        "FSD·Safety panel vector는 BLOCKED 동안 shield/padlock/arcs/ticks 같은 non-semantic boundary만 사용하고 road/lane/object/warning target을 렌더링하지 않음"
       ],
       "required_logs": [
         "camera source",
@@ -1436,7 +1438,8 @@
       "evidence": [
         "current Surrounding Vision intentionally read-only/raw",
         "LauncherActivity Golden Reference v3 FSD Safety panel displays BLOCKED/semantics LOCKED without fabricated objects",
-        "HomeHeroGraphicView removes fixed object markers; sensor field is explicitly non-semantic decorative geometry only"
+        "HomeHeroGraphicView removes fixed object markers; sensor field is explicitly non-semantic decorative geometry only",
+        "CockpitPanelGraphicView drawSafety removes fixed warning/object dots/rings and road/lane-like guidance; shield/padlock boundary remains state-aware"
       ],
       "next_action": "sensor capability research 우선",
       "confidence": {
@@ -1949,7 +1952,8 @@
         "Golden Reference panel hero의 copy/graphic 폭과 utility copy/icon 크기는 screen width dp에 비례해 clamp하여 좁은 dialog에서 overlap을 줄임",
         "HOME render evidence는 screen width/height dp와 hero/cockpit/topbar/dock 높이를 기록해 Golden Screenshot의 실제 viewport를 재현 가능하게 함",
         "CockpitPanelGraphicView의 Media/Safety/Vehicle vector accent는 실제 signalState WAITING/LIVE/STALE/BLOCKED 팔레트를 사용하고 하드코딩 LIVE 색으로 고정하지 않음",
-        "HOME hero는 FSD_OBJECT_LANE_MODEL BLOCKED 상태에서 실제 탐지 객체로 오해할 수 있는 고정 dot/ring을 렌더링하지 않음"
+        "HOME hero는 FSD_OBJECT_LANE_MODEL BLOCKED 상태에서 실제 탐지 객체로 오해할 수 있는 고정 dot/ring을 렌더링하지 않음",
+        "FSD·Safety cockpit graphic keeps state-aware visual quality while avoiding road/lane/object semantics until FSD_OBJECT_LANE_MODEL is verified"
       ],
       "required_logs": [
         "display profile",
@@ -2093,7 +2097,8 @@
         "dockPrimaryWeighted and miniWeighted reduce horizontal dead space while preserving 6+4 reference layout",
         "adaptive Golden Reference hero geometry clamps panel copy/graphic and utility copy/icon against real screen width dp",
         "CockpitPanelGraphicView drawMedia/drawSafety/drawVehicle use accent(signalState) for state-aware vector rendering",
-        "HomeHeroGraphicView sensor field uses decorative arcs/ticks only with no fabricated detections"
+        "HomeHeroGraphicView sensor field uses decorative arcs/ticks only with no fabricated detections",
+        "CockpitPanelGraphicView Safety hero uses abstract shield/padlock/arcs/ticks only; no fixed detection markers"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
