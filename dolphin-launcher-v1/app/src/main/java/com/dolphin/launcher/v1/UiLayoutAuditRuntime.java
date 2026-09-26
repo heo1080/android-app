@@ -118,8 +118,8 @@ public final class UiLayoutAuditRuntime {
                 visibleViews++;
                 if(view.isClickable()){
                     clickableViews++;
-                    float widthDp=view.getWidth()/Math.max(0.01f,dm.density);
-                    float heightDp=view.getHeight()/Math.max(0.01f,dm.density);
+                    float widthDp=visible.width()/Math.max(0.01f,dm.density);
+                    float heightDp=visible.height()/Math.max(0.01f,dm.density);
                     if(widthDp<48f || heightDp<48f){
                         touchViolations++;
                         addExample(touchExamples,view,
