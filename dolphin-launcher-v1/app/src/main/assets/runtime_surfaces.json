@@ -233,7 +233,13 @@
         "hmiDialogHeader",
         "hmiInfoStrip",
         "SOUND_EQ_HMI_RENDER",
-        "SOUND_POSITION_HMI_RENDER"
+        "SOUND_POSITION_HMI_RENDER",
+        "buildCockpitDeck",
+        "cockpitPanel",
+        "vehiclePanelSummary",
+        "showVehicleInfoPanel",
+        "VEHICLE_INFO_HMI_RENDER",
+        "layout=media-safety-vehicle"
       ]
     },
     {
@@ -1042,6 +1048,19 @@
         "drawEq",
         "drawTarget",
         "drawTyre"
+      ]
+    },
+    {
+      "feature_id": "PREMIUM_HMI_HOME",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/CockpitPanelGraphicView.java",
+      "tokens": [
+        "CockpitPanelGraphicView",
+        "MEDIA",
+        "SAFETY",
+        "VEHICLE",
+        "drawMedia",
+        "drawSafety",
+        "drawVehicle"
       ]
     }
   ],

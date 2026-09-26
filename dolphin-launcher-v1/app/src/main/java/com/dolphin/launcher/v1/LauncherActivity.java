@@ -500,6 +500,13 @@ public class LauncherActivity extends Activity {
         heroLp.bottomMargin = dp(12);
         content.addView(hero, heroLp);
 
+        content.addView(sectionHeader("PRIMARY COCKPIT", "Media · Safety · Vehicle"));
+        View cockpit = buildCockpitDeck();
+        LinearLayout.LayoutParams cockpitLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(168));
+        cockpitLp.bottomMargin = dp(10);
+        content.addView(cockpit, cockpitLp);
+
         content.addView(sectionHeader("QUICK CONTROL", "Launch · Split · Automation · Evidence"));
 
         LinearLayout quick = new LinearLayout(this);
@@ -569,6 +576,7 @@ public class LauncherActivity extends Activity {
                 this, "PREMIUM_HMI_RENDER",
                 "variant=glass-vector-v2;hero=canvas-vector;bitmap_assets=false"
                         + ";hero_copy_dp=" + heroCopyWidthDp()
+                        + ";cockpit_panels=3;layout=media-safety-vehicle"
                         + ";tpms_cards=4;quick_cards=4;dock_items=5");
 
         TextView footer = text(
@@ -1681,6 +1689,142 @@ public class LauncherActivity extends Activity {
 
     private String tpmsDisplay(Integer kpa) {
         return kpa == null ? "-- psi · 연결 대기" : tpmsPsi(kpa) + " · BETA";
+    }
+
+    private View buildCockpitDeck() {
+        LinearLayout deck = new LinearLayout(this);
+        deck.setOrientation(LinearLayout.HORIZONTAL);
+
+        deck.addView(cockpitPanel(
+                "MEDIA CENTER",
+                "백그라운드 재생 · 앱별 자동재생",
+                "MEDIA READY",
+                HmiGlyphView.class,
+                CockpitPanelGraphicView.MEDIA,
+                this::showAppDrawer), weighted());
+
+        deck.addView(cockpitPanel(
+                "FSD · SAFETY",
+                "객체/차선/안전운전 · BETA",
+                "READ-ONLY EVIDENCE",
+                HmiGlyphView.class,
+                CockpitPanelGraphicView.SAFETY,
+                this::openVerificationCenter), weighted());
+
+        deck.addView(cockpitPanel(
+                "VEHICLE INFO",
+                vehiclePanelSummary(),
+                "LIVE · READ ONLY",
+                HmiGlyphView.class,
+                CockpitPanelGraphicView.VEHICLE,
+                this::showVehicleInfoPanel), weighted());
+
+        return deck;
+    }
+
+    private View cockpitPanel(String title, String subtitle, String status,
+                              Class<?> ignored, int mode, Runnable action) {
+        FrameLayout card = new FrameLayout(this);
+        card.setClickable(true);
+        card.setFocusable(true);
+        card.setElevation(dp(2));
+        card.setBackground(pressableGradientRound(
+                new String[]{"#102831","#09171D","#061014"},
+                new String[]{"#173B47","#0D252E","#09181E"},
+                22,"#244C59"));
+        card.setOnClickListener(v -> action.run());
+
+        CockpitPanelGraphicView graphic = new CockpitPanelGraphicView(this, mode);
+        card.addView(graphic, new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        LinearLayout copy = new LinearLayout(this);
+        copy.setOrientation(LinearLayout.VERTICAL);
+        copy.setGravity(Gravity.BOTTOM);
+        copy.setPadding(dp(16),dp(14),dp(12),dp(14));
+
+        TextView eyebrow = text(status,9.5f,
+                Color.parseColor(mode == CockpitPanelGraphicView.SAFETY
+                        ? "#FFD08A" : "#72E8D0"),true);
+        eyebrow.setLetterSpacing(0.08f);
+        copy.addView(eyebrow);
+
+        TextView head = text(title,16f,Color.WHITE,true);
+        head.setLetterSpacing(0.04f);
+        copy.addView(head);
+
+        TextView sub = text(subtitle,10f,Color.parseColor("#8CA6AF"),false);
+        sub.setMaxLines(2);
+        copy.addView(sub);
+
+        FrameLayout.LayoutParams copyLp = new FrameLayout.LayoutParams(
+                (int)(dp(190)), ViewGroup.LayoutParams.MATCH_PARENT);
+        copyLp.gravity = Gravity.LEFT;
+        card.addView(copy,copyLp);
+        return card;
+    }
+
+    private String vehiclePanelSummary() {
+        int live = 0;
+        if (tpmsFlKpa != null) live++;
+        if (tpmsFrKpa != null) live++;
+        if (tpmsRlKpa != null) live++;
+        if (tpmsRrKpa != null) live++;
+        return live == 0
+                ? "TPMS 연결 대기 · 차량 raw 수집"
+                : "TPMS " + live + "/4 wheel · read-only";
+    }
+
+    private void showVehicleInfoPanel() {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(20),dp(16),dp(20),dp(16));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
+
+        panel.addView(hmiDialogHeader(
+                "VEHICLE INFO","TPMS · read-only vehicle layer","◉"));
+        panel.addView(hmiInfoStrip(
+                "차량 제어 없음 · 검증 전 raw 값을 의미로 추정하지 않음"));
+
+        LinearLayout row1=new LinearLayout(this);
+        row1.setOrientation(LinearLayout.HORIZONTAL);
+        row1.addView(vehicleMetric("FL",tpmsDisplay(tpmsFlKpa)),weighted());
+        row1.addView(vehicleMetric("FR",tpmsDisplay(tpmsFrKpa)),weighted());
+        panel.addView(row1,new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(78)));
+
+        LinearLayout row2=new LinearLayout(this);
+        row2.setOrientation(LinearLayout.HORIZONTAL);
+        row2.addView(vehicleMetric("RL",tpmsDisplay(tpmsRlKpa)),weighted());
+        row2.addView(vehicleMetric("RR",tpmsDisplay(tpmsRrKpa)),weighted());
+        panel.addView(row2,new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(78)));
+
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this,"VEHICLE_INFO_HMI_RENDER",
+                "variant=glass-vector-v2;tpms_live="
+                        + (tpmsFlKpa!=null||tpmsFrKpa!=null||tpmsRlKpa!=null||tpmsRrKpa!=null));
+
+        new AlertDialog.Builder(this)
+                .setView(panel)
+                .setPositiveButton("완료",null)
+                .show();
+    }
+
+    private View vehicleMetric(String label,String value) {
+        LinearLayout card=new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setPadding(dp(14),dp(10),dp(14),dp(10));
+        card.setBackground(gradientRound(
+                new String[]{"#0E222A","#07151B"},16,"#284B57"));
+        TextView head=text(label,11f,Color.parseColor("#72E8D0"),true);
+        head.setLetterSpacing(0.08f);
+        card.addView(head);
+        card.addView(text(value,13f,Color.WHITE,true));
+        return card;
     }
 
     private View buildPremiumHero() {

@@ -1735,7 +1735,8 @@
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HomeHeroGraphicView.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HmiGlyphView.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HmiGlyphView.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/CockpitPanelGraphicView.java"
       ],
       "test_ids": [
         "UI-HOME-001",
@@ -1757,7 +1758,10 @@
         "설정의 destructive action은 별도 danger palette로 시각 구분",
         "시동 자동실행 앱 카드에서 지연/순서/미디어 옵션의 기존 기능 연결을 유지",
         "hero copy 영역은 실제 widthDp의 36%를 기준으로 276~372dp 범위에서 적응해 DPI/해상도 변화 시 차량 그래픽과 겹침 최소화",
-        "EQ와 음장 위치 다이얼로그도 HOME과 동일한 glass-vector-v2 header/info strip/pressed state를 사용"
+        "EQ와 음장 위치 다이얼로그도 HOME과 동일한 glass-vector-v2 header/info strip/pressed state를 사용",
+        "HOME primary cockpit은 좌 MEDIA CENTER / 중앙 FSD·SAFETY / 우 VEHICLE INFO의 3분할 구조를 고정",
+        "FSD·SAFETY 패널은 검증 전 상태를 BETA/read-only evidence로 명확히 표시하고 작동 확정처럼 표현하지 않음",
+        "VEHICLE INFO 패널은 TPMS read-only 값만 표시하고 차량 제어/미검증 의미 추정을 하지 않음"
       ],
       "required_logs": [
         "display profile",
@@ -1770,7 +1774,10 @@
         "AUTOSTART_HMI_RENDER",
         "hero_copy_dp",
         "SOUND_EQ_HMI_RENDER",
-        "SOUND_POSITION_HMI_RENDER"
+        "SOUND_POSITION_HMI_RENDER",
+        "cockpit_panels=3",
+        "layout=media-safety-vehicle",
+        "VEHICLE_INFO_HMI_RENDER"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1794,7 +1801,9 @@
         "premium settings rows with vector glyphs and danger states",
         "premium autostart manager surface",
         "responsive heroCopyWidthDp clamp for 10-inch DPI variants",
-        "glass-vector-v2 Sound EQ and Sound Position dialogs"
+        "glass-vector-v2 Sound EQ and Sound Position dialogs",
+        "CockpitPanelGraphicView vector media/safety/vehicle scenes",
+        "three-panel primary cockpit restores requested media-safety-vehicle hierarchy"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
