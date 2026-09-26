@@ -219,7 +219,14 @@
         "APP_UPDATE_PACKAGE_VERIFIED",
         "APP_UPDATE_INSTALL_STAGED",
         "signature_match=true",
-        "PackageInstaller"
+        "PackageInstaller",
+        "KEY_PENDING_PERMISSION_TAG",
+        "commit()",
+        "APP_UPDATE_PERMISSION_PENDING_SAVED",
+        "APP_UPDATE_PERMISSION_RESUME_RESTORED",
+        "APP_UPDATE_PERMISSION_RESUME_FAILED",
+        "fetchV1Release(persistedTag)",
+        "requiredTag.equals(tag)"
       ]
     },
     {
