@@ -1928,7 +1928,8 @@
         "AppUpdateManager records release/hash/version/signer verification evidence before installer staging",
         "UpdateInstallReceiver records pending-user-action/success/failure status",
         "AppUpdateManager persists the consented release tag before opening unknown-app-source settings and re-fetches that exact tag after process recreation",
-        "AppUpdateManager requires GitHub prerelease=true before tag-prefix acceptance and records release_prerelease in release/package verification evidence"
+        "AppUpdateManager requires GitHub prerelease=true before tag-prefix acceptance and records release_prerelease in release/package verification evidence",
+        "AppUpdateManager status PendingIntent carries selected release tag + expected session id; UpdateInstallReceiver records PackageInstaller session_id/release on PENDING/SUCCESS/FAILURE"
       ],
       "next_action": "OTA prerelease gate와 install status session/release correlation을 CI로 고정하고 V1 실차에서 UPD-001/UPD-002 재검증",
       "confidence": {
