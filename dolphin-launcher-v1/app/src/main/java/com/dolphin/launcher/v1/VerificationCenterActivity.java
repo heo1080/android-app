@@ -513,7 +513,12 @@ public class VerificationCenterActivity extends Activity {
 
     private void captureFeatureSpecificProbe(String testId) {
         if (testId == null) return;
-        if (testId.startsWith("PARK-HAZ-")) {
+        if ("AUD-AVAS-001".equals(testId)) {
+            AudioCapabilityProbe.capture(this);
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    this, "TEST_CAPABILITY_REFRESH",
+                    "test_id=" + testId + ";probe=external_avas;vehicle_write=false;actuation=false");
+        } else if (testId.startsWith("PARK-HAZ-")) {
             ParkingHazardAutomationProbe.captureCapability(this);
             VerificationEvidenceRuntime.recordPassiveEvent(
                     this, "TEST_CAPABILITY_REFRESH",
