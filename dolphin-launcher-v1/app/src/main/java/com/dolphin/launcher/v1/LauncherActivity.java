@@ -2603,6 +2603,30 @@ public class LauncherActivity extends Activity {
         return hero;
     }
 
+    private ScrollView referenceDialogScroll(LinearLayout panel) {
+        ScrollView scroll=new ScrollView(this);
+        scroll.setFillViewport(true);
+        scroll.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        scroll.addView(panel,new ScrollView.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        return scroll;
+    }
+
+    private void showReferenceDialog(AlertDialog dialog,float widthFraction,float heightFraction) {
+        dialog.setOnShowListener(d -> {
+            Window w=dialog.getWindow();
+            if(w==null)return;
+            DisplayMetrics dm=getResources().getDisplayMetrics();
+            w.setLayout(
+                    (int)(dm.widthPixels*widthFraction),
+                    (int)(dm.heightPixels*heightFraction));
+            w.setDimAmount(0.72f);
+            w.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        });
+        dialog.show();
+    }
+
     private String safetyStatusLine(
             NavSafetyStatusRuntime.Snapshot nav,String safetyState,String fsdState) {
         String source;
