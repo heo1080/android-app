@@ -544,7 +544,9 @@ jobs:
           source_legend=cockpit_graphic.split("private void drawSourceLegend",1)[1].split("private int accent",1)[0]
           for token in ("TARGET SESSION","SEMANTICS LOCKED","RAW SOURCE",'SOURCE " + state',
                         "source availability;","it never upgrades the Registry feature state",
-                        "audible playback","semantic perception","normalized telemetry"):
+                        "audible playback","semantic perception","normalized telemetry",
+                        "fitLegendTextSize","measureText","availableTextWidth",
+                        "top + dp(12)","bottom - dp(7)"):
               assert token in source_legend,token
 
           media_graphic=cockpit_graphic.split("private void drawMedia",1)[1].split("private void drawSafety",1)[0]
@@ -726,6 +728,7 @@ jobs:
               acceptance=by_test[tid].get("acceptance",[])
               assert any("TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE" in item for item in acceptance),tid
               assert any("source availability only" in item for item in acceptance),tid
+              assert any("separate rows and width-fitted text" in item for item in acceptance),tid
 
           fsd_contract=by_test["FSD-OBJ-001"]
           assert any("decorative arcs/ticks only" in item for item in fsd_contract.get("acceptance",[]))
