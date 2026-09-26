@@ -1931,7 +1931,10 @@
         "APP_UPDATE_INSTALL_STAGED and final APP_UPDATE_INSTALL_STATUS evidence share the same PackageInstaller session_id and selected release tag",
         "PENDING_USER_ACTION / SUCCESS / FAILURE install status events retain session_id + release correlation instead of status-only evidence",
         "BuildConfig.VOICE_PREVIEW_BUILD=true이면 automatic/manual OTA check와 pending install resume를 fail-closed로 억제해 preview package가 canonical OTA channel을 사용하지 않는다",
-        "voice-preview OTA suppression is logged and performs no release download, PackageInstaller stage, or update permission flow"
+        "voice-preview OTA suppression is logged and performs no release download, PackageInstaller stage, or update permission flow",
+        "real-car validation build is published only as GitHub prerelease tag dolphin-launcher-v1-v*-realcar-beta* and declares stable=false/release_ready=false",
+        "real-car BETA release metadata explicitly lists every open P0 Known-Bad instead of treating release publication as a Known-Bad pass",
+        "production/stable V1 release Known-Bad gate remains separate and still requires zero open P0 before V1_RELEASE_READY publication"
       ],
       "required_logs": [
         "release metadata",
@@ -1956,7 +1959,13 @@
         "APP_UPDATE_INSTALL_STATUS release tag",
         "APP_UPDATE_SUPPRESSED_PREVIEW_BUILD",
         "voice_preview=true",
-        "network_check=false"
+        "network_check=false",
+        "REALCAR_BETA_METADATA_OK",
+        "REALCAR_BETA_RELEASE_OK",
+        "channel=REAL_CAR_VALIDATION_BETA",
+        "stable=false",
+        "release_ready=false",
+        "open_p0_known_bad"
       ],
       "known_bad": [
         "versionCode downgrade 설치 실패가 과거 발생하여 v34.3.1에서 114로 수정한 기록",
@@ -1984,9 +1993,11 @@
         "AppUpdateManager persists the consented release tag before opening unknown-app-source settings and re-fetches that exact tag after process recreation",
         "AppUpdateManager requires GitHub prerelease=true before tag-prefix acceptance and records release_prerelease in release/package verification evidence",
         "AppUpdateManager status PendingIntent carries selected release tag + expected session id; UpdateInstallReceiver records PackageInstaller session_id/release on PENDING/SUCCESS/FAILURE",
-        "AppUpdateManager preview-build guard returns before release discovery or pending-install resume"
+        "AppUpdateManager preview-build guard returns before release discovery or pending-install resume",
+        "reference-dock push workflow publishes versionCode 6 / 1.2.3 real-car validation prerelease with open-P0 disclosure",
+        "legacy V1_RELEASE_READY production publication remains guarded by Enforce release Known-Bad gate"
       ],
-      "next_action": "OTA prerelease gate와 install status session/release correlation을 CI로 고정하고 V1 실차에서 UPD-001/UPD-002 재검증",
+      "next_action": "GitHub real-car BETA prerelease에서 canonical APK/SHA + preview APK/SHA 존재를 확인한 뒤 V1 실차 UPD-001/UPD-002를 operator/runtime evidence로 재검증",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
