@@ -221,7 +221,10 @@
         "AUTOSTART_HMI_RENDER",
         "SYSTEM CONTROL",
         "AUTO START",
-        "danger_rows=2"
+        "danger_rows=2",
+        "heroCopyWidthDp",
+        "widthDp * 0.36f",
+        "hero_copy_dp"
       ]
     },
     {

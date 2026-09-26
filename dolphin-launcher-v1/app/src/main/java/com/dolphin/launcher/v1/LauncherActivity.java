@@ -568,6 +568,7 @@ public class LauncherActivity extends Activity {
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this, "PREMIUM_HMI_RENDER",
                 "variant=glass-vector-v2;hero=canvas-vector;bitmap_assets=false"
+                        + ";hero_copy_dp=" + heroCopyWidthDp()
                         + ";tpms_cards=4;quick_cards=4;dock_items=5");
 
         TextView footer = text(
@@ -1673,10 +1674,17 @@ public class LauncherActivity extends Activity {
         copy.addView(status);
 
         FrameLayout.LayoutParams copyLp = new FrameLayout.LayoutParams(
-                dp(360), ViewGroup.LayoutParams.MATCH_PARENT);
+                dp(heroCopyWidthDp()), ViewGroup.LayoutParams.MATCH_PARENT);
         copyLp.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
         hero.addView(copy, copyLp);
         return hero;
+    }
+
+    private int heroCopyWidthDp() {
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        float widthDp = metrics.widthPixels / Math.max(1f, metrics.density);
+        int target = Math.round(widthDp * 0.36f);
+        return Math.max(276, Math.min(372, target));
     }
 
     private View sectionHeader(String title, String subtitle) {
