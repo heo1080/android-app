@@ -650,6 +650,14 @@ jobs:
           assert "if (!prerelease) continue;" in update_manager, "same-prefix stable release must not become an OTA candidate"
           assert 'release_prerelease=" + release.prerelease' in update_manager, "OTA prerelease evidence token missing"
           assert update_manager.find('root.optBoolean("prerelease", false)') < update_manager.find('tag.startsWith(TAG_PREFIX)'), "prerelease gate must precede candidate tag acceptance"
+          assert "stageInstaller(activity, apk, release.tagName)" in update_manager, "installer stage must retain selected release identity"
+          assert "UpdateInstallReceiver.EXTRA_RELEASE_TAG" in update_manager
+          assert "UpdateInstallReceiver.EXTRA_EXPECTED_SESSION_ID" in update_manager
+          assert '";release=" + releaseTag' in update_manager
+          for token in ("EXTRA_RELEASE_TAG","EXTRA_EXPECTED_SESSION_ID","PackageInstaller.EXTRA_SESSION_ID",
+                        '"status=PENDING_USER_ACTION" + identity','"status=SUCCESS" + identity',
+                        '"status=FAILURE;code=" + status + identity','";session_id=" + sessionId','";release="'):
+              assert token in update_receiver,token
           assert ".putString(KEY_PENDING_PERMISSION_TAG, release.tagName)" in update_manager
           assert ".commit()" in update_manager, "pending OTA consent must be durable before Settings launch"
           assert "APP_UPDATE_INSTALL_STATUS" in update_receiver
@@ -682,7 +690,7 @@ jobs:
           assert "VerificationEvidenceRuntime.retryPendingUploadsAsync(this)" in launcher
           assert 'queueBundleAndUpload(this, "startup-snapshot")' in launcher
           assert "BOOT_UPLOAD_RETRY_FINISHED" in boot_receiver and "goAsync()" in boot_receiver
-          print("P0_REGRESSION_GUARD_OK boot_multi=true media_target_scoped=true upload_receipt_bound=true ota_identity_verified=true ota_prerelease_only=true")
+          print("P0_REGRESSION_GUARD_OK boot_multi=true media_target_scoped=true upload_receipt_bound=true ota_identity_verified=true ota_prerelease_only=true ota_status_correlated=true")
 
           layout_audit=(src/"UiLayoutAuditRuntime.java").read_text(encoding="utf-8")
           frame_timing=(src/"UiFrameTimingRuntime.java").read_text(encoding="utf-8")
@@ -759,11 +767,14 @@ jobs:
               logs=by_test[tid].get("required_logs",[])
               for token in ("APP_UPDATE_RELEASE_CHECK","APP_UPDATE_PACKAGE_VERIFIED","APP_UPDATE_INSTALL_STAGED","APP_UPDATE_INSTALL_STATUS",
                             "APP_UPDATE_PERMISSION_PENDING_SAVED","APP_UPDATE_PERMISSION_RESUME_RESTORED",
-                            "APP_UPDATE_PERMISSION_RESUME_FAILED","release_prerelease=true"):
+                            "APP_UPDATE_PERMISSION_RESUME_FAILED","release_prerelease=true",
+                            "APP_UPDATE_INSTALL_STATUS session_id","APP_UPDATE_INSTALL_STATUS release tag"):
                   assert token in logs,(tid,token)
               acceptance=by_test[tid].get("acceptance",[])
               assert any("prerelease=true" in item for item in acceptance),tid
               assert any("stable releases are ignored" in item for item in acceptance),tid
+              assert any("share session_id and selected release tag" in item for item in acceptance),tid
+              assert any("PENDING_USER_ACTION / SUCCESS / FAILURE" in item for item in acceptance),tid
 
           surface_rows=[s for s in surfaces.get("surfaces",[])
                         if s["feature_id"]=="PREMIUM_HMI_HOME"
@@ -801,8 +812,20 @@ jobs:
                                and row["path"].endswith("/AppUpdateManager.java")]
           assert len(update_surface_rows)==1
           for token in ('root.optBoolean("prerelease", false)',"if (!prerelease) continue;",
-                        'release_prerelease=" + release.prerelease'):
+                        'release_prerelease=" + release.prerelease',
+                        "stageInstaller(activity, apk, release.tagName)",
+                        "UpdateInstallReceiver.EXTRA_RELEASE_TAG",
+                        "UpdateInstallReceiver.EXTRA_EXPECTED_SESSION_ID",
+                        '";release=" + releaseTag'):
               assert token in update_surface_rows[0].get("tokens",[]),token
+          update_receiver_rows=[row for row in surfaces.get("surfaces",[])
+                                if row["feature_id"]=="APP_UPDATE"
+                                and row["path"].endswith("/UpdateInstallReceiver.java")]
+          assert len(update_receiver_rows)==1
+          for token in ("EXTRA_RELEASE_TAG","EXTRA_EXPECTED_SESSION_ID","PackageInstaller.EXTRA_SESSION_ID",
+                        '"status=PENDING_USER_ACTION" + identity','"status=SUCCESS" + identity',
+                        '"status=FAILURE;code=" + status + identity','";session_id=" + sessionId','";release="'):
+              assert token in update_receiver_rows[0].get("tokens",[]),token
 
           dock_tokens=surface_rows[0].get("tokens",[])
           for token in ("REFERENCE_DOCK_RENDER","showNavigationPanel",

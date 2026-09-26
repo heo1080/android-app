@@ -245,7 +245,11 @@
         "requiredTag.equals(tag)",
         "root.optBoolean(\"prerelease\", false)",
         "if (!prerelease) continue;",
-        "release_prerelease=\" + release.prerelease"
+        "release_prerelease=\" + release.prerelease",
+        "stageInstaller(activity, apk, release.tagName)",
+        "UpdateInstallReceiver.EXTRA_RELEASE_TAG",
+        "UpdateInstallReceiver.EXTRA_EXPECTED_SESSION_ID",
+        "\";release=\" + releaseTag"
       ]
     },
     {
@@ -1639,7 +1643,15 @@
       "tokens": [
         "APP_UPDATE_INSTALL_STATUS",
         "STATUS_PENDING_USER_ACTION",
-        "STATUS_SUCCESS"
+        "STATUS_SUCCESS",
+        "EXTRA_RELEASE_TAG",
+        "EXTRA_EXPECTED_SESSION_ID",
+        "PackageInstaller.EXTRA_SESSION_ID",
+        "\"status=PENDING_USER_ACTION\" + identity",
+        "\"status=SUCCESS\" + identity",
+        "\"status=FAILURE;code=\" + status + identity",
+        "\";session_id=\" + sessionId",
+        "\";release=\""
       ]
     },
     {

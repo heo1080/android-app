@@ -2355,7 +2355,9 @@
         "unknown-app-source settings 중 process recreation 후에도 consented release tag를 durable state에서 복구하고 exact-tag re-fetch로 재개",
         "release discovery accepts only GitHub prerelease=true entries with the dolphin-launcher-v1-v* tag prefix",
         "same-prefix stable releases are ignored and cannot become OTA candidates",
-        "process-death exact-tag restore still requires prerelease=true plus APK/SHA asset completeness"
+        "process-death exact-tag restore still requires prerelease=true plus APK/SHA asset completeness",
+        "APP_UPDATE_INSTALL_STAGED and final APP_UPDATE_INSTALL_STATUS share session_id and selected release tag",
+        "PENDING_USER_ACTION / SUCCESS / FAILURE status evidence retains install session/release identity"
       ],
       "required_logs": [
         "release metadata",
@@ -2368,7 +2370,9 @@
         "APP_UPDATE_PERMISSION_PENDING_SAVED",
         "APP_UPDATE_PERMISSION_RESUME_RESTORED",
         "APP_UPDATE_PERMISSION_RESUME_FAILED",
-        "release_prerelease=true"
+        "release_prerelease=true",
+        "APP_UPDATE_INSTALL_STATUS session_id",
+        "APP_UPDATE_INSTALL_STATUS release tag"
       ]
     },
     {
@@ -2407,7 +2411,9 @@
         "unknown-app-source settings 중 process recreation 후에도 consented release tag를 durable state에서 복구하고 exact-tag re-fetch로 재개",
         "release discovery accepts only GitHub prerelease=true entries with the dolphin-launcher-v1-v* tag prefix",
         "same-prefix stable releases are ignored and cannot become OTA candidates",
-        "process-death exact-tag restore still requires prerelease=true plus APK/SHA asset completeness"
+        "process-death exact-tag restore still requires prerelease=true plus APK/SHA asset completeness",
+        "APP_UPDATE_INSTALL_STAGED and final APP_UPDATE_INSTALL_STATUS share session_id and selected release tag",
+        "PENDING_USER_ACTION / SUCCESS / FAILURE status evidence retains install session/release identity"
       ],
       "required_logs": [
         "release metadata",
@@ -2420,7 +2426,9 @@
         "APP_UPDATE_PERMISSION_PENDING_SAVED",
         "APP_UPDATE_PERMISSION_RESUME_RESTORED",
         "APP_UPDATE_PERMISSION_RESUME_FAILED",
-        "release_prerelease=true"
+        "release_prerelease=true",
+        "APP_UPDATE_INSTALL_STATUS session_id",
+        "APP_UPDATE_INSTALL_STATUS release tag"
       ]
     },
     {
