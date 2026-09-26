@@ -620,7 +620,8 @@
         "Golden Screenshot entry remains available from DISPLAY panel",
         "DISPLAY utility hero summarizes current profile while actuation remains false",
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
-        "dock records screen-width compact risk while preserving 48dp touch-target goal"
+        "dock records screen-width compact risk while preserving 48dp touch-target goal",
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
       ],
       "required_logs": [
         "densityDpi",
@@ -637,7 +638,8 @@
         "screen_width_dp=",
         "dock_min_safe_width_dp=632",
         "touch_target_goal_dp=48",
-        "compact_risk="
+        "compact_risk=",
+        "adaptive_hero=true"
       ]
     },
     {
@@ -673,7 +675,8 @@
         "Golden Screenshot entry remains available from DISPLAY panel",
         "DISPLAY utility hero summarizes current profile while actuation remains false",
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
-        "dock records screen-width compact risk while preserving 48dp touch-target goal"
+        "dock records screen-width compact risk while preserving 48dp touch-target goal",
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
       ],
       "required_logs": [
         "densityDpi",
@@ -690,7 +693,8 @@
         "screen_width_dp=",
         "dock_min_safe_width_dp=632",
         "touch_target_goal_dp=48",
-        "compact_risk="
+        "compact_risk=",
+        "adaptive_hero=true"
       ]
     },
     {
@@ -1925,7 +1929,8 @@
         "MAP launcher records semantic_parse=false and does not infer camera/speed semantics",
         "golden-reference-v3 Safety hero exposes provenance freshness and FSD boundary without semantic inference",
         "MAP utility hero remains launch-only and semantics locked",
-        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles"
+        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
       ],
       "required_logs": [
         "source package/version",
@@ -1941,7 +1946,8 @@
         "semantic_values=false",
         "rendered_supported_nav=",
         "launch_only=true",
-        "scroll_safe=true"
+        "scroll_safe=true",
+        "adaptive_hero=true"
       ]
     },
     {
@@ -1976,7 +1982,8 @@
         "vehicle panel displays raw-only source state without semantic normalization",
         "golden-reference-v3 hero shows READ ONLY and source LIVE/WAITING from observed raw presence",
         "vehicle panel performs no actuation",
-        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles"
+        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
       ],
       "required_logs": [
         "getter result",
@@ -1988,7 +1995,8 @@
         "panel_hero=true",
         "normalized=false",
         "actuation=false",
-        "scroll_safe=true"
+        "scroll_safe=true",
+        "adaptive_hero=true"
       ]
     },
     {
@@ -2364,7 +2372,8 @@
         "DISPLAY/DARK panels remain read-only except explicit Android system settings dispatch",
         "MAP/DISPLAY/DARK quick panels use Golden Reference utility hero while preserving safe boundaries",
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
-        "dock records screen-width compact risk while preserving 48dp touch-target goal"
+        "dock records screen-width compact risk while preserving 48dp touch-target goal",
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
       ],
       "required_logs": [
         "display profile",
@@ -2382,7 +2391,13 @@
         "screen_width_dp=",
         "dock_min_safe_width_dp=632",
         "touch_target_goal_dp=48",
-        "compact_risk="
+        "compact_risk=",
+        "adaptive_hero=true",
+        "screen_height_dp=",
+        "hero_copy_dp=",
+        "hero_graphic_dp=",
+        "utility_copy_dp=",
+        "utility_icon_dp="
       ]
     },
     {
@@ -2423,7 +2438,8 @@
         "DISPLAY/DARK panels remain read-only except explicit Android system settings dispatch",
         "MAP/DISPLAY/DARK quick panels use Golden Reference utility hero while preserving safe boundaries",
         "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
-        "dock records screen-width compact risk while preserving 48dp touch-target goal"
+        "dock records screen-width compact risk while preserving 48dp touch-target goal",
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
       ],
       "required_logs": [
         "display profile",
@@ -2441,7 +2457,13 @@
         "screen_width_dp=",
         "dock_min_safe_width_dp=632",
         "touch_target_goal_dp=48",
-        "compact_risk="
+        "compact_risk=",
+        "adaptive_hero=true",
+        "screen_height_dp=",
+        "hero_copy_dp=",
+        "hero_graphic_dp=",
+        "utility_copy_dp=",
+        "utility_icon_dp="
       ]
     },
     {
@@ -2715,7 +2737,8 @@
         "PLAY request/readback is not treated as audible playback success",
         "session discovery/play/readback continuation survives sender receiver process exit by AlarmManager receiver stages",
         "golden-reference-v3 Media hero remains target-scoped and does not treat UI state as audible playback verification",
-        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles"
+        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
       ],
       "required_logs": [
         "target package",
@@ -2734,7 +2757,8 @@
         "panel_hero=true",
         "target_scoped=true",
         "playback_verified=false",
-        "scroll_safe=true"
+        "scroll_safe=true",
+        "adaptive_hero=true"
       ]
     },
     {
@@ -2785,7 +2809,8 @@
         "session access failure produces fail-closed evidence instead of global key dispatch",
         "session discovery/play/readback continuation survives sender receiver process exit by AlarmManager receiver stages",
         "golden-reference-v3 Media hero remains target-scoped and does not treat UI state as audible playback verification",
-        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles"
+        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
+        "Golden Reference hero geometry adapts to real screen width dp without removing verification boundaries"
       ],
       "required_logs": [
         "target package",
@@ -2804,7 +2829,8 @@
         "panel_hero=true",
         "target_scoped=true",
         "playback_verified=false",
-        "scroll_safe=true"
+        "scroll_safe=true",
+        "adaptive_hero=true"
       ]
     }
   ]
