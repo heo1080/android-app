@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -50,6 +51,7 @@ public final class ParkingHazardAutomationProbe {
         try {
             Class<?> clazz = Class.forName(LIGHT);
             int matching = 0;
+            int matchingFields = 0;
             boolean getterPresent = false;
             boolean setterCandidatePresent = false;
 
@@ -84,11 +86,42 @@ public final class ParkingHazardAutomationProbe {
                                 + ";vehicle_write=false");
             }
 
+            for (Field field : clazz.getFields()) {
+                if (!Modifier.isStatic(field.getModifiers())) continue;
+                String name = field.getName();
+                String lower = name.toLowerCase(Locale.ROOT);
+                if (!(lower.contains("doubleflash")
+                        || lower.contains("hazard")
+                        || lower.contains("danger")
+                        || lower.contains("emergency"))) {
+                    continue;
+                }
+                matchingFields++;
+                String value = "unread";
+                try {
+                    if (field.getType() == int.class) {
+                        value = String.valueOf(field.getInt(null));
+                    } else if (field.getType() == boolean.class) {
+                        value = String.valueOf(field.getBoolean(null));
+                    } else if (field.getType() == String.class) {
+                        value = String.valueOf(field.get(null));
+                    }
+                } catch (Throwable ignored) {}
+
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        app, "PARK_HAZARD_CAPABILITY_CONSTANT",
+                        "name=" + name
+                                + ";type=" + field.getType().getName()
+                                + ";value=" + value
+                                + ";vehicle_write=false");
+            }
+
             Integer hazardRaw = readHazardRaw(app);
             VerificationEvidenceRuntime.recordPassiveEvent(
                     app, "PARK_HAZARD_CAPABILITY",
                     "class_present=true"
                             + ";matching_methods=" + matching
+                            + ";matching_constants=" + matchingFields
                             + ";getter_present=" + getterPresent
                             + ";hazard_raw=" + String.valueOf(hazardRaw)
                             + ";setter_candidate_present=" + setterCandidatePresent
