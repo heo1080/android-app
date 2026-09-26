@@ -285,6 +285,7 @@
         "BOOT_COMPLETED에서 각 항목을 process-independent AlarmManager exact alarm으로 예약",
         "예약 alarm이 앱별 package/media/index를 보존해 실행",
         "LauncherActivity 진입으로 동일 boot dispatch를 중복 실행하지 않음",
+        "공개 Settings.Global.BOOT_COUNT로 실제 부팅 세대를 구분하고, 동일 부팅에서 BOOT_COMPLETED와 QUICKBOOT_POWERON이 연속 수신되어도 하나의 autostart batch만 예약",
         "앱별 미디어 자동재생은 대상 MediaSession 경로로 넘기며 PLAY 요청 자체를 실제 재생 성공으로 간주하지 않음",
         "Android 12+ exact-alarm access가 없으면 불확실한 inexact fallback 대신 명시적으로 실패 기록",
         "시동 자동실행의 지연/순서/삭제/추가/미디어 스위치 조작 영역은 48dp 이상 터치 높이를 사용",
@@ -294,6 +295,8 @@
       "required_logs": [
         "BOOT_COMPLETED",
         "AUTOSTART_BOOT_BATCH",
+        "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED",
+        "boot_count",
         "AUTOSTART_SCHEDULED",
         "AUTOSTART_SCHEDULE_FAILED",
         "AUTOSTART_ALARM_FIRED",
@@ -308,7 +311,8 @@
         "과거 최신 설치본에서 여러 앱 추가 버튼이 사라졌다고 보고",
         "기존 Handler.postDelayed 부팅 예약은 BroadcastReceiver 종료 후 프로세스 생존에 의존했음",
         "BYD Android 10에서 background activity start 허용 여부는 실차 재검증 필요",
-        "과거 V1 소스에서 BootAutoLaunchReceiver 클래스는 존재했지만 Manifest 등록이 누락되어 예약 broadcast 전달이 불가능할 수 있었음"
+        "과거 V1 소스에서 BootAutoLaunchReceiver 클래스는 존재했지만 Manifest 등록이 누락되어 예약 broadcast 전달이 불가능할 수 있었음",
+        "일부 OEM에서 BOOT_COMPLETED와 QUICKBOOT_POWERON이 같은 부팅에 모두 전달되면 동일 batch가 재예약될 수 있음"
       ],
       "dependencies": [
         "BOOT_COMPLETED broadcast",
@@ -325,7 +329,8 @@
         "각 AUTOSTART_ALARM_FIRED가 저장한 지연 이후 발생하는지 확인",
         "일반 앱과 미디어 앱이 각각 대상 경로로 실행되는지 확인",
         "LauncherActivity를 중간에 열어도 중복 실행되지 않는지 확인",
-        "두 번째 ignition cycle 반복"
+        "두 번째 ignition cycle 반복",
+        "같은 ignition cycle의 BOOT_COMPLETED/QUICKBOOT_POWERON 중복 수신 여부와 AUTOSTART_DUPLICATE_BOOT_SUPPRESSED 확인"
       ],
       "evidence": [
         "LauncherActivity showAutoStartAppPicker",
@@ -335,7 +340,8 @@
         "BootAutoLaunchReceiver process-independent execution",
         "48dp autostart manager touch-target hardening",
         "AndroidManifest registers BootAutoLaunchReceiver as non-exported static receiver for AlarmManager delivery",
-        "LauncherActivity legacy pending_autostart flag is consumed without launching apps; boot execution ownership remains BootAutoLaunchRuntime only"
+        "LauncherActivity legacy pending_autostart flag is consumed without launching apps; boot execution ownership remains BootAutoLaunchRuntime only",
+        "BootAutoLaunchRuntime uses public Settings.Global.BOOT_COUNT as the persisted boot epoch and elapsedRealtime windows only within the same boot"
       ],
       "next_action": "BYD Android 10 실차 재부팅 2회에서 AlarmManager delivery, background activity dispatch, 2개 이상 앱 순차 실행 및 중복 방지 evidence 수집",
       "confidence": {
