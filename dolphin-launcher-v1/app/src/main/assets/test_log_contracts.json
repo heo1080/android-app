@@ -176,10 +176,6 @@
         "TEST_END"
       ],
       "allowed_outcomes": [
-        "PASS",
-        "FAIL",
-        "INTERMITTENT",
-        "DELAYED",
         "NEED_MORE_DATA"
       ],
       "requires_build_fingerprint": true,
@@ -203,7 +199,8 @@
         "automatic upload runtime retries queued ZIPs on app network availability and boot",
         "upload receipt must match queued bundle session_id and SHA-256",
         "secure-secret acceptance cannot PASS while upload authentication is sourced from BuildConfig.EVIDENCE_UPLOAD_KEY",
-        "APK-static upload credential is absent; without proven runtime enrollment the ZIP queue is retained and network upload fails closed"
+        "APK-static upload credential is absent; without proven runtime enrollment the ZIP queue is retained and network upload fails closed",
+        "PASS remains disabled until server-backed runtime enrollment and Keystore-protected credential use are proven"
       ],
       "required_logs": [
         "session manifest",
@@ -2552,10 +2549,6 @@
         "TEST_END"
       ],
       "allowed_outcomes": [
-        "PASS",
-        "FAIL",
-        "INTERMITTENT",
-        "DELAYED",
         "NEED_MORE_DATA"
       ],
       "requires_build_fingerprint": true,
@@ -2566,7 +2559,9 @@
       "required_any": [],
       "success_any": [],
       "failure_any": [],
-      "known_bad_ids": [],
+      "known_bad_ids": [
+        "KB-014"
+      ],
       "acceptance": [
         "모든 active requirement에 REQ/Feature/Test ID 존재",
         "각 build 전 registry diff",
@@ -2607,7 +2602,9 @@
         "P0 queue exposes each Known-Bad close gate and linked Test IDs",
         "result UI follows allowed_outcomes even when feature state is REVERIFY_REQUIRED",
         "runtime_surfaces uses tokens only; legacy required_tokens is rejected",
-        "every runtime surface has non-empty tokens verified against source"
+        "every runtime surface has non-empty tokens verified against source",
+        "evaluator marker matching excludes canonical Registry/Test Contract/Runtime Surface/Known-Bad/Voice metadata from runtime evidence",
+        "canonical metadata containing success_any/failure_any literals cannot satisfy or fail a Test ID by itself"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2634,7 +2631,9 @@
         "loadKnownBadRegistry",
         "showP0Queue",
         "legacy required_tokens schema forbidden",
-        "surface tokens missing"
+        "surface tokens missing",
+        "DIAGNOSTIC_EVALUATOR_METADATA_ISOLATION_OK",
+        "runtime_evidence_only=true"
       ]
     },
     {
