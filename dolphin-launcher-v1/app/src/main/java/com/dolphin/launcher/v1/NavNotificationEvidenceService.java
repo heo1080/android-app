@@ -25,9 +25,21 @@ public final class NavNotificationEvidenceService extends NotificationListenerSe
         String title=e==null?null:String.valueOf(e.getCharSequence(Notification.EXTRA_TITLE,""));
         String text=e==null?null:String.valueOf(e.getCharSequence(Notification.EXTRA_TEXT,""));
         String payload=(title==null?"":title)+"\n"+(text==null?"":text);
+        String hash=sha256(payload);
         VerificationEvidenceRuntime.recordPassiveEvent(this,"NAV_NOTIFICATION_RAW",
-                "package="+sbn.getPackageName()+";textSha256="+sha256(payload)
+                "package="+sbn.getPackageName()+";textSha256="+hash
                         +";textLength="+payload.length()+";parser=none;mode=read-only");
+        NavSafetyStatusRuntime.recordPosted(
+                this,sbn.getPackageName(),hash,payload.length(),System.currentTimeMillis());
+    }
+
+    @Override public void onNotificationRemoved(StatusBarNotification sbn){
+        if(sbn==null || !SUPPORTED.contains(sbn.getPackageName())) return;
+        NavSafetyStatusRuntime.recordRemoved(
+                this,sbn.getPackageName(),System.currentTimeMillis());
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this,"NAV_NOTIFICATION_REMOVED",
+                "package="+sbn.getPackageName()+";mode=read-only");
     }
 
     private static String sha256(String value){
