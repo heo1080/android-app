@@ -70,6 +70,14 @@ public final class VehicleVoicePolicy {
         return ids;
     }
 
+    public static String phraseForPromptId(String promptId) {
+        if (promptId == null) return null;
+        for (PromptSpec prompt : PROMPTS.values()) {
+            if (promptId.equals(prompt.id)) return prompt.phrase;
+        }
+        return null;
+    }
+
     public static synchronized void gear(Context c, Output out, String value) {
         String v = upper(value);
         lastGear = emitChanged(c,out,"GEAR",lastGear,v);
