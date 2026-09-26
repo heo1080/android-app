@@ -1848,7 +1848,16 @@
         "app_manifest_unchanged=true",
         "--model-revision",
         "\"model_revision\": model_revision",
-        "DEFAULT_MODEL_REVISION = \"53d09664c4f636a5fb6f2ebe3ec22cd83ee249b9\""
+        "DEFAULT_MODEL_REVISION = \"53d09664c4f636a5fb6f2ebe3ec22cd83ee249b9\"",
+        "SILENCE_THRESHOLD_DB = -60.0",
+        "LEADING_PAD_MS = 30",
+        "TRAILING_PAD_MS = 60",
+        "trim_candidate_silence",
+        "\"trimmed_leading_ms\"",
+        "\"trimmed_trailing_ms\"",
+        "\"original_duration_ms\"",
+        "\"trim_policy\"",
+        "silence_trim_db=-60"
       ]
     }
   ],
