@@ -325,6 +325,9 @@ jobs:
           root=pathlib.Path("dolphin-launcher-v1")
           candidate_path=root/"tools/generate_ppaso_voice_candidate.py"
           candidate=candidate_path.read_text(encoding="utf-8")
+          preview_preparer=(root/"tools/prepare_fixed_voice_preview.py").read_text(encoding="utf-8")
+          build_gradle=(root/"app/build.gradle.kts").read_text(encoding="utf-8")
+          update_manager=(root/"app/src/main/java/com/dolphin/launcher/v1/AppUpdateManager.java").read_text(encoding="utf-8")
           registry=json.load(open(root/"app/src/main/assets/verification_registry.json",encoding="utf-8"))
           contracts=json.load(open(root/"app/src/main/assets/test_log_contracts.json",encoding="utf-8"))
           surfaces=json.load(open(root/"app/src/main/assets/runtime_surfaces.json",encoding="utf-8"))
@@ -348,11 +351,43 @@ jobs:
               assert token in candidate, token
           assert "app/src/main/res/raw" not in candidate, "candidate generator must not write packaged raw assets"
           assert "MANIFEST_PATH.write_text" not in candidate, "candidate generator must not promote app voice manifest"
+          for token in (
+              "canonical voice manifest must start ASSET_REQUIRED",
+              'EXPECTED_PROFILE = "ppaso-v8-ko-female-24k-pcm-candidate-v1"',
+              'EXPECTED_MODEL_REVISION = "53d09664c4f636a5fb6f2ebe3ec22cd83ee249b9"',
+              'PREVIEW_PACKAGE = "com.dolphin.launcher.v1.voicepreview"',
+              "preview overlay refuses pre-existing packaged asset",
+              '"state"] = "ASSET_READY"', '"preview_only"] = True',
+              '"canonical_repository_state": "ASSET_REQUIRED"',
+              '"workspace_state": "ASSET_READY"', '"promotion_allowed": False',
+              "VOICE_PREVIEW_OVERLAY_READY", "promotion_allowed=false",
+          ):
+              assert token in preview_preparer,token
+          for token in (
+              'buildConfigField("boolean", "VOICE_PREVIEW_BUILD", "false")',
+              'create("voicePreview")','applicationIdSuffix = ".voicepreview"',
+              'versionNameSuffix = "-voice-preview"',
+              'buildConfigField("boolean", "VOICE_PREVIEW_BUILD", "true")',
+          ):
+              assert token in build_gradle,token
+          for token in (
+              "suppressForVoicePreview","BuildConfig.VOICE_PREVIEW_BUILD",
+              "APP_UPDATE_SUPPRESSED_PREVIEW_BUILD",
+              "voice_preview=true;network_check=false;installer=false",
+              'suppressForVoicePreview(activity, "check", manual)',
+              'suppressForVoicePreview(activity, "resume", false)',
+          ):
+              assert token in update_manager,token
 
           feature=next(f for f in registry["features"] if f["feature_id"]=="IN_APP_TTS_CORE")
           candidate_source="dolphin-launcher-v1/tools/generate_ppaso_voice_candidate.py"
+          preview_source="dolphin-launcher-v1/tools/prepare_fixed_voice_preview.py"
           assert candidate_source in feature.get("source_paths",[])
+          assert preview_source in feature.get("source_paths",[])
+          assert "dolphin-launcher-v1/app/build.gradle.kts" in feature.get("source_paths",[])
           assert any("immutable full commit SHA" in item for item in feature.get("acceptance",[]))
+          assert any("applicationIdSuffix=.voicepreview" in item for item in feature.get("acceptance",[]))
+          assert any("canonical voice_prompt_manifest to start ASSET_REQUIRED" in item for item in feature.get("acceptance",[]))
           assert any("-60dB activity threshold" in item for item in feature.get("acceptance",[]))
           assert any("30ms pre-roll" in item and "최대 60ms" in item for item in feature.get("acceptance",[]))
           for tid in ("AUD-TTS-001","AUD-TTS-002"):
@@ -376,7 +411,23 @@ jobs:
                         '"trimmed_leading_ms"','"trimmed_trailing_ms"',
                         '"original_duration_ms"','"trim_policy"',"silence_trim_db=-60"):
               assert token in rows[0].get("tokens",[]),token
+          preview_rows=[r for r in surfaces["surfaces"]
+                        if r["feature_id"]=="IN_APP_TTS_CORE" and r["path"]==preview_source]
+          assert len(preview_rows)==1
+          for token in ('PREVIEW_PACKAGE = "com.dolphin.launcher.v1.voicepreview"',
+                        '"canonical_repository_state": "ASSET_REQUIRED"',
+                        '"workspace_state": "ASSET_READY"','"promotion_allowed": False',
+                        "VOICE_PREVIEW_OVERLAY_READY","promotion_allowed=false"):
+              assert token in preview_rows[0].get("tokens",[]),token
+          preview_build_rows=[r for r in surfaces["surfaces"]
+                              if r["feature_id"]=="IN_APP_TTS_CORE"
+                              and r["path"]=="dolphin-launcher-v1/app/build.gradle.kts"]
+          assert len(preview_build_rows)==1
+          for token in ('create("voicePreview")','applicationIdSuffix = ".voicepreview"',
+                        'buildConfigField("boolean", "VOICE_PREVIEW_BUILD", "true")'):
+              assert token in preview_build_rows[0].get("tokens",[]),token
           print("PPASO_CANDIDATE_STATIC_GUARD_OK candidate_only=true app_manifest_unchanged=true silence_trim_db=-60 leading_pad_ms=30 trailing_pad_ms=60")
+          print("VOICE_PREVIEW_STATIC_GUARD_OK preview_package=com.dolphin.launcher.v1.voicepreview canonical_manifest_unchanged=true ota_suppressed=true")
           PY
           unzip -p "$APK" assets/voice_prompt_manifest.json > "$RUNNER_TEMP/voice_prompt_manifest.json"
           python3 - "$RUNNER_TEMP/voice_prompt_manifest.json" "$APK" <<'PY'
