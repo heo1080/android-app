@@ -3111,7 +3111,8 @@
         "최종 P가 10초 연속 유지된 경우에만 desired_hazard=OFF 계획 기록",
         "실제 hazard setter/readback pair와 물리 점멸이 입증되기 전 vehicle write 금지",
         "BLOCKED 상태에서는 PASS를 허용하지 않으며 planner timing evidence만 수집",
-        "Test 시작 후 capability refresh가 active correlation 안에서 기록됨"
+        "Test 시작 후 capability refresh가 active correlation 안에서 기록됨",
+        "hazard ON/OFF parameter mapping is not inferred from public constant names alone"
       ],
       "required_logs": [
         "PARK_HAZARD_CAPABILITY_METHOD",
@@ -3123,7 +3124,8 @@
         "setter_proven=false",
         "would_request_only=true",
         "vehicle_write=false",
-        "TEST_CAPABILITY_REFRESH"
+        "TEST_CAPABILITY_REFRESH",
+        "PARK_HAZARD_CAPABILITY_CONSTANT"
       ]
     },
     {
@@ -3160,7 +3162,8 @@
         "P 10초 안정화 후 OFF 계획은 would-request evidence이며 실제 actuation이 아님",
         "실차 readback과 operator observation은 추후 setter 검증과 분리 기록",
         "BLOCKED 상태에서는 실제 비상등 자동제어를 활성화하지 않음",
-        "Test 시작 후 capability refresh가 active correlation 안에서 기록됨"
+        "Test 시작 후 capability refresh가 active correlation 안에서 기록됨",
+        "hazard ON/OFF parameter mapping is not inferred from public constant names alone"
       ],
       "required_logs": [
         "PARK_HAZARD_PARK_ARMED",
@@ -3170,7 +3173,8 @@
         "phase=PARK_COMPLETE",
         "would_request_only=true",
         "vehicle_write=false",
-        "TEST_CAPABILITY_REFRESH"
+        "TEST_CAPABILITY_REFRESH",
+        "PARK_HAZARD_CAPABILITY_CONSTANT"
       ]
     },
     {
