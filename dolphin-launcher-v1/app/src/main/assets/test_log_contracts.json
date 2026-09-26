@@ -822,7 +822,10 @@
         "fixed asset loading race produces VOICE_FIXED_ASSET_LOADING_DROP instead of mixed voice",
         "fixed voice manifest remains atomic: all 22 prompts are ASSET_REQUIRED or all 22 are ASSET_READY",
         "ASSET_READY requires 22 packaged RIFF/WAVE assets with manifest SHA-256 and byte-count parity",
-        "fixed voice generation credentials are never persisted into APK/source/manifest/logs"
+        "fixed voice generation credentials are never persisted into APK/source/manifest/logs",
+        "open-license Ppaso candidate generation never changes app ASSET_REQUIRED/ASSET_READY state or packaged res/raw assets",
+        "candidate bundle contains exactly 22 RIFF/WAVE 24kHz 16-bit mono files plus SHA-256/byte/duration metadata",
+        "P/R/N/D and ICC candidate synthesis may use Korean pronunciation text while event/value/id/manifest phrase semantics remain unchanged"
       ],
       "required_logs": [
         "VOICE_ASSET_READY",
@@ -836,7 +839,10 @@
         "tts_fallback=false",
         "VOICE_FIXED_ASSET_STATE",
         "atomic=true",
-        "sha256=verified"
+        "sha256=verified",
+        "PPASO_FIXED_VOICE_CANDIDATE_OK",
+        "candidate_only=true",
+        "app_manifest_unchanged=true"
       ]
     },
     {
@@ -890,7 +896,10 @@
         "no deferred phrase queue exists for fallback prompts",
         "fixed voice manifest remains atomic: all 22 prompts are ASSET_REQUIRED or all 22 are ASSET_READY",
         "ASSET_READY requires 22 packaged RIFF/WAVE assets with manifest SHA-256 and byte-count parity",
-        "fixed voice generation credentials are never persisted into APK/source/manifest/logs"
+        "fixed voice generation credentials are never persisted into APK/source/manifest/logs",
+        "open-license Ppaso candidate generation never changes app ASSET_REQUIRED/ASSET_READY state or packaged res/raw assets",
+        "candidate bundle contains exactly 22 RIFF/WAVE 24kHz 16-bit mono files plus SHA-256/byte/duration metadata",
+        "P/R/N/D and ICC candidate synthesis may use Korean pronunciation text while event/value/id/manifest phrase semantics remain unchanged"
       ],
       "required_logs": [
         "VOICE_TTS_READY",
@@ -913,7 +922,10 @@
         "delayed_replay=false",
         "VOICE_FIXED_ASSET_STATE",
         "atomic=true",
-        "sha256=verified"
+        "sha256=verified",
+        "PPASO_FIXED_VOICE_CANDIDATE_OK",
+        "candidate_only=true",
+        "app_manifest_unchanged=true"
       ]
     },
     {
