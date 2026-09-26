@@ -88,7 +88,7 @@
         "Gradle voicePreview build type isolates audition package identity from canonical release",
         "real-car BETA workflow derives VERSION_CODE from app/build.gradle.kts and validates REALCAR_BETA_METADATA_VERSION_MATCH"
       ],
-      "next_action": "1.2.6-v1-premium-realcar-beta를 BYD Korean Dolphin에 설치해 APK/Release metadata identity와 desktop-app 오인 없음까지 재검증",
+      "next_action": "1.2.7-v1-premium-realcar-beta를 BYD Korean Dolphin에 설치해 APK/Release metadata identity, desktop-app 오인 없음, 새 read-only evidence surface까지 재검증",
       "confidence": {
         "behavior": "HIGH",
         "root_cause": "HIGH",
