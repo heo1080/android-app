@@ -958,8 +958,31 @@ public class VerificationCenterActivity extends Activity {
             }
         }
 
+        JSONObject frame=UiFrameTimingRuntime.latest(this);
+        if(frame!=null){
+            LinearLayout perf=new LinearLayout(this);
+            perf.setOrientation(LinearLayout.HORIZONTAL);
+            perf.addView(qualityMetric("FRAME P95",
+                    String.format(Locale.US,"%.1f ms",frame.optDouble("p95_ms",0))),weighted());
+            perf.addView(qualityMetric("FRAME MAX",
+                    String.format(Locale.US,"%.1f ms",frame.optDouble("max_ms",0))),weighted());
+            perf.addView(qualityMetric(">32 ms",
+                    String.valueOf(frame.optInt("over_32ms",0))),weighted());
+            panel.addView(perf,new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,dp(76)));
+
+            TextView perfNote=text(
+                    "Frame timing은 diagnostic-only · refresh "
+                            +String.format(Locale.US,"%.1f Hz",frame.optDouble("refresh_rate_hz",0)),
+                    9.5f,Color.parseColor("#6F8994"),false);
+            perfNote.setGravity(Gravity.CENTER);
+            panel.addView(perfNote,new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,dp(30)));
+        }
+
         VerificationEvidenceRuntime.recordPassiveEvent(
-                this,"UI_QUALITY_SUMMARY_OPENED","state="+state);
+                this,"UI_QUALITY_SUMMARY_OPENED",
+                "state="+state+";frame_timing_available="+(frame!=null));
 
         new AlertDialog.Builder(this)
                 .setView(panel)
