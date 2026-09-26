@@ -393,7 +393,8 @@
         "widthDp * 0.22f",
         "Math.max(150, Math.min(206, target))",
         "cockpit_copy_dp=",
-        "dp(cockpitCopyWidthDp())"
+        "dp(cockpitCopyWidthDp())",
+        "dock_items=6"
       ]
     },
     {
