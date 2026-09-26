@@ -222,7 +222,12 @@
         "UiLayoutAuditRuntime.latestAudit",
         "UiFrameTimingRuntime.latest",
         "FRAME P95",
-        "frame_timing_available"
+        "frame_timing_available",
+        "glass-vector-v3-premium",
+        "BETA  ·  OPERATOR GATED",
+        "release_channel=BETA",
+        "promotion=operator-gated",
+        "auto_promotion=false"
       ]
     },
     {
