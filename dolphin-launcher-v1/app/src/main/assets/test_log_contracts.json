@@ -619,7 +619,8 @@
         "DISPLAY quick panel shows current width/height, densityDpi, density and fontScale without OEM display write",
         "Golden Screenshot entry remains available from DISPLAY panel",
         "DISPLAY utility hero summarizes current profile while actuation remains false",
-        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles"
+        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
+        "dock records screen-width compact risk while preserving 48dp touch-target goal"
       ],
       "required_logs": [
         "densityDpi",
@@ -632,7 +633,11 @@
         "actuation=false",
         "variant=golden-reference-v3",
         "panel_hero=true",
-        "scroll_safe=true"
+        "scroll_safe=true",
+        "screen_width_dp=",
+        "dock_min_safe_width_dp=632",
+        "touch_target_goal_dp=48",
+        "compact_risk="
       ]
     },
     {
@@ -667,7 +672,8 @@
         "DISPLAY quick panel shows current width/height, densityDpi, density and fontScale without OEM display write",
         "Golden Screenshot entry remains available from DISPLAY panel",
         "DISPLAY utility hero summarizes current profile while actuation remains false",
-        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles"
+        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
+        "dock records screen-width compact risk while preserving 48dp touch-target goal"
       ],
       "required_logs": [
         "densityDpi",
@@ -680,7 +686,11 @@
         "actuation=false",
         "variant=golden-reference-v3",
         "panel_hero=true",
-        "scroll_safe=true"
+        "scroll_safe=true",
+        "screen_width_dp=",
+        "dock_min_safe_width_dp=632",
+        "touch_target_goal_dp=48",
+        "compact_risk="
       ]
     },
     {
@@ -2353,7 +2363,8 @@
         "MAP launcher only exposes installed supported navigation packages",
         "DISPLAY/DARK panels remain read-only except explicit Android system settings dispatch",
         "MAP/DISPLAY/DARK quick panels use Golden Reference utility hero while preserving safe boundaries",
-        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles"
+        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
+        "dock records screen-width compact risk while preserving 48dp touch-target goal"
       ],
       "required_logs": [
         "display profile",
@@ -2367,7 +2378,11 @@
         "referenceUtilityHero",
         "rendered_supported_nav=",
         "launch_only=true",
-        "scroll_safe=true"
+        "scroll_safe=true",
+        "screen_width_dp=",
+        "dock_min_safe_width_dp=632",
+        "touch_target_goal_dp=48",
+        "compact_risk="
       ]
     },
     {
@@ -2407,7 +2422,8 @@
         "MAP launcher only exposes installed supported navigation packages",
         "DISPLAY/DARK panels remain read-only except explicit Android system settings dispatch",
         "MAP/DISPLAY/DARK quick panels use Golden Reference utility hero while preserving safe boundaries",
-        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles"
+        "Golden Reference panel uses scroll-safe bounded dialog frame to reduce clipping on 10-inch/large-font profiles",
+        "dock records screen-width compact risk while preserving 48dp touch-target goal"
       ],
       "required_logs": [
         "display profile",
@@ -2421,7 +2437,11 @@
         "referenceUtilityHero",
         "rendered_supported_nav=",
         "launch_only=true",
-        "scroll_safe=true"
+        "scroll_safe=true",
+        "screen_width_dp=",
+        "dock_min_safe_width_dp=632",
+        "touch_target_goal_dp=48",
+        "compact_risk="
       ]
     },
     {
