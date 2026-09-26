@@ -3110,7 +3110,8 @@
         "P 진입은 10초 OFF 타이머를 arm하고 P 이탈 시 타이머를 취소",
         "최종 P가 10초 연속 유지된 경우에만 desired_hazard=OFF 계획 기록",
         "실제 hazard setter/readback pair와 물리 점멸이 입증되기 전 vehicle write 금지",
-        "BLOCKED 상태에서는 PASS를 허용하지 않으며 planner timing evidence만 수집"
+        "BLOCKED 상태에서는 PASS를 허용하지 않으며 planner timing evidence만 수집",
+        "Test 시작 후 capability refresh가 active correlation 안에서 기록됨"
       ],
       "required_logs": [
         "PARK_HAZARD_CAPABILITY_METHOD",
@@ -3121,7 +3122,8 @@
         "hazard_raw",
         "setter_proven=false",
         "would_request_only=true",
-        "vehicle_write=false"
+        "vehicle_write=false",
+        "TEST_CAPABILITY_REFRESH"
       ]
     },
     {
@@ -3157,7 +3159,8 @@
         "P 10초 안정화 전에는 PARK_COMPLETE/OFF 계획을 기록하지 않음",
         "P 10초 안정화 후 OFF 계획은 would-request evidence이며 실제 actuation이 아님",
         "실차 readback과 operator observation은 추후 setter 검증과 분리 기록",
-        "BLOCKED 상태에서는 실제 비상등 자동제어를 활성화하지 않음"
+        "BLOCKED 상태에서는 실제 비상등 자동제어를 활성화하지 않음",
+        "Test 시작 후 capability refresh가 active correlation 안에서 기록됨"
       ],
       "required_logs": [
         "PARK_HAZARD_PARK_ARMED",
@@ -3166,7 +3169,8 @@
         "delay_ms=10000",
         "phase=PARK_COMPLETE",
         "would_request_only=true",
-        "vehicle_write=false"
+        "vehicle_write=false",
+        "TEST_CAPABILITY_REFRESH"
       ]
     },
     {
@@ -3200,7 +3204,8 @@
         "메서드/상수 이름만으로 LEFT/RIGHT 차선이탈 의미를 추정하지 않음",
         "directional raw 후보는 실제 좌/우 차선이탈 operator observation과 별도 correlation 필요",
         "directional_signal_proven=false 동안 왼쪽/오른쪽 차선이탈 음성을 출력하지 않음",
-        "BLOCKED 상태에서는 fixed voice asset을 추가하지 않고 NEED_MORE_DATA만 허용"
+        "BLOCKED 상태에서는 fixed voice asset을 추가하지 않고 NEED_MORE_DATA만 허용",
+        "Test 시작 후 capability refresh가 active correlation 안에서 기록됨"
       ],
       "required_logs": [
         "LANE_DEPARTURE_CAPABILITY_METHOD",
@@ -3211,7 +3216,8 @@
         "directional_signal_proven=false",
         "normal_drive_voice_enabled=false",
         "fixed_voice_asset_added=false",
-        "vehicle_write=false"
+        "vehicle_write=false",
+        "TEST_CAPABILITY_REFRESH"
       ]
     },
     {
@@ -3245,7 +3251,8 @@
         "일반 주행에서 검증된 directional semantic이 ICC/ACC 작동 중에도 동일한지 별도 실차 correlation 필요",
         "assist_context_surface_present만으로 ICC/ACC active 상태를 추정하지 않음",
         "directional_signal_proven=false 동안 ICC/ACC 차선이탈 음성을 출력하지 않음",
-        "BLOCKED 상태에서는 fixed voice asset을 추가하지 않고 NEED_MORE_DATA만 허용"
+        "BLOCKED 상태에서는 fixed voice asset을 추가하지 않고 NEED_MORE_DATA만 허용",
+        "Test 시작 후 capability refresh가 active correlation 안에서 기록됨"
       ],
       "required_logs": [
         "LANE_DEPARTURE_CAPABILITY_METHOD",
@@ -3255,7 +3262,8 @@
         "directional_signal_proven=false",
         "icc_acc_voice_enabled=false",
         "fixed_voice_asset_added=false",
-        "vehicle_write=false"
+        "vehicle_write=false",
+        "TEST_CAPABILITY_REFRESH"
       ]
     }
   ]
