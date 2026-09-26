@@ -242,7 +242,10 @@
         "APP_UPDATE_PERMISSION_RESUME_RESTORED",
         "APP_UPDATE_PERMISSION_RESUME_FAILED",
         "fetchV1Release(persistedTag)",
-        "requiredTag.equals(tag)"
+        "requiredTag.equals(tag)",
+        "root.optBoolean(\"prerelease\", false)",
+        "if (!prerelease) continue;",
+        "release_prerelease=\" + release.prerelease"
       ]
     },
     {
