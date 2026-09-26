@@ -433,6 +433,10 @@ jobs:
           assert "referenceScreenWidthDp" in launcher and "referenceScreenHeightDp" in launcher
           assert "referencePanelCopyWidthDp" in launcher and "referencePanelGraphicWidthDp" in launcher
           assert "referenceUtilityCopyWidthDp" in launcher and "referenceUtilityIconDp" in launcher
+          assert "cockpitCopyWidthDp" in launcher, "adaptive cockpit copy geometry missing"
+          assert "widthDp * 0.22f" in launcher
+          assert "Math.max(150, Math.min(206, target))" in launcher
+          assert "dp(cockpitCopyWidthDp())" in launcher
           assert "adaptive_hero=true" in launcher
           assert "hero_copy_dp=" in launcher and "hero_graphic_dp=" in launcher
           assert "utility_copy_dp=" in launcher and "utility_icon_dp=" in launcher
@@ -535,7 +539,8 @@ jobs:
                         "DISPLAY_QUICK_HMI_RENDER","THEME_STATUS_HMI_RENDER",
                         "SYSTEM_SETTINGS_DISPATCH","variant=golden-reference-v3",
                         "panel_hero=true","target_scoped=true",
-                        "vehicle_source_live=","fsd_state="):
+                        "vehicle_source_live=","fsd_state=",
+                        "cockpit_copy_dp="):
               assert token in ui.get("required_logs",[]), token
 
           assert launcher.find('chip("● LIVE")') == -1
@@ -561,7 +566,7 @@ jobs:
               logs=by_test[tid].get("required_logs",[])
               for token in ("REFERENCE_DOCK_RENDER","NAV_LAUNCHER_HMI_RENDER",
                             "DISPLAY_QUICK_HMI_RENDER","THEME_STATUS_HMI_RENDER",
-                            "SYSTEM_SETTINGS_DISPATCH"):
+                            "SYSTEM_SETTINGS_DISPATCH","cockpit_copy_dp="):
                   assert token in logs,(tid,token)
 
           fsd_contract=by_test["FSD-OBJ-001"]
@@ -616,7 +621,7 @@ jobs:
               assert token in dock_tokens,token
 
           print("AUTO_EVIDENCE_OTA_GATE_OK upload_receipt=true ota_evidence=true")
-          print("GOLDEN_REFERENCE_DOCK_OK primary=6 controls=4 vector=true fail_safe=true home_semantic_objects=false safety_semantics=false home_lane_semantics=false media_play_claim=false vehicle_normalization=false")
+          print("GOLDEN_REFERENCE_DOCK_OK primary=6 controls=4 vector=true fail_safe=true home_semantic_objects=false safety_semantics=false home_lane_semantics=false media_play_claim=false vehicle_normalization=false cockpit_copy_adaptive=true")
           PY
 
       - name: Validate V1 correlation evaluator
