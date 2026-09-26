@@ -278,7 +278,7 @@ jobs:
           assert kb.get("schema_version")==1, kb.get("schema_version")
           features={f["feature_id"]:set(f.get("test_ids", [])) for f in reg.get("features", [])}
           rows=kb.get("known_bad", [])
-          assert [r["id"] for r in rows]==["KB-%03d" % i for i in range(1,14)], "Known-Bad ID drift"
+          assert [r["id"] for r in rows]==["KB-%03d" % i for i in range(1,15)], "Known-Bad ID drift"
           library={r["id"]:r for r in reg.get("known_bad_library", [])}
           lifecycle={r["id"]:r for r in rows}
           assert set(library)==set(lifecycle), (
@@ -306,7 +306,7 @@ jobs:
                   assert tests.issubset(registered), ("Known-Bad Test ID drift", row["id"], sorted(tests-registered))
               assert row.get("close_gate"), ("missing close gate", row["id"])
           assert not any(r["state"]=="CLOSED" for r in rows), "Known-Bad cannot close without committed real-car evidence"
-          print("KNOWN_BAD_OK count=13 p0=%d" % sum(r["severity"]=="P0" for r in rows))
+          print("KNOWN_BAD_OK count=14 p0=%d" % sum(r["severity"]=="P0" for r in rows))
           PY
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationCenterActivity"
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationEvidenceRuntime"
@@ -708,6 +708,10 @@ jobs:
               for token in ("EVIDENCE_UPLOAD_ATTEMPT","EVIDENCE_UPLOAD_RECEIPT","EVIDENCE_UPLOAD_RETRY_RETAINED",
                             "EVIDENCE_UPLOAD_CREDENTIAL_UNAVAILABLE","BOOT_UPLOAD_RETRY_FINISHED"):
                   assert token in logs,(tid,token)
+          assert by_test["DIA-UP-001"].get("allowed_outcomes")==["NEED_MORE_DATA"], "DIA-UP-001 must fail closed until secure runtime enrollment is proven"
+          assert "KB-013" in by_test["DIA-UP-001"].get("known_bad_ids",[]), "DIA-UP-001 must remain linked to KB-013"
+          assert by_test["GOV-REG-001"].get("allowed_outcomes")==["NEED_MORE_DATA"], "GOV-REG-001 must fail closed while evaluator contamination Known-Bad is open"
+          assert "KB-014" in by_test["GOV-REG-001"].get("known_bad_ids",[]), "GOV-REG-001 must remain linked to KB-014"
           for tid in ("UPD-001","UPD-002"):
               logs=by_test[tid].get("required_logs",[])
               for token in ("APP_UPDATE_RELEASE_CHECK","APP_UPDATE_PACKAGE_VERIFIED","APP_UPDATE_INSTALL_STAGED","APP_UPDATE_INSTALL_STATUS",
@@ -757,6 +761,12 @@ jobs:
         run: |
           set -euo pipefail
           python3 dolphin-launcher-v1/tools/evaluate_live_correlations.py --self-test
+
+      - name: Validate V1 evidence evaluator isolation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 dolphin-launcher-v1/tools/evaluate_diagnostic.py --self-test
 
       - name: Restore stable signing key
         shell: bash
