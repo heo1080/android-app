@@ -66,8 +66,8 @@ public final class VerificationEvidenceRuntime {
 
     public static JSONObject loadTestContracts(Context context) throws Exception {
         JSONObject contracts = new JSONObject(readAsset(context, "test_log_contracts.json"));
-        if (contracts.optInt("schema_version", -1) != 1) {
-            throw new IllegalStateException("Test contract schema must be 1");
+        if (contracts.optInt("schema_version", -1) != 2) {
+            throw new IllegalStateException("Test contract schema must be 2");
         }
         return contracts;
     }
