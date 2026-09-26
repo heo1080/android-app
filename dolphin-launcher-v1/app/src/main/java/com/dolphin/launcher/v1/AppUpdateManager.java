@@ -200,7 +200,7 @@ public final class AppUpdateManager {
                 activity.runOnUiThread(() -> {
                     if (progress.isShowing()) progress.dismiss();
                     try {
-                        stageInstaller(activity, apk);
+                        stageInstaller(activity, apk, release.tagName);
                     } catch (Exception e) {
                         Log.e(TAG, "installer staging failed", e);
                         showMessage(activity, "설치 준비 실패", safeMessage(e));
@@ -345,7 +345,8 @@ public final class AppUpdateManager {
         return sha256(bytes);
     }
 
-    private static void stageInstaller(Activity activity, File apk) throws Exception {
+    private static void stageInstaller(
+            Activity activity, File apk, String releaseTag) throws Exception {
         PackageInstaller installer = activity.getPackageManager().getPackageInstaller();
         PackageInstaller.SessionParams params =
                 new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
@@ -362,14 +363,17 @@ public final class AppUpdateManager {
             session.fsync(out);
 
             Intent status = new Intent(activity, UpdateInstallReceiver.class)
-                    .setAction(UpdateInstallReceiver.ACTION_INSTALL_STATUS);
+                    .setAction(UpdateInstallReceiver.ACTION_INSTALL_STATUS)
+                    .putExtra(UpdateInstallReceiver.EXTRA_RELEASE_TAG, releaseTag)
+                    .putExtra(UpdateInstallReceiver.EXTRA_EXPECTED_SESSION_ID, sessionId);
             int flags = android.app.PendingIntent.FLAG_UPDATE_CURRENT;
             if (Build.VERSION.SDK_INT >= 31) flags |= android.app.PendingIntent.FLAG_MUTABLE;
             android.app.PendingIntent pending = android.app.PendingIntent.getBroadcast(
                     activity, sessionId, status, flags);
             session.commit(pending.getIntentSender());
             VerificationEvidenceRuntime.recordPassiveEvent(activity, "APP_UPDATE_INSTALL_STAGED",
-                    "session_id=" + sessionId + ";apk_bytes=" + apk.length());
+                    "session_id=" + sessionId + ";release=" + releaseTag
+                            + ";apk_bytes=" + apk.length());
         }
     }
 
