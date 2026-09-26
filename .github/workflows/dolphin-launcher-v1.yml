@@ -5,6 +5,7 @@ on:
     branches:
       - dolphin-launcher-v1
       - codex/v1-1.2.2-auto-evidence-upload
+      - dolphin-launcher-v1-ui-reference-dock
   pull_request:
     branches:
       - dolphin-launcher-v1
@@ -372,6 +373,98 @@ jobs:
           print("VOICE_CONTRACT_OK prompts=22 semantic_pairs=22 preload_source=policy_catalog fixed_assets_present=%d missing=%d" % (22-len(missing), len(missing)))
           if missing:
               print("VOICE_FIXED_ASSETS_PENDING=" + ",".join(missing))
+          PY
+
+      - name: Validate Golden Reference dock and fail-safe wiring
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib
+
+          root=pathlib.Path("dolphin-launcher-v1")
+          assets=root/"app/src/main/assets"
+          src=root/"app/src/main/java/com/dolphin/launcher/v1"
+
+          registry=json.load(open(assets/"verification_registry.json",encoding="utf-8"))
+          surfaces=json.load(open(assets/"runtime_surfaces.json",encoding="utf-8"))
+          contracts=json.load(open(assets/"test_log_contracts.json",encoding="utf-8"))
+          launcher=(src/"LauncherActivity.java").read_text(encoding="utf-8")
+          glyph=(src/"HmiGlyphView.java").read_text(encoding="utf-8")
+          evidence=(src/"VerificationEvidenceRuntime.java").read_text(encoding="utf-8")
+          media=(src/"BackgroundMediaRuntime.java").read_text(encoding="utf-8")
+          receiver=(src/"BootAutoLaunchReceiver.java").read_text(encoding="utf-8")
+          manifest=(root/"app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
+
+          assert contracts.get("schema_version")==2, contracts.get("schema_version")
+          assert 'contracts.optInt("schema_version", -1) != 2' in evidence
+          assert "Test contract schema must be 2" in evidence
+
+          assert 'dockButton("HOME"' in launcher
+          assert 'dockButton("APPS"' in launcher
+          assert 'dockButton("2-SPLIT"' in launcher
+          assert 'dockButton("MAP"' in launcher
+          assert 'dockButton("SETTINGS"' in launcher
+          assert 'dockButton("VERIFY"' in launcher
+          assert 'dockMiniButton("VOLUME"' in launcher
+          assert 'dockMiniButton("BRIGHTNESS"' in launcher
+          assert 'dockMiniButton("DISPLAY"' in launcher
+          assert 'dockMiniButton("DARK"' in launcher
+          assert "REFERENCE_DOCK_RENDER" in launcher
+          assert "vehicle_hidden_api=false" in launcher
+
+          for token in ('case "MAP"','case "VOL"','case "SUN"','case "DSP"','case "MOON"',
+                        "drawMapPin","drawVolume","drawSun","drawDisplay","drawMoon"):
+              assert token in glyph, token
+
+          assert "showNavigationPanel" in launcher
+          for pkg in ("com.nhn.android.nmap","com.skt.tmap.ku","com.locnall.KimGiSa","com.mappers.AtlanSmart"):
+              assert pkg in launcher, pkg
+          assert "NAV_LAUNCHER_HMI_RENDER" in launcher and "semantic_parse=false" in launcher
+
+          assert "DISPLAY_QUICK_HMI_RENDER" in launcher and "actuation=false" in launcher
+          assert "THEME_STATUS_HMI_RENDER" in launcher
+          assert "Settings.ACTION_SOUND_SETTINGS" in launcher
+          assert "Settings.ACTION_DISPLAY_SETTINGS" in launcher
+          assert "SYSTEM_SETTINGS_DISPATCH" in launcher
+
+          assert 'chip("● LIVE")' not in launcher
+          legacy=launcher.split("private void runPendingAutostart()",1)[1].split("private void toggleFavorite",1)[0]
+          assert "handler.postDelayed" not in legacy
+          assert "AUTOSTART_LEGACY_PENDING_IGNORED" in legacy
+
+          assert 'android:name=".BootAutoLaunchReceiver"' in manifest
+          assert "ACTION_MEDIA_PLAY_STAGE" in receiver and "ACTION_MEDIA_READBACK_STAGE" in receiver
+          assert "executeTargetSessionPlay" in receiver and "recordTargetReadback" in receiver
+          assert "AlarmManager" in media and "BACKGROUND_MEDIA_STAGE_SCHEDULED" in media
+          assert "process_independent=true" in media
+          assert "new Handler" not in media and "postDelayed" not in media
+
+          features={f["feature_id"]:f for f in registry.get("features",[])}
+          ui=features["PREMIUM_HMI_HOME"]
+          for token in ("REFERENCE_DOCK_RENDER","NAV_LAUNCHER_HMI_RENDER",
+                        "DISPLAY_QUICK_HMI_RENDER","THEME_STATUS_HMI_RENDER",
+                        "SYSTEM_SETTINGS_DISPATCH"):
+              assert token in ui.get("required_logs",[]), token
+
+          by_test={c["test_id"]:c for c in contracts.get("contracts",[])}
+          for tid in ("UI-HOME-001","UI-HOME-002"):
+              logs=by_test[tid].get("required_logs",[])
+              for token in ("REFERENCE_DOCK_RENDER","NAV_LAUNCHER_HMI_RENDER",
+                            "DISPLAY_QUICK_HMI_RENDER","THEME_STATUS_HMI_RENDER",
+                            "SYSTEM_SETTINGS_DISPATCH"):
+                  assert token in logs,(tid,token)
+
+          surface_rows=[s for s in surfaces.get("surfaces",[])
+                        if s["feature_id"]=="PREMIUM_HMI_HOME"
+                        and s["path"].endswith("/LauncherActivity.java")]
+          assert len(surface_rows)==1
+          dock_tokens=surface_rows[0].get("tokens",[])
+          for token in ("REFERENCE_DOCK_RENDER","showNavigationPanel",
+                        "DISPLAY_QUICK_HMI_RENDER","THEME_STATUS_HMI_RENDER"):
+              assert token in dock_tokens,token
+
+          print("GOLDEN_REFERENCE_DOCK_OK primary=6 controls=4 vector=true fail_safe=true")
           PY
 
       - name: Validate V1 correlation evaluator
