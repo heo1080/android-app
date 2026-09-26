@@ -388,7 +388,12 @@
         "home_hero_height_dp=238",
         "home_cockpit_height_dp=168",
         "topbar_height_dp=60",
-        "dock_height_dp=84"
+        "dock_height_dp=84",
+        "cockpitCopyWidthDp",
+        "widthDp * 0.22f",
+        "Math.max(150, Math.min(206, target))",
+        "cockpit_copy_dp=",
+        "dp(cockpitCopyWidthDp())"
       ]
     },
     {
