@@ -309,7 +309,10 @@
         "touch_min_dp=48",
         "rows=7",
         "UiFrameTimingRuntime.start",
-        "UI_FRAME_TIMING"
+        "hero_source_rail=MEDIA,NAV,VEH",
+        "recordHeroSourceRailState",
+        "HERO_SOURCE_RAIL_STATE",
+        "feature_state_independent=true"
       ]
     },
     {
@@ -1128,7 +1131,16 @@
         "drawTelemetry",
         "Canvas",
         "LinearGradient",
-        "bitmap"
+        "bitmap",
+        "SOURCE_WAITING",
+        "SOURCE_LIVE",
+        "SOURCE_STALE",
+        "SOURCE_BLOCKED",
+        "setSourceStates",
+        "drawSourceRail",
+        "COCKPIT READY",
+        "SOURCE LAYER",
+        "sourceColor"
       ]
     },
     {

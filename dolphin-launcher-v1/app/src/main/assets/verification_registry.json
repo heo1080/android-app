@@ -1826,7 +1826,10 @@
         "위험 성격의 shortcut 비활성화 액션은 별도 danger palette로 구분",
         "HOME/AUTO/SPLIT 상태 변경 후 현재 app tile state strip을 즉시 갱신",
         "HOME 렌더 후 real-device Choreographer frame interval을 최대 120개 샘플링하고 1분 이내 중복 측정을 억제",
-        "frame timing의 32ms/50ms threshold는 diagnostic-only로 기록하고 VERIFIED 합격 기준으로 사용하지 않음"
+        "frame timing의 32ms/50ms threshold는 diagnostic-only로 기록하고 VERIFIED 합격 기준으로 사용하지 않음",
+        "HOME hero는 MEDIA/NAV/VEH source availability를 Feature 검증상태와 분리해 WAITING/LIVE/STALE 색으로 표시",
+        "hero 정적 문구는 DRIVE READY/LIVE LAYER를 사용하지 않고 COCKPIT READY/SOURCE LAYER로 실제 source 상태를 과장하지 않음",
+        "hero source rail 상태 로그는 값이 변경될 때만 기록해 2초 live binding의 로그 스팸을 방지"
       ],
       "required_logs": [
         "display profile",
@@ -1867,7 +1870,9 @@
         "UI_FRAME_TIMING",
         "UI_FRAME_TIMING_FAILED",
         "p95_ms",
-        "over_32ms"
+        "over_32ms",
+        "hero_source_rail=MEDIA,NAV,VEH",
+        "HERO_SOURCE_RAIL_STATE"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1910,7 +1915,8 @@
         "appStateBadges compact app tile state strip",
         "138dp app tile preserves two-line label after state strip",
         "premium app action glass panel with 58dp rows",
-        "UiFrameTimingRuntime Choreographer real-device sample"
+        "UiFrameTimingRuntime Choreographer real-device sample",
+        "HomeHeroGraphicView truthful source telemetry rail"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
