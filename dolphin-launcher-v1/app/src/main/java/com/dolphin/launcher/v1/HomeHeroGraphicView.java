@@ -15,16 +15,39 @@ import android.view.View;
  * Pure Canvas/vector rendering keeps the 10-inch UI sharp without bitmap scaling.
  */
 public final class HomeHeroGraphicView extends View {
+    public static final int SOURCE_WAITING = 0;
+    public static final int SOURCE_LIVE = 1;
+    public static final int SOURCE_STALE = 2;
+    public static final int SOURCE_BLOCKED = 3;
+
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Path path = new Path();
     private final RectF oval = new RectF();
+    private int mediaState = SOURCE_WAITING;
+    private int navState = SOURCE_WAITING;
+    private int vehicleState = SOURCE_WAITING;
 
     public HomeHeroGraphicView(Context context) {
         super(context);
         setWillNotDraw(false);
         textPaint.setTypeface(android.graphics.Typeface.create(
                 android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD));
+    }
+
+    public void setSourceStates(int media, int nav, int vehicle) {
+        int nextMedia=clampState(media);
+        int nextNav=clampState(nav);
+        int nextVehicle=clampState(vehicle);
+        if(mediaState==nextMedia && navState==nextNav && vehicleState==nextVehicle)return;
+        mediaState=nextMedia;
+        navState=nextNav;
+        vehicleState=nextVehicle;
+        invalidate();
+    }
+
+    private int clampState(int state) {
+        return Math.max(SOURCE_WAITING, Math.min(SOURCE_BLOCKED, state));
     }
 
     @Override
@@ -180,14 +203,14 @@ public final class HomeHeroGraphicView extends View {
     private void drawTelemetry(Canvas canvas, float w, float h) {
         textPaint.setColor(Color.argb(235, 224, 248, 246));
         textPaint.setTextSize(dp(12));
-        canvas.drawText("DRIVE READY", w * 0.73f, h * 0.18f, textPaint);
+        canvas.drawText("COCKPIT READY", w * 0.73f, h * 0.18f, textPaint);
 
         textPaint.setColor(Color.argb(150, 150, 184, 190));
         textPaint.setTextSize(dp(9.5f));
-        canvas.drawText("VECTOR HMI  /  LIVE LAYER", w * 0.73f, h * 0.235f, textPaint);
+        canvas.drawText("VECTOR HMI  /  SOURCE LAYER", w * 0.73f, h * 0.235f, textPaint);
 
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.rgb(96, 255, 217));
+        paint.setColor(sourceColor(vehicleState, 230));
         canvas.drawCircle(w * 0.705f, h * 0.165f, dp(3), paint);
 
         paint.setColor(Color.argb(92, 91, 255, 219));
@@ -197,6 +220,40 @@ public final class HomeHeroGraphicView extends View {
             canvas.drawRoundRect(left, h * 0.82f - barH, left + dp(5), h * 0.82f,
                     dp(2), dp(2), paint);
         }
+
+        drawSourceRail(canvas,w,h);
+    }
+
+    private void drawSourceRail(Canvas canvas,float w,float h) {
+        String[] labels=new String[]{"MEDIA","NAV","VEH"};
+        int[] states=new int[]{mediaState,navState,vehicleState};
+        float startX=w*0.71f;
+        float gap=w*0.085f;
+        float y=h*0.91f;
+
+        textPaint.setTextSize(dp(7.5f));
+        for(int i=0;i<labels.length;i++){
+            float x=startX+gap*i;
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor(sourceColor(states[i],220));
+            canvas.drawCircle(x,y-dp(2),dp(2.8f),paint);
+            textPaint.setColor(sourceColor(states[i],205));
+            canvas.drawText(labels[i],x+dp(6),y,textPaint);
+        }
+    }
+
+    private int sourceColor(int state,int alpha) {
+        int r,g,b;
+        if(state==SOURCE_LIVE){
+            r=111; g=255; b=223;
+        }else if(state==SOURCE_STALE){
+            r=255; g=209; b=102;
+        }else if(state==SOURCE_BLOCKED){
+            r=255; g=138; b=128;
+        }else{
+            r=111; g=151; b=163;
+        }
+        return Color.argb(Math.max(0,Math.min(255,alpha)),r,g,b);
     }
 
     private float dp(float value) {

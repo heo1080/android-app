@@ -86,6 +86,7 @@ public class LauncherActivity extends Activity {
     private TextView homeSafetyStatus, homeSafetySubtitle;
     private TextView homeVehicleStatus, homeVehicleSubtitle;
     private CockpitPanelGraphicView homeMediaGraphic, homeSafetyGraphic, homeVehicleGraphic;
+    private HomeHeroGraphicView homeHeroGraphic;
     private final TextView[] homeTpmsPressure = new TextView[4];
     private final TextView[] homeTpmsState = new TextView[4];
     private final TyreGaugeView[] homeTpmsGauge = new TyreGaugeView[4];
@@ -527,6 +528,7 @@ public class LauncherActivity extends Activity {
         homeMediaGraphic = null;
         homeSafetyGraphic = null;
         homeVehicleGraphic = null;
+        homeHeroGraphic = null;
         homeVehicleSubtitle = null;
         for (int i = 0; i < 4; i++) {
             homeTpmsPressure[i] = null;
@@ -629,6 +631,7 @@ public class LauncherActivity extends Activity {
                 this, "PREMIUM_HMI_RENDER",
                 "variant=glass-vector-v2;hero=canvas-vector;bitmap_assets=false"
                         + ";hero_copy_dp=" + heroCopyWidthDp()
+                        + ";hero_source_rail=MEDIA,NAV,VEH"
                         + ";cockpit_panels=3;layout=media-safety-vehicle"
                         + ";cockpit_state_source=verification_registry"
                         + ";nav_source_status=notification-provenance-only"
@@ -2071,6 +2074,22 @@ public class LauncherActivity extends Activity {
             homeVehicleSubtitle.setText(vehiclePanelSummary());
         }
 
+        if (homeHeroGraphic != null) {
+            int media = homeMediaStatus == null
+                    ? HomeHeroGraphicView.SOURCE_WAITING
+                    : heroSourceState(homeMediaStatus.getText().toString());
+            int nav = homeSafetyStatus == null
+                    ? HomeHeroGraphicView.SOURCE_WAITING
+                    : heroSourceState(homeSafetyStatus.getText().toString());
+            boolean vehicleLive = vehicleGearRaw != null || vehicleSpeedRaw != null
+                    || tpmsFlKpa != null || tpmsFrKpa != null
+                    || tpmsRlKpa != null || tpmsRrKpa != null;
+            int vehicle = vehicleLive
+                    ? HomeHeroGraphicView.SOURCE_LIVE
+                    : HomeHeroGraphicView.SOURCE_WAITING;
+            homeHeroGraphic.setSourceStates(media,nav,vehicle);
+        }
+
         Integer[] values = new Integer[]{tpmsFlKpa,tpmsFrKpa,tpmsRlKpa,tpmsRrKpa};
         for (int i = 0; i < values.length; i++) {
             Integer kpa = values[i];
@@ -2256,6 +2275,14 @@ public class LauncherActivity extends Activity {
                 .setPositiveButton("검증 센터",(d,w)->openVerificationCenter())
                 .setNegativeButton("닫기",null)
                 .show();
+    }
+
+    private int heroSourceState(String status) {
+        int cockpit=cockpitSignalState(status);
+        if(cockpit==CockpitPanelGraphicView.SIGNAL_LIVE) return HomeHeroGraphicView.SOURCE_LIVE;
+        if(cockpit==CockpitPanelGraphicView.SIGNAL_STALE) return HomeHeroGraphicView.SOURCE_STALE;
+        if(cockpit==CockpitPanelGraphicView.SIGNAL_BLOCKED) return HomeHeroGraphicView.SOURCE_BLOCKED;
+        return HomeHeroGraphicView.SOURCE_WAITING;
     }
 
     private int cockpitSignalState(String status) {
@@ -2585,6 +2612,7 @@ public class LauncherActivity extends Activity {
                 new String[]{"#102A34","#07151C","#040A0E"}, 28, "#285565"));
 
         HomeHeroGraphicView graphic = new HomeHeroGraphicView(this);
+        homeHeroGraphic = graphic;
         FrameLayout.LayoutParams graphicLp = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         hero.addView(graphic, graphicLp);
