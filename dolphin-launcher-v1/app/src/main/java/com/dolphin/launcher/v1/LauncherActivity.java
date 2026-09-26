@@ -2021,8 +2021,12 @@ public class LauncherActivity extends Activity {
         if (homeMediaStatus == null && homeSafetyStatus == null
                 && homeVehicleSubtitle == null && homeTpmsPressure[0] == null) return;
 
+        MediaNowPlayingRuntime.Snapshot mediaSource = null;
+        NavSafetyStatusRuntime.Snapshot navSource = null;
+
         if (homeMediaStatus != null || homeMediaSubtitle != null) {
             MediaNowPlayingRuntime.Snapshot snapshot = mediaNowPlayingSnapshot(false);
+            mediaSource = snapshot;
             String mediaState = registryFeatureState(
                     "BACKGROUND_MEDIA_AUTOPLAY","REVERIFY_REQUIRED");
             if (homeMediaStatus != null) {
@@ -2041,6 +2045,7 @@ public class LauncherActivity extends Activity {
 
         if (homeSafetyStatus != null || homeSafetySubtitle != null) {
             NavSafetyStatusRuntime.Snapshot nav = NavSafetyStatusRuntime.read(this);
+            navSource = nav;
             String safetyState = registryFeatureState("NAV_SAFETY_FEED","BETA");
             String fsdState = registryFeatureState("FSD_OBJECT_LANE_MODEL","BLOCKED");
             String status = safetyStatusLine(nav,safetyState,fsdState);
@@ -2075,12 +2080,17 @@ public class LauncherActivity extends Activity {
         }
 
         if (homeHeroGraphic != null) {
-            int media = homeMediaStatus == null
-                    ? HomeHeroGraphicView.SOURCE_WAITING
-                    : heroSourceState(homeMediaStatus.getText().toString());
-            int nav = homeSafetyStatus == null
-                    ? HomeHeroGraphicView.SOURCE_WAITING
-                    : heroSourceState(homeSafetyStatus.getText().toString());
+            int media = mediaSource != null && mediaSource.available
+                    ? HomeHeroGraphicView.SOURCE_LIVE
+                    : HomeHeroGraphicView.SOURCE_WAITING;
+            int nav;
+            if (navSource == null || !navSource.available) {
+                nav = HomeHeroGraphicView.SOURCE_WAITING;
+            } else if (navSource.fresh) {
+                nav = HomeHeroGraphicView.SOURCE_LIVE;
+            } else {
+                nav = HomeHeroGraphicView.SOURCE_STALE;
+            }
             boolean vehicleLive = vehicleGearRaw != null || vehicleSpeedRaw != null
                     || tpmsFlKpa != null || tpmsFrKpa != null
                     || tpmsRlKpa != null || tpmsRrKpa != null;
@@ -2275,14 +2285,6 @@ public class LauncherActivity extends Activity {
                 .setPositiveButton("검증 센터",(d,w)->openVerificationCenter())
                 .setNegativeButton("닫기",null)
                 .show();
-    }
-
-    private int heroSourceState(String status) {
-        int cockpit=cockpitSignalState(status);
-        if(cockpit==CockpitPanelGraphicView.SIGNAL_LIVE) return HomeHeroGraphicView.SOURCE_LIVE;
-        if(cockpit==CockpitPanelGraphicView.SIGNAL_STALE) return HomeHeroGraphicView.SOURCE_STALE;
-        if(cockpit==CockpitPanelGraphicView.SIGNAL_BLOCKED) return HomeHeroGraphicView.SOURCE_BLOCKED;
-        return HomeHeroGraphicView.SOURCE_WAITING;
     }
 
     private int cockpitSignalState(String status) {
