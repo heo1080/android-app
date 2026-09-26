@@ -2016,6 +2016,41 @@
         "@color/launcher_icon_preview_background",
         "@drawable/ic_launcher_preview_foreground"
       ]
+    },
+    {
+      "feature_id": "PARKING_REVERSE_HAZARD_AUTOMATION",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/ParkingHazardAutomationProbe.java",
+      "tokens": [
+        "PARK_HAZARD_CAPABILITY",
+        "PARK_HAZARD_PLAN",
+        "PARK_COMPLETE_DELAY_MS",
+        "vehicle_write=false"
+      ]
+    },
+    {
+      "feature_id": "PARKING_REVERSE_HAZARD_AUTOMATION",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+      "tokens": [
+        "ParkingHazardAutomationProbe.captureCapability(this)",
+        "parkingHazardAutomationProbe.onGear(value)"
+      ]
+    },
+    {
+      "feature_id": "LANE_DEPARTURE_DIRECTIONAL_VOICE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LaneDepartureCapabilityProbe.java",
+      "tokens": [
+        "LANE_DEPARTURE_CAPABILITY",
+        "directional_signal_proven=false",
+        "voice_enabled=false",
+        "fixed_voice_asset_added=false"
+      ]
+    },
+    {
+      "feature_id": "LANE_DEPARTURE_DIRECTIONAL_VOICE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+      "tokens": [
+        "LaneDepartureCapabilityProbe.capture(this)"
+      ]
     }
   ],
   "notes": [
