@@ -151,7 +151,7 @@ jobs:
           PY
           unzip -p "$APK" assets/test_log_contracts.json > "$RUNNER_TEMP/test_log_contracts.json"
           python3 - "$RUNNER_TEMP/verification_registry.json" "$RUNNER_TEMP/test_log_contracts.json" <<'PY'
-          import json, sys
+          import json, pathlib, sys
           registry=json.load(open(sys.argv[1], encoding="utf-8"))
           contracts=json.load(open(sys.argv[2], encoding="utf-8"))
           features={f["feature_id"]: f for f in registry.get("features", [])}
