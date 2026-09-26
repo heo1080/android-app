@@ -87,6 +87,7 @@ public class LauncherActivity extends Activity {
     private TextView homeVehicleStatus, homeVehicleSubtitle;
     private CockpitPanelGraphicView homeMediaGraphic, homeSafetyGraphic, homeVehicleGraphic;
     private HomeHeroGraphicView homeHeroGraphic;
+    private int lastHeroMediaState=-1, lastHeroNavState=-1, lastHeroVehicleState=-1;
     private final TextView[] homeTpmsPressure = new TextView[4];
     private final TextView[] homeTpmsState = new TextView[4];
     private final TyreGaugeView[] homeTpmsGauge = new TyreGaugeView[4];
@@ -2098,6 +2099,7 @@ public class LauncherActivity extends Activity {
                     ? HomeHeroGraphicView.SOURCE_LIVE
                     : HomeHeroGraphicView.SOURCE_WAITING;
             homeHeroGraphic.setSourceStates(media,nav,vehicle);
+            recordHeroSourceRailState(media,nav,vehicle);
         }
 
         Integer[] values = new Integer[]{tpmsFlKpa,tpmsFrKpa,tpmsRlKpa,tpmsRrKpa};
@@ -2285,6 +2287,27 @@ public class LauncherActivity extends Activity {
                 .setPositiveButton("검증 센터",(d,w)->openVerificationCenter())
                 .setNegativeButton("닫기",null)
                 .show();
+    }
+
+    private void recordHeroSourceRailState(int media,int nav,int vehicle) {
+        if(media==lastHeroMediaState && nav==lastHeroNavState
+                && vehicle==lastHeroVehicleState)return;
+        lastHeroMediaState=media;
+        lastHeroNavState=nav;
+        lastHeroVehicleState=vehicle;
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this,"HERO_SOURCE_RAIL_STATE",
+                "media="+heroStateLabel(media)
+                        +";nav="+heroStateLabel(nav)
+                        +";vehicle="+heroStateLabel(vehicle)
+                        +";feature_state_independent=true");
+    }
+
+    private String heroStateLabel(int state) {
+        if(state==HomeHeroGraphicView.SOURCE_LIVE)return "LIVE";
+        if(state==HomeHeroGraphicView.SOURCE_STALE)return "STALE";
+        if(state==HomeHeroGraphicView.SOURCE_BLOCKED)return "BLOCKED";
+        return "WAITING";
     }
 
     private int cockpitSignalState(String status) {
