@@ -439,10 +439,17 @@ jobs:
           assert policy_contract==expected, ("VehicleVoicePolicy contract drift", policy_contract)
           for prompt_id in ids:
               assert policy.count('"'+prompt_id+'"')==1, ("prompt id duplicated outside catalog",prompt_id)
+          assert "phraseForPromptId" in policy, "fixed voice review must read phrases from VehicleVoicePolicy"
 
           launcher=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java").read_text(encoding="utf-8")
           assert "vehiclePromptPlayer.preload(VehicleVoicePolicy.promptIds());" in launcher, "voice preload must use policy catalog"
           assert launcher.count("vehiclePromptPlayer.preload(")==1, "duplicate voice preload call"
+          for token in ("showFixedVoicePreview","VehicleVoicePolicy.promptIds()",
+                        "VehicleVoicePolicy.phraseForPromptId","VOICE_FIXED_PREVIEW_HMI_RENDER",
+                        "VOICE_FIXED_PREVIEW_REQUESTED","prompt_count=","vehicle_write=false",
+                        "vehiclePromptPlayer.play(promptId, phrase)",
+                        'actionCard("고정 음성", "22개 · 실차 청취"',"sound_lab_cards=3"):
+              assert token in launcher,token
           player=pathlib.Path("dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehiclePromptPlayer.java").read_text(encoding="utf-8")
           assert "VOICE_FIXED_ASSET_LOADING_DROP" in player, "fixed asset loading must not fall through to TTS"
           assert "VOICE_TTS_FALLBACK_DROPPED_NOT_READY" in player, "TTS not-ready fallback must be explicitly dropped"
@@ -793,12 +800,23 @@ jobs:
               for token in ("REFERENCE_DOCK_RENDER","NAV_LAUNCHER_HMI_RENDER",
                             "DISPLAY_QUICK_HMI_RENDER","THEME_STATUS_HMI_RENDER",
                             "SYSTEM_SETTINGS_DISPATCH","cockpit_copy_dp=",
-                            "dock_items=6"):
+                            "dock_items=6","VOICE_FIXED_PREVIEW_HMI_RENDER","sound_lab_cards=3"):
                   assert token in logs,(tid,token)
               acceptance=by_test[tid].get("acceptance",[])
               assert any("TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE" in item for item in acceptance),tid
               assert any("source availability only" in item for item in acceptance),tid
               assert any("separate rows and width-fitted text" in item for item in acceptance),tid
+              assert any("SOUND LAB renders EQ / sound position / fixed voice" in item for item in acceptance),tid
+              assert any("22 prompt review buttons" in item for item in acceptance),tid
+
+          for tid in ("AUD-TTS-001","AUD-TTS-002"):
+              logs=by_test[tid].get("required_logs",[])
+              for token in ("VOICE_FIXED_PREVIEW_HMI_RENDER","VOICE_FIXED_PREVIEW_REQUESTED",
+                            "prompt_count=22","vehicle_write=false"):
+                  assert token in logs,(tid,token)
+              acceptance=by_test[tid].get("acceptance",[])
+              assert any("exactly 22 VehicleVoicePolicy prompt IDs" in item for item in acceptance),tid
+              assert any("request marker and does not count as audible success" in item for item in acceptance),tid
 
           fsd_contract=by_test["FSD-OBJ-001"]
           assert any("decorative arcs/ticks only" in item for item in fsd_contract.get("acceptance",[]))
@@ -885,13 +903,31 @@ jobs:
                         '"status=FAILURE;code=" + status + identity','";session_id=" + sessionId','";release="'):
               assert token in update_receiver_rows[0].get("tokens",[]),token
 
+          tts_policy_rows=[row for row in surfaces.get("surfaces",[])
+                           if row["feature_id"]=="IN_APP_TTS_CORE"
+                           and row["path"].endswith("/VehicleVoicePolicy.java")]
+          assert len(tts_policy_rows)==1
+          for token in ("promptIds","phraseForPromptId","PROMPTS.values()","playFixedPrompt"):
+              assert token in tts_policy_rows[0].get("tokens",[]),token
+          tts_launcher_rows=[row for row in surfaces.get("surfaces",[])
+                             if row["feature_id"]=="IN_APP_TTS_CORE"
+                             and row["path"].endswith("/LauncherActivity.java")]
+          assert len(tts_launcher_rows)==1
+          for token in ("showFixedVoicePreview","VehicleVoicePolicy.promptIds()",
+                        "VehicleVoicePolicy.phraseForPromptId","VOICE_FIXED_PREVIEW_HMI_RENDER",
+                        "VOICE_FIXED_PREVIEW_REQUESTED","prompt_count=","vehicle_write=false",
+                        "vehiclePromptPlayer.play(promptId, phrase)"):
+              assert token in tts_launcher_rows[0].get("tokens",[]),token
+
           dock_tokens=surface_rows[0].get("tokens",[])
           for token in ("REFERENCE_DOCK_RENDER","showNavigationPanel",
-                        "DISPLAY_QUICK_HMI_RENDER","THEME_STATUS_HMI_RENDER"):
+                        "DISPLAY_QUICK_HMI_RENDER","THEME_STATUS_HMI_RENDER",
+                        "showFixedVoicePreview","VOICE_FIXED_PREVIEW_HMI_RENDER",
+                        "sound_lab_cards=3"):
               assert token in dock_tokens,token
 
           print("AUTO_EVIDENCE_OTA_GATE_OK upload_receipt=true ota_evidence=true")
-          print("GOLDEN_REFERENCE_DOCK_OK primary=6 controls=4 vector=true fail_safe=true home_semantic_objects=false safety_semantics=false home_lane_semantics=false media_play_claim=false vehicle_normalization=false cockpit_source_legend=true cockpit_copy_adaptive=true dock_items=6")
+          print("GOLDEN_REFERENCE_DOCK_OK primary=6 controls=4 vector=true fail_safe=true home_semantic_objects=false safety_semantics=false home_lane_semantics=false media_play_claim=false vehicle_normalization=false cockpit_source_legend=true fixed_voice_preview=true cockpit_copy_adaptive=true dock_items=6")
           PY
 
       - name: Validate V1 correlation evaluator
