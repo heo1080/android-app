@@ -413,6 +413,7 @@ public final class VerificationEvidenceRuntime {
             addAsset(context, out, "voice_prompt_manifest.json");
             addSessionLedger(context, out, sessionId);
             addUiScreenshots(context, out, sessionId);
+            addUiLayoutAudits(context, out, sessionId);
 
             JSONObject identity = new JSONObject();
             identity.put("package", context.getPackageName());
@@ -637,6 +638,20 @@ public final class VerificationEvidenceRuntime {
         int limit = Math.min(6, files.length);
         for (int i = 0; i < limit; i++) {
             addFile(out, files[i], "ui_screenshots/" + files[i].getName());
+        }
+    }
+
+    private static void addUiLayoutAudits(
+            Context context, ZipOutputStream out, String sessionId) throws Exception {
+        File dir = UiLayoutAuditRuntime.auditDir(context);
+        File[] files = dir.listFiles((d, name) ->
+                name.endsWith(".json") && name.contains(sessionId));
+        if (files == null || files.length == 0) return;
+        java.util.Arrays.sort(files, (a, b) ->
+                Long.compare(b.lastModified(), a.lastModified()));
+        int limit = Math.min(6, files.length);
+        for (int i = 0; i < limit; i++) {
+            addFile(out, files[i], "ui_layout_audits/" + files[i].getName());
         }
     }
 

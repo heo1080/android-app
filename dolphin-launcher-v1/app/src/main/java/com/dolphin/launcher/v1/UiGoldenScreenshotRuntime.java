@@ -38,9 +38,10 @@ public final class UiGoldenScreenshotRuntime {
         String session=VerificationEvidenceRuntime.currentSessionId(activity);
         String safeLabel=(label==null?"screen":label)
                 .replaceAll("[^A-Za-z0-9_-]","_");
+        long capturedAt=System.currentTimeMillis();
         File file=new File(
                 screenshotDir(activity),
-                "DolphinV1_UI_"+session+"_"+safeLabel+"_"+System.currentTimeMillis()+".png");
+                "DolphinV1_UI_"+session+"_"+safeLabel+"_"+capturedAt+".png");
         try(FileOutputStream out=new FileOutputStream(file)){
             if(!bitmap.compress(Bitmap.CompressFormat.PNG,100,out)){
                 throw new IllegalStateException("PNG compression failed");
@@ -48,6 +49,8 @@ public final class UiGoldenScreenshotRuntime {
         } finally {
             bitmap.recycle();
         }
+
+        UiLayoutAuditRuntime.capture(activity,safeLabel,capturedAt);
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 activity,"UI_GOLDEN_SCREENSHOT",
