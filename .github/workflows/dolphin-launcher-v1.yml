@@ -890,6 +890,17 @@ jobs:
           assert "KB-013" in by_test["DIA-UP-001"].get("known_bad_ids",[]), "DIA-UP-001 must remain linked to KB-013"
           assert by_test["GOV-REG-001"].get("allowed_outcomes")==["NEED_MORE_DATA"], "GOV-REG-001 must fail closed while evaluator contamination Known-Bad is open"
           assert "KB-014" in by_test["GOV-REG-001"].get("known_bad_ids",[]), "GOV-REG-001 must remain linked to KB-014"
+          kb14=next((r for r in known_bad.get("known_bad",[]) if r.get("id")=="KB-014"),None)
+          assert kb14 is not None and kb14.get("state")=="FIX_CANDIDATE", "KB-014 must remain open until representative Evidence re-evaluation"
+          assert kb14.get("severity")=="P0", "KB-014 remains a P0 governance gate before evidence re-evaluation"
+          assert "Runtime-only metadata isolation is now implemented in both V1 and production diagnostics evaluators" in kb14.get("summary",""), "KB-014 summary drifted back to pre-fix state"
+          assert "representative existing Evidence" in kb14.get("summary",""), "KB-014 must retain the evidence re-evaluation requirement"
+          assert "re-evaluate representative existing Evidence" in kb14.get("close_gate",""), "KB-014 close gate must require representative Evidence re-evaluation"
+          master=next((f for f in registry.get("features",[]) if f.get("feature_id")=="MASTER_VERIFICATION_REGISTRY"),None)
+          assert master is not None and master.get("state")=="BETA"
+          assert "V1/production runtime-only metadata isolation 구현 상태" in master.get("next_action",""), "MASTER_VERIFICATION_REGISTRY KB-014 next action is stale"
+          assert any("KB-014 historical failure mode" in item and "representative existing Evidence" in item for item in master.get("known_bad",[])), "KB-014 historical/fix boundary missing from Registry"
+          assert any("V1 and production diagnostic evaluators implement runtime-only metadata isolation" in item for item in master.get("evidence",[])), "landed production/V1 evaluator isolation evidence missing"
           for tid in ("UPD-001","UPD-002"):
               logs=by_test[tid].get("required_logs",[])
               for token in ("APP_UPDATE_RELEASE_CHECK","APP_UPDATE_PACKAGE_VERIFIED","APP_UPDATE_INSTALL_STAGED","APP_UPDATE_INSTALL_STATUS",
