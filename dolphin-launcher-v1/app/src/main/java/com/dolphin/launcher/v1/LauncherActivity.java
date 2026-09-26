@@ -2516,6 +2516,48 @@ public class LauncherActivity extends Activity {
         return label;
     }
 
+    private View referenceUtilityHero(String glyph,String kicker,String title,
+                                      String status,String detail) {
+        FrameLayout hero=new FrameLayout(this);
+        hero.setBackground(gradientRound(
+                new String[]{"#12313A","#091A20","#050D12"},22,"#32606A"));
+        hero.setElevation(dp(2));
+
+        HmiGlyphView icon=new HmiGlyphView(this,glyph);
+        icon.setAccentColor(Color.parseColor("#8CFFE8"));
+        icon.setBackground(gradientRound(
+                new String[]{"#173F46","#0B252A"},22,"#2E615F"));
+        FrameLayout.LayoutParams iconLp=new FrameLayout.LayoutParams(
+                dp(82),dp(82),Gravity.RIGHT|Gravity.CENTER_VERTICAL);
+        iconLp.rightMargin=dp(18);
+        hero.addView(icon,iconLp);
+
+        LinearLayout copy=new LinearLayout(this);
+        copy.setOrientation(LinearLayout.VERTICAL);
+        copy.setGravity(Gravity.CENTER_VERTICAL);
+        copy.setPadding(dp(18),dp(12),dp(8),dp(12));
+
+        TextView eye=text(kicker,9.5f,Color.parseColor("#77CFC4"),true);
+        eye.setLetterSpacing(0.13f);
+        copy.addView(eye);
+        TextView head=text(title,21f,Color.WHITE,true);
+        head.setLetterSpacing(0.03f);
+        copy.addView(head);
+        TextView state=text(status,10f,Color.parseColor("#8CFFE8"),true);
+        state.setLetterSpacing(0.06f);
+        fitSingleLine(state,8,10);
+        copy.addView(state);
+        TextView desc=text(detail,9.5f,Color.parseColor("#88A3AC"),false);
+        desc.setMaxLines(2);
+        desc.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        copy.addView(desc);
+
+        FrameLayout.LayoutParams copyLp=new FrameLayout.LayoutParams(
+                dp(330),ViewGroup.LayoutParams.MATCH_PARENT,Gravity.LEFT);
+        hero.addView(copy,copyLp);
+        return hero;
+    }
+
     private String safetyStatusLine(
             NavSafetyStatusRuntime.Snapshot nav,String safetyState,String fsdState) {
         String source;
