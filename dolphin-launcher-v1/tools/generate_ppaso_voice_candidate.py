@@ -26,7 +26,7 @@ MANIFEST_PATH = ROOT / "app/src/main/assets/voice_prompt_manifest.json"
 SOURCE_RATE = 22050
 TARGET_RATE = 24000
 MODEL_REPO = "akamotaco/ppaso-tts-v1"
-MODEL_REVISION = "1a1f8d6"
+DEFAULT_MODEL_REVISION = "main"
 PROFILE_ID = "ppaso-v8-ko-female-24k-pcm-candidate-v1"
 
 SYNTH_TEXT = {
@@ -131,7 +131,7 @@ def load_ppaso(model_dir: Path):
     return cls(str(model_dir), backend="onnx")
 
 
-def generate(model_dir: Path, output_dir: Path) -> int:
+def generate(model_dir: Path, output_dir: Path, model_revision: str) -> int:
     manifest = load_manifest()
     prompts = manifest.get("prompts", [])
     if len(prompts) != 22:
@@ -174,7 +174,7 @@ def generate(model_dir: Path, output_dir: Path) -> int:
         "profile_id": PROFILE_ID,
         "provider": "Ppaso-TTS",
         "model_repo": MODEL_REPO,
-        "model_revision": MODEL_REVISION,
+        "model_revision": model_revision,
         "model_license": "Apache-2.0",
         "voice": "single Korean female voice",
         "source_sample_rate": SOURCE_RATE,
@@ -231,13 +231,13 @@ def main() -> int:
     sub.add_parser("self-test")
     gen = sub.add_parser("generate")
     gen.add_argument("--model-dir", required=True, type=Path)
-    gen.add_argument("--output-dir", required=True, type=Path)
+    gen.add_argument("--output-dir", required=True, type=Path)\n    gen.add_argument("--model-revision", default=DEFAULT_MODEL_REVISION)
     args = parser.parse_args()
 
     if args.command == "self-test":
         return self_test()
     if args.command == "generate":
-        return generate(args.model_dir.resolve(), args.output_dir.resolve())
+        return generate(args.model_dir.resolve(), args.output_dir.resolve(), str(args.model_revision))
     raise AssertionError(args.command)
 
 
