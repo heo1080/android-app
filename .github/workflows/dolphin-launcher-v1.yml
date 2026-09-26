@@ -126,6 +126,36 @@ jobs:
           )
           print("MANIFEST_IDENTITY_OK main_launcher=1 drawer_slots=16 disabled_slots=16 home=0")
           PY
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          ns="{http://schemas.android.com/apk/res/android}"
+          root=Path("dolphin-launcher-v1/app/src")
+          main_manifest=ET.parse(root/"main/AndroidManifest.xml").getroot()
+          app=main_manifest.find("application")
+          assert app is not None
+          assert app.get(ns+"icon")=="@mipmap/ic_launcher"
+          assert app.get(ns+"roundIcon")=="@mipmap/ic_launcher_round"
+          main_fg=root/"main/res/drawable/ic_launcher_foreground.xml"
+          main_adaptive=root/"main/res/mipmap-anydpi-v26/ic_launcher.xml"
+          main_round=root/"main/res/mipmap-anydpi-v26/ic_launcher_round.xml"
+          preview_manifest=root/"voicePreview/AndroidManifest.xml"
+          preview_fg=root/"voicePreview/res/drawable/ic_launcher_preview_foreground.xml"
+          preview_adaptive=root/"voicePreview/res/mipmap-anydpi-v26/ic_launcher_preview.xml"
+          preview_round=root/"voicePreview/res/mipmap-anydpi-v26/ic_launcher_preview_round.xml"
+          for p in (main_fg,main_adaptive,main_round,preview_manifest,preview_fg,preview_adaptive,preview_round):
+              assert p.is_file(), p
+              ET.parse(p)
+          preview_app=ET.parse(preview_manifest).getroot().find("application")
+          assert preview_app is not None
+          assert preview_app.get(ns+"icon")=="@mipmap/ic_launcher_preview"
+          assert preview_app.get(ns+"roundIcon")=="@mipmap/ic_launcher_preview_round"
+          assert preview_app.get(ns+"label")=="Dolphin Voice Preview"
+          assert "launcher_icon_background" in (root/"main/res/values/launcher_icon_colors.xml").read_text(encoding="utf-8")
+          assert "launcher_icon_preview_background" in (root/"main/res/values/launcher_icon_colors.xml").read_text(encoding="utf-8")
+          print("ADAPTIVE_ICON_RESOURCE_OK canonical=true foreground_background=true byd_logo_copy=false")
+          print("PREVIEW_ICON_VARIANT_OK package_suffix=.voicepreview distinct_icon=true distinct_label=true")
+          PY
           MANIFEST_TREE="$("$AAPT" dump xmltree "$APK" AndroidManifest.xml)"
           printf '%s\n' "$MANIFEST_TREE" | grep -q "android.intent.category.LAUNCHER"
           if printf '%s\n' "$MANIFEST_TREE" | grep -q "android.intent.category.HOME"; then
@@ -226,6 +256,13 @@ jobs:
           assert not marker_success, ("operator marker cannot be automatic success evidence",marker_success)
 
           by_test={c["test_id"]:c for c in contracts.get("contracts", [])}
+          for token in ("ADAPTIVE_ICON_RESOURCE_OK","PREVIEW_ICON_VARIANT_OK"):
+              assert token in features["LAUNCHER_ENTRY_IDENTITY"].get("required_logs",[]), ("identity registry token missing",token)
+              assert token in by_test["LCH-ID-001"].get("required_logs",[]), ("identity contract token missing",token)
+          for token in ("variant=glass-vector-v3-premium","source_live_not_verified=true","adaptive_icons=true"):
+              assert token in features["PREMIUM_HMI_HOME"].get("required_logs",[]), ("premium HMI registry token missing",token)
+              assert token in by_test["UI-HOME-001"].get("required_logs",[]), ("UI-HOME-001 token missing",token)
+              assert token in by_test["UI-HOME-002"].get("required_logs",[]), ("UI-HOME-002 token missing",token)
           for test_id in ("COMF-LIGHT-001","COMF-LIGHT-002"):
               assert by_test[test_id]["allowed_outcomes"]==["NEED_MORE_DATA"], (
                   "interior light must remain fail-closed until V1 runtime exists",test_id,
