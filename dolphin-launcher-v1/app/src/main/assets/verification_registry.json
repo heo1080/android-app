@@ -1421,7 +1421,8 @@
         "no fabricated objects",
         "HOME/FSD·SAFETY UI는 Feature가 BLOCKED인 동안 객체/차선 semantic 시각화를 생성하지 않고 BLOCKED/LOCKED 경계만 표시",
         "HOME hero의 sensor field는 FSD BLOCKED 동안 decorative range arc만 사용하고 고정 object dot/ring을 렌더링하지 않음",
-        "FSD·Safety panel vector는 BLOCKED 동안 shield/padlock/arcs/ticks 같은 non-semantic boundary만 사용하고 road/lane/object/warning target을 렌더링하지 않음"
+        "FSD·Safety panel vector는 BLOCKED 동안 shield/padlock/arcs/ticks 같은 non-semantic boundary만 사용하고 road/lane/object/warning target을 렌더링하지 않음",
+        "HOME hero depth layer does not render lane boundaries, center lane dashes, drivable-space, or navigation guidance while FSD_OBJECT_LANE_MODEL is BLOCKED"
       ],
       "required_logs": [
         "camera source",
@@ -1445,7 +1446,8 @@
         "current Surrounding Vision intentionally read-only/raw",
         "LauncherActivity Golden Reference v3 FSD Safety panel displays BLOCKED/semantics LOCKED without fabricated objects",
         "HomeHeroGraphicView removes fixed object markers; sensor field is explicitly non-semantic decorative geometry only",
-        "CockpitPanelGraphicView drawSafety removes fixed warning/object dots/rings and road/lane-like guidance; shield/padlock boundary remains state-aware"
+        "CockpitPanelGraphicView drawSafety removes fixed warning/object dots/rings and road/lane-like guidance; shield/padlock boundary remains state-aware",
+        "HomeHeroGraphicView drawPerspectiveDeck explicitly carries no road/lane/object/drivable-space/navigation semantics"
       ],
       "next_action": "sensor capability research 우선",
       "confidence": {
@@ -1536,7 +1538,8 @@
       "requirement": "배터리 등 HOME의 LIVE 값은 실제 vehicle getter에서만 표시한다.",
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/CockpitPanelGraphicView.java"
       ],
       "test_ids": [
         "VEH-INFO-001"
@@ -1551,7 +1554,8 @@
         "VEHICLE INFO visual hero는 source LIVE/WAITING을 raw 값 존재 여부로만 표시하고 기어/속도/회전 의미를 정규화하지 않음",
         "상세 패널은 normalized=false 및 actuation=false 경계를 명시",
         "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임",
-        "해당 Golden Reference hero는 실제 screen width dp 기반 adaptive geometry를 사용"
+        "해당 Golden Reference hero는 실제 screen width dp 기반 adaptive geometry를 사용",
+        "Vehicle vector accent may reflect source WAITING/LIVE/STALE/BLOCKED but decorative geometry never normalizes RAW gear/speed/turn or vehicle health"
       ],
       "required_logs": [
         "getter result",
@@ -1578,7 +1582,8 @@
         "HomeHmiView source says no mock numbers",
         "continuous read-only getCurrentSpeed raw telemetry",
         "Golden Reference v3 Vehicle Info hero keeps raw-only telemetry boundary",
-        "LauncherActivity Golden Reference v3 Vehicle Info panel binds only raw observed values"
+        "LauncherActivity Golden Reference v3 Vehicle Info panel binds only raw observed values",
+        "CockpitPanelGraphicView drawVehicle is a read-only ego-vehicle sculpture with no normalized telemetry semantics"
       ],
       "next_action": "각 field별 getter mapping 등록",
       "confidence": {
@@ -1959,7 +1964,10 @@
         "HOME render evidence는 screen width/height dp와 hero/cockpit/topbar/dock 높이를 기록해 Golden Screenshot의 실제 viewport를 재현 가능하게 함",
         "CockpitPanelGraphicView의 Media/Safety/Vehicle vector accent는 실제 signalState WAITING/LIVE/STALE/BLOCKED 팔레트를 사용하고 하드코딩 LIVE 색으로 고정하지 않음",
         "HOME hero는 FSD_OBJECT_LANE_MODEL BLOCKED 상태에서 실제 탐지 객체로 오해할 수 있는 고정 dot/ring을 렌더링하지 않음",
-        "FSD·Safety cockpit graphic keeps state-aware visual quality while avoiding road/lane/object semantics until FSD_OBJECT_LANE_MODEL is verified"
+        "FSD·Safety cockpit graphic keeps state-aware visual quality while avoiding road/lane/object semantics until FSD_OBJECT_LANE_MODEL is verified",
+        "HOME hero perspective layer uses non-semantic depth arcs/ticks rather than fixed lane/centerline geometry",
+        "Media cockpit vector avoids a fixed PLAY symbol so REVERIFY_REQUIRED state cannot be mistaken for audible playback success",
+        "Vehicle cockpit vector uses source-state accent only and does not infer gear/speed/turn/health from decorative geometry"
       ],
       "required_logs": [
         "display profile",
@@ -2104,7 +2112,10 @@
         "adaptive Golden Reference hero geometry clamps panel copy/graphic and utility copy/icon against real screen width dp",
         "CockpitPanelGraphicView drawMedia/drawSafety/drawVehicle use accent(signalState) for state-aware vector rendering",
         "HomeHeroGraphicView sensor field uses decorative arcs/ticks only with no fabricated detections",
-        "CockpitPanelGraphicView Safety hero uses abstract shield/padlock/arcs/ticks only; no fixed detection markers"
+        "CockpitPanelGraphicView Safety hero uses abstract shield/padlock/arcs/ticks only; no fixed detection markers",
+        "HomeHeroGraphicView drawPerspectiveDeck replaces lane-like converging lines with non-semantic depth arcs/ticks",
+        "CockpitPanelGraphicView Media uses target-media identity rings/waveform without a fixed PLAY triangle",
+        "CockpitPanelGraphicView Vehicle uses decorative read-only sculpture with state-aware accent and no telemetry normalization"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
@@ -2412,7 +2423,8 @@
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BackgroundMediaRuntime.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/MediaNowPlayingRuntime.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootAutoLaunchReceiver.java",
-        "dolphin-launcher-v1/app/src/main/AndroidManifest.xml"
+        "dolphin-launcher-v1/app/src/main/AndroidManifest.xml",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/CockpitPanelGraphicView.java"
       ],
       "test_ids": [
         "MED-BG-001",
@@ -2432,7 +2444,8 @@
         "MEDIA CENTER visual hero는 target MediaSession의 실제 availability/playback만 표시하고 audible success를 추정하지 않음",
         "configured autoplay target 목록은 Now Playing source와 분리해 표시",
         "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임",
-        "해당 Golden Reference hero는 실제 screen width dp 기반 adaptive geometry를 사용"
+        "해당 Golden Reference hero는 실제 screen width dp 기반 adaptive geometry를 사용",
+        "Media vector state is source-scoped and a fixed PLAY symbol is not rendered as a substitute for audible playback evidence"
       ],
       "required_logs": [
         "AUTOSTART_MEDIA_CHANGED",
@@ -2479,7 +2492,8 @@
       "evidence": [
         "MediaNowPlayingRuntime active target session metadata readback",
         "BackgroundMediaRuntime AlarmManager stages re-enter BootAutoLaunchReceiver for target session PLAY/readback without global media-key fallback",
-        "Golden Reference v3 Media Center preserves playback_verified=false while surfacing target-scoped source state"
+        "Golden Reference v3 Media Center preserves playback_verified=false while surfacing target-scoped source state",
+        "CockpitPanelGraphicView drawMedia uses target-media identity rings/waveform and avoids a fixed PLAY triangle"
       ],
       "next_action": "1.2.2 BETA 실차에서 target MediaSession discovery/play/readback 및 순정 안전 오디오 arbitration evidence 수집",
       "confidence": {
