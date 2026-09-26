@@ -331,7 +331,7 @@ jobs:
 
           for token in (
               'MODEL_REPO = "akamotaco/ppaso-tts-v1"',
-              'DEFAULT_MODEL_REVISION = "main"',
+              'DEFAULT_MODEL_REVISION = "53d09664c4f636a5fb6f2ebe3ec22cd83ee249b9"',
               'PROFILE_ID = "ppaso-v8-ko-female-24k-pcm-candidate-v1"',
               '"gear_p": "피"', '"gear_r": "알"', '"gear_n": "엔"', '"gear_d": "디"',
               '"icc_on": "아이씨씨 켜짐"', '"icc_off": "아이씨씨 꺼짐"',
