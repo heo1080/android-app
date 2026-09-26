@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
+import android.net.Uri;
 import android.os.Build;
 import android.os.SystemClock;
 
@@ -213,7 +214,9 @@ public final class BackgroundMediaRuntime {
 
         Intent intent=new Intent(app,BootAutoLaunchReceiver.class)
                 .setAction(action)
-                .putExtra(EXTRA_PACKAGE,pkg);
+                .putExtra(EXTRA_PACKAGE,pkg)
+                .setData(Uri.parse("dolphin-v1://media-stage/"
+                        +Uri.encode(pkg)+"/"+Uri.encode(stage)));
         int requestCode=31*pkg.hashCode()+action.hashCode();
         PendingIntent pending=PendingIntent.getBroadcast(
                 app,requestCode,intent,
@@ -236,6 +239,8 @@ public final class BackgroundMediaRuntime {
                     "package="+pkg
                             +";stage="+stage
                             +";delay_ms="+delayMs
+                            +";pending_identity=package-stage"
+                            +";pending_data_unique=true"
                             +";scheduler=AlarmManager"
                             +";exact=true"
                             +";process_independent=true");
