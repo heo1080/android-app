@@ -109,8 +109,8 @@ jobs:
           BADGING="$(printf '%s\n' "$BADGING_ALL" | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -q "package: name='com.dolphin.launcher.v1'"
-          echo "$BADGING" | grep -q "versionCode='9'"
-          echo "$BADGING" | grep -q "versionName='1.2.6-v1-premium-realcar-beta'"
+          echo "$BADGING" | grep -q "versionCode='10'"
+          echo "$BADGING" | grep -q "versionName='1.2.7-v1-premium-realcar-beta'"
           printf '%s\n' "$BADGING_ALL" | grep -q "^sdkVersion:'29'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^targetSdkVersion:'35'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^launchable-activity: name='com.dolphin.launcher.v1.LauncherActivity'"
@@ -189,7 +189,7 @@ jobs:
             echo "HOME category must remain disabled until BYD real-car compatibility is proven" >&2
             exit 1
           fi
-          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=9 minSdk=29 targetSdk=35 main_launcher=1 drawer_slots=16_disabled home=0"
+          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=10 minSdk=29 targetSdk=35 main_launcher=1 drawer_slots=16_disabled home=0"
 
       - name: Validate Registry v3 payload
         shell: bash
@@ -206,9 +206,9 @@ jobs:
           assert d.get("schema_version")==3, d.get("schema_version")
           features=d.get("features", [])
           ids={tid for f in features for tid in f.get("test_ids", [])}
-          assert len(features)==39, len(features)
-          assert len(ids)==59, len(ids)
-          print("REGISTRY_OK schema=3 features=39 test_ids=59")
+          assert len(features)==40, len(features)
+          assert len(ids)==60, len(ids)
+          print("REGISTRY_OK schema=3 features=40 test_ids=60")
           PY
           unzip -p "$APK" assets/feature_dependencies.json > "$RUNNER_TEMP/feature_dependencies.json"
           python3 - "$RUNNER_TEMP/verification_registry.json" "$RUNNER_TEMP/feature_dependencies.json" <<'PY'
