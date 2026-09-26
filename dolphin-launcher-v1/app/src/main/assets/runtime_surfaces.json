@@ -118,7 +118,11 @@
       "tokens": [
         "startAutomaticUploadRuntime",
         "retryPendingUploadsAsync",
-        "diagnostic_session_id"
+        "diagnostic_session_id",
+        "EVIDENCE_UPLOAD_ATTEMPT",
+        "EVIDENCE_UPLOAD_RECEIPT",
+        "EVIDENCE_UPLOAD_RETRY_RETAINED",
+        "receipt_verified=true"
       ]
     },
     {
@@ -210,7 +214,12 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AppUpdateManager.java",
       "tokens": [
         "checkForUpdates",
-        "resumePendingInstallPermission"
+        "resumePendingInstallPermission",
+        "APP_UPDATE_RELEASE_CHECK",
+        "APP_UPDATE_PACKAGE_VERIFIED",
+        "APP_UPDATE_INSTALL_STAGED",
+        "signature_match=true",
+        "PackageInstaller"
       ]
     },
     {
@@ -1518,6 +1527,51 @@
         "fsd_state=",
         "semantic_values=false",
         "panel_hero=true"
+      ]
+    },
+    {
+      "feature_id": "DIAGNOSTIC_CAPTURE_UPLOAD",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+      "tokens": [
+        "VerificationEvidenceRuntime.startAutomaticUploadRuntime(this)",
+        "VerificationEvidenceRuntime.retryPendingUploadsAsync(this)",
+        "queueBundleAndUpload(this, \"startup-snapshot\")"
+      ]
+    },
+    {
+      "feature_id": "DIAGNOSTIC_CAPTURE_UPLOAD",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/BootReceiver.java",
+      "tokens": [
+        "VerificationEvidenceRuntime.retryPendingUploadsAsync",
+        "BOOT_UPLOAD_RETRY_FINISHED",
+        "goAsync()"
+      ]
+    },
+    {
+      "feature_id": "APP_UPDATE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+      "tokens": [
+        "AppUpdateManager.checkForUpdates(this, false)",
+        "AppUpdateManager.resumePendingInstallPermission(this)"
+      ]
+    },
+    {
+      "feature_id": "APP_UPDATE",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UpdateInstallReceiver.java",
+      "tokens": [
+        "APP_UPDATE_INSTALL_STATUS",
+        "STATUS_PENDING_USER_ACTION",
+        "STATUS_SUCCESS"
+      ]
+    },
+    {
+      "feature_id": "APP_UPDATE",
+      "path": "dolphin-launcher-v1/app/src/main/AndroidManifest.xml",
+      "tokens": [
+        "android.permission.REQUEST_INSTALL_PACKAGES",
+        "android:name=\".UpdateInstallReceiver\"",
+        "android:enabled=\"true\"",
+        "android:exported=\"false\""
       ]
     }
   ],
