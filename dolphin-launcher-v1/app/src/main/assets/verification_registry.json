@@ -1770,7 +1770,8 @@
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/TyreGaugeView.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/MediaNowPlayingRuntime.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UiGoldenScreenshotRuntime.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UiLayoutAuditRuntime.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UiLayoutAuditRuntime.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UiFrameTimingRuntime.java"
       ],
       "test_ids": [
         "UI-HOME-001",
@@ -1823,7 +1824,9 @@
         "상태 strip 추가 후 앱 타일은 138dp 높이와 2줄 auto-size 앱명을 사용해 label clipping 여유를 확보",
         "앱 long-press action은 기본 setItems dialog 대신 7개 58dp glass HMI row로 HOME/shortcut/Split/Autostart/App info를 표시",
         "위험 성격의 shortcut 비활성화 액션은 별도 danger palette로 구분",
-        "HOME/AUTO/SPLIT 상태 변경 후 현재 app tile state strip을 즉시 갱신"
+        "HOME/AUTO/SPLIT 상태 변경 후 현재 app tile state strip을 즉시 갱신",
+        "HOME 렌더 후 real-device Choreographer frame interval을 최대 120개 샘플링하고 1분 이내 중복 측정을 억제",
+        "frame timing의 32ms/50ms threshold는 diagnostic-only로 기록하고 VERIFIED 합격 기준으로 사용하지 않음"
       ],
       "required_logs": [
         "display profile",
@@ -1860,7 +1863,11 @@
         "UI_LAYOUT_REGRESSION",
         "state_badges=HOME,AUTO,MEDIA,L,R",
         "tile_height_dp=138",
-        "APP_ACTION_HMI_RENDER"
+        "APP_ACTION_HMI_RENDER",
+        "UI_FRAME_TIMING",
+        "UI_FRAME_TIMING_FAILED",
+        "p95_ms",
+        "over_32ms"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1902,7 +1909,8 @@
         "same-profile UI audit regression delta comparison",
         "appStateBadges compact app tile state strip",
         "138dp app tile preserves two-line label after state strip",
-        "premium app action glass panel with 58dp rows"
+        "premium app action glass panel with 58dp rows",
+        "UiFrameTimingRuntime Choreographer real-device sample"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
@@ -1994,7 +2002,9 @@
         "Evidence ZIP은 동일 session의 UI layout audit JSON을 최대 6개 ui_layout_audits/ 경로로 포함",
         "Verification Center의 명시적 interactive control은 실차 터치 편의성을 위해 48dp 이상 높이를 사용",
         "Verification Center는 최근 UI layout audit를 CLEAN/REVIEW/REGRESSION/CAPTURE REQUIRED로 표시하되 Feature VERIFIED 판정과 분리",
-        "UI QUALITY 상세는 touch/ellipsis/clipping, display profile, baseline delta를 표시하고 실제 텍스트 내용은 노출하지 않음"
+        "UI QUALITY 상세는 touch/ellipsis/clipping, display profile, baseline delta를 표시하고 실제 텍스트 내용은 노출하지 않음",
+        "UI QUALITY 상세는 최신 HMI frame p95/max/>32ms를 diagnostic-only로 표시",
+        "Evidence ZIP은 최신 structured frame timing JSON을 ui_frame_timing/latest.json으로 포함"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2048,7 +2058,8 @@
         "VERIFICATION_HMI_RENDER",
         "ui_screenshots/",
         "ui_layout_audits/",
-        "UI_QUALITY_SUMMARY_OPENED"
+        "UI_QUALITY_SUMMARY_OPENED",
+        "ui_frame_timing/latest.json"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
@@ -2085,7 +2096,8 @@
         "VerificationEvidenceRuntime addUiScreenshots bundle inclusion",
         "VerificationEvidenceRuntime addUiLayoutAudits bundle inclusion",
         "Verification Center close control 48dp touch target",
-        "Verification Center UI QUALITY summary card"
+        "Verification Center UI QUALITY summary card",
+        "structured UI frame timing bundle and Verification Center metrics"
       ],
       "next_action": "실차 Evidence ZIP을 최소 2개 session에서 수집하고 evaluator 다중 입력으로 동일 raw 반복성을 비교; cross-session 후보도 수동 검토 전 매핑 활성화 금지",
       "confidence": {

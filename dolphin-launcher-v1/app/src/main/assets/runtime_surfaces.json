@@ -199,7 +199,10 @@
         "uiQualityLabel",
         "showUiQualitySummary",
         "UI_QUALITY_SUMMARY_OPENED",
-        "UiLayoutAuditRuntime.latestAudit"
+        "UiLayoutAuditRuntime.latestAudit",
+        "UiFrameTimingRuntime.latest",
+        "FRAME P95",
+        "frame_timing_available"
       ]
     },
     {
@@ -304,7 +307,9 @@
         "appActionRow",
         "APP_ACTION_HMI_RENDER",
         "touch_min_dp=48",
-        "rows=7"
+        "rows=7",
+        "UiFrameTimingRuntime.start",
+        "UI_FRAME_TIMING"
       ]
     },
     {
@@ -1024,7 +1029,10 @@
         "UiGoldenScreenshotRuntime.screenshotDir",
         "addUiLayoutAudits",
         "ui_layout_audits/",
-        "UiLayoutAuditRuntime.auditDir"
+        "UiLayoutAuditRuntime.auditDir",
+        "addUiFrameTiming",
+        "ui_frame_timing/latest.json",
+        "UiFrameTimingRuntime.latestFile"
       ]
     },
     {
@@ -1259,6 +1267,21 @@
         "UI_LAYOUT_REGRESSION",
         "UI_LAYOUT_BASELINE_COMPARE",
         "latestAudit"
+      ]
+    },
+    {
+      "feature_id": "PREMIUM_HMI_HOME",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UiFrameTimingRuntime.java",
+      "tokens": [
+        "UiFrameTimingRuntime",
+        "TARGET_INTERVALS=120",
+        "MIN_INTERVAL_MS=60_000L",
+        "Choreographer",
+        "p95_ms",
+        "over_32ms",
+        "over_50ms",
+        "thresholds_are_diagnostic",
+        "UI_FRAME_TIMING"
       ]
     }
   ],
