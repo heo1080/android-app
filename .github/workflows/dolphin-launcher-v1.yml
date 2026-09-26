@@ -320,6 +320,50 @@ jobs:
           "$AAPT" dump permissions "$APK" | grep -q "android.permission.INTERNET"
           "$AAPT" dump permissions "$APK" | grep -q "android.permission.REQUEST_INSTALL_PACKAGES"
           python3 dolphin-launcher-v1/tools/generate_fixed_voice_assets.py check
+          python3 - <<'PY'
+          import json, pathlib
+          root=pathlib.Path("dolphin-launcher-v1")
+          candidate_path=root/"tools/generate_ppaso_voice_candidate.py"
+          candidate=candidate_path.read_text(encoding="utf-8")
+          registry=json.load(open(root/"app/src/main/assets/verification_registry.json",encoding="utf-8"))
+          contracts=json.load(open(root/"app/src/main/assets/test_log_contracts.json",encoding="utf-8"))
+          surfaces=json.load(open(root/"app/src/main/assets/runtime_surfaces.json",encoding="utf-8"))
+
+          for token in (
+              'MODEL_REPO = "akamotaco/ppaso-tts-v1"',
+              'DEFAULT_MODEL_REVISION = "main"',
+              'PROFILE_ID = "ppaso-v8-ko-female-24k-pcm-candidate-v1"',
+              '"gear_p": "피"', '"gear_r": "알"', '"gear_n": "엔"', '"gear_d": "디"',
+              '"icc_on": "아이씨씨 켜짐"', '"icc_off": "아이씨씨 꺼짐"',
+              "candidate generation requires app manifest to remain ASSET_REQUIRED",
+              "resample_to_24k", "write_pcm16_wav", "validate_wav",
+              "PPASO_FIXED_VOICE_CANDIDATE_OK",
+              "candidate_only=true", "app_manifest_unchanged=true",
+              "--model-revision", '"model_revision": model_revision',
+          ):
+              assert token in candidate, token
+          assert "app/src/main/res/raw" not in candidate, "candidate generator must not write packaged raw assets"
+          assert "MANIFEST_PATH.write_text" not in candidate, "candidate generator must not promote app voice manifest"
+
+          feature=next(f for f in registry["features"] if f["feature_id"]=="IN_APP_TTS_CORE")
+          candidate_source="dolphin-launcher-v1/tools/generate_ppaso_voice_candidate.py"
+          assert candidate_source in feature.get("source_paths",[])
+          assert any("immutable full commit SHA" in item for item in feature.get("acceptance",[]))
+          for tid in ("AUD-TTS-001","AUD-TTS-002"):
+              contract=next(c for c in contracts["contracts"] if c["test_id"]==tid)
+              assert any("Ppaso candidate generation never changes" in item for item in contract.get("acceptance",[])),tid
+              for token in ("PPASO_FIXED_VOICE_CANDIDATE_OK","candidate_only=true","app_manifest_unchanged=true"):
+                  assert token in contract.get("required_logs",[]),(tid,token)
+
+          rows=[r for r in surfaces["surfaces"]
+                if r["feature_id"]=="IN_APP_TTS_CORE" and r["path"]==candidate_source]
+          assert len(rows)==1
+          for token in ("DEFAULT_MODEL_REVISION = \"main\"","--model-revision",
+                        "PPASO_FIXED_VOICE_CANDIDATE_OK","candidate_only=true",
+                        "app_manifest_unchanged=true"):
+              assert token in rows[0].get("tokens",[]),token
+          print("PPASO_CANDIDATE_STATIC_GUARD_OK candidate_only=true app_manifest_unchanged=true")
+          PY
           unzip -p "$APK" assets/voice_prompt_manifest.json > "$RUNNER_TEMP/voice_prompt_manifest.json"
           python3 - "$RUNNER_TEMP/voice_prompt_manifest.json" "$APK" <<'PY'
           import json, pathlib, re, sys, zipfile
