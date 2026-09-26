@@ -3110,7 +3110,7 @@
         "BLD-ID-002",
         "LCH-ID-001"
       ],
-      "close_gate": "current candidate installs on BYD without desktop-app rejection; packaged APK has exactly one LauncherActivity LAUNCHER entry, no HOME category, and build identity matches package/version/source/APK hash"
+      "close_gate": "current candidate installs on BYD without desktop-app rejection; normal LauncherActivity remains the single active LAUNCHER entry; packaged HOME alias is disabled-by-default and is enabled only after separate real-car compatibility evidence."
     },
     {
       "id": "KB-011",
