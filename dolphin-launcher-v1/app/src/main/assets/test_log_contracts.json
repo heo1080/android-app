@@ -2984,7 +2984,10 @@
         "runtime method/constant inventory is candidate-only and does not prove exterior speaker routing",
         "custom audio file path, built-in tone/preset path and lock/unlock trigger path remain separate unproven capabilities",
         "no reflected AVAS/exterior method is invoked by the probe",
-        "BLOCKED state allows NEED_MORE_DATA only until independent readback plus physical exterior-audible evidence exists"
+        "BLOCKED state allows NEED_MORE_DATA only until independent readback plus physical exterior-audible evidence exists",
+        "generic auto-service method signatures are inventory only and do not prove an AVAS device/FID mapping",
+        "bodywork listener/class presence does not prove lock/unlock numeric semantics",
+        "no generic bridge method is invoked by the capability probe"
       ],
       "required_logs": [
         "EXTERNAL_AVAS_CAPABILITY_METHOD",
@@ -2996,7 +2999,12 @@
         "lock_trigger_path=unproven",
         "vehicle_write=false",
         "actuation=false",
-        "TEST_CAPABILITY_REFRESH"
+        "TEST_CAPABILITY_REFRESH",
+        "EXTERNAL_AVAS_GENERIC_SERVICE",
+        "generic_service_available=",
+        "generic_bridge_methods=",
+        "feature_mapping=unproven",
+        "trigger_semantic=unproven"
       ]
     },
     {
