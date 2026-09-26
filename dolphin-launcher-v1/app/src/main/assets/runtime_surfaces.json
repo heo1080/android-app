@@ -1327,8 +1327,8 @@
         "applicationId = \"com.dolphin.launcher.v1\"",
         "minSdk = 29",
         "targetSdk = 35",
-        "versionCode = 8",
-        "versionName = \"1.2.5-v1-premium-realcar-beta\"",
+        "versionCode = 9",
+        "versionName = \"1.2.6-v1-premium-realcar-beta\"",
         "buildConfigField(\"boolean\", \"VOICE_PREVIEW_BUILD\", \"false\")",
         "create(\"voicePreview\")",
         "applicationIdSuffix = \".voicepreview\"",
@@ -2122,6 +2122,16 @@
         "probe=popup_multiwindow",
         "windowing_mode_request=false",
         "actuation=false"
+      ]
+    },
+    {
+      "feature_id": "BUILD_IDENTITY",
+      "path": ".github/workflows/dolphin-launcher-v1.yml",
+      "tokens": [
+        "VERSION_CODE=",
+        "\"version_code\":int(version_code)",
+        "REALCAR_BETA_METADATA_VERSION_MATCH",
+        "versionCode $VERSION_CODE"
       ]
     }
   ],
