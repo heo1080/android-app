@@ -437,7 +437,8 @@
         "화면에 실제 보이는 clickable view만 48dp minimum touch target 위반 여부를 검사",
         "baseline 비교는 width/height/densityDpi/fontScale/nightMode가 모두 같은 audit만 대상으로 하여 다른 display profile을 직접 비교하지 않음",
         "도크 DISPLAY quick panel에서 현재 width/height px, densityDpi, density, fontScale, width/height dp를 즉시 확인",
-        "DISPLAY quick panel은 OEM display spoof/write를 하지 않고 Android Display settings와 Golden Screenshot 진입만 제공"
+        "DISPLAY quick panel은 OEM display spoof/write를 하지 않고 Android Display settings와 Golden Screenshot 진입만 제공",
+        "DISPLAY utility hero는 현재 resolution/DPI/fontScale을 read-only 상태로 요약"
       ],
       "required_logs": [
         "densityDpi",
@@ -454,7 +455,9 @@
         "delta_clips",
         "DISPLAY_QUICK_HMI_RENDER",
         "SYSTEM_SETTINGS_DISPATCH",
-        "actuation=false"
+        "actuation=false",
+        "variant=golden-reference-v3",
+        "panel_hero=true"
       ],
       "known_bad": [
         "DPI 변경 시 순정 UI 일부 잘림",
@@ -1446,7 +1449,8 @@
         "도크 MAP launcher는 NAVER Map/TMAP/KakaoNavi/ATLAN 중 실제 설치된 지원 package만 표시",
         "MAP launcher는 앱 실행 surface이며 notification parser/카메라 의미 추론과 분리하고 semantic_parse=false를 기록",
         "FSD·SAFETY visual hero는 notification provenance freshness와 FSD_OBJECT_LANE_MODEL 상태를 함께 보여주되 semantic parser는 LOCKED 유지",
-        "source detail은 package/age/payload length로 제한"
+        "source detail은 package/age/payload length로 제한",
+        "MAP launcher utility hero는 설치 지원 앱 수와 rendered target 수를 분리 기록하고 launch_only=true를 유지"
       ],
       "required_logs": [
         "source package/version",
@@ -1461,7 +1465,9 @@
         "variant=golden-reference-v3",
         "panel_hero=true",
         "fsd_state=",
-        "semantic_values=false"
+        "semantic_values=false",
+        "rendered_supported_nav=",
+        "launch_only=true"
       ],
       "known_bad": [
         "외부 앱 업데이트로 parser 파손 가능"
@@ -1884,7 +1890,11 @@
         "VEHICLE INFO hero는 RAW SOURCE ACTIVE/WAITING과 READ ONLY를 표시하며 normalized=false/actuation=false를 유지",
         "FSD·SAFETY hero는 navigation provenance 상태와 FSD BLOCKED/semantics LOCKED 경계를 표시하고 객체/차선 의미를 생성하지 않음",
         "UI layout audit의 48dp 검사는 View 전체 크기가 아니라 실제 global visible width/height를 사용",
-        "UI frame timing JSON은 diagnostic session_id를 포함하고 Evidence ZIP은 현재 session과 일치하는 timing만 포함"
+        "UI frame timing JSON은 diagnostic session_id를 포함하고 Evidence ZIP은 현재 session과 일치하는 timing만 포함",
+        "MAP/DISPLAY/DARK quick panel도 Golden Reference utility hero를 사용해 상태와 안전 경계를 첫 화면에 표시",
+        "MAP utility hero는 LAUNCH ONLY · SEMANTICS LOCKED를 표시",
+        "DISPLAY utility hero는 현재 resolution/DPI/fontScale을 표시하고 READ ONLY 유지",
+        "DARK utility hero는 앱 DARK HMI와 system night 상태를 구분하고 system actuation 없음"
       ],
       "required_logs": [
         "display profile",
@@ -1943,7 +1953,10 @@
         "SEMANTICS",
         "LOCKED",
         "frame_timing_session_id",
-        "visible_touch_geometry"
+        "visible_touch_geometry",
+        "referenceUtilityHero",
+        "launch_only=true",
+        "rendered_supported_nav="
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1998,7 +2011,8 @@
         "Vehicle Info golden-reference-v3 raw-only panel",
         "FSD Safety golden-reference-v3 provenance boundary panel",
         "UiLayoutAuditRuntime visible-geometry touch target measurement",
-        "UiFrameTimingRuntime session-bound sample and VerificationEvidenceRuntime same-session ZIP filter"
+        "UiFrameTimingRuntime session-bound sample and VerificationEvidenceRuntime same-session ZIP filter",
+        "referenceUtilityHero unifies MAP/DISPLAY/DARK quick panels without expanding vehicle actuation"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
