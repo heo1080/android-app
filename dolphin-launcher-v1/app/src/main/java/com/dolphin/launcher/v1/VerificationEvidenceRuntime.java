@@ -160,6 +160,15 @@ public final class VerificationEvidenceRuntime {
         append(context, event, null, UUID.randomUUID().toString(), "OBSERVED", note);
     }
 
+    public static void recordTestEvent(Context context, String testId, String correlationId,
+                                       String event, String note) {
+        if (testId == null || testId.trim().isEmpty()
+                || correlationId == null || correlationId.trim().isEmpty()) {
+            throw new IllegalArgumentException("testId/correlationId required for correlated event");
+        }
+        append(context, event, testId, correlationId, "OBSERVED", note);
+    }
+
     public static synchronized String startTest(Context context, String testId) {
         String correlationId = UUID.randomUUID().toString();
         prefs(context).edit()
@@ -314,16 +323,23 @@ public final class VerificationEvidenceRuntime {
 
     public static Map<String,Integer> operatorObservationCounts(
             Context context, String correlationId) {
-        return operatorObservationCountsInternal(context, correlationId, false);
+        return operatorObservationCountsInternal(context, correlationId, false, null);
     }
 
     public static Map<String,Integer> operatorObservationCountsWithRaw(
             Context context, String correlationId) {
-        return operatorObservationCountsInternal(context, correlationId, true);
+        return operatorObservationCountsInternal(context, correlationId, true, null);
+    }
+
+    public static Map<String,Integer> operatorObservationCountsWithRequiredRaw(
+            Context context, String correlationId, String[] requiredRawKeys) {
+        return operatorObservationCountsInternal(
+                context, correlationId, true, requiredRawKeys);
     }
 
     private static Map<String,Integer> operatorObservationCountsInternal(
-            Context context, String correlationId, boolean requireLatestRaw) {
+            Context context, String correlationId, boolean requireLatestRaw,
+            String[] requiredRawKeys) {
         Map<String,Integer> counts = new LinkedHashMap<>();
         if (correlationId == null || correlationId.isEmpty()) return counts;
         File file = evidenceLedger(context);
@@ -337,7 +353,12 @@ public final class VerificationEvidenceRuntime {
                     if (!"OPERATOR_OBSERVATION".equals(row.optString("event"))) continue;
                     if (!correlationId.equals(row.optString("correlation_id"))) continue;
                     String note = row.optString("note", "");
-                    if (requireLatestRaw && !hasLatestRawFromNote(note)) continue;
+                    if (requireLatestRaw) {
+                        boolean validRaw = requiredRawKeys != null && requiredRawKeys.length > 0
+                                ? hasRequiredLatestRawFromNote(note, requiredRawKeys)
+                                : hasLatestRawFromNote(note);
+                        if (!validRaw) continue;
+                    }
                     String observation = observationFromNote(note);
                     if (observation == null || observation.isEmpty()) continue;
                     counts.put(observation, counts.containsKey(observation)
@@ -354,12 +375,48 @@ public final class VerificationEvidenceRuntime {
 
     private static boolean hasLatestRawFromNote(String note) {
         if (note == null) return false;
-        for (String part : note.split(";")) {
-            if (!part.startsWith("latest_raw=")) continue;
-            String value = part.substring("latest_raw=".length()).trim();
-            return !value.isEmpty() && value.contains("=");
+        int start = note.indexOf("latest_raw=");
+        if (start < 0) return false;
+        String raw = note.substring(start + "latest_raw=".length()).trim();
+        if (raw.isEmpty()) return false;
+        for (String part : raw.split(";")) {
+            int split = part.indexOf('=');
+            if (split <= 0) continue;
+            String value = part.substring(split + 1).trim();
+            if (!isUnavailableRawValue(value)) return true;
         }
         return false;
+    }
+
+    private static boolean hasRequiredLatestRawFromNote(String note, String[] requiredRawKeys) {
+        if (note == null || requiredRawKeys == null || requiredRawKeys.length == 0) return false;
+        int start = note.indexOf("latest_raw=");
+        if (start < 0) return false;
+        String raw = note.substring(start + "latest_raw=".length()).trim();
+        java.util.LinkedHashMap<String,String> values = new java.util.LinkedHashMap<>();
+        for (String part : raw.split(";")) {
+            int split = part.indexOf('=');
+            if (split <= 0) continue;
+            values.put(part.substring(0, split).trim(), part.substring(split + 1).trim());
+        }
+        for (String key : requiredRawKeys) {
+            String value = values.get(key);
+            if (isUnavailableRawValue(value)) return false;
+        }
+        return true;
+    }
+
+    private static boolean isUnavailableRawValue(String value) {
+        if (value == null) return true;
+        String normalized = value.trim().toLowerCase(java.util.Locale.ROOT);
+        return normalized.isEmpty()
+                || "null".equals(normalized)
+                || "unavailable".equals(normalized)
+                || "unknown".equals(normalized)
+                || "n/a".equals(normalized)
+                || "na".equals(normalized)
+                || "--".equals(normalized)
+                || "none".equals(normalized);
     }
 
     private static String observationFromNote(String note) {
