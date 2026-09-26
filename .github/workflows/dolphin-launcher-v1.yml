@@ -433,6 +433,10 @@ jobs:
           media=(src/"BackgroundMediaRuntime.java").read_text(encoding="utf-8")
           receiver=(src/"BootAutoLaunchReceiver.java").read_text(encoding="utf-8")
           manifest=(root/"app/src/main/AndroidManifest.xml").read_text(encoding="utf-8")
+          drawer=(src/"AppDrawerShortcutManager.java").read_text(encoding="utf-8")
+          drawer_slots=(src/"DrawerSlotActivities.java").read_text(encoding="utf-8")
+          split_bridge=(src/"SplitExecutionBridge.java").read_text(encoding="utf-8")
+          split_ghost=(src/"SplitGhostActivity.java").read_text(encoding="utf-8")
 
           assert contracts.get("schema_version")==2, contracts.get("schema_version")
           assert 'contracts.optInt("schema_version", -1) != 2' in evidence
@@ -524,6 +528,33 @@ jobs:
           assert "SYSTEM_SETTINGS_DISPATCH" in launcher
 
           assert 'chip("● LIVE")' not in launcher
+
+          assert "requestPinShortcut" not in drawer, "BYD app drawer must not regress to generic pinned shortcuts"
+          assert "setComponentEnabledSetting" in drawer
+          assert "launcher_visibility_verified=false" in drawer
+          assert "SPLIT_SHORTCUT_SLOT_ASSIGNED" in drawer and "APP_SHORTCUT_SLOT_ASSIGNED" in drawer
+          assert "AppDrawerShortcutManager.launchSlot" in drawer_slots
+          assert "Slot01" in drawer_slots and "Slot16" in drawer_slots
+          assert manifest.count("DrawerSlotActivities$Slot")==16
+          assert "createDrawerSplitShortcut" in launcher and "AppDrawerShortcutManager.pinSplit" in launcher
+
+          assert "MODE_PRIMARY = 3" in split_bridge and "MODE_SECONDARY = 4" in split_bridge
+          assert "POLL_ATTEMPTS = 12" in split_bridge and "POLL_MS = 250L" in split_bridge
+          assert "SplitGhostActivity.class" in split_bridge
+          assert "am stack move-task " in split_bridge
+          assert "SPLIT_RECOVERY_PATH" in split_bridge and "SPLIT_MODE_POLL" in split_bridge
+          assert "SPLIT_ADB_RESULT" in split_bridge and "finalReadback" in split_bridge
+          assert "resize-docked-stack" not in split_bridge, "split ratio resize is not evidence-backed"
+          assert "restoreLastSplitScreen" not in split_bridge, "automatic camera restore remains prohibited"
+          assert "postDelayed(finishTask, 4500L)" in split_ghost
+          assert "SPLIT_EXECUTION_ASYNC_START" in launcher and "SPLIT_EXECUTION_SUPPRESSED" in launcher
+          assert '"V1SplitLaunch"' in launcher
+
+          feature_by_id={f["feature_id"]:f for f in registry.get("features",[])}
+          assert feature_by_id["APP_DRAWER_SHORTCUTS"]["state"]=="REVERIFY_REQUIRED"
+          assert feature_by_id["SPLIT_SCREEN_TWO_APP"]["state"]=="BETA"
+          print("LAUNCHER_RECOVERY_GUARD_OK drawer_slots=16 split_poll=12x250 ratio_resize=false auto_restore=false")
+
           legacy=launcher.split("private void runPendingAutostart()",1)[1].split("private void toggleFavorite",1)[0]
           assert "handler.postDelayed" not in legacy
           assert "AUTOSTART_LEGACY_PENDING_IGNORED" in legacy
