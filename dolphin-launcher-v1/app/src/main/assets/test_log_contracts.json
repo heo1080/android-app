@@ -187,15 +187,20 @@
       "repeatability_required_sessions": 2,
       "required_any": [],
       "success_any": [],
-      "failure_any": [],
-      "known_bad_ids": [],
+      "failure_any": [
+        "APK-static shared upload credential"
+      ],
+      "known_bad_ids": [
+        "KB-013"
+      ],
       "acceptance": [
         "세션 ZIP 생성",
         "차량 raw/state/audio/display 정보 포함",
         "업로드 결과 확인",
         "토큰은 Android Keystore 보호",
         "automatic upload runtime retries queued ZIPs on app network availability and boot",
-        "upload receipt must match queued bundle session_id and SHA-256"
+        "upload receipt must match queued bundle session_id and SHA-256",
+        "secure-secret acceptance cannot PASS while upload authentication is sourced from BuildConfig.EVIDENCE_UPLOAD_KEY"
       ],
       "required_logs": [
         "session manifest",

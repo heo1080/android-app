@@ -281,7 +281,7 @@ jobs:
           assert kb.get("schema_version")==1, kb.get("schema_version")
           features={f["feature_id"]:set(f.get("test_ids", [])) for f in reg.get("features", [])}
           rows=kb.get("known_bad", [])
-          assert [r["id"] for r in rows]==["KB-%03d" % i for i in range(1,13)], "Known-Bad ID drift"
+          assert [r["id"] for r in rows]==["KB-%03d" % i for i in range(1,14)], "Known-Bad ID drift"
           allowed={"OPEN","FIX_CANDIDATE","REAL_CAR_RETEST","CLOSED"}
           for row in rows:
               assert row["severity"] in {"P0","P1"}, ("invalid severity", row["id"])
@@ -295,7 +295,7 @@ jobs:
                   assert tests.issubset(registered), ("Known-Bad Test ID drift", row["id"], sorted(tests-registered))
               assert row.get("close_gate"), ("missing close gate", row["id"])
           assert not any(r["state"]=="CLOSED" for r in rows), "Known-Bad cannot close without committed real-car evidence"
-          print("KNOWN_BAD_OK count=12 p0=%d" % sum(r["severity"]=="P0" for r in rows))
+          print("KNOWN_BAD_OK count=13 p0=%d" % sum(r["severity"]=="P0" for r in rows))
           PY
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationCenterActivity"
           unzip -p "$APK" classes.dex | strings | grep -q "VerificationEvidenceRuntime"
@@ -427,6 +427,7 @@ jobs:
           registry=json.load(open(assets/"verification_registry.json",encoding="utf-8"))
           surfaces=json.load(open(assets/"runtime_surfaces.json",encoding="utf-8"))
           contracts=json.load(open(assets/"test_log_contracts.json",encoding="utf-8"))
+          known_bad=json.load(open(assets/"known_bad_registry.json",encoding="utf-8"))
           launcher=(src/"LauncherActivity.java").read_text(encoding="utf-8")
           glyph=(src/"HmiGlyphView.java").read_text(encoding="utf-8")
           evidence=(src/"VerificationEvidenceRuntime.java").read_text(encoding="utf-8")
@@ -609,6 +610,10 @@ jobs:
           assert "PackageInstaller.SessionParams" in update_manager and "session.commit" in update_manager
           for token in ("EVIDENCE_UPLOAD_ATTEMPT","EVIDENCE_UPLOAD_RECEIPT","EVIDENCE_UPLOAD_RETRY_RETAINED","receipt_verified=true"):
               assert token in evidence,token
+          if "BuildConfig.EVIDENCE_UPLOAD_KEY" in evidence:
+              kb13=next((r for r in known_bad.get("known_bad",[]) if r.get("id")=="KB-013"),None)
+              assert kb13 is not None and kb13.get("state")=="OPEN", "static upload credential must remain explicit Known-Bad"
+              assert kb13.get("severity")=="P0", "static upload credential release gate must remain P0 until fixed"
           assert "sha.equalsIgnoreCase(receiptSha)" in evidence, "upload receipt SHA-256 binding missing"
           assert "sessionId.equals(receiptSession)" in evidence, "upload receipt session binding missing"
           assert "receipt identity mismatch" in evidence

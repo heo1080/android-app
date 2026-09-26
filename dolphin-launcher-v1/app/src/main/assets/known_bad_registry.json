@@ -143,6 +143,17 @@
       "summary": "target-scoped MediaSession autoplay implemented; delayed session discovery/play/readback moved from process-bound Handler to AlarmManager receiver stages; notification-listener access, audible playback, and stock safety-audio coexistence still require real-car verification",
       "state": "FIX_CANDIDATE",
       "close_gate": "real-car target session package match, process-independent media stage delivery, configured delay, audible target playback, non-target media unchanged, global fallback absent, and stock safety warning audio remains functional"
+    },
+    {
+      "id": "KB-013",
+      "severity": "P0",
+      "feature_id": "DIAGNOSTIC_CAPTURE_UPLOAD",
+      "test_ids": [
+        "DIA-UP-001"
+      ],
+      "summary": "V1 evidence upload currently injects DOLPHIN_UPLOAD_KEY into BuildConfig and VerificationEvidenceRuntime reads BuildConfig.EVIDENCE_UPLOAD_KEY; an APK-static shared credential is extractable and does not satisfy the Android Keystore secure-secret requirement.",
+      "state": "OPEN",
+      "close_gate": "remove the APK-static shared upload credential; use an evidence-backed runtime credential/enrollment path with private credential material protected by Android Keystore (or an equally strong non-extractable platform mechanism), prove rotation/revocation behavior, and verify real-car upload receipts without a reusable secret embedded in APK strings"
     }
   ]
 }

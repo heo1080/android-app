@@ -125,12 +125,14 @@
         "BOOT_UPLOAD_RETRY_FINISHED"
       ],
       "known_bad": [
-        "V1 1.2.1 evidence session binding stale; V1 1.2.2 automatic Worker→Drive upload requires real-car re-verification"
+        "V1 1.2.1 evidence session binding stale; V1 1.2.2 automatic Worker→Drive upload requires real-car re-verification",
+        "APK-static BuildConfig.EVIDENCE_UPLOAD_KEY is extractable and does not satisfy the Android Keystore secure-secret requirement"
       ],
       "dependencies": [
         "Android Keystore",
         "storage",
-        "network"
+        "network",
+        "server-supported runtime credential/enrollment path for Keystore-protected upload authentication"
       ],
       "real_vehicle_test": [
         "15분 캡처 시작",
@@ -146,11 +148,11 @@
         "BootReceiver retries durable upload queue with goAsync lifecycle",
         "VerificationEvidenceRuntime records upload attempt/receipt/retry-retained without persisting upload secret"
       ],
-      "next_action": "V1 1.2.2 real-car: passive session capture → session-bound ZIP → persistent queue → Worker upload → SHA/session receipt 확인",
+      "next_action": "KB-013: BuildConfig static upload secret 제거 → 서버가 증명된 runtime/per-device credential 경로를 제공할 때 Android Keystore 보호 저장 → rotation/revocation 및 real-car receipt 재검증",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
-        "safety": "HIGH",
+        "safety": "LOW",
         "compatibility": "MEDIUM"
       }
     },
