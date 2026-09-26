@@ -449,6 +449,15 @@ jobs:
           assert "process_independent=true" in media
           assert "new Handler" not in media and "postDelayed" not in media
 
+          layout_audit=(src/"UiLayoutAuditRuntime.java").read_text(encoding="utf-8")
+          frame_timing=(src/"UiFrameTimingRuntime.java").read_text(encoding="utf-8")
+          assert "visible.width()/Math.max(0.01f,dm.density)" in layout_audit
+          assert "visible.height()/Math.max(0.01f,dm.density)" in layout_audit
+          assert 'out.put("session_id",sessionId)' in frame_timing
+          assert "VerificationEvidenceRuntime.currentSessionId" in frame_timing
+          assert "addUiFrameTiming(context, out, sessionId)" in evidence
+          assert 'sessionId.equals(timing.optString("session_id",""))' in evidence
+
           features={f["feature_id"]:f for f in registry.get("features",[])}
           ui=features["PREMIUM_HMI_HOME"]
           for token in ("REFERENCE_DOCK_RENDER","NAV_LAUNCHER_HMI_RENDER",
