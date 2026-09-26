@@ -18,11 +18,25 @@ public final class BootAutoLaunchRuntime {
     static final String EXTRA_MEDIA="media";
     static final String EXTRA_INDEX="index";
 
+    private static final String KEY_LAST_BOOT_DISPATCH_ELAPSED =
+            "boot_autostart_last_dispatch_elapsed";
+    private static final String KEY_LAST_BOOT_DISPATCH_ACTION =
+            "boot_autostart_last_dispatch_action";
+    private static final long SAME_ACTION_DUPLICATE_WINDOW_MS = 10_000L;
+    private static final long CROSS_ACTION_DUPLICATE_WINDOW_MS = 120_000L;
+    private static long processLastDispatchElapsed = -1L;
+    private static String processLastDispatchAction = "";
+
     private BootAutoLaunchRuntime() {}
 
     public static void dispatch(Context context) {
+        dispatch(context, "unknown");
+    }
+
+    public static void dispatch(Context context,String sourceAction) {
         Context app=context.getApplicationContext();
         SharedPreferences p=app.getSharedPreferences(LauncherActivity.PREFS,Context.MODE_PRIVATE);
+        if(!claimBootDispatch(app,p,sourceAction)) return;
         if(!p.getBoolean("autostart_enabled",true)){
             VerificationEvidenceRuntime.recordPassiveEvent(
                     app,"AUTOSTART_SKIPPED","source=boot-receiver;reason=master-disabled");
@@ -39,6 +53,51 @@ public final class BootAutoLaunchRuntime {
             boolean media=AutoStartStore.mediaEnabled(p,pkg);
             schedule(app,pkg,delay,media,i);
         }
+    }
+
+    private static synchronized boolean claimBootDispatch(
+            Context app,SharedPreferences p,String sourceAction){
+        String action=sourceAction==null?"unknown":sourceAction;
+        long now=SystemClock.elapsedRealtime();
+        long storedElapsed=p.getLong(KEY_LAST_BOOT_DISPATCH_ELAPSED,-1L);
+        String storedAction=p.getString(KEY_LAST_BOOT_DISPATCH_ACTION,"");
+        long lastElapsed=processLastDispatchElapsed>=0L
+                ? Math.max(processLastDispatchElapsed,storedElapsed)
+                : storedElapsed;
+        String lastAction=processLastDispatchElapsed>=storedElapsed
+                ? processLastDispatchAction : storedAction;
+
+        // elapsedRealtime resets after a kernel reboot. A lower value therefore
+        // represents a new boot epoch and must never be suppressed.
+        if(lastElapsed>=0L && now>=lastElapsed){
+            long since=now-lastElapsed;
+            long window=action.equals(lastAction)
+                    ? SAME_ACTION_DUPLICATE_WINDOW_MS
+                    : CROSS_ACTION_DUPLICATE_WINDOW_MS;
+            if(since<window){
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        app,"AUTOSTART_DUPLICATE_BOOT_SUPPRESSED",
+                        "action="+action
+                                +";last_action="+lastAction
+                                +";since_ms="+since
+                                +";window_ms="+window
+                                +";duplicate_dispatch=false");
+                return false;
+            }
+        }
+
+        processLastDispatchElapsed=now;
+        processLastDispatchAction=action;
+        boolean persisted=p.edit()
+                .putLong(KEY_LAST_BOOT_DISPATCH_ELAPSED,now)
+                .putString(KEY_LAST_BOOT_DISPATCH_ACTION,action)
+                .commit();
+        if(!persisted){
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    app,"AUTOSTART_DEDUP_STATE_PERSIST_FAILED",
+                    "action="+action+";process_guard=true");
+        }
+        return true;
     }
 
     private static void schedule(Context app,String pkg,long delay,boolean media,int index){
