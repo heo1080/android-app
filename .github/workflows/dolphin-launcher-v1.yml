@@ -423,6 +423,10 @@ jobs:
           assert "NAV_LAUNCHER_HMI_RENDER" in launcher and "semantic_parse=false" in launcher
 
           assert "referencePanelHero" in launcher and "referenceSectionLabel" in launcher
+          assert "referenceUtilityHero" in launcher
+          assert "SUPPORTED NAV APPS" in launcher and "LAUNCH ONLY · SEMANTICS LOCKED" in launcher
+          assert "DISPLAY PROFILE" in launcher and "THEME STATUS" in launcher
+          assert "rendered_supported_nav=" in launcher and "launch_only=true" in launcher
           assert "variant=golden-reference-v3" in launcher
           assert "panel_hero=true" in launcher
           assert "target_scoped=true" in launcher and "playback_verified=false" in launcher
