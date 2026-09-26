@@ -1915,7 +1915,8 @@
         "Golden Reference dock primary 6개와 quick control 4개의 horizontal margin을 분리 최적화해 48dp touch target 확보 여유를 높임",
         "도크는 screen_width_dp와 632dp 최소 안전 기준을 기록하고 좁은 profile이면 compact_risk=true로 증거화",
         "Golden Reference panel hero의 copy/graphic 폭과 utility copy/icon 크기는 screen width dp에 비례해 clamp하여 좁은 dialog에서 overlap을 줄임",
-        "HOME render evidence는 screen width/height dp와 hero/cockpit/topbar/dock 높이를 기록해 Golden Screenshot의 실제 viewport를 재현 가능하게 함"
+        "HOME render evidence는 screen width/height dp와 hero/cockpit/topbar/dock 높이를 기록해 Golden Screenshot의 실제 viewport를 재현 가능하게 함",
+        "CockpitPanelGraphicView의 Media/Safety/Vehicle vector accent는 실제 signalState WAITING/LIVE/STALE/BLOCKED 팔레트를 사용하고 하드코딩 LIVE 색으로 고정하지 않음"
       ],
       "required_logs": [
         "display profile",
@@ -2057,7 +2058,8 @@
         "referenceUtilityHero unifies MAP/DISPLAY/DARK quick panels without expanding vehicle actuation",
         "referenceDialogScroll + showReferenceDialog provide bounded scroll-safe Golden Reference panels",
         "dockPrimaryWeighted and miniWeighted reduce horizontal dead space while preserving 6+4 reference layout",
-        "adaptive Golden Reference hero geometry clamps panel copy/graphic and utility copy/icon against real screen width dp"
+        "adaptive Golden Reference hero geometry clamps panel copy/graphic and utility copy/icon against real screen width dp",
+        "CockpitPanelGraphicView drawMedia/drawSafety/drawVehicle use accent(signalState) for state-aware vector rendering"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
