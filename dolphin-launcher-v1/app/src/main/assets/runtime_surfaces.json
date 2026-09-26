@@ -274,7 +274,12 @@
         "safetyStatusLine",
         "safetyPanelSummary",
         "SAFETY_SOURCE_HMI_RENDER",
-        "nav_source_status=notification-provenance-only"
+        "nav_source_status=notification-provenance-only",
+        "cockpitSignalState",
+        "homeMediaGraphic",
+        "homeSafetyGraphic",
+        "homeVehicleGraphic",
+        "cockpit_graphic_state=registry-aware"
       ]
     },
     {
@@ -1110,7 +1115,13 @@
         "VEHICLE",
         "drawMedia",
         "drawSafety",
-        "drawVehicle"
+        "drawVehicle",
+        "SIGNAL_WAITING",
+        "SIGNAL_LIVE",
+        "SIGNAL_STALE",
+        "SIGNAL_BLOCKED",
+        "setSignalState",
+        "accent"
       ]
     },
     {

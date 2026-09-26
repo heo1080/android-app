@@ -1792,7 +1792,8 @@
         "HOME live binding은 화면 전체 재생성 없이 2초 주기로 Media/Vehicle/TPMS TextView·Gauge만 갱신",
         "주기적 MediaSession refresh는 metadata 내용을 evidence에 반복 기록하지 않음",
         "중앙 FSD·SAFETY cockpit은 NAV source WAITING/LIVE/STALE/REMOVED와 Registry state를 함께 표시",
-        "SAFETY source panel은 package/age/payload length만 표시하고 parser pending 상태에서 semantic 값 생성 금지"
+        "SAFETY source panel은 package/age/payload length만 표시하고 parser pending 상태에서 semantic 값 생성 금지",
+        "PRIMARY COCKPIT vector accent는 상태 의미에 따라 WAITING/LIVE/STALE/BLOCKED로 변경되며 주의 분산을 줄이기 위해 지속 애니메이션을 사용하지 않음"
       ],
       "required_logs": [
         "display profile",
@@ -1819,7 +1820,8 @@
         "LIVE_VEHICLE_GEAR_RAW",
         "live_binding_ms=2000",
         "SAFETY_SOURCE_HMI_RENDER",
-        "nav_source_status=notification-provenance-only"
+        "nav_source_status=notification-provenance-only",
+        "cockpit_graphic_state=registry-aware"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1853,7 +1855,8 @@
         "MediaNowPlayingRuntime target-scoped read-only metadata snapshot",
         "raw-only gear/speed/turn cockpit telemetry",
         "homeLiveTick lightweight binding without scroll reset",
-        "premium SAFETY source provenance panel"
+        "premium SAFETY source provenance panel",
+        "CockpitPanelGraphicView state-aware vector accent palette"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
