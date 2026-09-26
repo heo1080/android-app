@@ -440,7 +440,8 @@
         "DISPLAY quick panel은 OEM display spoof/write를 하지 않고 Android Display settings와 Golden Screenshot 진입만 제공",
         "DISPLAY utility hero는 현재 resolution/DPI/fontScale을 read-only 상태로 요약",
         "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임",
-        "도크 렌더 시 current screen width dp와 compact-risk threshold를 함께 기록"
+        "도크 렌더 시 current screen width dp와 compact-risk threshold를 함께 기록",
+        "해당 Golden Reference hero는 실제 screen width dp 기반 adaptive geometry를 사용"
       ],
       "required_logs": [
         "densityDpi",
@@ -462,7 +463,8 @@
         "panel_hero=true",
         "scroll_safe=true",
         "screen_width_dp=",
-        "compact_risk="
+        "compact_risk=",
+        "adaptive_hero=true"
       ],
       "known_bad": [
         "DPI 변경 시 순정 UI 일부 잘림",
@@ -1456,7 +1458,8 @@
         "FSD·SAFETY visual hero는 notification provenance freshness와 FSD_OBJECT_LANE_MODEL 상태를 함께 보여주되 semantic parser는 LOCKED 유지",
         "source detail은 package/age/payload length로 제한",
         "MAP launcher utility hero는 설치 지원 앱 수와 rendered target 수를 분리 기록하고 launch_only=true를 유지",
-        "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임"
+        "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임",
+        "해당 Golden Reference hero는 실제 screen width dp 기반 adaptive geometry를 사용"
       ],
       "required_logs": [
         "source package/version",
@@ -1474,7 +1477,8 @@
         "semantic_values=false",
         "rendered_supported_nav=",
         "launch_only=true",
-        "scroll_safe=true"
+        "scroll_safe=true",
+        "adaptive_hero=true"
       ],
       "known_bad": [
         "외부 앱 업데이트로 parser 파손 가능"
@@ -1521,7 +1525,8 @@
         "turn signal 값도 좌/우 raw provenance만 표시하고 ON/OFF 의미를 추정하지 않음",
         "VEHICLE INFO visual hero는 source LIVE/WAITING을 raw 값 존재 여부로만 표시하고 기어/속도/회전 의미를 정규화하지 않음",
         "상세 패널은 normalized=false 및 actuation=false 경계를 명시",
-        "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임"
+        "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임",
+        "해당 Golden Reference hero는 실제 screen width dp 기반 adaptive geometry를 사용"
       ],
       "required_logs": [
         "getter result",
@@ -1534,7 +1539,8 @@
         "vehicle_source_live=",
         "panel_hero=true",
         "actuation=false",
-        "scroll_safe=true"
+        "scroll_safe=true",
+        "adaptive_hero=true"
       ],
       "known_bad": [],
       "dependencies": [
@@ -1907,7 +1913,9 @@
         "Golden Reference 상세/utility 패널은 ScrollView와 화면 비율 기반 dialog frame을 사용해 10인치·큰 fontScale·긴 목록에서 vertical clipping을 완화",
         "Media/Vehicle/Safety/Map/Display/Dark render evidence는 scroll_safe=true와 dialog_profile을 기록",
         "Golden Reference dock primary 6개와 quick control 4개의 horizontal margin을 분리 최적화해 48dp touch target 확보 여유를 높임",
-        "도크는 screen_width_dp와 632dp 최소 안전 기준을 기록하고 좁은 profile이면 compact_risk=true로 증거화"
+        "도크는 screen_width_dp와 632dp 최소 안전 기준을 기록하고 좁은 profile이면 compact_risk=true로 증거화",
+        "Golden Reference panel hero의 copy/graphic 폭과 utility copy/icon 크기는 screen width dp에 비례해 clamp하여 좁은 dialog에서 overlap을 줄임",
+        "HOME render evidence는 screen width/height dp와 hero/cockpit/topbar/dock 높이를 기록해 Golden Screenshot의 실제 viewport를 재현 가능하게 함"
       ],
       "required_logs": [
         "display profile",
@@ -1980,7 +1988,17 @@
         "screen_width_dp=",
         "dock_min_safe_width_dp=632",
         "touch_target_goal_dp=48",
-        "compact_risk="
+        "compact_risk=",
+        "adaptive_hero=true",
+        "hero_copy_dp=",
+        "hero_graphic_dp=",
+        "utility_copy_dp=",
+        "utility_icon_dp=",
+        "screen_height_dp=",
+        "home_hero_height_dp=238",
+        "home_cockpit_height_dp=168",
+        "topbar_height_dp=60",
+        "dock_height_dp=84"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -2038,7 +2056,8 @@
         "UiFrameTimingRuntime session-bound sample and VerificationEvidenceRuntime same-session ZIP filter",
         "referenceUtilityHero unifies MAP/DISPLAY/DARK quick panels without expanding vehicle actuation",
         "referenceDialogScroll + showReferenceDialog provide bounded scroll-safe Golden Reference panels",
-        "dockPrimaryWeighted and miniWeighted reduce horizontal dead space while preserving 6+4 reference layout"
+        "dockPrimaryWeighted and miniWeighted reduce horizontal dead space while preserving 6+4 reference layout",
+        "adaptive Golden Reference hero geometry clamps panel copy/graphic and utility copy/icon against real screen width dp"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
@@ -2365,7 +2384,8 @@
         "앱 실행→target MediaSession 탐색→PLAY→PlaybackState readback 후속 단계는 AlarmManager+BootAutoLaunchReceiver로 process-independent하게 이어짐",
         "MEDIA CENTER visual hero는 target MediaSession의 실제 availability/playback만 표시하고 audible success를 추정하지 않음",
         "configured autoplay target 목록은 Now Playing source와 분리해 표시",
-        "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임"
+        "관련 Golden Reference 상세 패널은 scroll-safe dialog frame을 사용해 작은 display profile/큰 fontScale에서 vertical clipping을 줄임",
+        "해당 Golden Reference hero는 실제 screen width dp 기반 adaptive geometry를 사용"
       ],
       "required_logs": [
         "AUTOSTART_MEDIA_CHANGED",
@@ -2385,7 +2405,8 @@
         "variant=golden-reference-v3",
         "panel_hero=true",
         "target_scoped=true",
-        "scroll_safe=true"
+        "scroll_safe=true",
+        "adaptive_hero=true"
       ],
       "known_bad": [
         "대상 앱이 활성 MediaSession을 노출하는지 앱별 차이가 있으며 BYD Android 10 실차 재검증 필요",
