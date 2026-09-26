@@ -1220,7 +1220,7 @@ public class LauncherActivity extends Activity {
                 shortcutHost.addView(split, lp);
 
                 Button pin = button("순정 앱서랍에 2분할 바로가기 만들기");
-                pin.setOnClickListener(v -> createPinnedSplitShortcut());
+                pin.setOnClickListener(v -> createDrawerSplitShortcut());
                 LinearLayout.LayoutParams pinLp = new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, dp(48));
                 pinLp.bottomMargin = dp(10);
@@ -1386,13 +1386,13 @@ public class LauncherActivity extends Activity {
 
         panel.addView(appActionRow(
                 "순정 앱서랍 바로가기 만들기",
-                "Android pinned shortcut 요청",
+                "BYD 앱서랍 launcher component 슬롯",
                 "▦", false, () -> {
                     boolean ok = AppDrawerShortcutManager.pin(
                             this, app.packageName, app.label);
                     Toast.makeText(this,
-                            ok ? "바로가기 생성 요청을 보냈습니다."
-                                    : "이 런처에서는 바로가기 생성 요청을 사용할 수 없습니다.",
+                            ok ? "앱서랍 바로가기 슬롯을 만들었습니다. 순정 런처 표시 여부는 실차에서 확인하세요."
+                                    : "앱서랍 바로가기 슬롯을 만들 수 없습니다.",
                             Toast.LENGTH_LONG).show();
                 }, holder));
 
@@ -1523,50 +1523,21 @@ public class LauncherActivity extends Activity {
         return row;
     }
 
-    private void createPinnedSplitShortcut() {
+    private void createDrawerSplitShortcut() {
         if (!splitReady()) {
             Toast.makeText(this, "서로 다른 좌/우 앱을 먼저 지정하세요.", Toast.LENGTH_LONG).show();
             return;
         }
-        if (android.os.Build.VERSION.SDK_INT < 26) {
-            Toast.makeText(this, "이 Android 버전은 고정 바로가기를 지원하지 않습니다.", Toast.LENGTH_LONG).show();
-            return;
-        }
-        android.content.pm.ShortcutManager manager = getSystemService(android.content.pm.ShortcutManager.class);
-        if (manager == null || !manager.isRequestPinShortcutSupported()) {
-            VerificationEvidenceRuntime.recordPassiveEvent(
-                    this, "SPLIT_SHORTCUT_UNSUPPORTED", "launcher does not support requestPinShortcut");
-            Toast.makeText(this, "현재 차량 런처가 고정 바로가기 생성을 지원하지 않습니다.", Toast.LENGTH_LONG).show();
-            return;
-        }
-        String label = "2분할 · " + splitDescription();
         String left = prefs.getString(KEY_SPLIT_LEFT, null);
         String right = prefs.getString(KEY_SPLIT_RIGHT, null);
-        Intent launch = new Intent(this, LauncherActivity.class)
-                .setAction("com.dolphin.launcher.v1.LAUNCH_SPLIT_SHORTCUT")
-                .putExtra(EXTRA_SPLIT_LEFT, left)
-                .putExtra(EXTRA_SPLIT_RIGHT, right)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        String shortcutId = "dolphin_split_pair_" + Integer.toHexString((left + "|" + right).hashCode());
-        android.content.pm.ShortcutInfo shortcut = new android.content.pm.ShortcutInfo.Builder(this, shortcutId)
-                .setShortLabel("2분할")
-                .setLongLabel(label)
-                .setIcon(android.graphics.drawable.Icon.createWithResource(this, getApplicationInfo().icon))
-                .setIntent(launch)
-                .build();
-        Intent callback = new Intent(this, ShortcutPinReceiver.class)
-                .setAction("com.dolphin.launcher.v1.SPLIT_SHORTCUT_PIN_RESULT")
-                .putExtra("shortcut_kind", "split")
-                .putExtra("shortcut_id", shortcutId)
-                .putExtra(EXTRA_SPLIT_LEFT, left)
-                .putExtra(EXTRA_SPLIT_RIGHT, right);
-        android.app.PendingIntent pinResult = android.app.PendingIntent.getBroadcast(
-                this, shortcutId.hashCode(), callback,
-                android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_IMMUTABLE);
-        boolean requested = manager.requestPinShortcut(shortcut, pinResult.getIntentSender());
-        VerificationEvidenceRuntime.recordPassiveEvent(
-                this, "SPLIT_SHORTCUT_REQUEST",
-                "shortcut_id=" + shortcutId + ";left=" + left + ";right=" + right + ";requested=" + requested);
+        boolean assigned = AppDrawerShortcutManager.pinSplit(
+                this, left, right, "2분할 · " + splitDescription());
+        Toast.makeText(
+                this,
+                assigned
+                        ? "2분할 앱서랍 슬롯을 만들었습니다. 순정 런처 아이콘 표시는 실차에서 확인하세요."
+                        : "2분할 앱서랍 슬롯을 만들 수 없습니다.",
+                Toast.LENGTH_LONG).show();
     }
 
     private void launchSplitPair() {
