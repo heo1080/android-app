@@ -512,27 +512,27 @@ public class VerificationCenterActivity extends Activity {
     }
 
     private void captureFeatureSpecificProbe(String testId) {
-        if (testId == null) return;
+        if (testId == null || activeCorrelationId == null) return;
         if ("AUD-AVAS-001".equals(testId)) {
-            AudioCapabilityProbe.capture(this);
-            VerificationEvidenceRuntime.recordPassiveEvent(
-                    this, "TEST_CAPABILITY_REFRESH",
-                    "test_id=" + testId + ";probe=external_avas;vehicle_write=false;actuation=false");
+            AudioCapabilityProbe.capture(this, testId, activeCorrelationId);
+            VerificationEvidenceRuntime.recordTestEvent(
+                    this, testId, activeCorrelationId, "TEST_CAPABILITY_REFRESH",
+                    "probe=external_avas;vehicle_write=false;actuation=false");
         } else if (testId.startsWith("PARK-HAZ-")) {
             ParkingHazardAutomationProbe.captureCapability(this);
-            VerificationEvidenceRuntime.recordPassiveEvent(
-                    this, "TEST_CAPABILITY_REFRESH",
-                    "test_id=" + testId + ";probe=parking_hazard;vehicle_write=false");
+            VerificationEvidenceRuntime.recordTestEvent(
+                    this, testId, activeCorrelationId, "TEST_CAPABILITY_REFRESH",
+                    "probe=parking_hazard;vehicle_write=false");
         } else if (testId.startsWith("ADAS-LDW-")) {
             LaneDepartureCapabilityProbe.capture(this);
-            VerificationEvidenceRuntime.recordPassiveEvent(
-                    this, "TEST_CAPABILITY_REFRESH",
-                    "test_id=" + testId + ";probe=lane_departure;voice_enabled=false;vehicle_write=false");
+            VerificationEvidenceRuntime.recordTestEvent(
+                    this, testId, activeCorrelationId, "TEST_CAPABILITY_REFRESH",
+                    "probe=lane_departure;voice_enabled=false;vehicle_write=false");
         } else if (testId.startsWith("WIN-POP-")) {
             PopupMultiWindowCapabilityProbe.capture(this, null);
-            VerificationEvidenceRuntime.recordPassiveEvent(
-                    this, "TEST_CAPABILITY_REFRESH",
-                    "test_id=" + testId + ";probe=popup_multiwindow;windowing_mode_request=false;actuation=false");
+            VerificationEvidenceRuntime.recordTestEvent(
+                    this, testId, activeCorrelationId, "TEST_CAPABILITY_REFRESH",
+                    "probe=popup_multiwindow;windowing_mode_request=false;actuation=false");
         }
     }
 
@@ -770,6 +770,10 @@ public class VerificationCenterActivity extends Activity {
 
     private Map<String,Integer> activeMarkerCounts() {
         if (activeCorrelationId == null) return new java.util.LinkedHashMap<>();
+        if ("AUD-LVDA-001".equals(activeTestId)) {
+            return VerificationEvidenceRuntime.operatorObservationCountsWithRequiredRaw(
+                    this, activeCorrelationId, rawKeysForTest(activeTestId));
+        }
         if (rawKeysForTest(activeTestId).length > 0) {
             return VerificationEvidenceRuntime.operatorObservationCountsWithRaw(
                     this, activeCorrelationId);
