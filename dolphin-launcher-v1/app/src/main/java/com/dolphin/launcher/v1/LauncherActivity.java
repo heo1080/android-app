@@ -676,7 +676,7 @@ public class LauncherActivity extends Activity {
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this, "PREMIUM_HMI_RENDER",
-                "variant=glass-vector-v3-premium;compat_variant=glass-vector-v2;hero=canvas-vector;bitmap_assets=false"
+                "variant=glass-vector-v3-premium;compat_variant=glass-vector-v3-premium;compat_variant=glass-vector-v2;hero=canvas-vector;bitmap_assets=false"
                         + ";hero_copy_dp=" + heroCopyWidthDp()
                         + ";cockpit_copy_dp=" + cockpitCopyWidthDp()
                         + ";hero_source_rail=MEDIA,NAV,VEH"
@@ -750,7 +750,7 @@ public class LauncherActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(22), dp(18), dp(22), dp(18));
         panel.setBackground(gradientRound(
-                new String[]{"#10252E", "#07151B", "#040A0E"}, 24, "#315A68"));
+                new String[]{"#14343E", "#081B22", "#030A0E"}, 24, "#356776"));
         panel.addView(hmiDialogHeader(
                 "FIXED VOICE", "22 prompts · real-car audible review", "♪"));
         panel.addView(hmiInfoStrip(
@@ -806,7 +806,7 @@ public class LauncherActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(22),dp(18),dp(22),dp(18));
         panel.setBackground(gradientRound(
-                new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
+                new String[]{"#14343E","#081B22","#030A0E"},24,"#356776"));
         LinearLayout soundHead = hmiDialogHeader(
                 "SOUND POSITION","Balance · Fader · Driver preset","◎");
         panel.addView(soundHead);
@@ -822,7 +822,7 @@ public class LauncherActivity extends Activity {
         driver.setOnClickListener(v->{ ownedSoundPosition.driverCenter(); Toast.makeText(this,"운전석 중심 요청값을 저장했습니다. 차량 적용은 아직 차단됩니다.",Toast.LENGTH_SHORT).show(); });
         panel.addView(driver,new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,dp(48)));
         VerificationEvidenceRuntime.recordPassiveEvent(
-                this,"SOUND_POSITION_HMI_RENDER","variant=glass-vector-v2");
+                this,"SOUND_POSITION_HMI_RENDER","variant=glass-vector-v3-premium;compat_variant=glass-vector-v2");
         new AlertDialog.Builder(this).setView(panel).setPositiveButton("완료",null)
                 .setNeutralButton("중앙 초기화",(d,w)->ownedSoundPosition.reset()).show();
     }
@@ -850,7 +850,7 @@ public class LauncherActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(22),dp(18),dp(22),dp(18));
         panel.setBackground(gradientRound(
-                new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
+                new String[]{"#14343E","#081B22","#030A0E"},24,"#356776"));
         LinearLayout eqHead = hmiDialogHeader(
                 "SOUND EQ","Bass · Mid · Treble","≋");
         panel.addView(eqHead);
@@ -872,7 +872,7 @@ public class LauncherActivity extends Activity {
         testLp.topMargin=dp(10);
         panel.addView(test,testLp);
         VerificationEvidenceRuntime.recordPassiveEvent(
-                this,"SOUND_EQ_HMI_RENDER","variant=glass-vector-v2");
+                this,"SOUND_EQ_HMI_RENDER","variant=glass-vector-v3-premium;compat_variant=glass-vector-v2");
         new AlertDialog.Builder(this).setView(panel).setPositiveButton("완료",null)
                 .setNeutralButton("초기화",(d,w)->{ ownedAudioEqualizer.reset(); Toast.makeText(this,"EQ를 0 / 0 / 0으로 초기화했습니다.",Toast.LENGTH_SHORT).show(); })
                 .show();
@@ -911,7 +911,7 @@ public class LauncherActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(18), dp(16), dp(18), dp(16));
         panel.setBackground(gradientRound(
-                new String[]{"#10252E","#07151B","#040A0E"}, 24, "#315A68"));
+                new String[]{"#14343E","#081B22","#030A0E"}, 24, "#356776"));
         panel.addView(hmiDialogHeader(
                 "NAVIGATION","NAVER · TMAP · KakaoNavi · ATLAN","MAP"));
         panel.addView(hmiInfoStrip(
@@ -1054,7 +1054,7 @@ public class LauncherActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(18),dp(16),dp(18),dp(16));
         panel.setBackground(gradientRound(
-                new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
+                new String[]{"#14343E","#081B22","#030A0E"},24,"#356776"));
         panel.addView(hmiDialogHeader(
                 "DISPLAY","Resolution · DPI · Font Scale","DSP"));
         panel.addView(hmiInfoStrip(
@@ -1146,7 +1146,7 @@ public class LauncherActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(18),dp(16),dp(18),dp(16));
         panel.setBackground(gradientRound(
-                new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
+                new String[]{"#14343E","#081B22","#030A0E"},24,"#356776"));
         panel.addView(hmiDialogHeader(
                 "DARK MODE","HMI theme · system night status","MOON"));
         panel.addView(hmiInfoStrip(
@@ -1199,7 +1199,7 @@ public class LauncherActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(24), dp(18), dp(24), dp(18));
         panel.setBackground(gradientRound(
-                new String[]{"#10252E","#07151B","#040A0E"}, 24, "#315A68"));
+                new String[]{"#14343E","#081B22","#030A0E"}, 24, "#356776"));
         panel.setElevation(dp(4));
 
         LinearLayout head = new LinearLayout(this);
@@ -1218,6 +1218,8 @@ public class LauncherActivity extends Activity {
         head.addView(count, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, dp(34)));
         panel.addView(head);
+        panel.addView(hmiInfoStrip(
+                "16 app-owned component slots · slot assigned ≠ launcher visibility verified"));
 
         EditText search = new EditText(this);
         search.setHint("앱 검색");
@@ -1227,7 +1229,7 @@ public class LauncherActivity extends Activity {
         search.setTextSize(15f);
         search.setPadding(dp(18), 0, dp(18), 0);
         search.setBackground(gradientRound(
-                new String[]{"#0B1D24","#061117"}, 17, "#274B58"));
+                new String[]{"#102A32","#07161C","#040B0F"}, 17, "#315B68"));
         LinearLayout.LayoutParams searchLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(48));
         searchLp.bottomMargin = dp(12);
@@ -1306,7 +1308,7 @@ public class LauncherActivity extends Activity {
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this, "APP_DRAWER_HMI_RENDER",
-                "variant=glass-vector-v2;glyphs=vector;app_icons=system-drawable"
+                "variant=glass-vector-v3-premium;compat_variant=glass-vector-v2;glyphs=vector;app_icons=system-drawable"
                         + ";state_badges=HOME,AUTO,MEDIA,L,R"
                         + ";tile_height_dp=138");
         dialog.show();
@@ -1318,9 +1320,9 @@ public class LauncherActivity extends Activity {
         tile.setGravity(Gravity.CENTER);
         tile.setPadding(dp(8), dp(10), dp(8), dp(8));
         tile.setBackground(pressableGradientRound(
-                new String[]{"#0E222A","#07151B","#050C10"},
-                new String[]{"#173440","#0A2028","#071419"},
-                19, "#244753"));
+                new String[]{"#12303A","#081A21","#040C10"},
+                new String[]{"#19424E","#0C2730","#06161B"},
+                19, "#315966"));
         tile.setElevation(dp(1));
         tile.setClickable(true);
         tile.setFocusable(true);
@@ -1328,7 +1330,7 @@ public class LauncherActivity extends Activity {
         int iconSize = compact ? 48 : 56;
         FrameLayout iconWell = new FrameLayout(this);
         iconWell.setBackground(gradientRound(
-                new String[]{"#17323A","#0A1A20"}, 17, "#2A515D"));
+                new String[]{"#1B4148","#0A2228","#061419"}, 17, "#3A6D70"));
         ImageView icon = new ImageView(this);
         icon.setImageDrawable(app.icon);
         icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -1391,7 +1393,7 @@ public class LauncherActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(18), dp(16), dp(18), dp(16));
         panel.setBackground(gradientRound(
-                new String[]{"#10252E","#07151B","#040A0E"}, 24, "#315A68"));
+                new String[]{"#14343E","#081B22","#030A0E"}, 24, "#356776"));
 
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.HORIZONTAL);
@@ -1498,7 +1500,7 @@ public class LauncherActivity extends Activity {
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this, "APP_ACTION_HMI_RENDER",
-                "variant=glass-vector-v2;rows=7;touch_min_dp=48"
+                "variant=glass-vector-v3-premium;compat_variant=glass-vector-v2;rows=7;touch_min_dp=48"
                         + ";state_badges=" + appStateBadges(app).replace(" · ", ","));
 
         ScrollView scroll = new ScrollView(this);
@@ -1696,7 +1698,7 @@ public class LauncherActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(18), dp(14), dp(18), dp(14));
         panel.setBackground(gradientRound(
-                new String[]{"#10252E","#07151B","#040A0E"}, 24, "#315A68"));
+                new String[]{"#14343E","#081B22","#030A0E"}, 24, "#356776"));
 
         LinearLayout autoHead = new LinearLayout(this);
         autoHead.setOrientation(LinearLayout.HORIZONTAL);
@@ -1719,6 +1721,8 @@ public class LauncherActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(58));
         autoHeadLp.bottomMargin = dp(8);
         panel.addView(autoHead, autoHeadLp);
+        panel.addView(hmiInfoStrip(
+                "2+ apps · ordered exact-alarm dispatch · launch request ≠ runtime success"));
 
         Switch master = new Switch(this);
         master.setText("시동 후 등록 앱 자동 실행");
@@ -1853,7 +1857,7 @@ public class LauncherActivity extends Activity {
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this, "AUTOSTART_HMI_RENDER",
-                "variant=glass-vector-v2;cards=" + selected.size()
+                "variant=glass-vector-v3-premium;compat_variant=glass-vector-v2;cards=" + selected.size()
                         + ";master=" + prefs.getBoolean(KEY_AUTOSTART_ENABLED, true));
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(scroll)
@@ -1952,7 +1956,7 @@ public class LauncherActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(18), dp(16), dp(18), dp(16));
         panel.setBackground(gradientRound(
-                new String[]{"#10252E","#07151B","#040A0E"}, 24, "#315A68"));
+                new String[]{"#14343E","#081B22","#030A0E"}, 24, "#356776"));
 
         LinearLayout head = new LinearLayout(this);
         head.setOrientation(LinearLayout.HORIZONTAL);
@@ -1977,6 +1981,8 @@ public class LauncherActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(60));
         headLp.bottomMargin = dp(8);
         panel.addView(head, headLp);
+        panel.addView(hmiInfoStrip(
+                "V1 BETA prerelease · stable promotion blocked until P0 + real-car evidence complete"));
 
         final AlertDialog[] holder = new AlertDialog[1];
 
@@ -1997,7 +2003,7 @@ public class LauncherActivity extends Activity {
                 }));
 
         panel.addView(settingsRow(
-                "앱 업데이트", "서명검증 OTA · 최신 릴리스 확인", "▶", false,
+                "앱 업데이트", "서명검증 OTA · GitHub BETA prerelease channel", "▶", false,
                 () -> AppUpdateManager.checkForUpdates(this, true)));
 
         panel.addView(settingsRow(
@@ -2035,7 +2041,7 @@ public class LauncherActivity extends Activity {
         panel.addView(settingsRow(
                 "Dolphin Launcher V1", "빌드 · 패키지 · Registry 정보", "⚙", false,
                 () -> new AlertDialog.Builder(this)
-                        .setTitle("Dolphin Launcher V1 OTA")
+                        .setTitle("Dolphin Launcher V1 BETA · OTA")
                         .setMessage("독립 패키지: com.dolphin.launcher.v1\n"
                                 + "버전: " + BuildConfig.VERSION_NAME + "\n\n"
                                 + "Registry v3 + 앱내 서명검증 OTA 업데이트 통합 빌드입니다.")
@@ -2044,7 +2050,7 @@ public class LauncherActivity extends Activity {
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this, "SETTINGS_HMI_RENDER",
-                "variant=glass-vector-v2;rows=7;danger_rows=2;golden_screenshot=true");
+                "variant=glass-vector-v3-premium;compat_variant=glass-vector-v2;rows=7;danger_rows=2;golden_screenshot=true");
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(panel)
@@ -2771,7 +2777,7 @@ public class LauncherActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(20),dp(16),dp(20),dp(16));
         panel.setBackground(gradientRound(
-                new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
+                new String[]{"#14343E","#081B22","#030A0E"},24,"#356776"));
         panel.addView(hmiDialogHeader(
                 "FSD · SAFETY","Navigation provenance · FSD evidence boundary","✓"));
         panel.addView(hmiInfoStrip(
@@ -2885,7 +2891,7 @@ public class LauncherActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(20),dp(16),dp(20),dp(16));
         panel.setBackground(gradientRound(
-                new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
+                new String[]{"#14343E","#081B22","#030A0E"},24,"#356776"));
 
         String state = registryFeatureState(
                 "BACKGROUND_MEDIA_AUTOPLAY","REVERIFY_REQUIRED");
@@ -3145,7 +3151,7 @@ public class LauncherActivity extends Activity {
         panel.setOrientation(LinearLayout.VERTICAL);
         panel.setPadding(dp(20),dp(16),dp(20),dp(16));
         panel.setBackground(gradientRound(
-                new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
+                new String[]{"#14343E","#081B22","#030A0E"},24,"#356776"));
 
         String vehicleState=registryFeatureState("LIVE_VEHICLE_INFO","BETA");
         boolean vehicleLive=vehicleGearRaw!=null||vehicleSpeedRaw!=null
