@@ -898,7 +898,8 @@ public class LauncherActivity extends Activity {
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this, "APP_DRAWER_HMI_RENDER",
-                "variant=glass-vector-v2;glyphs=vector;app_icons=system-drawable");
+                "variant=glass-vector-v2;glyphs=vector;app_icons=system-drawable"
+                        + ";state_badges=HOME,AUTO,MEDIA,L,R");
         dialog.show();
     }
 
@@ -936,12 +937,37 @@ public class LauncherActivity extends Activity {
         labelLp.topMargin = dp(7);
         tile.addView(label, labelLp);
 
+        TextView stateStrip = text(appStateBadges(app), compact ? 8.5f : 9f,
+                Color.parseColor("#74CFC1"), true);
+        stateStrip.setGravity(Gravity.CENTER);
+        stateStrip.setSingleLine(true);
+        stateStrip.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        stateStrip.setLetterSpacing(0.04f);
+        stateStrip.setPadding(dp(4), 0, dp(4), 0);
+        stateStrip.setBackground(gradientRound(
+                new String[]{"#0B1F24","#071317"}, 10, "#1E4048"));
+        tile.addView(stateStrip, new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(18)));
+
         tile.setOnClickListener(v -> launchPackage(app.packageName));
         tile.setOnLongClickListener(v -> {
             showAppActions(app);
             return true;
         });
         return tile;
+    }
+
+    private String appStateBadges(AppEntry app) {
+        if (app == null) return " ";
+        List<String> states = new ArrayList<>();
+        String pkg = app.packageName;
+        if (favoritePackages().contains(pkg)) states.add("HOME");
+        if (autoStartPackages().contains(pkg)) states.add("AUTO");
+        if (AutoStartStore.mediaEnabled(prefs, pkg)) states.add("MEDIA");
+        if (pkg.equals(prefs.getString(KEY_SPLIT_LEFT, null))) states.add("L");
+        if (pkg.equals(prefs.getString(KEY_SPLIT_RIGHT, null))) states.add("R");
+        if (states.isEmpty()) return " ";
+        return android.text.TextUtils.join(" · ", states);
     }
 
     private void showAppActions(AppEntry app) {

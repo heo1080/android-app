@@ -1817,7 +1817,9 @@
         "layout audit는 TextView 실제 문자열을 저장하지 않고 class/id/text_length와 geometry만 저장",
         "운전 중 조작 가능한 HMI 컨트롤은 visible touch target 기준 최소 48dp를 목표로 하며 UI layout audit에서 위반을 기록",
         "긴 cockpit/dock/app label은 fontScale을 강제 무시하지 않고 제한된 auto-size + ellipsis로 clipping을 완화",
-        "UI layout audit는 동일 display profile의 직전 baseline과 touch/ellipsis/clipping 수치를 비교하고 증가 시 regression으로 기록"
+        "UI layout audit는 동일 display profile의 직전 baseline과 touch/ellipsis/clipping 수치를 비교하고 증가 시 regression으로 기록",
+        "앱서랍/즐겨찾기 타일은 HOME/AUTO/MEDIA/SPLIT-L/SPLIT-R 상태를 한 줄 compact strip으로 표시",
+        "상태가 없는 앱도 동일한 strip 높이를 유지해 6열 grid 정렬이 흔들리지 않음"
       ],
       "required_logs": [
         "display profile",
@@ -1851,7 +1853,8 @@
         "UI_LAYOUT_AUDIT",
         "touch_target_min_dp",
         "UI_LAYOUT_BASELINE_COMPARE",
-        "UI_LAYOUT_REGRESSION"
+        "UI_LAYOUT_REGRESSION",
+        "state_badges=HOME,AUTO,MEDIA,L,R"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1890,7 +1893,8 @@
         "UiGoldenScreenshotRuntime HOME PNG capture",
         "UiLayoutAuditRuntime privacy-safe geometry audit",
         "fitSingleLine adaptive labels and 48dp interactive controls",
-        "same-profile UI audit regression delta comparison"
+        "same-profile UI audit regression delta comparison",
+        "appStateBadges compact app tile state strip"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
