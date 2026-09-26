@@ -2667,9 +2667,9 @@ public class LauncherActivity extends Activity {
         status.setOrientation(LinearLayout.HORIZONTAL);
         status.setPadding(0, dp(14), 0, 0);
 
-        TextView live = chip("● LIVE");
-        live.setTextColor(Color.parseColor("#77FDDC"));
-        status.addView(live, new LinearLayout.LayoutParams(
+        TextView sourceLayer = chip("● SOURCE LAYER");
+        sourceLayer.setTextColor(Color.parseColor("#8FAEB7"));
+        status.addView(sourceLayer, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, dp(32)));
 
         TextView split = chip(splitReady() ? "SPLIT READY" : "SPLIT SETUP");
