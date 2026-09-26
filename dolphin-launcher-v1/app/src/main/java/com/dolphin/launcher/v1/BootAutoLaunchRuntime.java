@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.SystemClock;
+import android.provider.Settings;
 
 import java.util.ArrayList;
 
@@ -18,11 +19,28 @@ public final class BootAutoLaunchRuntime {
     static final String EXTRA_MEDIA="media";
     static final String EXTRA_INDEX="index";
 
+    private static final String KEY_LAST_BOOT_DISPATCH_ELAPSED =
+            "boot_autostart_last_dispatch_elapsed";
+    private static final String KEY_LAST_BOOT_DISPATCH_ACTION =
+            "boot_autostart_last_dispatch_action";
+    private static final String KEY_LAST_BOOT_COUNT =
+            "boot_autostart_last_boot_count";
+    private static final long SAME_ACTION_DUPLICATE_WINDOW_MS = 10_000L;
+    private static final long CROSS_ACTION_DUPLICATE_WINDOW_MS = 120_000L;
+    private static long processLastDispatchElapsed = -1L;
+    private static String processLastDispatchAction = "";
+    private static int processBootCount = -1;
+
     private BootAutoLaunchRuntime() {}
 
     public static void dispatch(Context context) {
+        dispatch(context, "unknown");
+    }
+
+    public static void dispatch(Context context,String sourceAction) {
         Context app=context.getApplicationContext();
         SharedPreferences p=app.getSharedPreferences(LauncherActivity.PREFS,Context.MODE_PRIVATE);
+        if(!claimBootDispatch(app,p,sourceAction)) return;
         if(!p.getBoolean("autostart_enabled",true)){
             VerificationEvidenceRuntime.recordPassiveEvent(
                     app,"AUTOSTART_SKIPPED","source=boot-receiver;reason=master-disabled");
@@ -31,13 +49,87 @@ public final class BootAutoLaunchRuntime {
 
         ArrayList<String> packages=new ArrayList<>(AutoStartStore.read(p));
         VerificationEvidenceRuntime.recordPassiveEvent(
-                app,"AUTOSTART_BOOT_BATCH","registered="+packages.size());
+                app,"AUTOSTART_BOOT_BATCH",
+                "registered="+packages.size()+";boot_count="+processBootCount);
 
         for(int i=0;i<packages.size();i++){
             String pkg=packages.get(i);
             long delay=AutoStartStore.delayMs(p,pkg,i);
             boolean media=AutoStartStore.mediaEnabled(p,pkg);
             schedule(app,pkg,delay,media,i);
+        }
+    }
+
+    private static synchronized boolean claimBootDispatch(
+            Context app,SharedPreferences p,String sourceAction){
+        String action=sourceAction==null?"unknown":sourceAction;
+        long now=SystemClock.elapsedRealtime();
+        int bootCount=readBootCount(app);
+        int storedBootCount=p.getInt(KEY_LAST_BOOT_COUNT,-1);
+        long storedElapsed=p.getLong(KEY_LAST_BOOT_DISPATCH_ELAPSED,-1L);
+        String storedAction=p.getString(KEY_LAST_BOOT_DISPATCH_ACTION,"");
+
+        long lastElapsed=processLastDispatchElapsed;
+        String lastAction=processLastDispatchAction;
+        if(bootCount>=0 && storedBootCount==bootCount
+                && storedElapsed>lastElapsed){
+            lastElapsed=storedElapsed;
+            lastAction=storedAction;
+        }
+
+        // Process memory cannot survive a real reboot. Persisted elapsed time is
+        // consulted only when the public BOOT_COUNT proves the same boot epoch.
+        if(lastElapsed>=0L && now>=lastElapsed){
+            long since=now-lastElapsed;
+            long window=action.equals(lastAction)
+                    ? SAME_ACTION_DUPLICATE_WINDOW_MS
+                    : CROSS_ACTION_DUPLICATE_WINDOW_MS;
+            if(since<window){
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        app,"AUTOSTART_DUPLICATE_BOOT_SUPPRESSED",
+                        "action="+action
+                                +";last_action="+lastAction
+                                +";boot_count="+bootCount
+                                +";since_ms="+since
+                                +";window_ms="+window
+                                +";duplicate_dispatch=false");
+                return false;
+            }
+        }
+
+        if(bootCount<0){
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    app,"AUTOSTART_DEDUP_BOOT_ID_UNAVAILABLE",
+                    "action="+action
+                            +";persisted_elapsed_guard=false"
+                            +";process_guard=true");
+        }
+
+        processLastDispatchElapsed=now;
+        processLastDispatchAction=action;
+        processBootCount=bootCount;
+        SharedPreferences.Editor editor=p.edit()
+                .putLong(KEY_LAST_BOOT_DISPATCH_ELAPSED,now)
+                .putString(KEY_LAST_BOOT_DISPATCH_ACTION,action);
+        if(bootCount>=0) editor.putInt(KEY_LAST_BOOT_COUNT,bootCount);
+        else editor.remove(KEY_LAST_BOOT_COUNT);
+        boolean persisted=editor.commit();
+        if(!persisted){
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    app,"AUTOSTART_DEDUP_STATE_PERSIST_FAILED",
+                    "action="+action
+                            +";boot_count="+bootCount
+                            +";process_guard=true");
+        }
+        return true;
+    }
+
+    private static int readBootCount(Context app){
+        try{
+            return Settings.Global.getInt(
+                    app.getContentResolver(),Settings.Global.BOOT_COUNT,-1);
+        }catch(Exception e){
+            return -1;
         }
     }
 
