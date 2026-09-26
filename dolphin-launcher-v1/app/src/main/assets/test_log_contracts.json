@@ -825,7 +825,9 @@
         "fixed voice generation credentials are never persisted into APK/source/manifest/logs",
         "open-license Ppaso candidate generation never changes app ASSET_REQUIRED/ASSET_READY state or packaged res/raw assets",
         "candidate bundle contains exactly 22 RIFF/WAVE 24kHz 16-bit mono files plus SHA-256/byte/duration metadata",
-        "P/R/N/D and ICC candidate synthesis may use Korean pronunciation text while event/value/id/manifest phrase semantics remain unchanged"
+        "P/R/N/D and ICC candidate synthesis may use Korean pronunciation text while event/value/id/manifest phrase semantics remain unchanged",
+        "Ppaso candidate trims model-added leading silence at -60dB while retaining 30ms pre-roll and 60ms post-roll",
+        "candidate trim metrics are diagnostic only and do not replace manual audible quality/pronunciation verification"
       ],
       "required_logs": [
         "VOICE_ASSET_READY",
@@ -842,7 +844,20 @@
         "sha256=verified",
         "PPASO_FIXED_VOICE_CANDIDATE_OK",
         "candidate_only=true",
-        "app_manifest_unchanged=true"
+        "app_manifest_unchanged=true",
+        "t",
+        "r",
+        "i",
+        "m",
+        "e",
+        "d",
+        "_",
+        "l",
+        "a",
+        "n",
+        "g",
+        "s",
+        "="
       ]
     },
     {
@@ -899,7 +914,9 @@
         "fixed voice generation credentials are never persisted into APK/source/manifest/logs",
         "open-license Ppaso candidate generation never changes app ASSET_REQUIRED/ASSET_READY state or packaged res/raw assets",
         "candidate bundle contains exactly 22 RIFF/WAVE 24kHz 16-bit mono files plus SHA-256/byte/duration metadata",
-        "P/R/N/D and ICC candidate synthesis may use Korean pronunciation text while event/value/id/manifest phrase semantics remain unchanged"
+        "P/R/N/D and ICC candidate synthesis may use Korean pronunciation text while event/value/id/manifest phrase semantics remain unchanged",
+        "Ppaso candidate trims model-added leading silence at -60dB while retaining 30ms pre-roll and 60ms post-roll",
+        "candidate trim metrics are diagnostic only and do not replace manual audible quality/pronunciation verification"
       ],
       "required_logs": [
         "VOICE_TTS_READY",
@@ -925,7 +942,20 @@
         "sha256=verified",
         "PPASO_FIXED_VOICE_CANDIDATE_OK",
         "candidate_only=true",
-        "app_manifest_unchanged=true"
+        "app_manifest_unchanged=true",
+        "t",
+        "r",
+        "i",
+        "m",
+        "e",
+        "d",
+        "_",
+        "l",
+        "a",
+        "n",
+        "g",
+        "s",
+        "="
       ]
     },
     {
