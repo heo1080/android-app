@@ -28,6 +28,9 @@ TARGET_RATE = 24000
 MODEL_REPO = "akamotaco/ppaso-tts-v1"
 DEFAULT_MODEL_REVISION = "53d09664c4f636a5fb6f2ebe3ec22cd83ee249b9"
 PROFILE_ID = "ppaso-v8-ko-female-24k-pcm-candidate-v1"
+SILENCE_THRESHOLD_DB = -60.0
+LEADING_PAD_MS = 30
+TRAILING_PAD_MS = 60
 
 SYNTH_TEXT = {
     "gear_p": "피",
@@ -67,6 +70,36 @@ def resample_to_24k(samples: np.ndarray, source_rate: int = SOURCE_RATE) -> np.n
     old_x = np.arange(data.size, dtype=np.float64)
     new_x = np.linspace(0.0, float(data.size - 1), target_frames, dtype=np.float64)
     return np.interp(new_x, old_x, data).astype(np.float32)
+
+
+def trim_candidate_silence(
+    samples: np.ndarray,
+    sample_rate: int = TARGET_RATE,
+) -> tuple[np.ndarray, dict]:
+    data = np.asarray(samples, dtype=np.float32).reshape(-1)
+    if data.size == 0:
+        raise ValueError("cannot trim empty audio")
+    threshold = float(10.0 ** (SILENCE_THRESHOLD_DB / 20.0))
+    active = np.flatnonzero(np.abs(data) >= threshold)
+    if active.size == 0:
+        raise ValueError("candidate audio has no activity above silence threshold")
+
+    leading_pad = int(round(sample_rate * LEADING_PAD_MS / 1000.0))
+    trailing_pad = int(round(sample_rate * TRAILING_PAD_MS / 1000.0))
+    start = max(0, int(active[0]) - leading_pad)
+    end = min(data.size, int(active[-1]) + 1 + trailing_pad)
+    trimmed = data[start:end].copy()
+    if trimmed.size == 0:
+        raise ValueError("silence trim removed entire candidate")
+
+    return trimmed, {
+        "silence_trim_db": int(SILENCE_THRESHOLD_DB),
+        "leading_pad_ms": LEADING_PAD_MS,
+        "trailing_pad_ms": TRAILING_PAD_MS,
+        "trimmed_leading_ms": int(round(start * 1000.0 / sample_rate)),
+        "trimmed_trailing_ms": int(round((data.size - end) * 1000.0 / sample_rate)),
+        "original_duration_ms": int(round(data.size * 1000.0 / sample_rate)),
+    }
 
 
 def float_to_pcm16(samples: np.ndarray) -> np.ndarray:
@@ -154,8 +187,9 @@ def generate(model_dir: Path, output_dir: Path, model_revision: str) -> int:
         synth_text = SYNTH_TEXT.get(prompt_id, phrase)
         raw = np.asarray(tts.synthesize(synth_text), dtype=np.float32).reshape(-1)
         converted = resample_to_24k(raw, SOURCE_RATE)
+        trimmed, trim_meta = trim_candidate_silence(converted, TARGET_RATE)
         path = output_dir / f'{prompt["resource"]}.wav'
-        write_pcm16_wav(path, converted)
+        write_pcm16_wav(path, trimmed)
         meta = validate_wav(path)
         records.append({
             "id": prompt_id,
@@ -164,11 +198,14 @@ def generate(model_dir: Path, output_dir: Path, model_revision: str) -> int:
             "resource": prompt["resource"],
             "manifest_phrase": phrase,
             "synthesis_text": synth_text,
+            **trim_meta,
             **meta,
         })
         print(
             f"PPASO_VOICE_CANDIDATE index={index}/22 resource={prompt['resource']} "
-            f"bytes={meta['bytes']} duration_ms={meta['duration_ms']}"
+            f"bytes={meta['bytes']} duration_ms={meta['duration_ms']} "
+            f"trimmed_leading_ms={trim_meta['trimmed_leading_ms']} "
+            f"trimmed_trailing_ms={trim_meta['trimmed_trailing_ms']}"
         )
 
     candidate = {
@@ -184,6 +221,12 @@ def generate(model_dir: Path, output_dir: Path, model_revision: str) -> int:
         "voice": "single Korean female voice",
         "source_sample_rate": SOURCE_RATE,
         "output_format": "riff-24khz-16bit-mono-pcm",
+        "trim_policy": {
+            "silence_trim_db": int(SILENCE_THRESHOLD_DB),
+            "leading_pad_ms": LEADING_PAD_MS,
+            "trailing_pad_ms": TRAILING_PAD_MS,
+            "quality_claim": False,
+        },
         "generated_at_utc": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
         "asset_count": len(records),
         "assets": records,
@@ -214,6 +257,23 @@ def self_test() -> int:
     expected = int(round(source_frames * TARGET_RATE / SOURCE_RATE))
     if abs(converted.size - expected) > 1:
         raise SystemExit(f"candidate resample size mismatch expected={expected} actual={converted.size}")
+    silence = np.zeros(int(TARGET_RATE * 0.20), dtype=np.float32)
+    tone = (0.1 * np.sin(
+        2.0 * math.pi * 440.0
+        * np.arange(int(TARGET_RATE * 0.12), dtype=np.float32)
+        / TARGET_RATE
+    )).astype(np.float32)
+    padded = np.concatenate([silence, tone, silence])
+    trimmed, trim_meta = trim_candidate_silence(padded)
+    if not (150 <= trim_meta["trimmed_leading_ms"] <= 180):
+        raise SystemExit(f"candidate leading trim drift: {trim_meta}")
+    if not (120 <= trim_meta["trimmed_trailing_ms"] <= 150):
+        raise SystemExit(f"candidate trailing trim drift: {trim_meta}")
+    if trim_meta["leading_pad_ms"] != 30 or trim_meta["trailing_pad_ms"] != 60:
+        raise SystemExit(f"candidate trim pad drift: {trim_meta}")
+    if trimmed.size >= padded.size:
+        raise SystemExit("candidate silence trim did not reduce fixture")
+
     if SYNTH_TEXT != {
         "gear_p": "피",
         "gear_r": "알",
@@ -225,7 +285,8 @@ def self_test() -> int:
         raise SystemExit("candidate pronunciation override drift")
     print(
         "PPASO_CANDIDATE_SELF_TEST_OK source_rate=22050 target_rate=24000 "
-        "semantic_phrase_preserved=true promotion=false"
+        "semantic_phrase_preserved=true promotion=false silence_trim_db=-60 "
+        "leading_pad_ms=30 trailing_pad_ms=60"
     )
     return 0
 
