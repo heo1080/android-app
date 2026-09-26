@@ -412,6 +412,7 @@ public final class VerificationEvidenceRuntime {
             addAsset(context, out, "known_bad_registry.json");
             addAsset(context, out, "voice_prompt_manifest.json");
             addSessionLedger(context, out, sessionId);
+            addUiScreenshots(context, out, sessionId);
 
             JSONObject identity = new JSONObject();
             identity.put("package", context.getPackageName());
@@ -623,6 +624,20 @@ public final class VerificationEvidenceRuntime {
             }
         }
         out.closeEntry();
+    }
+
+    private static void addUiScreenshots(
+            Context context, ZipOutputStream out, String sessionId) throws Exception {
+        File dir = UiGoldenScreenshotRuntime.screenshotDir(context);
+        File[] files = dir.listFiles((d, name) ->
+                name.endsWith(".png") && name.contains(sessionId));
+        if (files == null || files.length == 0) return;
+        java.util.Arrays.sort(files, (a, b) ->
+                Long.compare(b.lastModified(), a.lastModified()));
+        int limit = Math.min(6, files.length);
+        for (int i = 0; i < limit; i++) {
+            addFile(out, files[i], "ui_screenshots/" + files[i].getName());
+        }
     }
 
     private static void addFile(ZipOutputStream out, File file, String name) throws Exception {
