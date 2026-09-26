@@ -827,7 +827,10 @@
         "candidate bundle contains exactly 22 RIFF/WAVE 24kHz 16-bit mono files plus SHA-256/byte/duration metadata",
         "P/R/N/D and ICC candidate synthesis may use Korean pronunciation text while event/value/id/manifest phrase semantics remain unchanged",
         "Ppaso candidate trims model-added leading silence at -60dB while retaining 30ms pre-roll and up to 60ms of available trailing source silence",
-        "candidate trim metrics are diagnostic only and do not replace manual audible quality/pronunciation verification"
+        "candidate trim metrics are diagnostic only and do not replace manual audible quality/pronunciation verification",
+        "fixed voice review panel enumerates exactly 22 VehicleVoicePolicy prompt IDs without duplicated Launcher phrase catalog",
+        "preview button dispatch is app-owned audio only and does not mutate vehicle state",
+        "VOICE_FIXED_PREVIEW_REQUESTED remains a request marker and does not count as audible success"
       ],
       "required_logs": [
         "VOICE_ASSET_READY",
@@ -848,7 +851,11 @@
         "silence_trim_db=-60",
         "leading_pad_ms=30",
         "trailing_pad_ms=60",
-        "trimmed_leading_ms="
+        "trimmed_leading_ms=",
+        "VOICE_FIXED_PREVIEW_HMI_RENDER",
+        "VOICE_FIXED_PREVIEW_REQUESTED",
+        "prompt_count=22",
+        "vehicle_write=false"
       ]
     },
     {
@@ -907,7 +914,10 @@
         "candidate bundle contains exactly 22 RIFF/WAVE 24kHz 16-bit mono files plus SHA-256/byte/duration metadata",
         "P/R/N/D and ICC candidate synthesis may use Korean pronunciation text while event/value/id/manifest phrase semantics remain unchanged",
         "Ppaso candidate trims model-added leading silence at -60dB while retaining 30ms pre-roll and up to 60ms of available trailing source silence",
-        "candidate trim metrics are diagnostic only and do not replace manual audible quality/pronunciation verification"
+        "candidate trim metrics are diagnostic only and do not replace manual audible quality/pronunciation verification",
+        "fixed voice review panel enumerates exactly 22 VehicleVoicePolicy prompt IDs without duplicated Launcher phrase catalog",
+        "preview button dispatch is app-owned audio only and does not mutate vehicle state",
+        "VOICE_FIXED_PREVIEW_REQUESTED remains a request marker and does not count as audible success"
       ],
       "required_logs": [
         "VOICE_TTS_READY",
@@ -937,7 +947,11 @@
         "silence_trim_db=-60",
         "leading_pad_ms=30",
         "trailing_pad_ms=60",
-        "trimmed_leading_ms="
+        "trimmed_leading_ms=",
+        "VOICE_FIXED_PREVIEW_HMI_RENDER",
+        "VOICE_FIXED_PREVIEW_REQUESTED",
+        "prompt_count=22",
+        "vehicle_write=false"
       ]
     },
     {
@@ -2501,7 +2515,9 @@
         "HOME render evidence reports dock_items=6 for the six primary actions",
         "cockpit vectors expose TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE scope labels with WAITING/LIVE/STALE/BLOCKED source-state text",
         "cockpit source-state text is explicitly source availability only and does not imply feature VERIFIED state",
-        "cockpit source legend scope/state text uses separate rows and width-fitted text so compact 10-inch cards do not overlap"
+        "cockpit source legend scope/state text uses separate rows and width-fitted text so compact 10-inch cards do not overlap",
+        "SOUND LAB renders EQ / sound position / fixed voice as three safe preview cards",
+        "fixed voice panel uses a scroll-safe dialog and exposes all 22 prompt review buttons"
       ],
       "required_logs": [
         "display profile",
@@ -2527,7 +2543,9 @@
         "utility_copy_dp=",
         "utility_icon_dp=",
         "cockpit_copy_dp=",
-        "dock_items=6"
+        "dock_items=6",
+        "VOICE_FIXED_PREVIEW_HMI_RENDER",
+        "sound_lab_cards=3"
       ]
     },
     {
@@ -2576,7 +2594,9 @@
         "HOME render evidence reports dock_items=6 for the six primary actions",
         "cockpit vectors expose TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE scope labels with WAITING/LIVE/STALE/BLOCKED source-state text",
         "cockpit source-state text is explicitly source availability only and does not imply feature VERIFIED state",
-        "cockpit source legend scope/state text uses separate rows and width-fitted text so compact 10-inch cards do not overlap"
+        "cockpit source legend scope/state text uses separate rows and width-fitted text so compact 10-inch cards do not overlap",
+        "SOUND LAB renders EQ / sound position / fixed voice as three safe preview cards",
+        "fixed voice panel uses a scroll-safe dialog and exposes all 22 prompt review buttons"
       ],
       "required_logs": [
         "display profile",
@@ -2602,7 +2622,9 @@
         "utility_copy_dp=",
         "utility_icon_dp=",
         "cockpit_copy_dp=",
-        "dock_items=6"
+        "dock_items=6",
+        "VOICE_FIXED_PREVIEW_HMI_RENDER",
+        "sound_lab_cards=3"
       ]
     },
     {

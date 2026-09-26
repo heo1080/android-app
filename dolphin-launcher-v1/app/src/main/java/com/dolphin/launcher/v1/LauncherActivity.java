@@ -631,6 +631,7 @@ public class LauncherActivity extends Activity {
         content.addView(audio, audioLp);
         audio.addView(actionCard("사운드 EQ", "저음 · 중음 · 고음", "≋", this::showEqualizer), weighted());
         audio.addView(actionCard("음장 위치", "BETA · 미리보기", "◎", this::showSoundPosition), weighted());
+        audio.addView(actionCard("고정 음성", "22개 · 실차 청취", "♪", this::showFixedVoicePreview), weighted());
 
         content.addView(sectionHeader("TYRE MONITOR", "Live read-only pressure layer"));
 
@@ -689,7 +690,7 @@ public class LauncherActivity extends Activity {
                         + ";home_hero_height_dp=238;home_cockpit_height_dp=168"
                         + ";topbar_height_dp=60;dock_height_dp=84"
                         + ";tpms_cards=4;tpms_visual=vector-wheel-gauge"
-                        + ";quick_cards=4;dock_items=6");
+                        + ";quick_cards=4;sound_lab_cards=3;dock_items=6");
 
         TextView footer = text(
                 "앱 길게 누르기  →  홈 고정 · 2분할 좌/우 · 시동 자동실행 · 앱 정보",
@@ -741,6 +742,61 @@ public class LauncherActivity extends Activity {
         lp.bottomMargin=dp(10);
         strip.setLayoutParams(lp);
         return strip;
+    }
+
+    private void showFixedVoicePreview() {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(22), dp(18), dp(22), dp(18));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E", "#07151B", "#040A0E"}, 24, "#315A68"));
+        panel.addView(hmiDialogHeader(
+                "FIXED VOICE", "22 prompts · real-car audible review", "♪"));
+        panel.addView(hmiInfoStrip(
+                "앱 소유 오디오만 재생 · 차량 write 없음 · 재생 요청 ≠ 가청 성공"));
+
+        String[] promptIds = VehicleVoicePolicy.promptIds();
+        int rendered = 0;
+        for (String promptId : promptIds) {
+            String phrase = VehicleVoicePolicy.phraseForPromptId(promptId);
+            if (phrase == null || phrase.length() == 0) continue;
+            Button preview = button(phrase + "   ·   " + promptId);
+            preview.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
+            preview.setAllCaps(false);
+            preview.setPadding(dp(16), 0, dp(12), 0);
+            preview.setBackground(pressableGradientRound(
+                    new String[]{"#112C34", "#091B21"},
+                    new String[]{"#183D47", "#0C2931"},
+                    15, "#315A68"));
+            preview.setOnClickListener(v -> {
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        this, "VOICE_FIXED_PREVIEW_REQUESTED",
+                        "prompt=" + promptId + ";phrase=" + phrase + ";vehicle_write=false");
+                if (vehiclePromptPlayer == null) {
+                    VerificationEvidenceRuntime.recordPassiveEvent(
+                            this, "VOICE_PROMPT_NOT_READY",
+                            promptId + " phrase=" + phrase + ";source=fixed_preview;queued=false");
+                    Toast.makeText(this, "음성 재생기가 아직 준비되지 않았습니다.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                vehiclePromptPlayer.play(promptId, phrase);
+            });
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, dp(50));
+            lp.bottomMargin = dp(6);
+            panel.addView(preview, lp);
+            rendered++;
+        }
+
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this, "VOICE_FIXED_PREVIEW_HMI_RENDER",
+                "prompt_count=" + rendered
+                        + ";catalog=VehicleVoicePolicy;vehicle_write=false;scroll_safe=true");
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(referenceDialogScroll(panel))
+                .setPositiveButton("완료", null)
+                .create();
+        showReferenceDialog(dialog, 0.72f, 0.86f);
     }
 
     private void showSoundPosition() {
