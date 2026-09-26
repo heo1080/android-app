@@ -166,6 +166,7 @@ public class LauncherActivity extends Activity {
         InteriorLightCapabilityProbe.capture(this);
         ParkingHazardAutomationProbe.captureCapability(this);
         LaneDepartureCapabilityProbe.capture(this);
+        PopupMultiWindowCapabilityProbe.capture(this, null);
         BlockedCapabilityRuntime.capture(this);
         DisplayDiagnostics.captureLaunchableAppOrientations(this);
         VerificationEvidenceRuntime.retryPendingUploadsAsync(this);
@@ -1510,6 +1511,16 @@ public class LauncherActivity extends Activity {
                 }, holder));
 
         panel.addView(appActionRow(
+                "팝업 멀티윈도우 BETA",
+                "BLOCKED · Freeform capability evidence만 수집",
+                "□", false, () -> {
+                    PopupMultiWindowCapabilityProbe.capture(this, app.packageName);
+                    Toast.makeText(this,
+                            "팝업 멀티윈도우 capability evidence를 기록했습니다. 실행은 아직 BLOCKED입니다.",
+                            Toast.LENGTH_LONG).show();
+                }, holder));
+
+        panel.addView(appActionRow(
                 auto ? "시동 자동실행에서 제거" : "시동 자동실행에 추가",
                 auto ? "BOOT sequence 등록 해제" : "BOOT sequence에 현재 앱 추가",
                 "▶", false, () -> {
@@ -1524,7 +1535,7 @@ public class LauncherActivity extends Activity {
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this, "APP_ACTION_HMI_RENDER",
-                "variant=glass-vector-v3-premium;compat_variant=glass-vector-v2;rows=7;touch_min_dp=48"
+                "variant=glass-vector-v3-premium;compat_variant=glass-vector-v2;rows=8;touch_min_dp=48"
                         + ";state_badges=" + appStateBadges(app).replace(" · ", ","));
 
         ScrollView scroll = new ScrollView(this);
