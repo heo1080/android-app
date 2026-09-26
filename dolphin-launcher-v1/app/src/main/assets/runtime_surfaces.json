@@ -1212,7 +1212,14 @@
         "text_content_logged",
         "getRootWindowInsets",
         "getGlobalVisibleRect",
-        "UI_LAYOUT_AUDIT"
+        "UI_LAYOUT_AUDIT",
+        "findComparablePrevious",
+        "baseline_available",
+        "delta_touch",
+        "delta_ellipsis",
+        "delta_clips",
+        "UI_LAYOUT_REGRESSION",
+        "UI_LAYOUT_BASELINE_COMPARE"
       ]
     },
     {
@@ -1225,7 +1232,14 @@
         "night_mode",
         "system_window_insets",
         "window_visible_frame",
-        "touch_target_min_dp"
+        "touch_target_min_dp",
+        "findComparablePrevious",
+        "baseline_available",
+        "delta_touch",
+        "delta_ellipsis",
+        "delta_clips",
+        "UI_LAYOUT_REGRESSION",
+        "UI_LAYOUT_BASELINE_COMPARE"
       ]
     }
   ],
