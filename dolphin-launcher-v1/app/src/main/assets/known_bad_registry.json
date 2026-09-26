@@ -151,8 +151,8 @@
       "test_ids": [
         "DIA-UP-001"
       ],
-      "summary": "V1 evidence upload currently injects DOLPHIN_UPLOAD_KEY into BuildConfig and VerificationEvidenceRuntime reads BuildConfig.EVIDENCE_UPLOAD_KEY; an APK-static shared credential is extractable and does not satisfy the Android Keystore secure-secret requirement.",
-      "state": "OPEN",
+      "summary": "APK-static BuildConfig upload credential removed from the candidate; evidence ZIP queue now fails closed and remains retained until a server-backed Android Keystore runtime enrollment path is proven.",
+      "state": "FIX_CANDIDATE",
       "close_gate": "remove the APK-static shared upload credential; use an evidence-backed runtime credential/enrollment path with private credential material protected by Android Keystore (or an equally strong non-extractable platform mechanism), prove rotation/revocation behavior, and verify real-car upload receipts without a reusable secret embedded in APK strings"
     }
   ]
