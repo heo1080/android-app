@@ -148,13 +148,20 @@
         "세션 ZIP 생성",
         "차량 raw/state/audio/display 정보 포함",
         "업로드 결과 확인",
-        "토큰은 Android Keystore 보호"
+        "토큰은 Android Keystore 보호",
+        "automatic upload runtime retries queued ZIPs on app network availability and boot",
+        "upload receipt must match queued bundle session_id and SHA-256"
       ],
       "required_logs": [
         "session manifest",
         "events.jsonl/full log",
         "upload result",
-        "build identity"
+        "build identity",
+        "AUTO_BUNDLE",
+        "EVIDENCE_UPLOAD_ATTEMPT",
+        "EVIDENCE_UPLOAD_RECEIPT",
+        "EVIDENCE_UPLOAD_RETRY_RETAINED",
+        "BOOT_UPLOAD_RETRY_FINISHED"
       ]
     },
     {
@@ -186,13 +193,20 @@
         "세션 ZIP 생성",
         "차량 raw/state/audio/display 정보 포함",
         "업로드 결과 확인",
-        "토큰은 Android Keystore 보호"
+        "토큰은 Android Keystore 보호",
+        "automatic upload runtime retries queued ZIPs on app network availability and boot",
+        "upload receipt must match queued bundle session_id and SHA-256"
       ],
       "required_logs": [
         "session manifest",
         "events.jsonl/full log",
         "upload result",
-        "build identity"
+        "build identity",
+        "AUTO_BUNDLE",
+        "EVIDENCE_UPLOAD_ATTEMPT",
+        "EVIDENCE_UPLOAD_RECEIPT",
+        "EVIDENCE_UPLOAD_RETRY_RETAINED",
+        "BOOT_UPLOAD_RETRY_FINISHED"
       ]
     },
     {
@@ -2289,12 +2303,18 @@
         "version 비교",
         "동일 package/signature",
         "installer confirmation",
-        "실패 시 현 버전 유지"
+        "실패 시 현 버전 유지",
+        "automatic app-start release check remains wired",
+        "Evidence ledger covers release check, verified package, installer stage and final install status"
       ],
       "required_logs": [
         "release metadata",
         "download hash",
-        "installed version/signature"
+        "installed version/signature",
+        "APP_UPDATE_RELEASE_CHECK",
+        "APP_UPDATE_PACKAGE_VERIFIED",
+        "APP_UPDATE_INSTALL_STAGED",
+        "APP_UPDATE_INSTALL_STATUS"
       ]
     },
     {
@@ -2327,12 +2347,18 @@
         "version 비교",
         "동일 package/signature",
         "installer confirmation",
-        "실패 시 현 버전 유지"
+        "실패 시 현 버전 유지",
+        "automatic app-start release check remains wired",
+        "Evidence ledger covers release check, verified package, installer stage and final install status"
       ],
       "required_logs": [
         "release metadata",
         "download hash",
-        "installed version/signature"
+        "installed version/signature",
+        "APP_UPDATE_RELEASE_CHECK",
+        "APP_UPDATE_PACKAGE_VERIFIED",
+        "APP_UPDATE_INSTALL_STAGED",
+        "APP_UPDATE_INSTALL_STATUS"
       ]
     },
     {
