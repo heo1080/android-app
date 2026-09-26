@@ -1058,7 +1058,12 @@
         "storedBootCount==bootCount",
         "AUTOSTART_DEDUP_BOOT_ID_UNAVAILABLE",
         "persisted_elapsed_guard=false",
-        "boot_count="
+        "boot_count=",
+        "android.net.Uri",
+        "dolphin-v1://autostart/",
+        "Uri.encode(pkg)",
+        "pending_identity=package-index",
+        "pending_data_unique=true"
       ]
     },
     {
@@ -1138,7 +1143,13 @@
         "BACKGROUND_MEDIA_STAGE_SCHEDULE_FAILED",
         "process_independent=true",
         "ACTION_MEDIA_PLAY_STAGE",
-        "ACTION_MEDIA_READBACK_STAGE"
+        "ACTION_MEDIA_READBACK_STAGE",
+        "android.net.Uri",
+        "dolphin-v1://media-stage/",
+        "Uri.encode(pkg)",
+        "Uri.encode(stage)",
+        "pending_identity=package-stage",
+        "pending_data_unique=true"
       ]
     },
     {
