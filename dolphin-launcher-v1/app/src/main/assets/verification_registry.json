@@ -2408,7 +2408,7 @@
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음",
-        "KB-014: evaluator metadata self-match can contaminate success_any/failure_any unless canonical metadata is excluded"
+        "KB-014 historical failure mode: evaluator metadata self-match could contaminate success_any/failure_any before runtime-only metadata exclusion; V1/production fixes are implemented, but representative existing Evidence must be re-evaluated before closure"
       ],
       "dependencies": [
         "latest source",
@@ -2444,9 +2444,9 @@
         "Verification Center close control 48dp touch target",
         "Verification Center UI QUALITY summary card",
         "structured UI frame timing bundle and Verification Center metrics",
-        "V1 metadata-isolated evaluate_diagnostic.py candidate with synthetic metadata-only/runtime-success/runtime-failure ZIP self-tests"
+        "V1 and production diagnostic evaluators implement runtime-only metadata isolation with synthetic metadata-only/runtime-success/runtime-failure self-tests"
       ],
-      "next_action": "KB-014: V1 metadata-isolated evaluator CI self-test 통과 → diagnostics production evaluator가 동일 runtime-only scope를 사용하도록 전환 → 기존 Evidence 재평가 후에만 GOV-REG-001 PASS 허용",
+      "next_action": "KB-014: V1/production runtime-only metadata isolation 구현 상태를 유지하고 기존 대표 Evidence를 재평가 → metadata contamination 제거가 확인되기 전 FIX_CANDIDATE 유지 → 재평가 후에만 lifecycle 전환 및 GOV-REG-001 PASS 검토",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
