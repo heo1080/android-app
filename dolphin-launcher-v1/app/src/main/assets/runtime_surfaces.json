@@ -269,7 +269,12 @@
         "refreshHomeLiveBindings",
         "live_binding_ms=2000",
         "mediaNowPlayingSnapshot(false)",
-        "homeTpmsGauge"
+        "homeTpmsGauge",
+        "showSafetySourcePanel",
+        "safetyStatusLine",
+        "safetyPanelSummary",
+        "SAFETY_SOURCE_HMI_RENDER",
+        "nav_source_status=notification-provenance-only"
       ]
     },
     {
@@ -491,7 +496,10 @@
         "NAV_NOTIFICATION_RAW",
         "textSha256",
         "parser=none",
-        "mode=read-only"
+        "mode=read-only",
+        "NavSafetyStatusRuntime.recordPosted",
+        "onNotificationRemoved",
+        "NAV_NOTIFICATION_REMOVED"
       ]
     },
     {
@@ -1136,6 +1144,20 @@
         "Snapshot",
         "playbackLabel",
         "metadataString"
+      ]
+    },
+    {
+      "feature_id": "NAV_SAFETY_FEED",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/NavSafetyStatusRuntime.java",
+      "tokens": [
+        "NavSafetyStatusRuntime",
+        "UI_SOURCE_TTL_MS=30000L",
+        "recordPosted",
+        "recordRemoved",
+        "sourceLabel",
+        "source-fresh",
+        "source-stale",
+        "source-removed"
       ]
     }
   ],
