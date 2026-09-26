@@ -2714,6 +2714,19 @@
         "MED-BG-002"
       ],
       "close_gate": "real-car target session package match, process-independent media stage delivery, configured delay, audible target playback, non-target media unchanged, global fallback absent, and stock safety warning audio remains functional"
+    },
+    {
+      "id": "KB-013",
+      "symptom": "V1 evidence upload injects the shared DOLPHIN_UPLOAD_KEY into BuildConfig.EVIDENCE_UPLOAD_KEY and sends it as X-Dolphin-Upload-Key; the reusable credential is extractable from the APK and does not satisfy the Android Keystore secure-secret requirement.",
+      "linked": [
+        "DIAGNOSTIC_CAPTURE_UPLOAD"
+      ],
+      "severity": "P0",
+      "status": "OPEN",
+      "required_test_ids": [
+        "DIA-UP-001"
+      ],
+      "close_gate": "remove the APK-static shared upload credential; use an evidence-backed runtime credential/enrollment path with private credential material protected by Android Keystore (or an equally strong non-extractable platform mechanism), prove rotation/revocation behavior, and verify real-car upload receipts without a reusable secret embedded in APK strings"
     }
   ],
   "next_priority": [
