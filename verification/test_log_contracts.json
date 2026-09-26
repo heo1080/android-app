@@ -106,7 +106,7 @@
     {
       "test_id": "DIA-CAP-001",
       "feature_id": "DIAGNOSTIC_CAPTURE_UPLOAD",
-      "feature_state": "VERIFIED",
+      "feature_state": "REVERIFY_REQUIRED",
       "required_events": [
         "TEST_START",
         "OPERATOR_RESULT",
@@ -144,7 +144,7 @@
     {
       "test_id": "DIA-UP-001",
       "feature_id": "DIAGNOSTIC_CAPTURE_UPLOAD",
-      "feature_state": "VERIFIED",
+      "feature_state": "REVERIFY_REQUIRED",
       "required_events": [
         "TEST_START",
         "OPERATOR_RESULT",

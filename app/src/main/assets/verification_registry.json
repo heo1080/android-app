@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
   "registry_id": "DOLPHIN-MASTER-VERIFICATION-REGISTRY",
-  "generated_at": "2026-09-20",
+  "generated_at": "2026-09-26",
   "source": {
     "repository": "heo1080/android-app",
     "branch_base": "main",
-    "base_commit": "5716596ca5e7f14245655736de762158fb8e0c8c",
+    "base_commit": "f0a0357c463fc71b83c3a3e5e36096e94490394c",
     "diagnostics_repository": "heo1080/dolphin-diagnostics",
     "latest_diagnostics_commit": "d75939f6ed2daacbdf0b6fbabd5d27c0ca18ee31",
     "source_build_gradle_version": "3.0.7-v30.4-driver-dsp-probe",
@@ -95,7 +95,7 @@
         "DIA-CAP-001",
         "DIA-UP-001"
       ],
-      "state": "VERIFIED",
+      "state": "REVERIFY_REQUIRED",
       "acceptance": [
         "세션 ZIP 생성",
         "차량 raw/state/audio/display 정보 포함",
@@ -108,7 +108,9 @@
         "upload result",
         "build identity"
       ],
-      "known_bad": [],
+      "known_bad": [
+        "V1 1.2.1 evidence session binding stale; V1 1.2.2 automatic Worker→Drive upload requires real-car re-verification"
+      ],
       "dependencies": [
         "Android Keystore",
         "storage",
@@ -122,14 +124,15 @@
       ],
       "evidence": [
         "dolphin-diagnostics 2026-09-19 session commits",
-        "DiagnosticUploadManager source"
+        "DiagnosticUploadManager source",
+        "PC ZIP→Worker→Google Drive receipt path verified 2026-09-25; APK real-car automatic upload not yet verified"
       ],
-      "next_action": "schema version/redaction test/Test Evidence Bundle로 확장",
+      "next_action": "V1 1.2.2 real-car: passive session capture → session-bound ZIP → persistent queue → Worker upload → SHA/session receipt 확인",
       "confidence": {
-        "behavior": "HIGH",
+        "behavior": "MEDIUM",
         "root_cause": "HIGH",
         "safety": "HIGH",
-        "compatibility": "HIGH"
+        "compatibility": "MEDIUM"
       }
     },
     {
