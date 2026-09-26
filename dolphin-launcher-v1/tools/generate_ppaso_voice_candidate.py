@@ -231,7 +231,8 @@ def main() -> int:
     sub.add_parser("self-test")
     gen = sub.add_parser("generate")
     gen.add_argument("--model-dir", required=True, type=Path)
-    gen.add_argument("--output-dir", required=True, type=Path)\n    gen.add_argument("--model-revision", default=DEFAULT_MODEL_REVISION)
+    gen.add_argument("--output-dir", required=True, type=Path)
+    gen.add_argument("--model-revision", default=DEFAULT_MODEL_REVISION)
     args = parser.parse_args()
 
     if args.command == "self-test":
