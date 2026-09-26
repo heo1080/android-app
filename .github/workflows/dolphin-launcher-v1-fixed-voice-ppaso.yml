@@ -63,10 +63,11 @@ jobs:
           from huggingface_hub import HfApi, snapshot_download
 
           repo="akamotaco/ppaso-tts-v1"
-          info=HfApi().model_info(repo, revision="main")
+          requested="53d09664c4f636a5fb6f2ebe3ec22cd83ee249b9"
+          info=HfApi().model_info(repo, revision=requested)
           revision=str(info.sha)
-          if len(revision) < 40:
-              raise SystemExit(f"resolved revision is not a full commit sha: {revision}")
+          if revision != requested:
+              raise SystemExit(f"model revision mismatch requested={requested} resolved={revision}")
           local=os.environ["MODEL_DIR"]
           snapshot_download(
               repo_id=repo,
@@ -126,7 +127,7 @@ jobs:
           assert candidate["promotes_app_manifest"] is False
           assert candidate["app_manifest_state"]=="ASSET_REQUIRED"
           assert candidate["model_license"]=="Apache-2.0"
-          assert re.fullmatch(r"[0-9a-f]{40,64}",candidate["model_revision"])
+          assert candidate["model_revision"]=="53d09664c4f636a5fb6f2ebe3ec22cd83ee249b9"
           assert candidate["asset_count"]==22
           assert {p["state"] for p in app["prompts"]}=={"ASSET_REQUIRED"}
 
