@@ -106,8 +106,8 @@ jobs:
           BADGING="$(printf '%s\n' "$BADGING_ALL" | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -q "package: name='com.dolphin.launcher.v1'"
-          echo "$BADGING" | grep -q "versionCode='6'"
-          echo "$BADGING" | grep -q "versionName='1.2.3-v1-premium-realcar-beta'"
+          echo "$BADGING" | grep -q "versionCode='7'"
+          echo "$BADGING" | grep -q "versionName='1.2.4-v1-premium-realcar-beta'"
           printf '%s\n' "$BADGING_ALL" | grep -q "^sdkVersion:'29'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^targetSdkVersion:'35'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^launchable-activity: name='com.dolphin.launcher.v1.LauncherActivity'"
@@ -186,7 +186,7 @@ jobs:
             echo "HOME category must remain disabled until BYD real-car compatibility is proven" >&2
             exit 1
           fi
-          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=6 minSdk=29 targetSdk=35 main_launcher=1 drawer_slots=16_disabled home=0"
+          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=7 minSdk=29 targetSdk=35 main_launcher=1 drawer_slots=16_disabled home=0"
 
       - name: Validate Registry v3 payload
         shell: bash
@@ -1153,7 +1153,7 @@ jobs:
               "release_ready":False,
               "package":"com.dolphin.launcher.v1",
               "version_name":version,
-              "version_code":6,
+              "version_code":7,
               "source_commit":commit,
               "open_p0_known_bad":open_p0,
               "promotion_requires_real_car_evidence":True
@@ -1172,7 +1172,7 @@ jobs:
           Dolphin Launcher V1 real-car validation BETA.
 
           - Package: com.dolphin.launcher.v1
-          - Version: $VERSION (versionCode 6)
+          - Version: $VERSION (versionCode 7)
           - Channel: REAL_CAR_VALIDATION_BETA
           - Prerelease: true
           - Stable promotion: false
