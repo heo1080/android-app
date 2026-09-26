@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RadialGradient;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.view.View;
@@ -53,6 +54,7 @@ public final class CockpitPanelGraphicView extends View {
         if (mode == MEDIA) drawMedia(canvas, w, h);
         else if (mode == SAFETY) drawSafety(canvas, w, h);
         else drawVehicle(canvas, w, h);
+        drawChromeCorners(canvas, w, h);
         drawSourceLegend(canvas, w, h);
     }
 
@@ -60,25 +62,52 @@ public final class CockpitPanelGraphicView extends View {
         paint.setStyle(Paint.Style.FILL);
         paint.setShader(new LinearGradient(
                 0f, 0f, w, h,
-                new int[]{Color.rgb(17, 48, 58), Color.rgb(7, 20, 26), Color.rgb(3, 9, 13)},
-                new float[]{0f, 0.58f, 1f}, Shader.TileMode.CLAMP));
+                new int[]{Color.rgb(19, 54, 65), Color.rgb(7, 20, 27), Color.rgb(2, 8, 12)},
+                new float[]{0f, 0.56f, 1f}, Shader.TileMode.CLAMP));
+        canvas.drawRoundRect(0f, 0f, w, h, dp(22), dp(22), paint);
+        paint.setShader(null);
+
+        paint.setShader(new RadialGradient(
+                w * 0.79f, h * 0.42f, Math.max(w, h) * 0.56f,
+                new int[]{accent(58), accent(14), Color.TRANSPARENT},
+                new float[]{0f, 0.46f, 1f}, Shader.TileMode.CLAMP));
         canvas.drawRoundRect(0f, 0f, w, h, dp(22), dp(22), paint);
         paint.setShader(null);
 
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(dp(1));
-        paint.setColor(Color.argb(28, 131, 255, 230));
+        paint.setColor(Color.argb(26, 131, 255, 230));
         for (int i = 1; i <= 4; i++) {
             float y = h * i / 5f;
             canvas.drawLine(w * 0.06f, y, w * 0.94f, y, paint);
         }
 
-        paint.setColor(Color.argb(32, 156, 255, 236));
+        paint.setStrokeWidth(dp(1.1f));
+        paint.setColor(accent(84));
+        canvas.drawRoundRect(dp(1.2f), dp(1.2f), w - dp(1.2f), h - dp(1.2f),
+                dp(21), dp(21), paint);
+
+        paint.setColor(Color.argb(38, 200, 255, 244));
         path.reset();
         path.moveTo(w * 0.50f, h * 0.10f);
         path.lineTo(w * 0.94f, h * 0.10f);
         path.lineTo(w * 0.86f, h * 0.16f);
         canvas.drawPath(path, paint);
+    }
+
+    private void drawChromeCorners(Canvas canvas, float w, float h) {
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(1.1f));
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setColor(accent(92));
+        float x = w * 0.505f;
+        float y = h * 0.90f;
+        canvas.drawLine(x, y, x + w * 0.055f, y, paint);
+        canvas.drawLine(x, y, x, y - h * 0.045f, paint);
+        x = w * 0.945f;
+        canvas.drawLine(x - w * 0.055f, y, x, y, paint);
+        canvas.drawLine(x, y, x, y - h * 0.045f, paint);
+        paint.setStrokeCap(Paint.Cap.BUTT);
     }
 
     private void drawMedia(Canvas canvas, float w, float h) {
@@ -311,7 +340,7 @@ public final class CockpitPanelGraphicView extends View {
         textPaint.setColor(Color.argb(210, 204, 226, 228));
         canvas.drawText(scope, innerLeft, top + dp(12), textPaint);
 
-        String stateLabel = "SOURCE " + state;
+        String stateLabel = "SOURCE " + state + "  ≠  VERIFIED";
         textPaint.setTextAlign(Paint.Align.RIGHT);
         textPaint.setTextSize(fitLegendTextSize(stateLabel, availableTextWidth, 7.4f, 5.8f));
         textPaint.setColor(accent(230));
