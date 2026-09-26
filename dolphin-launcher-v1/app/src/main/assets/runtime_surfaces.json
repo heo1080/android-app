@@ -819,7 +819,10 @@
         "drawSensorField",
         "Decorative sensor-range arcs only. FSD_OBJECT_LANE_MODEL is BLOCKED",
         "must never render fixed dots/rings",
-        "canvas.drawArc"
+        "canvas.drawArc",
+        "drawPerspectiveDeck",
+        "This is not a road/lane model",
+        "no object, lane, drivable-space, or navigation semantics."
       ]
     },
     {
@@ -1291,7 +1294,7 @@
       "tokens": [
         "HomeHeroGraphicView",
         "drawAtmosphere",
-        "drawRoad",
+        "drawPerspectiveDeck",
         "drawSensorField",
         "drawVehicle",
         "drawTelemetry",
@@ -1306,7 +1309,10 @@
         "drawSourceRail",
         "COCKPIT READY",
         "SOURCE LAYER",
-        "sourceColor"
+        "sourceColor",
+        "Decorative depth deck only.",
+        "no object, lane, drivable-space, or navigation semantics.",
+        "Ego-vehicle sculpture only; it is not a detected object."
       ]
     },
     {
@@ -1355,7 +1361,11 @@
         "paint.setColor(accent(160))",
         "paint.setColor(accent(180))",
         "paint.setColor(accent(190))",
-        "paint.setColor(accent(220))"
+        "paint.setColor(accent(220))",
+        "Target-media identity graphic only.",
+        "A fixed PLAY symbol is intentionally",
+        "Read-only ego-vehicle sculpture.",
+        "geometry never infers gear, speed, turn state, or vehicle health."
       ]
     },
     {
@@ -1594,6 +1604,30 @@
         "Shield outline communicates a safety boundary without implying live perception.",
         "Padlock motif = semantic layer intentionally locked.",
         "no fixed detections or lane/object semantics."
+      ]
+    },
+    {
+      "feature_id": "BACKGROUND_MEDIA_AUTOPLAY",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/CockpitPanelGraphicView.java",
+      "tokens": [
+        "drawMedia",
+        "Target-media identity graphic only.",
+        "A fixed PLAY symbol is intentionally",
+        "REVERIFY_REQUIRED",
+        "accent(180)",
+        "accent(160)"
+      ]
+    },
+    {
+      "feature_id": "LIVE_VEHICLE_INFO",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/CockpitPanelGraphicView.java",
+      "tokens": [
+        "drawVehicle",
+        "Read-only ego-vehicle sculpture.",
+        "Accent reflects source state only",
+        "geometry never infers gear, speed, turn state, or vehicle health.",
+        "accent(190)",
+        "accent(220)"
       ]
     }
   ],
