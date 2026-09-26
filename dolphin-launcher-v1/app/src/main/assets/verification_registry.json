@@ -2765,7 +2765,8 @@
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LaneDepartureCapabilityProbe.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VerificationCenterActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/VehicleReadOnlyMonitor.java"
       ],
       "test_ids": [
         "ADAS-LDW-001",
@@ -2780,7 +2781,9 @@
         "directional_signal_proven=false 동안 production voice와 fixed voice asset 추가를 금지",
         "source availability 또는 메서드 존재를 VERIFIED로 승격하지 않음",
         "probe는 unknown method를 invoke하지 않고 vehicle_write=false 유지",
-        "Verification Center에서 ADAS-LDW Test 시작 즉시 lane/assist capability를 active correlation 안에서 재수집"
+        "Verification Center에서 ADAS-LDW Test 시작 즉시 lane/assist capability를 active correlation 안에서 재수집",
+        "getLaneOffsetState/getLKSMode/getLDSWType/getTJAState는 read-only raw 값으로만 수집하고 방향 의미를 추정하지 않음",
+        "Verification Center ADAS-LDW 마커에는 lane_offset_raw/lks_mode_raw/ldsw_type_raw/tja_raw snapshot이 함께 기록됨"
       ],
       "required_logs": [
         "LANE_DEPARTURE_CAPABILITY_METHOD",
@@ -2794,7 +2797,13 @@
         "icc_acc_voice_enabled=false",
         "fixed_voice_asset_added=false",
         "vehicle_write=false",
-        "TEST_CAPABILITY_REFRESH"
+        "TEST_CAPABILITY_REFRESH",
+        "LANE_OFFSET_RAW_TRANSITION",
+        "lane_offset_raw",
+        "lks_mode_raw",
+        "ldsw_type_raw",
+        "tja_raw",
+        "direction_semantic=unmapped"
       ],
       "known_bad": [
         "public BYD SDK research exposes LKS state callbacks but does not by itself prove left/right lane-departure direction on the Korean Dolphin",
@@ -2815,9 +2824,10 @@
       "evidence": [
         "public DiLink SDK research documents lane-assistance/LKS callbacks, not proven directional departure semantics",
         "V1 LaneDepartureCapabilityProbe inventories runtime ADAS device/listener methods and constants without invoking unknown methods",
-        "V1 leaves normal-drive and ICC/ACC directional voice disabled until real-car correlation"
+        "V1 leaves normal-drive and ICC/ACC directional voice disabled until real-car correlation",
+        "public byd_sdk_33 commit 185346ffd26de5eac18a7d968503f99502ad0c44 exposes onLDSWTypeChanged/onLaneOffsetStateChanged and getLaneOffsetState/getLKSMode/getLDSWType/getTJAState; directional numeric semantics remain unproven on Korean Dolphin"
       ],
-      "next_action": "실차에서 LANE_DEPARTURE_CAPABILITY 로그를 수집해 실제 Korean Dolphin ADAS surface의 좌/우 방향 후보를 확인한 뒤, 물리 차선 이탈과 2회 이상 세션 correlation이 확보되면 read-only raw monitor→fixed voice 순서로 단계적 구현",
+      "next_action": "실차 ADAS-LDW 세션에서 lane_offset_raw를 좌/우 이탈 마커와 반복 correlation하고, 일반 주행과 ICC/ACC/TJA 문맥에서 값 의미가 동일한지 별도 세션으로 확인한다. 좌/우 raw mapping이 충돌 없이 입증되기 전에는 fixed voice/production voice를 활성화하지 않는다.",
       "confidence": {
         "behavior": "LOW",
         "root_cause": "MEDIUM",
