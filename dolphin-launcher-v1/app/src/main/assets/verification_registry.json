@@ -1770,7 +1770,9 @@
         "HOME cockpit status badge는 verification_registry feature state를 직접 읽어 표시하고 하드코딩 상태 드리프트를 방지",
         "FSD_OBJECT_LANE_MODEL이 BLOCKED이면 HOME에서도 객체/차선 기능을 BLOCKED로 표시",
         "BACKGROUND_MEDIA_AUTOPLAY가 REVERIFY_REQUIRED이면 MEDIA CENTER를 ready/verified로 표현하지 않음",
-        "cockpit status badge 색상은 Registry state 의미와 동기화되어 BLOCKED/REVERIFY_REQUIRED/BETA/VERIFIED를 시각 구분"
+        "cockpit status badge 색상은 Registry state 의미와 동기화되어 BLOCKED/REVERIFY_REQUIRED/BETA/VERIFIED를 시각 구분",
+        "MEDIA CENTER cockpit panel은 전용 glass-vector-v2 surface를 열고 미디어 자동재생 등록 앱/지연시간을 표시",
+        "MEDIA CENTER는 실차 재생 검증 전 playback_verified=false와 REVERIFY 상태를 유지"
       ],
       "required_logs": [
         "display profile",
@@ -1790,7 +1792,8 @@
         "tpms_visual=vector-wheel-gauge",
         "cockpit_state_source=verification_registry",
         "HMI_REGISTRY_STATE_FALLBACK",
-        "cockpitStatusColor"
+        "cockpitStatusColor",
+        "MEDIA_CENTER_HMI_RENDER"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1819,7 +1822,8 @@
         "three-panel primary cockpit restores requested media-safety-vehicle hierarchy",
         "TyreGaugeView vector wheel gauges",
         "registryFeatureState drives cockpit status badges",
-        "state-aware cockpit badge palette"
+        "state-aware cockpit badge palette",
+        "premium media center lists target-scoped autoplay apps"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
@@ -2117,7 +2121,8 @@
         "대상 패키지와 일치하는 활성 MediaSession에만 PLAY 요청",
         "대상 세션/권한이 없으면 전역 media key fallback 없이 fail-closed",
         "PLAY 요청/PlaybackState readback/실패 evidence 기록",
-        "실차에서 지정 앱 재생과 순정 안전 경고음 공존을 확인하기 전 VERIFIED 금지"
+        "실차에서 지정 앱 재생과 순정 안전 경고음 공존을 확인하기 전 VERIFIED 금지",
+        "MEDIA CENTER UI는 AutoStartStore mediaEnabled=true 앱만 표시하고 실제 재생 성공으로 간주하지 않음"
       ],
       "required_logs": [
         "AUTOSTART_MEDIA_CHANGED",
@@ -2128,7 +2133,8 @@
         "BACKGROUND_MEDIA_PLAY_REQUESTED",
         "BACKGROUND_MEDIA_PLAYBACK_READBACK",
         "BACKGROUND_MEDIA_SESSION_ACCESS_REQUIRED",
-        "BACKGROUND_MEDIA_PLAY_FAILED"
+        "BACKGROUND_MEDIA_PLAY_FAILED",
+        "MEDIA_CENTER_HMI_RENDER"
       ],
       "known_bad": [
         "대상 앱이 활성 MediaSession을 노출하는지 앱별 차이가 있으며 BYD Android 10 실차 재검증 필요",

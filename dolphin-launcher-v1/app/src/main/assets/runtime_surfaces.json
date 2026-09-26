@@ -252,7 +252,12 @@
         "cockpitStatusColor",
         "REVERIFY_REQUIRED",
         "BLOCKED",
-        "VERIFIED"
+        "VERIFIED",
+        "showMediaCenter",
+        "mediaAutoStartApps",
+        "mediaCenterRow",
+        "MEDIA_CENTER_HMI_RENDER",
+        "playback_verified=false"
       ]
     },
     {
@@ -828,7 +833,12 @@
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
       "tokens": [
         "AUTOSTART_MEDIA_CHANGED",
-        "AUTOSTART_DELAY_CHANGED"
+        "AUTOSTART_DELAY_CHANGED",
+        "showMediaCenter",
+        "mediaAutoStartApps",
+        "mediaCenterRow",
+        "MEDIA_CENTER_HMI_RENDER",
+        "playback_verified=false"
       ]
     },
     {

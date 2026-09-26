@@ -1743,7 +1743,7 @@ public class LauncherActivity extends Activity {
                 mediaState,
                 HmiGlyphView.class,
                 CockpitPanelGraphicView.MEDIA,
-                this::showAppDrawer), weighted());
+                this::showMediaCenter), weighted());
 
         deck.addView(cockpitPanel(
                 "FSD · SAFETY",
@@ -1812,6 +1812,125 @@ public class LauncherActivity extends Activity {
         if (s.contains("BETA")) return Color.parseColor("#77D9FF");
         if (s.contains("VERIFIED")) return Color.parseColor("#72E6B1");
         return Color.parseColor("#72E8D0");
+    }
+
+    private void showMediaCenter() {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(20),dp(16),dp(20),dp(16));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E","#07151B","#040A0E"},24,"#315A68"));
+
+        String state = registryFeatureState(
+                "BACKGROUND_MEDIA_AUTOPLAY","REVERIFY_REQUIRED");
+        panel.addView(hmiDialogHeader(
+                "MEDIA CENTER","Target-scoped MediaSession · "+state,"▶"));
+        panel.addView(hmiInfoStrip(
+                "전역 media key 미사용 · 대상 MediaSession만 PLAY 요청 · 실차 재검증 필요"));
+
+        List<AppEntry> mediaApps = mediaAutoStartApps();
+        if (mediaApps.isEmpty()) {
+            TextView empty = text(
+                    "미디어 자동재생으로 등록된 앱이 없습니다.\n"
+                            + "시동 자동실행에서 앱별 ‘미디어 재생’을 켜세요.",
+                    12f,Color.parseColor("#93AAB3"),false);
+            empty.setGravity(Gravity.CENTER);
+            empty.setPadding(dp(12),dp(24),dp(12),dp(24));
+            empty.setBackground(gradientRound(
+                    new String[]{"#0D2027","#071318"},16,"#254957"));
+            panel.addView(empty,new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,dp(94)));
+        } else {
+            List<String> ordered = AutoStartStore.read(prefs);
+            for (AppEntry app : mediaApps) {
+                int index = ordered.indexOf(app.packageName);
+                long delay = AutoStartStore.delayMs(
+                        prefs,app.packageName,Math.max(0,index));
+                panel.addView(mediaCenterRow(app,delay),
+                        new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,dp(66)));
+            }
+        }
+
+        LinearLayout actions=new LinearLayout(this);
+        actions.setOrientation(LinearLayout.HORIZONTAL);
+        Button manage=button("자동실행 설정");
+        manage.setOnClickListener(v->showAutoStartManager());
+        actions.addView(manage,weighted());
+        Button appsButton=button("앱 서랍");
+        appsButton.setOnClickListener(v->showAppDrawer());
+        actions.addView(appsButton,weighted());
+        LinearLayout.LayoutParams actionLp=new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(54));
+        actionLp.topMargin=dp(10);
+        panel.addView(actions,actionLp);
+
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this,"MEDIA_CENTER_HMI_RENDER",
+                "variant=glass-vector-v2;state="+state
+                        +";configured_media_apps="+mediaApps.size()
+                        +";playback_verified=false");
+
+        new AlertDialog.Builder(this)
+                .setView(panel)
+                .setPositiveButton("완료",null)
+                .show();
+    }
+
+    private List<AppEntry> mediaAutoStartApps() {
+        List<AppEntry> result=new ArrayList<>();
+        List<String> ordered=AutoStartStore.read(prefs);
+        for(String pkg:ordered){
+            if(!AutoStartStore.mediaEnabled(prefs,pkg))continue;
+            for(AppEntry app:apps){
+                if(app.packageName.equals(pkg)){
+                    result.add(app);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    private View mediaCenterRow(AppEntry app,long delayMs) {
+        LinearLayout row=new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(10),dp(7),dp(10),dp(7));
+        row.setBackground(pressableGradientRound(
+                new String[]{"#0E222A","#07151B"},
+                new String[]{"#173440","#0A2028"},
+                16,"#284B57"));
+        row.setOnClickListener(v->launchPackage(app.packageName));
+
+        FrameLayout iconWell=new FrameLayout(this);
+        iconWell.setBackground(gradientRound(
+                new String[]{"#17323A","#0A1A20"},15,"#2A515D"));
+        ImageView icon=new ImageView(this);
+        icon.setImageDrawable(app.icon);
+        icon.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        iconWell.addView(icon,new FrameLayout.LayoutParams(
+                dp(34),dp(34),Gravity.CENTER));
+        LinearLayout.LayoutParams iconLp=new LinearLayout.LayoutParams(dp(46),dp(46));
+        iconLp.rightMargin=dp(10);
+        row.addView(iconWell,iconLp);
+
+        LinearLayout copy=new LinearLayout(this);
+        copy.setOrientation(LinearLayout.VERTICAL);
+        copy.addView(text(app.label,13f,Color.WHITE,true));
+        copy.addView(text(
+                "PLAY 요청 지연 "+String.format(Locale.US,"%.1f초",delayMs/1000f)
+                        +" · "+app.packageName,
+                9.5f,Color.parseColor("#7895A0"),false));
+        row.addView(copy,new LinearLayout.LayoutParams(
+                0,ViewGroup.LayoutParams.WRAP_CONTENT,1f));
+
+        TextView badge=text("REVERIFY",9f,Color.parseColor("#FFD166"),true);
+        badge.setGravity(Gravity.CENTER);
+        badge.setBackground(gradientRound(
+                new String[]{"#332A14","#1B160B"},13,"#665423"));
+        row.addView(badge,new LinearLayout.LayoutParams(dp(72),dp(30)));
+        return row;
     }
 
     private String registryFeatureState(String featureId,String fallback) {
