@@ -458,11 +458,21 @@ jobs:
           assert "SIGNAL_WAITING" in cockpit_graphic and "SIGNAL_LIVE" in cockpit_graphic
           assert "SIGNAL_STALE" in cockpit_graphic and "SIGNAL_BLOCKED" in cockpit_graphic
 
+          media_graphic=cockpit_graphic.split("private void drawMedia",1)[1].split("private void drawSafety",1)[0]
+          assert "Target-media identity graphic only." in media_graphic
+          assert "fixed PLAY symbol" in media_graphic
+          assert "path.moveTo" not in media_graphic, "Media cockpit must not imply verified playback with a fixed PLAY triangle"
+
           safety_graphic=cockpit_graphic.split("private void drawSafety",1)[1].split("private void drawVehicle",1)[0]
           assert "FSD_OBJECT_LANE_MODEL is BLOCKED" in safety_graphic
           assert "Shield outline communicates a safety boundary without implying live perception." in safety_graphic
           assert "Padlock motif = semantic layer intentionally locked." in safety_graphic
           assert "drawCircle" not in safety_graphic and "horizon" not in safety_graphic, "FSD safety graphic must remain non-semantic"
+
+          vehicle_graphic=cockpit_graphic.split("private void drawVehicle",1)[1].split("private int accent",1)[0]
+          assert "Read-only ego-vehicle sculpture." in vehicle_graphic
+          assert "Accent reflects source state only" in vehicle_graphic
+          assert "geometry never infers gear, speed, turn state, or vehicle health." in vehicle_graphic
 
           assert "DISPLAY_QUICK_HMI_RENDER" in launcher and "actuation=false" in launcher
           assert "THEME_STATUS_HMI_RENDER" in launcher
@@ -530,10 +540,17 @@ jobs:
 
           assert launcher.find('chip("● LIVE")') == -1
           assert "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java" in features["LIVE_VEHICLE_INFO"].get("source_paths",[])
+          assert "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/CockpitPanelGraphicView.java" in features["LIVE_VEHICLE_INFO"].get("source_paths",[])
+          assert "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/CockpitPanelGraphicView.java" in features["BACKGROUND_MEDIA_AUTOPLAY"].get("source_paths",[])
           assert "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java" in features["FSD_OBJECT_LANE_MODEL"].get("source_paths",[])
           assert "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/HomeHeroGraphicView.java" in features["FSD_OBJECT_LANE_MODEL"].get("source_paths",[])
           assert "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/CockpitPanelGraphicView.java" in features["FSD_OBJECT_LANE_MODEL"].get("source_paths",[])
           home_hero=(src/"HomeHeroGraphicView.java").read_text(encoding="utf-8")
+          assert "private void drawRoad" not in home_hero
+          deck=home_hero.split("private void drawPerspectiveDeck",1)[1].split("private void drawSensorField",1)[0]
+          assert "This is not a road/lane model" in deck
+          assert "no object, lane, drivable-space, or navigation semantics." in deck
+          assert "canvas.drawArc" in deck and "path.moveTo" not in deck
           sensor=home_hero.split("private void drawSensorField",1)[1].split("private void drawVehicle",1)[0]
           assert "FSD_OBJECT_LANE_MODEL is BLOCKED" in sensor
           assert "canvas.drawArc" in sensor
@@ -550,6 +567,11 @@ jobs:
           fsd_contract=by_test["FSD-OBJ-001"]
           assert any("decorative arcs/ticks only" in item for item in fsd_contract.get("acceptance",[]))
           assert any("abstract shield/padlock/arcs/ticks" in item for item in fsd_contract.get("acceptance",[]))
+
+          assert any("HOME perspective deck contains no lane boundaries" in item for item in fsd_contract.get("acceptance",[]))
+          for tid in ("MED-BG-001","MED-BG-002"):
+              assert any("fixed PLAY symbol" in item for item in by_test[tid].get("acceptance",[])),tid
+          assert any("decorative/read-only" in item for item in by_test["VEH-INFO-001"].get("acceptance",[]))
 
           for tid in ("DIA-CAP-001","DIA-UP-001"):
               logs=by_test[tid].get("required_logs",[])
@@ -576,13 +598,25 @@ jobs:
           assert len(fsd_safety_rows)==1
           for token in ("drawSafety","Non-semantic verification-boundary graphic only.","FSD_OBJECT_LANE_MODEL is BLOCKED","no fixed detections or lane/object semantics."):
               assert any(token in item for item in fsd_safety_rows[0].get("tokens",[])),token
+          media_graphic_rows=[s for s in surfaces.get("surfaces",[])
+                              if s["feature_id"]=="BACKGROUND_MEDIA_AUTOPLAY"
+                              and s["path"].endswith("/CockpitPanelGraphicView.java")]
+          assert len(media_graphic_rows)==1
+          for token in ("drawMedia","Target-media identity graphic only.","fixed PLAY symbol","REVERIFY_REQUIRED"):
+              assert any(token in item for item in media_graphic_rows[0].get("tokens",[])),token
+          vehicle_graphic_rows=[s for s in surfaces.get("surfaces",[])
+                                if s["feature_id"]=="LIVE_VEHICLE_INFO"
+                                and s["path"].endswith("/CockpitPanelGraphicView.java")]
+          assert len(vehicle_graphic_rows)==1
+          for token in ("drawVehicle","Read-only ego-vehicle sculpture.","Accent reflects source state only","geometry never infers gear, speed, turn state, or vehicle health."):
+              assert any(token in item for item in vehicle_graphic_rows[0].get("tokens",[])),token
           dock_tokens=surface_rows[0].get("tokens",[])
           for token in ("REFERENCE_DOCK_RENDER","showNavigationPanel",
                         "DISPLAY_QUICK_HMI_RENDER","THEME_STATUS_HMI_RENDER"):
               assert token in dock_tokens,token
 
           print("AUTO_EVIDENCE_OTA_GATE_OK upload_receipt=true ota_evidence=true")
-          print("GOLDEN_REFERENCE_DOCK_OK primary=6 controls=4 vector=true fail_safe=true home_semantic_objects=false safety_semantics=false")
+          print("GOLDEN_REFERENCE_DOCK_OK primary=6 controls=4 vector=true fail_safe=true home_semantic_objects=false safety_semantics=false home_lane_semantics=false media_play_claim=false vehicle_normalization=false")
           PY
 
       - name: Validate V1 correlation evaluator
