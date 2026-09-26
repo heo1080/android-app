@@ -75,6 +75,7 @@ public class LauncherActivity extends Activity {
     private TextView splitChip;
     private List<AppEntry> apps = new ArrayList<>();
     private VehicleReadOnlyMonitor vehicleMonitor;
+    private ParkingHazardAutomationProbe parkingHazardAutomationProbe;
     private VehiclePromptPlayer vehiclePromptPlayer;
     private OwnedAudioEqualizer ownedAudioEqualizer;
     private OwnedSoundPosition ownedSoundPosition;
@@ -139,6 +140,7 @@ public class LauncherActivity extends Activity {
         vehiclePromptPlayer = new VehiclePromptPlayer(this);
         ownedAudioEqualizer = new OwnedAudioEqualizer(this);
         ownedSoundPosition = new OwnedSoundPosition(this);
+        parkingHazardAutomationProbe = new ParkingHazardAutomationProbe(this);
         vehiclePromptPlayer.preload(VehicleVoicePolicy.promptIds());
         getWindow().setStatusBarColor(Color.parseColor("#03080B"));
         getWindow().setNavigationBarColor(Color.parseColor("#03080B"));
@@ -162,6 +164,8 @@ public class LauncherActivity extends Activity {
         AudioCapabilityProbe.capture(this);
         DriverAudioCapabilityProbe.capture(this);
         InteriorLightCapabilityProbe.capture(this);
+        ParkingHazardAutomationProbe.captureCapability(this);
+        LaneDepartureCapabilityProbe.capture(this);
         BlockedCapabilityRuntime.capture(this);
         DisplayDiagnostics.captureLaunchableAppOrientations(this);
         VerificationEvidenceRuntime.retryPendingUploadsAsync(this);
@@ -240,6 +244,9 @@ public class LauncherActivity extends Activity {
         if (vehicleMonitor != null) return;
         vehicleMonitor = new VehicleReadOnlyMonitor(this, new VehicleReadOnlyMonitor.Listener() {
             @Override public void onGear(String value) {
+                if (parkingHazardAutomationProbe != null) {
+                    parkingHazardAutomationProbe.onGear(value);
+                }
                 VehicleVoicePolicy.gear(LauncherActivity.this, vehicleVoiceOutput, value);
             }
             @Override public void onSpeedRaw(Integer raw) {
@@ -354,6 +361,10 @@ public class LauncherActivity extends Activity {
         if (vehicleMonitor != null) {
             vehicleMonitor.stop();
             vehicleMonitor = null;
+        }
+        if (parkingHazardAutomationProbe != null) {
+            parkingHazardAutomationProbe.release();
+            parkingHazardAutomationProbe = null;
         }
         if (vehiclePromptPlayer != null) {
             vehiclePromptPlayer.release();
