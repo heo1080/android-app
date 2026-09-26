@@ -2715,7 +2715,8 @@
         "getDoubleFlashLightState readback은 passive evidence로만 사용",
         "실제 hazard setter signature, 호출 권한, 물리 점멸, 독립 readback이 모두 입증되기 전 actuation=false",
         "현재 BETA는 would_request_only=true이며 vehicle_write=false",
-        "Verification Center에서 PARK-HAZ Test 시작 즉시 hazard capability를 active correlation 안에서 재수집"
+        "Verification Center에서 PARK-HAZ Test 시작 즉시 hazard capability를 active correlation 안에서 재수집",
+        "DoubleFlash/Hazard 관련 public 상수도 read-only inventory로 수집하며 ON/OFF 파라미터를 이름만으로 추정하지 않음"
       ],
       "required_logs": [
         "PARK_HAZARD_CAPABILITY_METHOD",
@@ -2727,7 +2728,9 @@
         "setter_proven=false",
         "would_request_only=true",
         "vehicle_write=false",
-        "TEST_CAPABILITY_REFRESH"
+        "TEST_CAPABILITY_REFRESH",
+        "PARK_HAZARD_CAPABILITY_CONSTANT",
+        "matching_constants="
       ],
       "known_bad": [
         "legacy DiLink evidence proves getDoubleFlashLightState() readback but no public hazard setter was proven",
