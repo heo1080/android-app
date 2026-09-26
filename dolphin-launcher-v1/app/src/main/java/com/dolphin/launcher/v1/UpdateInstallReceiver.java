@@ -19,6 +19,8 @@ public class UpdateInstallReceiver extends BroadcastReceiver {
         String message = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
 
         if (status == PackageInstaller.STATUS_PENDING_USER_ACTION) {
+            VerificationEvidenceRuntime.recordPassiveEvent(context, "APP_UPDATE_INSTALL_STATUS",
+                    "status=PENDING_USER_ACTION");
             Intent confirm = intent.getParcelableExtra(Intent.EXTRA_INTENT);
             if (confirm != null) {
                 confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -31,10 +33,14 @@ public class UpdateInstallReceiver extends BroadcastReceiver {
         }
 
         if (status == PackageInstaller.STATUS_SUCCESS) {
+            VerificationEvidenceRuntime.recordPassiveEvent(context, "APP_UPDATE_INSTALL_STATUS",
+                    "status=SUCCESS");
             Log.i(TAG, "OTA install success");
             Toast.makeText(context, "Dolphin Launcher V1 업데이트가 완료되었습니다.",
                     Toast.LENGTH_LONG).show();
         } else {
+            VerificationEvidenceRuntime.recordPassiveEvent(context, "APP_UPDATE_INSTALL_STATUS",
+                    "status=FAILURE;code=" + status);
             Log.e(TAG, "OTA install failed status=" + status + " message=" + message);
             Toast.makeText(context,
                     "업데이트 설치 실패: " + (message == null ? status : message),
