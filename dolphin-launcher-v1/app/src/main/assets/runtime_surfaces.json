@@ -11,7 +11,8 @@
         "AppDrawerShortcutManager.disable",
         "handleAppShortcutIntent",
         "APP_SHORTCUT_INVOKED",
-        "APP_SHORTCUT_LAUNCH_DISPATCHED"
+        "APP_SHORTCUT_LAUNCH_DISPATCHED",
+        "BYD 앱서랍 launcher component 슬롯"
       ]
     },
     {
@@ -52,8 +53,8 @@
         "SPLIT_EXECUTION_BLOCKED",
         "SPLIT_EXECUTION_SUCCESS",
         "SPLIT_EXECUTION_FAILED",
-        "SPLIT_SHORTCUT_REQUEST",
-        "requested=",
+        "createDrawerSplitShortcut",
+        "AppDrawerShortcutManager.pinSplit",
         "startSplitCameraEvidenceRuntime",
         "SPLIT_CAMERA_EVENT",
         "SPLIT_POST_CAMERA_READBACK",
@@ -976,9 +977,13 @@
       "feature_id": "APP_DRAWER_SHORTCUTS",
       "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AppDrawerShortcutManager.java",
       "tokens": [
-        "requestPinShortcut",
-        "APP_SHORTCUT_PIN_REQUEST",
-        "APP_SHORTCUT_DISABLED"
+        "SLOT_COUNT",
+        "launcher-component-slot",
+        "setComponentEnabledSetting",
+        "APP_SHORTCUT_SLOT_ASSIGNED",
+        "APP_SHORTCUT_SLOT_ASSIGN_FAILED",
+        "APP_SHORTCUT_DISABLED",
+        "pinSplit"
       ]
     },
     {
@@ -1641,6 +1646,54 @@
         "geometry never infers gear, speed, turn state, or vehicle health.",
         "accent(190)",
         "accent(220)"
+      ]
+    },
+    {
+      "feature_id": "APP_DRAWER_SHORTCUTS",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DrawerSlotActivities.java",
+      "tokens": [
+        "AppDrawerShortcutManager.launchSlot",
+        "Slot01",
+        "Slot16"
+      ]
+    },
+    {
+      "feature_id": "APP_DRAWER_SHORTCUTS",
+      "path": "dolphin-launcher-v1/app/src/main/AndroidManifest.xml",
+      "tokens": [
+        "DrawerSlotActivities$Slot01",
+        "DrawerSlotActivities$Slot16",
+        "android.intent.category.LAUNCHER",
+        "android:enabled=\"false\""
+      ]
+    },
+    {
+      "feature_id": "SPLIT_SCREEN_TWO_APP",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/AppDrawerShortcutManager.java",
+      "tokens": [
+        "pinSplit",
+        "SPLIT_SHORTCUT_SLOT_ASSIGNED",
+        "SPLIT_SHORTCUT_SLOT_ASSIGN_FAILED",
+        "captured_left"
+      ]
+    },
+    {
+      "feature_id": "SPLIT_SCREEN_TWO_APP",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DrawerSlotActivities.java",
+      "tokens": [
+        "AppDrawerShortcutManager.launchSlot",
+        "Slot01",
+        "Slot16"
+      ]
+    },
+    {
+      "feature_id": "SPLIT_SCREEN_TWO_APP",
+      "path": "dolphin-launcher-v1/app/src/main/AndroidManifest.xml",
+      "tokens": [
+        "DrawerSlotActivities$Slot01",
+        "DrawerSlotActivities$Slot16",
+        "android.intent.category.LAUNCHER",
+        "android:enabled=\"false\""
       ]
     }
   ],
