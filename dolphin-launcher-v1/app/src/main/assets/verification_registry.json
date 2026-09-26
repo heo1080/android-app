@@ -171,7 +171,15 @@
       "area": "launcher",
       "requirement": "차량에서 일반 Android 앱/정상 Launcher 진입으로 인식되고 desktop/freeform 앱으로 오인되지 않아야 한다.",
       "source_paths": [
-        "dolphin-launcher-v1/app/src/main/AndroidManifest.xml"
+        "dolphin-launcher-v1/app/src/main/AndroidManifest.xml",
+        "dolphin-launcher-v1/app/src/main/res/values/launcher_icon_colors.xml",
+        "dolphin-launcher-v1/app/src/main/res/drawable/ic_launcher_foreground.xml",
+        "dolphin-launcher-v1/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+        "dolphin-launcher-v1/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+        "dolphin-launcher-v1/app/src/voicePreview/AndroidManifest.xml",
+        "dolphin-launcher-v1/app/src/voicePreview/res/drawable/ic_launcher_preview_foreground.xml",
+        "dolphin-launcher-v1/app/src/voicePreview/res/mipmap-anydpi-v26/ic_launcher_preview.xml",
+        "dolphin-launcher-v1/app/src/voicePreview/res/mipmap-anydpi-v26/ic_launcher_preview_round.xml"
       ],
       "test_ids": [
         "LCH-ID-001"
@@ -182,7 +190,10 @@
         "실행 시 desktop/freeform 오인 없음",
         "HOME 역할을 의도하지 않았다면 HOME category 없음",
         "앱서랍 아이콘 표시와 일반 앱 형태 실행을 operator marker로 각각 확인",
-        "HOME category 비활성 상태에서 desktop/freeform 오인 없이 실행"
+        "HOME category 비활성 상태에서 desktop/freeform 오인 없이 실행",
+        "canonical APK는 독립 디자인 adaptive launcher icon foreground/background를 사용하고 BYD 상표/로고를 복제하지 않음",
+        "voicePreview APK는 canonical과 앱서랍에서 구분 가능한 별도 adaptive icon과 Dolphin Voice Preview label을 사용",
+        "adaptive icon resource wiring은 CI에서 canonical/preview source 및 packaged launcher icon 존재를 검증"
       ],
       "required_logs": [
         "resolved activity",
@@ -191,7 +202,9 @@
         "dumpsys activity",
         "APP_DRAWER_ICON_VISIBLE",
         "NORMAL_APP_LAUNCH_VISIBLE",
-        "BUILD_IDENTITY_OK"
+        "BUILD_IDENTITY_OK",
+        "ADAPTIVE_ICON_RESOURCE_OK",
+        "PREVIEW_ICON_VARIANT_OK"
       ],
       "known_bad": [
         "과거 빌드에서 데스크탑 앱으로 인식되는 오류 우려/경험"
@@ -207,9 +220,11 @@
       ],
       "evidence": [
         "base manifest MAIN+LAUNCHER",
-        "CI launcher swap patch exists"
+        "CI launcher swap patch exists",
+        "AndroidManifest canonical application icon=@mipmap/ic_launcher roundIcon=@mipmap/ic_launcher_round",
+        "voicePreview manifest overrides label/icon only; canonical package identity remains unchanged"
       ],
-      "next_action": "최신 V1 APK를 BYD Korean Dolphin에 설치 후 앱서랍 아이콘/일반 앱 실행을 LCH-ID-001에서 각 3회 기록; HOME 역할은 별도 호환성 근거 전 비활성 유지",
+      "next_action": "최신 V1 BETA/Voice Preview APK를 BYD Korean Dolphin에 설치 후 앱서랍에서 canonical/preview 아이콘 구분, 이름 표시, 일반 앱 실행을 LCH-ID-001 operator evidence로 기록",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "TENTATIVE",
@@ -2088,7 +2103,10 @@
         "Media/Safety/Vehicle vector scope labels remain TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE so source state cannot be confused with feature verification state",
         "cockpit source legend는 scope와 SOURCE 상태를 두 줄로 분리하고 실제 가용 폭에 맞춰 글자 크기를 축소해 compact 10-inch 폭에서 상호 겹침을 방지",
         "HOME SOUND LAB은 EQ/음장 위치/고정 음성 3개 safe preview card를 제공한다",
-        "고정 음성 card는 22개 prompt를 scroll-safe dialog로 열고 차량 write 없이 app-owned audio만 재생한다"
+        "고정 음성 card는 22개 prompt를 scroll-safe dialog로 열고 차량 write 없이 app-owned audio만 재생한다",
+        "Golden Reference premium vector layer는 radial ambient bloom/inner chrome을 추가하되 road/lane/object semantics를 생성하지 않음",
+        "cockpit source legend는 SOURCE WAITING/LIVE/STALE/BLOCKED와 ≠ VERIFIED 경계를 동시에 표시",
+        "HOME render evidence는 glass-vector-v3-premium과 source_live_not_verified=true를 기록"
       ],
       "required_logs": [
         "display profile",
@@ -2175,7 +2193,10 @@
         "cockpit_copy_dp=",
         "dock_items=6",
         "VOICE_FIXED_PREVIEW_HMI_RENDER",
-        "sound_lab_cards=3"
+        "sound_lab_cards=3",
+        "variant=glass-vector-v3-premium",
+        "source_live_not_verified=true",
+        "adaptive_icons=true"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -2245,7 +2266,9 @@
         "LauncherActivity corrects legacy dock_items=5 evidence drift to dock_items=6",
         "CockpitPanelGraphicView drawSourceLegend renders truthful scope + WAITING/LIVE/STALE/BLOCKED source-state text without changing Registry feature state",
         "CockpitPanelGraphicView fitLegendTextSize + two-line source legend layout",
-        "LauncherActivity SOUND LAB fixed-voice preview card and 22-prompt scroll-safe review dialog"
+        "LauncherActivity SOUND LAB fixed-voice preview card and 22-prompt scroll-safe review dialog",
+        "HomeHeroGraphicView glass-vector-v3 premium ambient/chrome layers remain non-semantic",
+        "CockpitPanelGraphicView explicitly renders SOURCE state ≠ VERIFIED"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
@@ -2345,7 +2368,7 @@
         "Evidence evaluator는 canonical Registry/Test Contract/Dependencies/Runtime Surface/Known-Bad/Voice/Evaluation metadata를 runtime success/failure marker 검색 대상에서 제외",
         "canonical metadata 안에 success_any/failure_any literal이 있어도 Test ID 결과를 PASS/FAIL로 만들 수 없음",
         "metadata-isolation self-test 실패 시 governance PASS 금지",
-      "Build Dolphin Launcher V1 pull_request validation은 dolphin-launcher-v1와 dolphin-launcher-v1-ui-reference-dock 두 기준 브랜치를 모두 merge 전에 검증"
+        "Build Dolphin Launcher V1 pull_request validation은 dolphin-launcher-v1와 dolphin-launcher-v1-ui-reference-dock 두 기준 브랜치를 모두 merge 전에 검증"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2406,8 +2429,8 @@
         "same-session timing filter",
         "DIAGNOSTIC_EVALUATOR_METADATA_ISOLATION_OK",
         "runtime_evidence_only=true",
-      "V1_PR_CI_TARGET_OK",
-      "pull_request_targets=dolphin-launcher-v1,dolphin-launcher-v1-ui-reference-dock"
+        "V1_PR_CI_TARGET_OK",
+        "pull_request_targets=dolphin-launcher-v1,dolphin-launcher-v1-ui-reference-dock"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음",
@@ -2448,7 +2471,7 @@
         "Verification Center UI QUALITY summary card",
         "structured UI frame timing bundle and Verification Center metrics",
         "V1 and production diagnostic evaluators implement runtime-only metadata isolation with synthetic metadata-only/runtime-success/runtime-failure self-tests",
-      "Build workflow PR target coverage guard for dolphin-launcher-v1 and dolphin-launcher-v1-ui-reference-dock"
+        "Build workflow PR target coverage guard for dolphin-launcher-v1 and dolphin-launcher-v1-ui-reference-dock"
       ],
       "next_action": "KB-014: V1/production runtime-only metadata isolation 구현 상태를 유지하고 기존 대표 Evidence를 재평가 → metadata contamination 제거가 확인되기 전 FIX_CANDIDATE 유지 → 재평가 후에만 lifecycle 전환 및 GOV-REG-001 PASS 검토",
       "confidence": {
