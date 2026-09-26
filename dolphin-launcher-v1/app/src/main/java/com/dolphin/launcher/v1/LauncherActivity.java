@@ -1395,6 +1395,30 @@ public class LauncherActivity extends Activity {
                 }));
 
         panel.addView(settingsRow(
+                "UI 검증 스냅샷", "HOME PNG · Evidence ZIP 자동 포함", "◎", false,
+                () -> {
+                    if (holder[0] != null) holder[0].dismiss();
+                    showHome();
+                    handler.postDelayed(() -> {
+                        try {
+                            java.io.File file=UiGoldenScreenshotRuntime.capture(this,"home");
+                            VerificationEvidenceRuntime.queueBundleAndUpload(
+                                    this,"ui-golden-home");
+                            Toast.makeText(
+                                    this,"HOME UI 스냅샷 저장 · "+file.getName(),
+                                    Toast.LENGTH_LONG).show();
+                        } catch (Exception e) {
+                            VerificationEvidenceRuntime.recordPassiveEvent(
+                                    this,"UI_GOLDEN_SCREENSHOT_FAILED",
+                                    "error="+e.getClass().getSimpleName());
+                            Toast.makeText(
+                                    this,"UI 스냅샷 실패: "+e.getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    },350L);
+                }));
+
+        panel.addView(settingsRow(
                 "즐겨찾기 초기화", "HOME 즐겨찾기 기본값 복원", "◎", true,
                 () -> {
                     prefs.edit().remove(KEY_FAVORITES).apply();
@@ -1424,7 +1448,7 @@ public class LauncherActivity extends Activity {
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this, "SETTINGS_HMI_RENDER",
-                "variant=glass-vector-v2;rows=6;danger_rows=2");
+                "variant=glass-vector-v2;rows=7;danger_rows=2;golden_screenshot=true");
 
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(panel)
