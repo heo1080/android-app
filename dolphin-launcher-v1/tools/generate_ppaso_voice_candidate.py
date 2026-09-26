@@ -26,7 +26,7 @@ MANIFEST_PATH = ROOT / "app/src/main/assets/voice_prompt_manifest.json"
 SOURCE_RATE = 22050
 TARGET_RATE = 24000
 MODEL_REPO = "akamotaco/ppaso-tts-v1"
-DEFAULT_MODEL_REVISION = "main"
+DEFAULT_MODEL_REVISION = "53d09664c4f636a5fb6f2ebe3ec22cd83ee249b9"
 PROFILE_ID = "ppaso-v8-ko-female-24k-pcm-candidate-v1"
 
 SYNTH_TEXT = {
