@@ -181,8 +181,8 @@ jobs:
           BADGING="$(printf '%s\n' "$BADGING_ALL" | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -q "package: name='com.dolphin.launcher.v1.voicepreview'"
-          echo "$BADGING" | grep -q "versionCode='9'"
-          echo "$BADGING" | grep -q "versionName='1.2.6-v1-premium-realcar-beta-voice-preview'"
+          echo "$BADGING" | grep -q "versionCode='10'"
+          echo "$BADGING" | grep -q "versionName='1.2.7-v1-premium-realcar-beta-voice-preview'"
           printf '%s\n' "$BADGING_ALL" | grep -q "^sdkVersion:'29'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^targetSdkVersion:'35'$"
 
