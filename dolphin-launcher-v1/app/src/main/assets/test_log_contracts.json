@@ -2460,7 +2460,8 @@
         "3-panel cockpit copy width adapts to screen width and remains clamped to 150~206dp",
         "HOME render evidence reports dock_items=6 for the six primary actions",
         "cockpit vectors expose TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE scope labels with WAITING/LIVE/STALE/BLOCKED source-state text",
-        "cockpit source-state text is explicitly source availability only and does not imply feature VERIFIED state"
+        "cockpit source-state text is explicitly source availability only and does not imply feature VERIFIED state",
+        "cockpit source legend scope/state text uses separate rows and width-fitted text so compact 10-inch cards do not overlap"
       ],
       "required_logs": [
         "display profile",
@@ -2534,7 +2535,8 @@
         "3-panel cockpit copy width adapts to screen width and remains clamped to 150~206dp",
         "HOME render evidence reports dock_items=6 for the six primary actions",
         "cockpit vectors expose TARGET SESSION / SEMANTICS LOCKED / RAW SOURCE scope labels with WAITING/LIVE/STALE/BLOCKED source-state text",
-        "cockpit source-state text is explicitly source availability only and does not imply feature VERIFIED state"
+        "cockpit source-state text is explicitly source availability only and does not imply feature VERIFIED state",
+        "cockpit source legend scope/state text uses separate rows and width-fitted text so compact 10-inch cards do not overlap"
       ],
       "required_logs": [
         "display profile",
