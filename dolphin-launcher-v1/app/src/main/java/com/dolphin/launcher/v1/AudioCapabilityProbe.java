@@ -52,8 +52,7 @@ public final class AudioCapabilityProbe {
                     }
                     if(matchesExterior(m.getName())){
                         exteriorMethods++;
-                        VerificationEvidenceRuntime.recordPassiveEvent(
-                                context,"EXTERNAL_AVAS_CAPABILITY_METHOD",
+                        record(context, testId, correlationId,"EXTERNAL_AVAS_CAPABILITY_METHOD",
                                 "class="+name+";method="+m.getName()+";params="+m.getParameterTypes().length+
                                 ";return="+m.getReturnType().getSimpleName()+
                                 ";invoked=false;candidate_only=true;mode=read-only");
@@ -68,8 +67,7 @@ public final class AudioCapabilityProbe {
                     }
                     if(matchesExterior(f.getName())){
                         exteriorFields++;
-                        VerificationEvidenceRuntime.recordPassiveEvent(
-                                context,"EXTERNAL_AVAS_CAPABILITY_CONSTANT",
+                        record(context, testId, correlationId,"EXTERNAL_AVAS_CAPABILITY_CONSTANT",
                                 "class="+name+";field="+f.getName()+";type="+f.getType().getSimpleName()+
                                 ";read=false;invoked=false;candidate_only=true;mode=read-only");
                     }
@@ -87,8 +85,7 @@ public final class AudioCapabilityProbe {
                 for(Method m:cls.getMethods()){
                     if(!matchesTrigger(m.getName())) continue;
                     triggerMethods++;
-                    VerificationEvidenceRuntime.recordPassiveEvent(
-                            context,"AVAS_TRIGGER_CAPABILITY_METHOD",
+                    record(context, testId, correlationId,"AVAS_TRIGGER_CAPABILITY_METHOD",
                             "class="+name+";method="+m.getName()+";params="+m.getParameterTypes().length+
                                     ";return="+m.getReturnType().getSimpleName()+
                                     ";invoked=false;candidate_only=true;trigger_semantic=unproven");
@@ -96,14 +93,12 @@ public final class AudioCapabilityProbe {
                 for(Field field:cls.getFields()){
                     if(!matchesTrigger(field.getName())) continue;
                     triggerFields++;
-                    VerificationEvidenceRuntime.recordPassiveEvent(
-                            context,"AVAS_TRIGGER_CAPABILITY_CONSTANT",
+                    record(context, testId, correlationId,"AVAS_TRIGGER_CAPABILITY_CONSTANT",
                             "class="+name+";field="+field.getName()+";type="+field.getType().getSimpleName()+
                                     ";read=false;candidate_only=true;trigger_semantic=unproven");
                 }
             }catch(Throwable t){
-                VerificationEvidenceRuntime.recordPassiveEvent(
-                        context,"AVAS_TRIGGER_CAPABILITY_CLASS",
+                record(context, testId, correlationId,"AVAS_TRIGGER_CAPABILITY_CLASS",
                         "class="+name+";available=false;error="+t.getClass().getSimpleName()+
                                 ";mode=read-only");
             }
@@ -119,8 +114,7 @@ public final class AudioCapabilityProbe {
                 for(Method m:autoClass.getMethods()){
                     if(!matchesGenericBridge(m.getName())) continue;
                     genericBridgeMethods++;
-                    VerificationEvidenceRuntime.recordPassiveEvent(
-                            context,"EXTERNAL_AVAS_GENERIC_SERVICE_METHOD",
+                    record(context, testId, correlationId,"EXTERNAL_AVAS_GENERIC_SERVICE_METHOD",
                             "service=auto;class="+autoClass.getName()+";method="+m.getName()+
                                     ";params="+m.getParameterTypes().length+
                                     ";return="+m.getReturnType().getSimpleName()+
@@ -128,20 +122,17 @@ public final class AudioCapabilityProbe {
                 }
             }
         }catch(Throwable t){
-            VerificationEvidenceRuntime.recordPassiveEvent(
-                    context,"EXTERNAL_AVAS_GENERIC_SERVICE_ERROR",
+            record(context, testId, correlationId,"EXTERNAL_AVAS_GENERIC_SERVICE_ERROR",
                     "service=auto;error="+t.getClass().getSimpleName()+";invoked=false");
         }
-        VerificationEvidenceRuntime.recordPassiveEvent(
-                context,"EXTERNAL_AVAS_GENERIC_SERVICE",
+        record(context, testId, correlationId,"EXTERNAL_AVAS_GENERIC_SERVICE",
                 "service=auto;available="+genericServiceAvailable+
                         ";generic_bridge_methods="+genericBridgeMethods+
                         ";feature_mapping=unproven;invoked=false;vehicle_write=false");
 
         record(context, testId, correlationId,"AUDIO_CAPABILITY_SCAN",
                 "classes="+classes+";methods="+methods+";fields="+fields+";vehicle_write=false");
-        VerificationEvidenceRuntime.recordPassiveEvent(
-                context,"EXTERNAL_AVAS_CAPABILITY_SCAN",
+        record(context, testId, correlationId,"EXTERNAL_AVAS_CAPABILITY_SCAN",
                 "classes="+classes+";methods="+exteriorMethods+";fields="+exteriorFields+
                         ";trigger_classes="+triggerClasses+";trigger_methods="+triggerMethods+
                         ";trigger_fields="+triggerFields+
