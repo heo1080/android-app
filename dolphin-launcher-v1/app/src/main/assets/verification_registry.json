@@ -2376,7 +2376,7 @@
         "LCH-BOOT-001",
         "LCH-BOOT-002"
       ],
-      "close_gate": "two repeatable real-car ignition cycles with 2+ registered apps, saved per-app delays, AUTOSTART_ALARM_FIRED for each entry, correct target launches/media path, and no duplicate batch after opening V1"
+      "close_gate": "two repeatable real-car ignition cycles with 2+ registered apps, packaged BootAutoLaunchReceiver delivery, saved per-app delays, AUTOSTART_ALARM_FIRED for each entry, correct target launches/media path, and no duplicate batch after opening V1"
     },
     {
       "id": "KB-007",
@@ -2459,7 +2459,7 @@
         "MED-BG-001",
         "MED-BG-002"
       ],
-      "close_gate": "real-car target session package match, configured delay, audible target playback, non-target media unchanged, global fallback absent, and stock safety warning audio remains functional"
+      "close_gate": "real-car target session package match, process-independent media stage delivery, configured delay, audible target playback, non-target media unchanged, global fallback absent, and stock safety warning audio remains functional"
     }
   ],
   "next_priority": [
