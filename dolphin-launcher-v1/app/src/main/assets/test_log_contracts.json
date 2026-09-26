@@ -150,7 +150,8 @@
         "업로드 결과 확인",
         "토큰은 Android Keystore 보호",
         "automatic upload runtime retries queued ZIPs on app network availability and boot",
-        "upload receipt must match queued bundle session_id and SHA-256"
+        "upload receipt must match queued bundle session_id and SHA-256",
+        "APK-static upload credential is absent; without proven runtime enrollment the ZIP queue is retained and network upload fails closed"
       ],
       "required_logs": [
         "session manifest",
@@ -161,7 +162,8 @@
         "EVIDENCE_UPLOAD_ATTEMPT",
         "EVIDENCE_UPLOAD_RECEIPT",
         "EVIDENCE_UPLOAD_RETRY_RETAINED",
-        "BOOT_UPLOAD_RETRY_FINISHED"
+        "BOOT_UPLOAD_RETRY_FINISHED",
+        "EVIDENCE_UPLOAD_CREDENTIAL_UNAVAILABLE"
       ]
     },
     {
@@ -200,7 +202,8 @@
         "토큰은 Android Keystore 보호",
         "automatic upload runtime retries queued ZIPs on app network availability and boot",
         "upload receipt must match queued bundle session_id and SHA-256",
-        "secure-secret acceptance cannot PASS while upload authentication is sourced from BuildConfig.EVIDENCE_UPLOAD_KEY"
+        "secure-secret acceptance cannot PASS while upload authentication is sourced from BuildConfig.EVIDENCE_UPLOAD_KEY",
+        "APK-static upload credential is absent; without proven runtime enrollment the ZIP queue is retained and network upload fails closed"
       ],
       "required_logs": [
         "session manifest",
@@ -211,7 +214,8 @@
         "EVIDENCE_UPLOAD_ATTEMPT",
         "EVIDENCE_UPLOAD_RECEIPT",
         "EVIDENCE_UPLOAD_RETRY_RETAINED",
-        "BOOT_UPLOAD_RETRY_FINISHED"
+        "BOOT_UPLOAD_RETRY_FINISHED",
+        "EVIDENCE_UPLOAD_CREDENTIAL_UNAVAILABLE"
       ]
     },
     {
