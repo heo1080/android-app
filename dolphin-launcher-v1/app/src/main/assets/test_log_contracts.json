@@ -277,34 +277,34 @@
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
       "required_any": [
-        "APP_SHORTCUT_PIN_REQUEST",
-        "APP_SHORTCUT_PIN_CONFIRMED",
+        "APP_SHORTCUT_SLOT_ASSIGNED",
         "APP_SHORTCUT_INVOKED"
       ],
       "success_any": [
-        "APP_SHORTCUT_PIN_CONFIRMED",
+        "APP_SHORTCUT_SLOT_ASSIGNED",
         "APP_SHORTCUT_LAUNCH_DISPATCHED"
       ],
       "failure_any": [
-        "APP_SHORTCUT_BLOCKED",
+        "APP_SHORTCUT_SLOT_ASSIGN_FAILED",
         "APP_SHORTCUT_LAUNCH_FAILED"
       ],
       "known_bad_ids": [
         "KB-005"
       ],
       "acceptance": [
-        "selected app pin request is accepted by ShortcutManager",
-        "pin-success callback is received after launcher/user acceptance",
-        "pinned icon is visible in BYD launcher",
-        "cold-start shortcut invocation dispatches the captured target package"
+        "selected app is persisted into an app-owned MAIN+LAUNCHER component slot",
+        "component enable success is recorded with launcher_visibility_verified=false",
+        "BYD launcher icon visibility is confirmed separately by operator observation",
+        "slot cold-start invocation dispatches the captured target package through LauncherActivity"
       ],
       "required_logs": [
-        "APP_SHORTCUT_PIN_REQUEST",
-        "APP_SHORTCUT_PIN_CONFIRMED",
+        "APP_SHORTCUT_SLOT_ASSIGNED",
+        "APP_SHORTCUT_SLOT_ASSIGN_FAILED",
         "APP_SHORTCUT_INVOKED",
         "APP_SHORTCUT_LAUNCH_DISPATCHED",
         "package",
-        "shortcut id",
+        "slot_id",
+        "mechanism=launcher-component-slot",
         "operator icon observation"
       ]
     },
@@ -343,15 +343,16 @@
         "KB-005"
       ],
       "acceptance": [
-        "user can disable an app-owned pinned shortcut",
-        "disabled shortcut no longer launches the target action",
-        "launcher-visible disabled state/removal behavior is recorded by operator because launcher behavior may vary"
+        "user can disable an app-owned launcher component slot",
+        "disabled slot no longer launches the target action",
+        "slot assignment is removed from persistent storage",
+        "launcher-visible removal/disabled behavior is recorded by operator because OEM launcher refresh behavior may vary"
       ],
       "required_logs": [
         "APP_SHORTCUT_DISABLED",
         "APP_SHORTCUT_DISABLE_FAILED",
         "package",
-        "shortcut id",
+        "disabled_slots",
         "operator launcher state observation"
       ]
     },
@@ -567,38 +568,38 @@
       "manual_observation_required": true,
       "repeatability_required_sessions": 2,
       "required_any": [
-        "SPLIT_SHORTCUT_REQUEST",
-        "SPLIT_SHORTCUT_PIN_CONFIRMED",
+        "SPLIT_SHORTCUT_SLOT_ASSIGNED",
         "SPLIT_SHORTCUT_INVOKED"
       ],
       "success_any": [
-        "SPLIT_SHORTCUT_PIN_CONFIRMED",
+        "SPLIT_SHORTCUT_SLOT_ASSIGNED",
         "captured_left=",
         "captured_right="
       ],
       "failure_any": [
-        "SPLIT_SHORTCUT_UNSUPPORTED",
-        "requested=false",
-        "SPLIT_PAIR_INVALID"
+        "SPLIT_SHORTCUT_SLOT_ASSIGN_FAILED",
+        "SPLIT_PAIR_INVALID",
+        "SPLIT_SHORTCUT_LAUNCH_FAILED"
       ],
       "known_bad_ids": [
         "KB-004"
       ],
       "acceptance": [
-        "split pair shortcut request reports requested=true on supported launcher",
-        "pin-success callback is received only after launcher accepts pin",
-        "shortcut invocation carries the captured left/right packages",
-        "shortcut launch proceeds through the same readback-verified split path",
-        "operator marker SPLIT_SHORTCUT_ICON_VISIBLE confirms launcher pin visibility",
-        "operator marker SPLIT_SHORTCUT_LAUNCH_VISIBLE confirms shortcut invokes visible split",
+        "split pair is persisted into an app-owned MAIN+LAUNCHER component slot",
+        "component enable is not treated as BYD launcher icon visibility proof",
+        "slot invocation carries the captured left/right packages",
+        "slot launch proceeds through the same readback-verified split path",
+        "operator marker SPLIT_SHORTCUT_ICON_VISIBLE confirms launcher icon visibility",
+        "operator marker SPLIT_SHORTCUT_LAUNCH_VISIBLE confirms slot invokes visible split",
         "each required operator marker must reach at least 3 observations in the active correlation before PASS is exposed",
         "single-session marker completion is not sufficient for VERIFIED"
       ],
       "required_logs": [
-        "SPLIT_SHORTCUT_REQUEST",
-        "SPLIT_SHORTCUT_PIN_CONFIRMED",
+        "SPLIT_SHORTCUT_SLOT_ASSIGNED",
+        "SPLIT_SHORTCUT_SLOT_ASSIGN_FAILED",
         "SPLIT_SHORTCUT_INVOKED",
-        "shortcut_id",
+        "SPLIT_SHORTCUT_LAUNCH_DISPATCHED",
+        "slot_id",
         "captured_left/captured_right",
         "operator launcher icon observation",
         "OPERATOR_OBSERVATION",
