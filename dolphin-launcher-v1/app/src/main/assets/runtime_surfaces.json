@@ -363,7 +363,23 @@
         "screen_width_dp=",
         "dock_min_safe_width_dp=632",
         "touch_target_goal_dp=48",
-        "compact_risk="
+        "compact_risk=",
+        "referenceScreenWidthDp",
+        "referenceScreenHeightDp",
+        "referencePanelCopyWidthDp",
+        "referencePanelGraphicWidthDp",
+        "referenceUtilityCopyWidthDp",
+        "referenceUtilityIconDp",
+        "adaptive_hero=true",
+        "hero_copy_dp=",
+        "hero_graphic_dp=",
+        "utility_copy_dp=",
+        "utility_icon_dp=",
+        "screen_height_dp=",
+        "home_hero_height_dp=238",
+        "home_cockpit_height_dp=168",
+        "topbar_height_dp=60",
+        "dock_height_dp=84"
       ]
     },
     {
@@ -545,7 +561,8 @@
         "screen_width_dp=",
         "dock_min_safe_width_dp=632",
         "touch_target_goal_dp=48",
-        "compact_risk="
+        "compact_risk=",
+        "adaptive_hero=true"
       ]
     },
     {
@@ -672,7 +689,8 @@
         "showReferenceDialog",
         "scroll_safe=true",
         "dialog_profile=safety",
-        "dialog_profile=map"
+        "dialog_profile=map",
+        "adaptive_hero=true"
       ]
     },
     {
@@ -1014,7 +1032,8 @@
         "referenceDialogScroll",
         "showReferenceDialog",
         "scroll_safe=true",
-        "dialog_profile=media"
+        "dialog_profile=media",
+        "adaptive_hero=true"
       ]
     },
     {
@@ -1470,7 +1489,8 @@
         "referenceDialogScroll",
         "showReferenceDialog",
         "scroll_safe=true",
-        "dialog_profile=vehicle"
+        "dialog_profile=vehicle",
+        "adaptive_hero=true"
       ]
     },
     {
