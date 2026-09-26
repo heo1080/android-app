@@ -81,7 +81,7 @@ def wav_fixture(sample_rate: int = 24000, channels: int = 1, sample_width: int =
         stream.setnchannels(channels)
         stream.setsampwidth(sample_width)
         stream.setframerate(sample_rate)
-        stream.writeframes(bytes(channels * sample_width * 600))
+        stream.writeframes(bytes(channels * sample_width * 1200))
     return buffer.getvalue()
 
 
