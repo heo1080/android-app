@@ -61,7 +61,10 @@
         "packaged minSdk=29 and targetSdk=35",
         "voicePreview audition artifact uses com.dolphin.launcher.v1.voicepreview while canonical release package remains com.dolphin.launcher.v1",
         "voicePreview and canonical release use the same stable signer but remain distinct install identities",
-        "Real-car BETA release metadata version_code는 Gradle/APK manifest versionCode와 정확히 일치"
+        "Real-car BETA release metadata version_code는 Gradle/APK manifest versionCode와 정확히 일치",
+        "immutable release asset assembly occurs only while isDraft=true and publish occurs only after canonical 3 + preview 3 assets are complete",
+        "Fixed Voice Preview never creates or publishes the Real-Car BETA release",
+        "published tag is accepted only when target SHA matches current source commit and all six required assets are already complete"
       ],
       "required_logs": [
         "source commit",
@@ -74,7 +77,15 @@
         "sdkVersion=29",
         "targetSdkVersion=35",
         "BUILD_IDENTITY_OK",
-        "REALCAR_BETA_METADATA_VERSION_MATCH"
+        "REALCAR_BETA_METADATA_VERSION_MATCH",
+        "REALCAR_BETA_DRAFT_CREATED",
+        "REALCAR_BETA_CANONICAL_ASSETS_OK",
+        "REALCAR_BETA_WAIT_PREVIEW_ASSETS",
+        "REALCAR_BETA_ALL_ASSETS_OK",
+        "REALCAR_BETA_RELEASE_PUBLISHED",
+        "VOICE_PREVIEW_WAIT_CANONICAL_RELEASE",
+        "VOICE_PREVIEW_CANONICAL_RELEASE_READY",
+        "VOICE_PREVIEW_DRAFT_ASSETS_READY"
       ]
     },
     {
@@ -111,7 +122,10 @@
         "packaged minSdk=29 and targetSdk=35",
         "voicePreview audition artifact uses com.dolphin.launcher.v1.voicepreview while canonical release package remains com.dolphin.launcher.v1",
         "voicePreview and canonical release use the same stable signer but remain distinct install identities",
-        "Real-car BETA release metadata version_code는 Gradle/APK manifest versionCode와 정확히 일치"
+        "Real-car BETA release metadata version_code는 Gradle/APK manifest versionCode와 정확히 일치",
+        "immutable release asset assembly occurs only while isDraft=true and publish occurs only after canonical 3 + preview 3 assets are complete",
+        "Fixed Voice Preview never creates or publishes the Real-Car BETA release",
+        "published tag is accepted only when target SHA matches current source commit and all six required assets are already complete"
       ],
       "required_logs": [
         "source commit",
@@ -124,7 +138,15 @@
         "sdkVersion=29",
         "targetSdkVersion=35",
         "BUILD_IDENTITY_OK",
-        "REALCAR_BETA_METADATA_VERSION_MATCH"
+        "REALCAR_BETA_METADATA_VERSION_MATCH",
+        "REALCAR_BETA_DRAFT_CREATED",
+        "REALCAR_BETA_CANONICAL_ASSETS_OK",
+        "REALCAR_BETA_WAIT_PREVIEW_ASSETS",
+        "REALCAR_BETA_ALL_ASSETS_OK",
+        "REALCAR_BETA_RELEASE_PUBLISHED",
+        "VOICE_PREVIEW_WAIT_CANONICAL_RELEASE",
+        "VOICE_PREVIEW_CANONICAL_RELEASE_READY",
+        "VOICE_PREVIEW_DRAFT_ASSETS_READY"
       ]
     },
     {

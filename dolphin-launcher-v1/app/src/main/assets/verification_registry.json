@@ -51,7 +51,10 @@
         "minSdk=29 targetSdk=35가 packaged APK metadata와 일치",
         "canonical release identity remains com.dolphin.launcher.v1 while voicePreview uses com.dolphin.launcher.v1.voicepreview only for real-car fixed-voice audition",
         "voicePreview uses the same stable signing certificate but a distinct package identity so it cannot overwrite the canonical install",
-        "Real-car BETA release metadata version_code는 Gradle/APK manifest versionCode와 정확히 일치"
+        "Real-car BETA release metadata version_code는 Gradle/APK manifest versionCode와 정확히 일치",
+        "immutable Real-Car BETA asset assembly는 isDraft=true 동안만 수행하며 canonical APK/SHA/metadata 3개와 Fixed Voice Preview APK/SHA/manifest 3개가 모두 확인된 뒤 main workflow가 한 번만 publish",
+        "Fixed Voice Preview workflow는 Real-Car BETA release/tag를 생성하거나 publish하지 않고 동일 source commit의 canonical draft가 준비된 뒤 preview 3개 asset만 추가",
+        "이미 published 된 동일 tag는 target SHA와 총 6개 required asset이 모두 정확한 경우에만 immutable success로 인정하고 upload/clobber하지 않음"
       ],
       "required_logs": [
         "source commit",
@@ -64,11 +67,22 @@
         "minSdk 29",
         "targetSdk 35",
         "BUILD_IDENTITY_OK",
-        "REALCAR_BETA_METADATA_VERSION_MATCH"
+        "REALCAR_BETA_METADATA_VERSION_MATCH",
+        "REALCAR_BETA_DRAFT_CREATED",
+        "REALCAR_BETA_CANONICAL_ASSETS_OK",
+        "REALCAR_BETA_WAIT_PREVIEW_ASSETS",
+        "REALCAR_BETA_ALL_ASSETS_OK",
+        "REALCAR_BETA_RELEASE_PUBLISHED",
+        "REALCAR_BETA_RELEASE_INCOMPLETE_EXISTING",
+        "VOICE_PREVIEW_WAIT_CANONICAL_RELEASE",
+        "VOICE_PREVIEW_CANONICAL_RELEASE_READY",
+        "VOICE_PREVIEW_DRAFT_ASSETS_READY"
       ],
       "known_bad": [
         "과거 V1 설치본에서 HOME category가 BYD Korean Dolphin에서 desktop app으로 분류되어 설치 거부된 회귀",
-        "1.2.5 real-car BETA workflow가 APK versionCode 8과 달리 Release metadata/notes에 versionCode 7을 하드코딩한 회귀"
+        "1.2.5 real-car BETA workflow가 APK versionCode 8과 달리 Release metadata/notes에 versionCode 7을 하드코딩한 회귀",
+        "1.2.7에서 Preview workflow가 tag를 먼저 생성하고 immutable main workflow가 canonical APK/SHA/metadata 업로드를 건너뛴 release race 회귀; 1.2.7은 실차 설치 후보에서 제외",
+        "1.2.8 workflow는 canonical release를 publish한 뒤 preview asset을 추가하려는 순서가 immutable release와 충돌할 수 있어 최종 실차 설치 후보에서 제외"
       ],
       "dependencies": [
         "GitHub Actions",
@@ -86,9 +100,10 @@
         "build identity evidence records source commit/APK SHA-256",
         "CI BUILD_IDENTITY_OK home=0 launchable=1",
         "Gradle voicePreview build type isolates audition package identity from canonical release",
-        "real-car BETA workflow derives VERSION_CODE from app/build.gradle.kts and validates REALCAR_BETA_METADATA_VERSION_MATCH"
+        "real-car BETA workflow derives VERSION_CODE from app/build.gradle.kts and validates REALCAR_BETA_METADATA_VERSION_MATCH",
+        "1.2.9 release workflow uses a mutable draft as the only six-asset assembly phase and publishes only after canonical 3 + preview 3 are verified"
       ],
-      "next_action": "1.2.8-v1-premium-realcar-beta를 BYD Korean Dolphin에 설치해 APK/Release metadata identity, desktop-app 오인 없음, 새 read-only evidence surface까지 재검증",
+      "next_action": "1.2.9-v1-premium-realcar-beta Release의 target commit과 canonical 3 + preview 3 총 6개 asset을 확인한 뒤 BYD Korean Dolphin 실차 설치/동작 검증",
       "confidence": {
         "behavior": "HIGH",
         "root_cause": "HIGH",

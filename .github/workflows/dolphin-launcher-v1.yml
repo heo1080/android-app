@@ -58,22 +58,32 @@ jobs:
               "versionCode $VERSION_CODE",
               "REALCAR_BETA_RELEASE_OK",
               "REALCAR_BETA_RELEASE_IMMUTABLE",
-              "REALCAR_BETA_RELEASE_INCOMPLETE",
+              "REALCAR_BETA_DRAFT_CREATED",
+              "REALCAR_BETA_CANONICAL_ASSETS_OK",
+              "REALCAR_BETA_WAIT_PREVIEW_ASSETS",
+              "REALCAR_BETA_ALL_ASSETS_OK",
+              "REALCAR_BETA_RELEASE_PUBLISHED",
+              "REALCAR_BETA_RELEASE_INCOMPLETE_EXISTING",
               "upload=false",
-              'gh release create "$TAG" "$APK" "$SHA" "$META"',
+              "--draft",
+              "--draft=false",
               "--prerelease",
           )
           for token in beta_tokens:
               assert token in workflow, ("real-car beta policy drift",token)
           preview_workflow=Path(".github/workflows/dolphin-launcher-v1-fixed-voice-preview-apk.yml").read_text(encoding="utf-8")
+          preview_attach=preview_workflow.split("      - name: Attach Fixed Voice Preview to real-car BETA prerelease",1)[1]
           for token in (
-              "VOICE_PREVIEW_WAITING_FOR_CANONICAL",
+              "VOICE_PREVIEW_WAIT_CANONICAL_RELEASE",
               "VOICE_PREVIEW_CANONICAL_RELEASE_READY",
-              "VOICE_PREVIEW_RELEASE_INCOMPLETE",
-              "VOICE_PREVIEW_BETA_RELEASE_IMMUTABLE",
-              "canonical_release_required=true",
+              "VOICE_PREVIEW_DRAFT_ASSETS_READY",
+              "DolphinLauncherV1-Evolution.apk",
+              "DolphinLauncherV1-Evolution.sha256",
+              "DolphinLauncherV1-RealCarValidation.json",
           ):
-              assert token in preview_workflow, ("voice preview release ordering drift",token)
+              assert token in preview_attach, ("voice preview release ordering drift",token)
+          assert "gh release create" not in preview_attach, "voice preview must never create real-car release"
+          assert "--draft=false" not in preview_attach, "voice preview must never publish real-car release"
           stable_tokens=(
               "Enforce release Known-Bad gate",
               "RELEASE_BLOCKED_OPEN_P0=",
@@ -122,8 +132,8 @@ jobs:
           BADGING="$(printf '%s\n' "$BADGING_ALL" | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -q "package: name='com.dolphin.launcher.v1'"
-          echo "$BADGING" | grep -q "versionCode='11'"
-          echo "$BADGING" | grep -q "versionName='1.2.8-v1-premium-realcar-beta'"
+          echo "$BADGING" | grep -q "versionCode='12'"
+          echo "$BADGING" | grep -q "versionName='1.2.9-v1-premium-realcar-beta'"
           printf '%s\n' "$BADGING_ALL" | grep -q "^sdkVersion:'29'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^targetSdkVersion:'35'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^launchable-activity: name='com.dolphin.launcher.v1.LauncherActivity'"
@@ -202,7 +212,7 @@ jobs:
             echo "HOME category must remain disabled until BYD real-car compatibility is proven" >&2
             exit 1
           fi
-          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=11 minSdk=29 targetSdk=35 main_launcher=1 drawer_slots=16_disabled home=0"
+          echo "BUILD_IDENTITY_OK package=com.dolphin.launcher.v1 versionCode=12 minSdk=29 targetSdk=35 main_launcher=1 drawer_slots=16_disabled home=0"
 
       - name: Validate Registry v3 payload
         shell: bash
@@ -1212,32 +1222,109 @@ jobs:
           - Operator/runtime evidence is required before any real-car feature promotion.
           EOF
 
+          CANONICAL_APK_NAME="$(basename "$APK")"
+          CANONICAL_SHA_NAME="$(basename "$SHA")"
+          CANONICAL_META_NAME="$(basename "$META")"
+          PREVIEW_APK_NAME="DolphinLauncherV1-FixedVoicePreview.apk"
+          PREVIEW_SHA_NAME="DolphinLauncherV1-FixedVoicePreview.sha256"
+          PREVIEW_MANIFEST_NAME="ppaso_candidate_manifest.json"
+          NEEDS_PUBLISH=true
+
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            RELEASE_JSON="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" \
-              --json isPrerelease,assets)"
-            test "$(printf '%s' "$RELEASE_JSON" | jq -r '.isPrerelease')" = "true"
+            RELEASE_JSON="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json targetCommitish,isDraft,isPrerelease,assets)"
+            RELEASE_TARGET="$(printf '%s' "$RELEASE_JSON" | jq -r '.targetCommitish')"
+            RELEASE_DRAFT="$(printf '%s' "$RELEASE_JSON" | jq -r '.isDraft')"
+            RELEASE_PRERELEASE="$(printf '%s' "$RELEASE_JSON" | jq -r '.isPrerelease')"
             ASSET_NAMES="$(printf '%s' "$RELEASE_JSON" | jq -r '.assets[].name')"
-            MISSING=""
-            for REQUIRED in \
-              "DolphinLauncherV1-Evolution.apk" \
-              "DolphinLauncherV1-Evolution.sha256" \
-              "DolphinLauncherV1-RealCarValidation.json"; do
-              if ! grep -Fxq "$REQUIRED" <<<"$ASSET_NAMES"; then
-                MISSING="$MISSING,$REQUIRED"
-              fi
-            done
-            if [ -n "$MISSING" ]; then
-              echo "REALCAR_BETA_RELEASE_INCOMPLETE tag=$TAG missing=${MISSING#,}" >&2
+            if [ "$RELEASE_TARGET" != "$GITHUB_SHA" ]; then
+              echo "REALCAR_BETA_RELEASE_INCOMPLETE_EXISTING tag=$TAG reason=target_mismatch target=$RELEASE_TARGET expected=$GITHUB_SHA upload=false" >&2
               exit 1
             fi
-            echo "REALCAR_BETA_RELEASE_IMMUTABLE tag=$TAG upload=false"
+            if [ "$RELEASE_DRAFT" != "true" ]; then
+              test "$RELEASE_PRERELEASE" = "true"
+              for REQUIRED_ASSET in "$CANONICAL_APK_NAME" "$CANONICAL_SHA_NAME" "$CANONICAL_META_NAME" "$PREVIEW_APK_NAME" "$PREVIEW_SHA_NAME" "$PREVIEW_MANIFEST_NAME"; do
+                if ! grep -Fxq "$REQUIRED_ASSET" <<< "$ASSET_NAMES"; then
+                  echo "REALCAR_BETA_RELEASE_INCOMPLETE_EXISTING tag=$TAG reason=published_missing_asset asset=$REQUIRED_ASSET upload=false" >&2
+                  exit 1
+                fi
+              done
+              NEEDS_PUBLISH=false
+              echo "REALCAR_BETA_RELEASE_IMMUTABLE tag=$TAG upload=false all_assets_complete=true"
+              echo "REALCAR_BETA_CANONICAL_ASSETS_OK tag=$TAG target=$RELEASE_TARGET"
+              echo "REALCAR_BETA_ALL_ASSETS_OK tag=$TAG assets=6"
+              echo "REALCAR_BETA_RELEASE_PUBLISHED tag=$TAG prerelease=true stable=false existing=true"
+            else
+              gh release upload "$TAG" "$APK" "$SHA" "$META" --repo "$GITHUB_REPOSITORY" --clobber
+            fi
           else
             gh release create "$TAG" "$APK" "$SHA" "$META" \
               --repo "$GITHUB_REPOSITORY" \
               --target "$GITHUB_SHA" \
               --title "Dolphin Launcher V1 ${SEMVER} Real-Car BETA" \
               --notes-file "$NOTES" \
+              --draft \
               --prerelease
+            echo "REALCAR_BETA_DRAFT_CREATED tag=$TAG canonical_assets=3 published=false"
+          fi
+
+          if [ "$NEEDS_PUBLISH" = "true" ]; then
+            RELEASE_JSON="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json targetCommitish,isDraft,assets)"
+            RELEASE_TARGET="$(printf '%s' "$RELEASE_JSON" | jq -r '.targetCommitish')"
+            RELEASE_DRAFT="$(printf '%s' "$RELEASE_JSON" | jq -r '.isDraft')"
+            ASSET_NAMES="$(printf '%s' "$RELEASE_JSON" | jq -r '.assets[].name')"
+            test "$RELEASE_TARGET" = "$GITHUB_SHA"
+            test "$RELEASE_DRAFT" = "true"
+            for REQUIRED_ASSET in "$CANONICAL_APK_NAME" "$CANONICAL_SHA_NAME" "$CANONICAL_META_NAME"; do
+              grep -Fxq "$REQUIRED_ASSET" <<< "$ASSET_NAMES"
+            done
+            echo "REALCAR_BETA_CANONICAL_ASSETS_OK tag=$TAG target=$RELEASE_TARGET draft=true"
+
+            echo "REALCAR_BETA_WAIT_PREVIEW_ASSETS tag=$TAG attempts=60 interval_seconds=5"
+            PREVIEW_READY=false
+            for ATTEMPT in $(seq 1 60); do
+              ASSET_NAMES="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
+              PREVIEW_COUNT=0
+              for PREVIEW_ASSET in "$PREVIEW_APK_NAME" "$PREVIEW_SHA_NAME" "$PREVIEW_MANIFEST_NAME"; do
+                if grep -Fxq "$PREVIEW_ASSET" <<< "$ASSET_NAMES"; then
+                  PREVIEW_COUNT=$((PREVIEW_COUNT + 1))
+                fi
+              done
+              if [ "$PREVIEW_COUNT" -eq 3 ]; then
+                PREVIEW_READY=true
+                break
+              fi
+              sleep 5
+            done
+            if [ "$PREVIEW_READY" != "true" ]; then
+              echo "REALCAR_BETA_RELEASE_INCOMPLETE_EXISTING tag=$TAG reason=preview_assets_timeout draft=true" >&2
+              exit 1
+            fi
+
+            RELEASE_JSON="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json targetCommitish,isDraft,assets)"
+            test "$(printf '%s' "$RELEASE_JSON" | jq -r '.targetCommitish')" = "$GITHUB_SHA"
+            test "$(printf '%s' "$RELEASE_JSON" | jq -r '.isDraft')" = "true"
+            ASSET_NAMES="$(printf '%s' "$RELEASE_JSON" | jq -r '.assets[].name')"
+            for REQUIRED_ASSET in "$CANONICAL_APK_NAME" "$CANONICAL_SHA_NAME" "$CANONICAL_META_NAME" "$PREVIEW_APK_NAME" "$PREVIEW_SHA_NAME" "$PREVIEW_MANIFEST_NAME"; do
+              grep -Fxq "$REQUIRED_ASSET" <<< "$ASSET_NAMES"
+            done
+            echo "REALCAR_BETA_ALL_ASSETS_OK tag=$TAG assets=6 draft=true"
+
+            gh release edit "$TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Dolphin Launcher V1 ${SEMVER} Real-Car BETA" \
+              --notes-file "$NOTES" \
+              --draft=false \
+              --prerelease
+
+            FINAL_JSON="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json targetCommitish,isDraft,isPrerelease,assets)"
+            test "$(printf '%s' "$FINAL_JSON" | jq -r '.targetCommitish')" = "$GITHUB_SHA"
+            test "$(printf '%s' "$FINAL_JSON" | jq -r '.isDraft')" = "false"
+            test "$(printf '%s' "$FINAL_JSON" | jq -r '.isPrerelease')" = "true"
+            FINAL_ASSETS="$(printf '%s' "$FINAL_JSON" | jq -r '.assets[].name')"
+            for REQUIRED_ASSET in "$CANONICAL_APK_NAME" "$CANONICAL_SHA_NAME" "$CANONICAL_META_NAME" "$PREVIEW_APK_NAME" "$PREVIEW_SHA_NAME" "$PREVIEW_MANIFEST_NAME"; do
+              grep -Fxq "$REQUIRED_ASSET" <<< "$FINAL_ASSETS"
+            done
+            echo "REALCAR_BETA_RELEASE_PUBLISHED tag=$TAG prerelease=true stable=false assets=6"
             echo "REALCAR_BETA_RELEASE_OK tag=$TAG prerelease=true stable=false"
           fi
 
