@@ -181,8 +181,8 @@ jobs:
           BADGING="$(printf '%s\n' "$BADGING_ALL" | head -n 1)"
           echo "$BADGING"
           echo "$BADGING" | grep -q "package: name='com.dolphin.launcher.v1.voicepreview'"
-          echo "$BADGING" | grep -q "versionCode='10'"
-          echo "$BADGING" | grep -q "versionName='1.2.7-v1-premium-realcar-beta-voice-preview'"
+          echo "$BADGING" | grep -q "versionCode='11'"
+          echo "$BADGING" | grep -q "versionName='1.2.8-v1-premium-realcar-beta-voice-preview'"
           printf '%s\n' "$BADGING_ALL" | grep -q "^sdkVersion:'29'$"
           printf '%s\n' "$BADGING_ALL" | grep -q "^targetSdkVersion:'35'$"
 
@@ -288,8 +288,63 @@ jobs:
           SHA="dolphin-launcher-v1/app/build/outputs/apk/voicePreview/DolphinLauncherV1-FixedVoicePreview.sha256"
           MANIFEST="$RUNNER_TEMP/fixed-voice-candidate/ppaso_candidate_manifest.json"
 
-          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release create "$TAG"               --repo "$GITHUB_REPOSITORY"               --target "$GITHUB_SHA"               --title "Dolphin Launcher V1 ${SEMVER} Real-Car BETA"               --notes "Real-car validation BETA. Canonical release assets are attached by the main V1 workflow. Fixed Voice Preview is audition-only and cannot promote IN_APP_TTS_CORE."               --prerelease
+          echo "VOICE_PREVIEW_WAIT_CANONICAL_RELEASE tag=$TAG attempts=60 interval_seconds=5"
+          RELEASE_READY=false
+          RELEASE_TARGET=""
+          RELEASE_DRAFT=""
+          ASSET_NAMES=""
+          for ATTEMPT in $(seq 1 60); do
+            if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              RELEASE_TARGET="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json targetCommitish --jq '.targetCommitish')"
+              RELEASE_DRAFT="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft')"
+              if [ "$RELEASE_TARGET" != "$GITHUB_SHA" ]; then
+                echo "VOICE_PREVIEW_CANONICAL_RELEASE_MISMATCH tag=$TAG target=$RELEASE_TARGET expected=$GITHUB_SHA" >&2
+                exit 1
+              fi
+              ASSET_NAMES="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
+              MISSING_CANONICAL=0
+              for REQUIRED_ASSET in "DolphinLauncherV1-Evolution.apk" "DolphinLauncherV1-Evolution.sha256" "DolphinLauncherV1-RealCarValidation.json"; do
+                if ! grep -Fxq "$REQUIRED_ASSET" <<< "$ASSET_NAMES"; then
+                  MISSING_CANONICAL=$((MISSING_CANONICAL + 1))
+                fi
+              done
+              if [ "$MISSING_CANONICAL" -eq 0 ]; then
+                if [ "$RELEASE_DRAFT" = "true" ]; then
+                  RELEASE_READY=true
+                  break
+                fi
+                PREVIEW_COUNT=0
+                for PREVIEW_ASSET in "DolphinLauncherV1-FixedVoicePreview.apk" "DolphinLauncherV1-FixedVoicePreview.sha256" "ppaso_candidate_manifest.json"; do
+                  if grep -Fxq "$PREVIEW_ASSET" <<< "$ASSET_NAMES"; then
+                    PREVIEW_COUNT=$((PREVIEW_COUNT + 1))
+                  fi
+                done
+                if [ "$PREVIEW_COUNT" -eq 3 ]; then
+                  echo "VOICE_PREVIEW_RELEASE_ASSETS_IMMUTABLE tag=$TAG upload=false preview_assets_complete=true published=true"
+                  echo "VOICE_PREVIEW_CANONICAL_RELEASE_READY tag=$TAG target=$RELEASE_TARGET canonical_assets_complete=true draft=false"
+                  exit 0
+                fi
+                echo "VOICE_PREVIEW_PUBLISHED_RELEASE_INCOMPLETE tag=$TAG preview_assets=$PREVIEW_COUNT upload=false" >&2
+                exit 1
+              fi
+              echo "VOICE_PREVIEW_WAIT_CANONICAL_ASSETS tag=$TAG attempt=$ATTEMPT missing=$MISSING_CANONICAL draft=$RELEASE_DRAFT"
+            fi
+            sleep 5
+          done
+          if [ "$RELEASE_READY" != "true" ]; then
+            echo "VOICE_PREVIEW_CANONICAL_DRAFT_MISSING_OR_INCOMPLETE tag=$TAG create=false" >&2
+            exit 1
           fi
-          gh release upload "$TAG" "$APK" "$SHA" "$MANIFEST"             --repo "$GITHUB_REPOSITORY"             --clobber
-          echo "VOICE_PREVIEW_BETA_RELEASE_ASSET_OK tag=$TAG preview_only=true promotion_allowed=false"
+          echo "VOICE_PREVIEW_CANONICAL_RELEASE_READY tag=$TAG target=$RELEASE_TARGET canonical_assets_complete=true draft=true"
+
+          gh release upload "$TAG" "$APK" "$SHA" "$MANIFEST" \
+            --repo "$GITHUB_REPOSITORY" --clobber
+
+          ASSET_NAMES="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')"
+          for PREVIEW_ASSET in "DolphinLauncherV1-FixedVoicePreview.apk" "DolphinLauncherV1-FixedVoicePreview.sha256" "ppaso_candidate_manifest.json"; do
+            grep -Fxq "$PREVIEW_ASSET" <<< "$ASSET_NAMES"
+          done
+          FINAL_DRAFT="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq '.isDraft')"
+          test "$FINAL_DRAFT" = "true"
+          echo "VOICE_PREVIEW_DRAFT_ASSETS_READY tag=$TAG preview_assets=3 draft=true promotion_allowed=false"
+          fi
