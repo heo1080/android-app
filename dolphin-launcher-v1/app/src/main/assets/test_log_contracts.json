@@ -1708,7 +1708,8 @@
         "single-session marker completion does not equal VERIFIED",
         "normal-driving and ICC/ACC/TJA-active observations preserve the same radar/speed/tja raw context",
         "tja_raw numeric value is not promoted to an ICC/ACC semantic without separate proof",
-        "no leading-car departure voice is enabled merely because radar changes while an assist raw value is present"
+        "no leading-car departure voice is enabled merely because radar changes while an assist raw value is present",
+        "marker counting requires radar_area7_raw, radar_area8_raw, speed_raw and tja_raw all present with non-null/non-unavailable values"
       ],
       "required_logs": [
         "LEADING_OBJECT_RADAR_RAW",
@@ -2785,7 +2786,8 @@
         "evaluator marker matching excludes canonical Registry/Test Contract/Runtime Surface/Known-Bad/Voice metadata from runtime evidence",
         "canonical metadata containing success_any/failure_any literals cannot satisfy or fail a Test ID by itself",
         "Build Dolphin Launcher V1 pull_request trigger covers both dolphin-launcher-v1 and dolphin-launcher-v1-ui-reference-dock before merge",
-        "Verification Center visibly identifies BETA operator-gated promotion and never maps CI/source availability directly to vehicle VERIFIED"
+        "Verification Center visibly identifies BETA operator-gated promotion and never maps CI/source availability directly to vehicle VERIFIED",
+        "active-test capability evidence preserves test_id/correlation_id and strict raw-marker counting rejects null/unavailable required keys"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2987,7 +2989,8 @@
         "BLOCKED state allows NEED_MORE_DATA only until independent readback plus physical exterior-audible evidence exists",
         "generic auto-service method signatures are inventory only and do not prove an AVAS device/FID mapping",
         "bodywork listener/class presence does not prove lock/unlock numeric semantics",
-        "no generic bridge method is invoked by the capability probe"
+        "no generic bridge method is invoked by the capability probe",
+        "EXTERNAL_AVAS_CAPABILITY_* and TEST_CAPABILITY_REFRESH rows emitted during AUD-AVAS-001 share the active test_id and correlation_id"
       ],
       "required_logs": [
         "EXTERNAL_AVAS_CAPABILITY_METHOD",
