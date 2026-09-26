@@ -428,7 +428,9 @@
         "복원 경로 존재",
         "Golden Screenshot 시 densityDpi/fontScale/orientation/nightMode/system insets와 visible frame을 동일 session audit JSON으로 저장",
         "화면에 실제 보이는 clickable view만 48dp minimum touch target 위반 여부를 검사",
-        "baseline 비교는 width/height/densityDpi/fontScale/nightMode가 모두 같은 audit만 대상으로 하여 다른 display profile을 직접 비교하지 않음"
+        "baseline 비교는 width/height/densityDpi/fontScale/nightMode가 모두 같은 audit만 대상으로 하여 다른 display profile을 직접 비교하지 않음",
+        "도크 DISPLAY quick panel에서 현재 width/height px, densityDpi, density, fontScale, width/height dp를 즉시 확인",
+        "DISPLAY quick panel은 OEM display spoof/write를 하지 않고 Android Display settings와 Golden Screenshot 진입만 제공"
       ],
       "required_logs": [
         "densityDpi",
@@ -442,7 +444,10 @@
         "partial_clips",
         "delta_touch",
         "delta_ellipsis",
-        "delta_clips"
+        "delta_clips",
+        "DISPLAY_QUICK_HMI_RENDER",
+        "SYSTEM_SETTINGS_DISPATCH",
+        "actuation=false"
       ],
       "known_bad": [
         "DPI 변경 시 순정 UI 일부 잘림",
@@ -461,7 +466,9 @@
       "evidence": [
         "DpiManager/DisplayDiagnosticsManager source",
         "UiLayoutAuditRuntime screenshot-coupled display/layout metrics",
-        "display-profile-scoped layout regression comparison"
+        "display-profile-scoped layout regression comparison",
+        "LauncherActivity showDisplayQuickPanel read-only profile surface",
+        "display quick panel links Golden Screenshot without changing density/fontScale"
       ],
       "next_action": "12/15인치 profile spoof 가능성은 실제 property/display mode 근거 확보 전 BLOCKED",
       "confidence": {
@@ -1423,7 +1430,9 @@
         "앱 버전별 contract test",
         "stale expiry",
         "지원 내비 notification source freshness는 UI 전용 30초 TTL로 LIVE/STALE을 구분하며 카메라/속도/거리 semantic parse는 수행하지 않음",
-        "notification 제거 시 active=false로 기록하고 SAFETY UI는 SOURCE REMOVED로 degrade"
+        "notification 제거 시 active=false로 기록하고 SAFETY UI는 SOURCE REMOVED로 degrade",
+        "도크 MAP launcher는 NAVER Map/TMAP/KakaoNavi/ATLAN 중 실제 설치된 지원 package만 표시",
+        "MAP launcher는 앱 실행 surface이며 notification parser/카메라 의미 추론과 분리하고 semantic_parse=false를 기록"
       ],
       "required_logs": [
         "source package/version",
@@ -1431,7 +1440,10 @@
         "parsed type/distance/speed",
         "timestamp",
         "NAV_NOTIFICATION_REMOVED",
-        "SAFETY_SOURCE_HMI_RENDER"
+        "SAFETY_SOURCE_HMI_RENDER",
+        "NAV_LAUNCHER_HMI_RENDER",
+        "installed_supported_nav",
+        "semantic_parse=false"
       ],
       "known_bad": [
         "외부 앱 업데이트로 parser 파손 가능"
@@ -1445,7 +1457,8 @@
       "evidence": [
         "NavGuidanceParser SUPPORTED_NAV_PACKAGES",
         "V1 privacy-safe notification hash/provenance capture; parser disabled pending evidence",
-        "NavSafetyStatusRuntime notification provenance freshness snapshot"
+        "NavSafetyStatusRuntime notification provenance freshness snapshot",
+        "LauncherActivity showNavigationPanel supported-package launcher surface"
       ],
       "next_action": "실차 notification access/connected/package별 payload contract 확보 후 parser 활성화 검토",
       "confidence": {
@@ -1829,7 +1842,13 @@
         "frame timing의 32ms/50ms threshold는 diagnostic-only로 기록하고 VERIFIED 합격 기준으로 사용하지 않음",
         "HOME hero는 MEDIA/NAV/VEH source availability를 Feature 검증상태와 분리해 WAITING/LIVE/STALE 색으로 표시",
         "hero 정적 문구는 DRIVE READY/LIVE LAYER를 사용하지 않고 COCKPIT READY/SOURCE LAYER로 실제 source 상태를 과장하지 않음",
-        "hero source rail 상태 로그는 값이 변경될 때만 기록해 2초 live binding의 로그 스팸을 방지"
+        "hero source rail 상태 로그는 값이 변경될 때만 기록해 2초 live binding의 로그 스팸을 방지",
+        "Golden Reference 하단 도크는 HOME/APPS/2-SPLIT/MAP/SETTINGS/VERIFY 6개 primary action과 VOLUME/BRIGHTNESS/DISPLAY/DARK 4개 safe quick control을 분리 배치",
+        "VOLUME/BRIGHTNESS는 검증되지 않은 차량 hidden API를 쓰지 않고 Android 시스템 설정 화면으로만 dispatch",
+        "DISPLAY quick panel은 실제 width/height/densityDpi/fontScale을 표시하고 OEM display spoof/write를 수행하지 않음",
+        "DARK quick panel은 앱 dark HMI와 system night 상태를 구분 표시하며 system night mode 강제 변경을 하지 않음",
+        "도크 MAP은 설치된 지원 내비만 보여주며 선택 시 해당 앱 launch만 수행하고 navigation semantic 값을 추정하지 않음",
+        "Golden Reference 도크 아이콘 MAP/VOL/SUN/DSP/MOON은 HmiGlyphView Canvas vector로 렌더링"
       ],
       "required_logs": [
         "display profile",
@@ -1872,7 +1891,14 @@
         "p95_ms",
         "over_32ms",
         "hero_source_rail=MEDIA,NAV,VEH",
-        "HERO_SOURCE_RAIL_STATE"
+        "HERO_SOURCE_RAIL_STATE",
+        "REFERENCE_DOCK_RENDER",
+        "primary=HOME,APPS,2-SPLIT,MAP,SETTINGS,VERIFY",
+        "controls=VOLUME,BRIGHTNESS,DISPLAY,DARK",
+        "NAV_LAUNCHER_HMI_RENDER",
+        "DISPLAY_QUICK_HMI_RENDER",
+        "THEME_STATUS_HMI_RENDER",
+        "SYSTEM_SETTINGS_DISPATCH"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1916,7 +1942,10 @@
         "138dp app tile preserves two-line label after state strip",
         "premium app action glass panel with 58dp rows",
         "UiFrameTimingRuntime Choreographer real-device sample",
-        "HomeHeroGraphicView truthful source telemetry rail"
+        "HomeHeroGraphicView truthful source telemetry rail",
+        "Golden Reference safe reference dock restored in LauncherActivity",
+        "HmiGlyphView vector glyphs for MAP/VOL/SUN/DSP/MOON",
+        "system settings dispatch keeps volume/brightness/display actuation outside unverified BYD hidden APIs"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
