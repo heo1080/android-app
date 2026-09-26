@@ -997,7 +997,10 @@
         "requireLatestRaw",
         "addUiScreenshots",
         "ui_screenshots/",
-        "UiGoldenScreenshotRuntime.screenshotDir"
+        "UiGoldenScreenshotRuntime.screenshotDir",
+        "addUiLayoutAudits",
+        "ui_layout_audits/",
+        "UiLayoutAuditRuntime.auditDir"
       ]
     },
     {
@@ -1187,7 +1190,35 @@
         "UI_GOLDEN_SCREENSHOT",
         "app_window_only=true",
         "ui_golden_screenshots",
-        "Bitmap.CompressFormat.PNG"
+        "Bitmap.CompressFormat.PNG",
+        "UiLayoutAuditRuntime.capture",
+        "UI_LAYOUT_AUDIT"
+      ]
+    },
+    {
+      "feature_id": "PREMIUM_HMI_HOME",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UiLayoutAuditRuntime.java",
+      "tokens": [
+        "UiLayoutAuditRuntime",
+        "touch_target_violations",
+        "ellipsized_texts",
+        "partial_clips",
+        "text_content_logged",
+        "getRootWindowInsets",
+        "getGlobalVisibleRect"
+      ]
+    },
+    {
+      "feature_id": "DPI_DISPLAY_DIAGNOSTICS",
+      "path": "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UiLayoutAuditRuntime.java",
+      "tokens": [
+        "UiLayoutAuditRuntime",
+        "density_dpi",
+        "font_scale",
+        "night_mode",
+        "system_window_insets",
+        "window_visible_frame",
+        "touch_target_min_dp"
       ]
     }
   ],

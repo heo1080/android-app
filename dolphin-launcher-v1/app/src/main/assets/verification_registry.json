@@ -412,7 +412,8 @@
       "requirement": "10인치 차량의 실제 display profile을 수집하고 DPI/fontScale 변경 영향과 OEM UI clipping을 추적한다.",
       "source_paths": [
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/DisplayDiagnostics.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/LauncherActivity.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UiLayoutAuditRuntime.java"
       ],
       "test_ids": [
         "DSP-DPI-001",
@@ -422,14 +423,20 @@
       "acceptance": [
         "DisplayMetrics/WindowMetrics/fontScale/orientation 수집",
         "DPI 변경 성공 여부와 readback 기록",
-        "복원 경로 존재"
+        "복원 경로 존재",
+        "Golden Screenshot 시 densityDpi/fontScale/orientation/nightMode/system insets와 visible frame을 동일 session audit JSON으로 저장",
+        "화면에 실제 보이는 clickable view만 48dp minimum touch target 위반 여부를 검사"
       ],
       "required_logs": [
         "densityDpi",
         "width/height px/dp",
         "smallestWidth",
         "fontScale",
-        "forced settings"
+        "forced settings",
+        "UI_LAYOUT_AUDIT",
+        "touch_target_violations",
+        "ellipsized_texts",
+        "partial_clips"
       ],
       "known_bad": [
         "DPI 변경 시 순정 UI 일부 잘림",
@@ -446,7 +453,8 @@
         "원복"
       ],
       "evidence": [
-        "DpiManager/DisplayDiagnosticsManager source"
+        "DpiManager/DisplayDiagnosticsManager source",
+        "UiLayoutAuditRuntime screenshot-coupled display/layout metrics"
       ],
       "next_action": "12/15인치 profile spoof 가능성은 실제 property/display mode 근거 확보 전 BLOCKED",
       "confidence": {
@@ -1754,7 +1762,8 @@
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/CockpitPanelGraphicView.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/TyreGaugeView.java",
         "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/MediaNowPlayingRuntime.java",
-        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UiGoldenScreenshotRuntime.java"
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UiGoldenScreenshotRuntime.java",
+        "dolphin-launcher-v1/app/src/main/java/com/dolphin/launcher/v1/UiLayoutAuditRuntime.java"
       ],
       "test_ids": [
         "UI-HOME-001",
@@ -1796,7 +1805,9 @@
         "SAFETY source panel은 package/age/payload length만 표시하고 parser pending 상태에서 semantic 값 생성 금지",
         "PRIMARY COCKPIT vector accent는 상태 의미에 따라 WAITING/LIVE/STALE/BLOCKED로 변경되며 주의 분산을 줄이기 위해 지속 애니메이션을 사용하지 않음",
         "설정의 UI 검증 스냅샷은 설정창을 닫고 HOME을 다시 렌더한 뒤 app window PNG를 캡처",
-        "UI Golden Screenshot은 현재 session ID를 파일명에 포함하고 mock/render substitution 없이 실제 View.draw 결과를 저장"
+        "UI Golden Screenshot은 현재 session ID를 파일명에 포함하고 mock/render substitution 없이 실제 View.draw 결과를 저장",
+        "Golden Screenshot과 같은 timestamp의 UI layout audit JSON을 생성해 ellipsis/partial clipping/48dp 미만 터치 타깃을 정량 기록",
+        "layout audit는 TextView 실제 문자열을 저장하지 않고 class/id/text_length와 geometry만 저장"
       ],
       "required_logs": [
         "display profile",
@@ -1826,7 +1837,8 @@
         "nav_source_status=notification-provenance-only",
         "cockpit_graphic_state=registry-aware",
         "UI_GOLDEN_SCREENSHOT",
-        "UI_GOLDEN_SCREENSHOT_FAILED"
+        "UI_GOLDEN_SCREENSHOT_FAILED",
+        "UI_LAYOUT_AUDIT"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1862,7 +1874,8 @@
         "homeLiveTick lightweight binding without scroll reset",
         "premium SAFETY source provenance panel",
         "CockpitPanelGraphicView state-aware vector accent palette",
-        "UiGoldenScreenshotRuntime HOME PNG capture"
+        "UiGoldenScreenshotRuntime HOME PNG capture",
+        "UiLayoutAuditRuntime privacy-safe geometry audit"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {
@@ -1950,7 +1963,8 @@
         "Verification Center P0 실차 검증 큐는 lifecycle state=CLOSED Known-Bad를 제외하고 활성 P0만 표시",
         "Verification Center는 P0 queue/active capture/feature cards를 glass-vector-v2 우선순위 시각 체계로 표시",
         "Verification Center Test dialog는 state color와 실차 절차를 별도 glass panel로 표시",
-        "Evidence ZIP은 현재 검증 session의 최신 UI Golden Screenshot PNG를 최대 6개 ui_screenshots/ 경로로 포함"
+        "Evidence ZIP은 현재 검증 session의 최신 UI Golden Screenshot PNG를 최대 6개 ui_screenshots/ 경로로 포함",
+        "Evidence ZIP은 동일 session의 UI layout audit JSON을 최대 6개 ui_layout_audits/ 경로로 포함"
       ],
       "required_logs": [
         "registry schema/version",
@@ -2002,7 +2016,8 @@
         "activeMarkerCounts",
         "isActiveP0",
         "VERIFICATION_HMI_RENDER",
-        "ui_screenshots/"
+        "ui_screenshots/",
+        "ui_layout_audits/"
       ],
       "known_bad": [
         "초기 v1이므로 아직 모든 세부 기능/코드 심볼을 완전 열거하지 않음"
@@ -2036,7 +2051,8 @@
         "raw-qualified marker counting prevents empty-raw PASS unlock",
         "P0 queue follows Known-Bad lifecycle and hides CLOSED regression-library entries",
         "glass-vector-v2 Verification Center visual hierarchy",
-        "VerificationEvidenceRuntime addUiScreenshots bundle inclusion"
+        "VerificationEvidenceRuntime addUiScreenshots bundle inclusion",
+        "VerificationEvidenceRuntime addUiLayoutAudits bundle inclusion"
       ],
       "next_action": "실차 Evidence ZIP을 최소 2개 session에서 수집하고 evaluator 다중 입력으로 동일 raw 반복성을 비교; cross-session 후보도 수동 검토 전 매핑 활성화 금지",
       "confidence": {
