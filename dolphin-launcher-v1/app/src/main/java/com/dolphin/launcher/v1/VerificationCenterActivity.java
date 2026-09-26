@@ -153,6 +153,14 @@ public class VerificationCenterActivity extends Activity {
         p0Lp.bottomMargin = dp(6);
         root.addView(p0Queue, p0Lp);
 
+        Button uiQuality = button(uiQualityLabel());
+        applyUiQualityStyle(uiQuality);
+        uiQuality.setOnClickListener(v -> showUiQualitySummary());
+        LinearLayout.LayoutParams qualityLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(50));
+        qualityLp.bottomMargin = dp(6);
+        root.addView(uiQuality, qualityLp);
+
         LinearLayout autoStatus = new LinearLayout(this);
         autoStatus.setOrientation(LinearLayout.HORIZONTAL);
         autoStatus.setPadding(0, dp(4), 0, dp(12));
@@ -824,6 +832,156 @@ public class VerificationCenterActivity extends Activity {
             ledgerStatus.setText("LEDGER\n" +
                     VerificationEvidenceRuntime.ledgerLineCount(this));
         }
+    }
+
+    private String uiQualityState(JSONObject audit) {
+        if (audit == null) return "CAPTURE REQUIRED";
+        JSONObject comparison=audit.optJSONObject("comparison");
+        if (comparison!=null && comparison.optBoolean("regression",false)) {
+            return "REGRESSION";
+        }
+        JSONObject summary=audit.optJSONObject("summary");
+        if (summary==null) return "REVIEW";
+        int touch=summary.optInt("touch_target_violations",0);
+        int ellipsis=summary.optInt("ellipsized_texts",0);
+        int clips=summary.optInt("partial_clips",0);
+        return touch==0 && ellipsis==0 && clips==0 ? "CLEAN" : "REVIEW";
+    }
+
+    private String uiQualityLabel() {
+        JSONObject audit=UiLayoutAuditRuntime.latestAudit(this);
+        return "UI 화면 품질  ·  " + uiQualityState(audit);
+    }
+
+    private void applyUiQualityStyle(Button button) {
+        String state=uiQualityState(UiLayoutAuditRuntime.latestAudit(this));
+        if ("REGRESSION".equals(state)) {
+            button.setTextColor(Color.parseColor("#FFD6DB"));
+            button.setBackground(pressableGradientRound(
+                    new String[]{"#351A20","#1C0F13"},
+                    new String[]{"#49232B","#281419"},
+                    16,"#7C3E49"));
+        } else if ("CLEAN".equals(state)) {
+            button.setTextColor(Color.parseColor("#B9FFE7"));
+            button.setBackground(pressableGradientRound(
+                    new String[]{"#12352F","#0A211D"},
+                    new String[]{"#19493F","#0D302A"},
+                    16,"#3B8E75"));
+        } else if ("REVIEW".equals(state)) {
+            button.setTextColor(Color.parseColor("#FFE4A8"));
+            button.setBackground(pressableGradientRound(
+                    new String[]{"#332A14","#1B160B"},
+                    new String[]{"#493A18","#271E0D"},
+                    16,"#665423"));
+        }
+    }
+
+    private void showUiQualitySummary() {
+        JSONObject audit=UiLayoutAuditRuntime.latestAudit(this);
+        String state=uiQualityState(audit);
+
+        LinearLayout panel=new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setPadding(dp(18),dp(16),dp(18),dp(16));
+        panel.setBackground(gradientRound(
+                new String[]{"#10252E","#07151B","#040A0E"},22,"#315A68"));
+
+        LinearLayout head=new LinearLayout(this);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout copy=new LinearLayout(this);
+        copy.setOrientation(LinearLayout.VERTICAL);
+        TextView title=text("UI QUALITY",21f,Color.WHITE,true);
+        title.setLetterSpacing(0.08f);
+        copy.addView(title);
+        copy.addView(text("Golden Screenshot · layout audit",10f,
+                Color.parseColor("#6E8C97"),false));
+        head.addView(copy,new LinearLayout.LayoutParams(
+                0,ViewGroup.LayoutParams.WRAP_CONTENT,1f));
+        TextView stateChip=text(state,10f,
+                "REGRESSION".equals(state)?Color.parseColor("#FF9EAA"):
+                "CLEAN".equals(state)?Color.parseColor("#72E6B1"):
+                Color.parseColor("#FFD166"),true);
+        stateChip.setGravity(Gravity.CENTER);
+        stateChip.setBackground(gradientRound(
+                new String[]{"#15272E","#09171D"},14,"#365563"));
+        head.addView(stateChip,new LinearLayout.LayoutParams(dp(132),dp(40)));
+        panel.addView(head,new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,dp(58)));
+
+        if (audit == null) {
+            TextView empty=text(
+                    "아직 HOME UI 검증 스냅샷이 없습니다.\n"
+                            + "Launcher 설정 → UI 검증 스냅샷을 실행하면 PNG와 layout audit가 생성됩니다.",
+                    12f,Color.parseColor("#A3B8C0"),false);
+            empty.setPadding(dp(12),dp(14),dp(12),dp(14));
+            empty.setBackground(gradientRound(
+                    new String[]{"#0D2027","#071318"},15,"#254957"));
+            panel.addView(empty);
+        } else {
+            JSONObject summary=audit.optJSONObject("summary");
+            JSONObject comparison=audit.optJSONObject("comparison");
+            int touch=summary==null?0:summary.optInt("touch_target_violations",0);
+            int ellipsis=summary==null?0:summary.optInt("ellipsized_texts",0);
+            int clips=summary==null?0:summary.optInt("partial_clips",0);
+
+            LinearLayout row1=new LinearLayout(this);
+            row1.setOrientation(LinearLayout.HORIZONTAL);
+            row1.addView(qualityMetric("TOUCH <48dp",String.valueOf(touch)),weighted());
+            row1.addView(qualityMetric("ELLIPSIS",String.valueOf(ellipsis)),weighted());
+            row1.addView(qualityMetric("CLIPPING",String.valueOf(clips)),weighted());
+            panel.addView(row1,new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,dp(76)));
+
+            LinearLayout row2=new LinearLayout(this);
+            row2.setOrientation(LinearLayout.HORIZONTAL);
+            row2.addView(qualityMetric("DPI",String.valueOf(audit.optInt("density_dpi",-1))),weighted());
+            row2.addView(qualityMetric("FONT",String.format(
+                    Locale.US,"%.2f",audit.optDouble("font_scale",-1))),weighted());
+            row2.addView(qualityMetric("SCREEN",
+                    audit.optInt("width_px",-1)+"×"+audit.optInt("height_px",-1)),weighted());
+            panel.addView(row2,new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,dp(76)));
+
+            if(comparison!=null && comparison.optBoolean("baseline_available",false)){
+                String delta="Δ touch "+signed(comparison.optInt("delta_touch",0))
+                        +" · ellipsis "+signed(comparison.optInt("delta_ellipsis",0))
+                        +" · clip "+signed(comparison.optInt("delta_clips",0));
+                TextView compare=text(delta,11f,Color.parseColor("#A8C1C8"),false);
+                compare.setGravity(Gravity.CENTER_VERTICAL);
+                compare.setPadding(dp(12),0,dp(12),0);
+                compare.setBackground(gradientRound(
+                        new String[]{"#0D2027","#071318"},14,"#254957"));
+                panel.addView(compare,new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,dp(42)));
+            }
+        }
+
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                this,"UI_QUALITY_SUMMARY_OPENED","state="+state);
+
+        new AlertDialog.Builder(this)
+                .setView(panel)
+                .setPositiveButton("확인",null)
+                .show();
+    }
+
+    private View qualityMetric(String label,String value) {
+        LinearLayout card=new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setGravity(Gravity.CENTER);
+        card.setPadding(dp(8),dp(8),dp(8),dp(8));
+        card.setBackground(gradientRound(
+                new String[]{"#0E222A","#07151B"},15,"#284B57"));
+        TextView l=text(label,9.5f,Color.parseColor("#7897A1"),true);
+        l.setLetterSpacing(0.06f);
+        card.addView(l);
+        card.addView(text(value,14f,Color.WHITE,true));
+        return card;
+    }
+
+    private String signed(int value) {
+        return value>0 ? "+"+value : String.valueOf(value);
     }
 
     private TextView statusCard(String label, String value) {

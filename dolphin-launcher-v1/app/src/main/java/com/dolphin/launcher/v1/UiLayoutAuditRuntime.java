@@ -40,6 +40,17 @@ public final class UiLayoutAuditRuntime {
         return dir;
     }
 
+    public static JSONObject latestAudit(Context context){
+        File[] files=auditDir(context).listFiles((d,name)->name.endsWith(".json"));
+        if(files==null || files.length==0)return null;
+        Arrays.sort(files,(x,y)->Long.compare(y.lastModified(),x.lastModified()));
+        for(File file:files){
+            JSONObject parsed=readJson(file);
+            if(parsed!=null)return parsed;
+        }
+        return null;
+    }
+
     public static File capture(Activity activity,String label,long capturedAt) throws Exception {
         if(activity==null)throw new IllegalArgumentException("activity required");
         View root=activity.getWindow().getDecorView();
