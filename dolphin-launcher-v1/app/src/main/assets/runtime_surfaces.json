@@ -1197,8 +1197,7 @@
         "app_window_only=true",
         "ui_golden_screenshots",
         "Bitmap.CompressFormat.PNG",
-        "UiLayoutAuditRuntime.capture",
-        "UI_LAYOUT_AUDIT"
+        "UiLayoutAuditRuntime.capture"
       ]
     },
     {
@@ -1211,7 +1210,8 @@
         "partial_clips",
         "text_content_logged",
         "getRootWindowInsets",
-        "getGlobalVisibleRect"
+        "getGlobalVisibleRect",
+        "UI_LAYOUT_AUDIT"
       ]
     },
     {
