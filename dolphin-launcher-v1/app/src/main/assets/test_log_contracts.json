@@ -3285,6 +3285,47 @@
         "tja_raw",
         "direction_semantic=unmapped"
       ]
+    },
+    {
+      "test_id": "WIN-POP-001",
+      "feature_id": "POPUP_MULTIWINDOW_APP",
+      "feature_state": "BLOCKED",
+      "required_events": [
+        "TEST_START",
+        "POPUP_MULTIWINDOW_CAPABILITY",
+        "OPERATOR_RESULT",
+        "TEST_END"
+      ],
+      "allowed_outcomes": [
+        "NEED_MORE_DATA"
+      ],
+      "requires_build_fingerprint": true,
+      "requires_preconditions": true,
+      "requires_diagnostic_session": true,
+      "manual_observation_required": true,
+      "repeatability_required_sessions": 0,
+      "required_any": [],
+      "success_any": [],
+      "failure_any": [],
+      "known_bad_ids": [],
+      "acceptance": [
+        "대상 앱의 실제 freeform/popup 실행 경로가 실차 capability evidence로 확인됨",
+        "실행 후 독립 window-state readback으로 popup/freeform 상태를 확인함",
+        "기존 2분할/일반 앱 실행 경로에 회귀가 없음",
+        "지원되지 않는 차량/앱에서는 fail-closed로 실행 요청을 보내지 않음"
+      ],
+      "required_logs": [
+        "POPUP_MULTIWINDOW_CAPABILITY",
+        "target_package",
+        "target_launchable",
+        "freeform_feature",
+        "launch_windowing_api_present",
+        "global_enable_freeform_support",
+        "popup_mode=blocked",
+        "windowing_mode_request=false",
+        "actuation=false",
+        "TEST_CAPABILITY_REFRESH"
+      ]
     }
   ]
 }
