@@ -52,8 +52,9 @@ public final class UiFrameTimingRuntime {
             }
         }catch(Throwable ignored){}
 
+        String sessionId=VerificationEvidenceRuntime.currentSessionId(app);
         Choreographer choreographer=Choreographer.getInstance();
-        new Sampler(app,label==null?"screen":label,refreshRate,choreographer).begin();
+        new Sampler(app,label==null?"screen":label,sessionId,refreshRate,choreographer).begin();
     }
 
     public static File latestFile(Context context){
@@ -73,14 +74,16 @@ public final class UiFrameTimingRuntime {
     private static final class Sampler implements Choreographer.FrameCallback {
         private final Context app;
         private final String label;
+        private final String sessionId;
         private final float refreshRate;
         private final Choreographer choreographer;
         private final List<Double> intervals=new ArrayList<>();
         private long lastFrameNs;
 
-        Sampler(Context app,String label,float refreshRate,Choreographer choreographer){
+        Sampler(Context app,String label,String sessionId,float refreshRate,Choreographer choreographer){
             this.app=app;
             this.label=label;
+            this.sessionId=sessionId;
             this.refreshRate=refreshRate;
             this.choreographer=choreographer;
         }
@@ -131,6 +134,7 @@ public final class UiFrameTimingRuntime {
 
             JSONObject out=new JSONObject();
             out.put("schema_version",1);
+            out.put("session_id",sessionId);
             out.put("label",label);
             out.put("captured_at_ms",System.currentTimeMillis());
             out.put("frame_intervals",intervals.size());
@@ -152,6 +156,7 @@ public final class UiFrameTimingRuntime {
             VerificationEvidenceRuntime.recordPassiveEvent(
                     app,"UI_FRAME_TIMING",
                     "label="+label
+                            +";session="+sessionId
                             +";frames="+intervals.size()
                             +";refresh_hz="+String.format(Locale.US,"%.2f",refreshRate)
                             +";avg_ms="+String.format(Locale.US,"%.2f",avg)
