@@ -1769,7 +1769,8 @@
         "TPMS UI는 실차 기준 압력 임계값이 확정되기 전 정상/위험 색 판정을 하지 않음",
         "HOME cockpit status badge는 verification_registry feature state를 직접 읽어 표시하고 하드코딩 상태 드리프트를 방지",
         "FSD_OBJECT_LANE_MODEL이 BLOCKED이면 HOME에서도 객체/차선 기능을 BLOCKED로 표시",
-        "BACKGROUND_MEDIA_AUTOPLAY가 REVERIFY_REQUIRED이면 MEDIA CENTER를 ready/verified로 표현하지 않음"
+        "BACKGROUND_MEDIA_AUTOPLAY가 REVERIFY_REQUIRED이면 MEDIA CENTER를 ready/verified로 표현하지 않음",
+        "cockpit status badge 색상은 Registry state 의미와 동기화되어 BLOCKED/REVERIFY_REQUIRED/BETA/VERIFIED를 시각 구분"
       ],
       "required_logs": [
         "display profile",
@@ -1788,7 +1789,8 @@
         "VEHICLE_INFO_HMI_RENDER",
         "tpms_visual=vector-wheel-gauge",
         "cockpit_state_source=verification_registry",
-        "HMI_REGISTRY_STATE_FALLBACK"
+        "HMI_REGISTRY_STATE_FALLBACK",
+        "cockpitStatusColor"
       ],
       "known_bad": [
         "과거 UI 품질/메뉴 누락 및 데스크탑 오인 문제"
@@ -1816,7 +1818,8 @@
         "CockpitPanelGraphicView vector media/safety/vehicle scenes",
         "three-panel primary cockpit restores requested media-safety-vehicle hierarchy",
         "TyreGaugeView vector wheel gauges",
-        "registryFeatureState drives cockpit status badges"
+        "registryFeatureState drives cockpit status badges",
+        "state-aware cockpit badge palette"
       ],
       "next_action": "실차 10인치에서 glass-vector-v2 Golden Screenshot 주/야간·기본 DPI baseline 확보 및 clipping/터치 확인",
       "confidence": {

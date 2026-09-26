@@ -1786,9 +1786,7 @@ public class LauncherActivity extends Activity {
         copy.setGravity(Gravity.BOTTOM);
         copy.setPadding(dp(16),dp(14),dp(12),dp(14));
 
-        TextView eyebrow = text(status,9.5f,
-                Color.parseColor(mode == CockpitPanelGraphicView.SAFETY
-                        ? "#FFD08A" : "#72E8D0"),true);
+        TextView eyebrow = text(status,9.5f,cockpitStatusColor(status),true);
         eyebrow.setLetterSpacing(0.08f);
         copy.addView(eyebrow);
 
@@ -1805,6 +1803,15 @@ public class LauncherActivity extends Activity {
         copyLp.gravity = Gravity.LEFT;
         card.addView(copy,copyLp);
         return card;
+    }
+
+    private int cockpitStatusColor(String status) {
+        String s = status == null ? "" : status.toUpperCase(Locale.ROOT);
+        if (s.contains("BLOCKED")) return Color.parseColor("#FF8A80");
+        if (s.contains("REVERIFY_REQUIRED")) return Color.parseColor("#FFD166");
+        if (s.contains("BETA")) return Color.parseColor("#77D9FF");
+        if (s.contains("VERIFIED")) return Color.parseColor("#72E6B1");
+        return Color.parseColor("#72E8D0");
     }
 
     private String registryFeatureState(String featureId,String fallback) {
