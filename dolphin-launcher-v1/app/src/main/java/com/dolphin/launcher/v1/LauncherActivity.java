@@ -452,7 +452,7 @@ public class LauncherActivity extends Activity {
         LinearLayout shell = new LinearLayout(this);
         shell.setOrientation(LinearLayout.VERTICAL);
         shell.setPadding(dp(22), dp(8), dp(22), dp(12));
-        shell.setBackground(gradient("#06141B", "#010406"));
+        shell.setBackground(gradient("#071A22", "#010305"));
 
         shell.addView(buildTopBar(), new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(60)));
@@ -485,7 +485,7 @@ public class LauncherActivity extends Activity {
         bar.addView(brandBox, new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        TextView version = chip("V1 OTA");
+        TextView version = chip("V1 BETA");
         version.setTextColor(Color.parseColor("#7FFFE0"));
         LinearLayout.LayoutParams versionLp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, dp(34));
@@ -511,7 +511,7 @@ public class LauncherActivity extends Activity {
         dock.setGravity(Gravity.CENTER_VERTICAL);
         dock.setPadding(dp(8), dp(7), dp(8), dp(7));
         dock.setBackground(gradientRound(
-                new String[]{"#10252F","#08151B","#050B0F"}, 26, "#234B5B"));
+                new String[]{"#14323D","#09171E","#040A0E"}, 26, "#2C5A68"));
 
         LinearLayout primary = new LinearLayout(this);
         primary.setOrientation(LinearLayout.HORIZONTAL);
@@ -539,7 +539,7 @@ public class LauncherActivity extends Activity {
         controls.setGravity(Gravity.CENTER);
         controls.setPadding(dp(5), dp(4), dp(5), dp(4));
         controls.setBackground(gradientRound(
-                new String[]{"#0D2027","#061116"}, 19, "#274957"));
+                new String[]{"#102A32","#07151A","#040A0D"}, 19, "#315562"));
         controls.addView(dockMiniButton("VOLUME", "VOL",
                 () -> openSystemSettings(Settings.ACTION_SOUND_SETTINGS, "volume")), miniWeighted());
         controls.addView(dockMiniButton("BRIGHTNESS", "SUN",
@@ -676,7 +676,7 @@ public class LauncherActivity extends Activity {
 
         VerificationEvidenceRuntime.recordPassiveEvent(
                 this, "PREMIUM_HMI_RENDER",
-                "variant=glass-vector-v2;hero=canvas-vector;bitmap_assets=false"
+                "variant=glass-vector-v3-premium;compat_variant=glass-vector-v2;hero=canvas-vector;bitmap_assets=false"
                         + ";hero_copy_dp=" + heroCopyWidthDp()
                         + ";cockpit_copy_dp=" + cockpitCopyWidthDp()
                         + ";hero_source_rail=MEDIA,NAV,VEH"
@@ -690,7 +690,8 @@ public class LauncherActivity extends Activity {
                         + ";home_hero_height_dp=238;home_cockpit_height_dp=168"
                         + ";topbar_height_dp=60;dock_height_dp=84"
                         + ";tpms_cards=4;tpms_visual=vector-wheel-gauge"
-                        + ";quick_cards=4;sound_lab_cards=3;dock_items=6");
+                        + ";quick_cards=4;sound_lab_cards=3;dock_items=6"
+                        + ";source_live_not_verified=true;adaptive_icons=true");
 
         TextView footer = text(
                 "앱 길게 누르기  →  홈 고정 · 2분할 좌/우 · 시동 자동실행 · 앱 정보",
@@ -3239,7 +3240,7 @@ public class LauncherActivity extends Activity {
         hero.setClipToOutline(true);
         hero.setElevation(dp(3));
         hero.setBackground(gradientRound(
-                new String[]{"#102A34","#07151C","#040A0E"}, 28, "#285565"));
+                new String[]{"#153844","#081A21","#03090D"}, 28, "#356977"));
 
         HomeHeroGraphicView graphic = new HomeHeroGraphicView(this);
         homeHeroGraphic = graphic;
@@ -3252,8 +3253,8 @@ public class LauncherActivity extends Activity {
         copy.setGravity(Gravity.CENTER_VERTICAL);
         copy.setPadding(dp(28), dp(22), dp(12), dp(22));
 
-        TextView eyebrow = text("DOLPHIN  ·  COCKPIT", 10f,
-                Color.parseColor("#76C9C1"), true);
+        TextView eyebrow = text("DOLPHIN  ·  V1 BETA COCKPIT", 10f,
+                Color.parseColor("#83E5D7"), true);
         eyebrow.setLetterSpacing(0.14f);
         copy.addView(eyebrow);
 
@@ -3272,7 +3273,7 @@ public class LauncherActivity extends Activity {
         status.setOrientation(LinearLayout.HORIZONTAL);
         status.setPadding(0, dp(14), 0, 0);
 
-        TextView sourceLayer = chip("● SOURCE LAYER");
+        TextView sourceLayer = chip("● SOURCE LAYER ≠ VERIFIED");
         sourceLayer.setTextColor(Color.parseColor("#8FAEB7"));
         status.addView(sourceLayer, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, dp(32)));
@@ -3321,9 +3322,11 @@ public class LauncherActivity extends Activity {
         row.addView(labels, new LinearLayout.LayoutParams(
                 0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        TextView line = text("━━", 10f, Color.parseColor("#2C6C72"), true);
-        line.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
-        row.addView(line, new LinearLayout.LayoutParams(dp(60), dp(34)));
+        View line = new View(this);
+        line.setBackground(gradient("#24545E", "#77D9CF"));
+        LinearLayout.LayoutParams lineLp = new LinearLayout.LayoutParams(dp(66), dp(2));
+        lineLp.leftMargin = dp(8);
+        row.addView(line, lineLp);
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(42));
@@ -3338,9 +3341,9 @@ public class LauncherActivity extends Activity {
         card.setGravity(Gravity.CENTER_VERTICAL);
         card.setPadding(dp(14), dp(10), dp(14), dp(10));
         card.setBackground(pressableGradientRound(
-                new String[]{"#102831","#09171D","#061014"},
-                new String[]{"#173B47","#0D252E","#09181E"},
-                20, "#244C59"));
+                new String[]{"#14333D","#0A1C23","#050D11"},
+                new String[]{"#1A4652","#0D2932","#07161B"},
+                20, "#315D68"));
         card.setElevation(dp(2));
         card.setClickable(true);
         card.setFocusable(true);
@@ -3349,7 +3352,7 @@ public class LauncherActivity extends Activity {
         HmiGlyphView icon = new HmiGlyphView(this, symbol);
         icon.setAccentColor(Color.parseColor("#88FFE5"));
         icon.setBackground(gradientRound(
-                new String[]{"#163F46","#0A242A"}, 18, "#2B615F"));
+                new String[]{"#1B4E50","#0B2B2E","#071B20"}, 18, "#3B756E"));
         LinearLayout.LayoutParams iconLp = new LinearLayout.LayoutParams(dp(48), dp(48));
         iconLp.rightMargin = dp(4);
         card.addView(icon, iconLp);
@@ -3372,9 +3375,9 @@ public class LauncherActivity extends Activity {
         button.setGravity(Gravity.CENTER);
         button.setPadding(dp(4), dp(3), dp(4), dp(3));
         button.setBackground(pressableGradientRound(
-                new String[]{"#0B1D24","#071218"},
-                new String[]{"#163541","#0B2028"},
-                17, "#173742"));
+                new String[]{"#0F2830","#07171D","#040C10"},
+                new String[]{"#17414C","#0B252D","#06151A"},
+                17, "#28515D"));
         button.setClickable(true);
         button.setFocusable(true);
         button.setContentDescription(label);
@@ -3403,9 +3406,9 @@ public class LauncherActivity extends Activity {
         LinearLayout button = new LinearLayout(this);
         button.setGravity(Gravity.CENTER);
         button.setBackground(pressableGradientRound(
-                new String[]{"#0B1D24","#071218"},
-                new String[]{"#163541","#0B2028"},
-                14, "#173742"));
+                new String[]{"#10272F","#07161C","#040B0F"},
+                new String[]{"#173C47","#0A222A","#061318"},
+                14, "#2A505A"));
         button.setClickable(true);
         button.setFocusable(true);
         button.setContentDescription(label);
