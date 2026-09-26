@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * Read-only discovery of BYD/Android audio EQ capabilities.
+ * Read-only discovery of BYD/Android audio, exterior AVAS, and trigger candidate capabilities.
  * No instance setter or vehicle DSP write is invoked.
  */
 public final class AudioCapabilityProbe {
@@ -18,6 +18,16 @@ public final class AudioCapabilityProbe {
     private static final String[] TOKENS={"equal","bass","treble","balance","fader","sound","dsp","audio"};
     private static final String[] EXTERIOR_TOKENS={
             "avas","exterior","external","engine","simulator","prompt","buffer"
+    };
+    private static final String[] BODYWORK_CLASS_CANDIDATES={
+            "android.hardware.bydauto.bodywork.BYDAutoBodyworkDevice",
+            "android.hardware.bydauto.bodywork.AbsBYDAutoBodyworkListener"
+    };
+    private static final String[] TRIGGER_TOKENS={
+            "autosystem","door","lock","secure","listener"
+    };
+    private static final String[] GENERIC_BRIDGE_METHODS={
+            "getInt","setInt","getBuffer","setBuffer"
     };
 
     private AudioCapabilityProbe(){}
@@ -65,13 +75,87 @@ public final class AudioCapabilityProbe {
                         "class="+name+";available=false;error="+t.getClass().getSimpleName()+";mode=read-only");
             }
         }
+        int triggerClasses=0, triggerMethods=0, triggerFields=0;
+        for(String name:BODYWORK_CLASS_CANDIDATES){
+            try{
+                Class<?> cls=Class.forName(name);
+                triggerClasses++;
+                for(Method m:cls.getMethods()){
+                    if(!matchesTrigger(m.getName())) continue;
+                    triggerMethods++;
+                    VerificationEvidenceRuntime.recordPassiveEvent(
+                            context,"AVAS_TRIGGER_CAPABILITY_METHOD",
+                            "class="+name+";method="+m.getName()+";params="+m.getParameterTypes().length+
+                                    ";return="+m.getReturnType().getSimpleName()+
+                                    ";invoked=false;candidate_only=true;trigger_semantic=unproven");
+                }
+                for(Field field:cls.getFields()){
+                    if(!matchesTrigger(field.getName())) continue;
+                    triggerFields++;
+                    VerificationEvidenceRuntime.recordPassiveEvent(
+                            context,"AVAS_TRIGGER_CAPABILITY_CONSTANT",
+                            "class="+name+";field="+field.getName()+";type="+field.getType().getSimpleName()+
+                                    ";read=false;candidate_only=true;trigger_semantic=unproven");
+                }
+            }catch(Throwable t){
+                VerificationEvidenceRuntime.recordPassiveEvent(
+                        context,"AVAS_TRIGGER_CAPABILITY_CLASS",
+                        "class="+name+";available=false;error="+t.getClass().getSimpleName()+
+                                ";mode=read-only");
+            }
+        }
+
+        boolean genericServiceAvailable=false;
+        int genericBridgeMethods=0;
+        try{
+            Object autoService=context.getSystemService("auto");
+            genericServiceAvailable=autoService!=null;
+            if(autoService!=null){
+                Class<?> autoClass=autoService.getClass();
+                for(Method m:autoClass.getMethods()){
+                    if(!matchesGenericBridge(m.getName())) continue;
+                    genericBridgeMethods++;
+                    VerificationEvidenceRuntime.recordPassiveEvent(
+                            context,"EXTERNAL_AVAS_GENERIC_SERVICE_METHOD",
+                            "service=auto;class="+autoClass.getName()+";method="+m.getName()+
+                                    ";params="+m.getParameterTypes().length+
+                                    ";return="+m.getReturnType().getSimpleName()+
+                                    ";invoked=false;candidate_only=true;feature_mapping=unproven");
+                }
+            }
+        }catch(Throwable t){
+            VerificationEvidenceRuntime.recordPassiveEvent(
+                    context,"EXTERNAL_AVAS_GENERIC_SERVICE_ERROR",
+                    "service=auto;error="+t.getClass().getSimpleName()+";invoked=false");
+        }
+        VerificationEvidenceRuntime.recordPassiveEvent(
+                context,"EXTERNAL_AVAS_GENERIC_SERVICE",
+                "service=auto;available="+genericServiceAvailable+
+                        ";generic_bridge_methods="+genericBridgeMethods+
+                        ";feature_mapping=unproven;invoked=false;vehicle_write=false");
+
         VerificationEvidenceRuntime.recordPassiveEvent(context,"AUDIO_CAPABILITY_SCAN",
                 "classes="+classes+";methods="+methods+";fields="+fields+";vehicle_write=false");
         VerificationEvidenceRuntime.recordPassiveEvent(
                 context,"EXTERNAL_AVAS_CAPABILITY_SCAN",
                 "classes="+classes+";methods="+exteriorMethods+";fields="+exteriorFields+
+                        ";trigger_classes="+triggerClasses+";trigger_methods="+triggerMethods+
+                        ";trigger_fields="+triggerFields+
+                        ";generic_service_available="+genericServiceAvailable+
+                        ";generic_bridge_methods="+genericBridgeMethods+
                         ";custom_audio_path=unproven;builtin_tone_path=unproven"+
                         ";lock_trigger_path=unproven;vehicle_write=false;actuation=false");
+    }
+
+    private static boolean matchesGenericBridge(String value){
+        for(String method:GENERIC_BRIDGE_METHODS) if(method.equals(value)) return true;
+        return false;
+    }
+
+    private static boolean matchesTrigger(String value){
+        String s=value.toLowerCase(java.util.Locale.ROOT);
+        for(String token:TRIGGER_TOKENS) if(s.contains(token)) return true;
+        return false;
     }
 
     private static boolean matchesExterior(String value){
