@@ -382,7 +382,8 @@
         "saved per-app delay_ms is preserved after reboot",
         "BOOT_COMPLETED schedules each item through AlarmManager rather than Handler-only delayed work",
         "Android 12+ missing exact-alarm access fails explicitly instead of silently using an hour-scale inexact fallback",
-        "BootAutoLaunchReceiver is packaged as enabled non-exported manifest receiver"
+        "BootAutoLaunchReceiver is packaged as enabled non-exported manifest receiver",
+        "BOOT_COMPLETED and QUICKBOOT_POWERON in the same boot epoch schedule only one autostart batch"
       ],
       "required_logs": [
         "BOOT_COMPLETED",
@@ -393,7 +394,8 @@
         "package",
         "delay_ms",
         "index",
-        "packaged manifest BootAutoLaunchReceiver registration"
+        "packaged manifest BootAutoLaunchReceiver registration",
+        "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED"
       ]
     },
     {
@@ -439,7 +441,8 @@
         "media-enabled entries use BACKGROUND_MEDIA_AUTOPLAY target-session path",
         "opening LauncherActivity does not duplicate the boot batch",
         "behavior repeats in a second ignition cycle",
-        "scheduled AlarmManager broadcast is delivered through BootAutoLaunchReceiver before target dispatch"
+        "scheduled AlarmManager broadcast is delivered through BootAutoLaunchReceiver before target dispatch",
+        "duplicate boot broadcasts do not dispatch a second target-app batch"
       ],
       "required_logs": [
         "AUTOSTART_ALARM_FIRED",
@@ -450,7 +453,8 @@
         "delay_ms",
         "index",
         "operator launch order observation",
-        "BootAutoLaunchReceiver delivery path"
+        "BootAutoLaunchReceiver delivery path",
+        "AUTOSTART_DUPLICATE_BOOT_SUPPRESSED"
       ]
     },
     {
