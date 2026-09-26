@@ -1726,37 +1726,9 @@ public class LauncherActivity extends Activity {
     private void runPendingAutostart() {
         if (!prefs.getBoolean(KEY_PENDING_AUTOSTART, false)) return;
         prefs.edit().putBoolean(KEY_PENDING_AUTOSTART, false).apply();
-
-        boolean enabled=prefs.getBoolean(KEY_AUTOSTART_ENABLED, true);
-        List<AppEntry> list=autoStartApps();
         VerificationEvidenceRuntime.recordPassiveEvent(
-                this, "AUTOSTART_TRIGGER_CONSUMED",
-                "source=boot-pending;enabled="+enabled+";registered="+list.size());
-        if (!enabled) {
-            VerificationEvidenceRuntime.recordPassiveEvent(
-                    this, "AUTOSTART_SKIPPED", "reason=master-disabled");
-            return;
-        }
-
-        int index = 0;
-        for (AppEntry app : list) {
-            long delay = 1800L + (index * 3000L);
-            final long scheduledDelay=delay;
-            handler.postDelayed(() -> {
-                VerificationEvidenceRuntime.recordPassiveEvent(
-                        this, "AUTOSTART_LAUNCH_ATTEMPT",
-                        "package="+app.packageName+";delay_ms="+scheduledDelay);
-                launchPackage(app.packageName);
-            }, delay);
-            index++;
-        }
-
-        VerificationEvidenceRuntime.recordPassiveEvent(
-                this, "AUTOSTART_BATCH_SCHEDULED",
-                "registered="+list.size()+";scheduled="+index);
-        if (!list.isEmpty()) {
-            Toast.makeText(this, "시동 자동실행 " + list.size() + "개 예약", Toast.LENGTH_SHORT).show();
-        }
+                this, "AUTOSTART_LEGACY_PENDING_IGNORED",
+                "reason=boot-owned-by-BootAutoLaunchRuntime;duplicate_dispatch=false");
     }
 
     private void toggleFavorite(String pkg) {
