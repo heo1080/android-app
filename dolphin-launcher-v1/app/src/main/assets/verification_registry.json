@@ -1876,7 +1876,9 @@
         "설치 권한 설정 중 프로세스가 종료돼도 선택한 release tag를 durable pending state로 복구하고 동일 tag를 GitHub API에서 재조회한 뒤 계속 진행",
         "앱 시작 시 6시간 cadence의 자동 release check 진입점 유지",
         "다운로드 APK SHA-256, package, higher versionCode, current signer 일치 검증 후에만 PackageInstaller stage",
-        "release check·package verification·installer stage·최종 install status를 Evidence ledger에 기록"
+        "release check·package verification·installer stage·최종 install status를 Evidence ledger에 기록",
+        "OTA release discovery requires GitHub prerelease=true in addition to dolphin-launcher-v1-v* tag prefix; stable releases with the same prefix are ignored",
+        "process-death exact-tag restore also rejects a tag if it no longer resolves to a prerelease with both APK and SHA-256 assets"
       ],
       "required_logs": [
         "release metadata",
@@ -1895,7 +1897,8 @@
         "APP_UPDATE_CHECK_FAILED",
         "APP_UPDATE_PACKAGE_VERIFIED",
         "APP_UPDATE_INSTALL_STAGED",
-        "APP_UPDATE_INSTALL_STATUS"
+        "APP_UPDATE_INSTALL_STATUS",
+        "release_prerelease=true"
       ],
       "known_bad": [
         "versionCode downgrade 설치 실패가 과거 발생하여 v34.3.1에서 114로 수정한 기록",
@@ -1922,7 +1925,7 @@
         "UpdateInstallReceiver records pending-user-action/success/failure status",
         "AppUpdateManager persists the consented release tag before opening unknown-app-source settings and re-fetches that exact tag after process recreation"
       ],
-      "next_action": "V1 1.2 실차에서 UPD-001/UPD-002 수행 후 REVERIFY_REQUIRED 해제 여부 판단",
+      "next_action": "UPD prerelease=true selection gate를 CI negative test로 고정하고 V1 실차에서 UPD-001/UPD-002 재검증",
       "confidence": {
         "behavior": "MEDIUM",
         "root_cause": "HIGH",
