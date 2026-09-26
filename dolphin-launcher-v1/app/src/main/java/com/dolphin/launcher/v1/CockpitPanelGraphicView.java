@@ -68,31 +68,58 @@ public final class CockpitPanelGraphicView extends View {
             float y = h * i / 5f;
             canvas.drawLine(w * 0.06f, y, w * 0.94f, y, paint);
         }
+
+        paint.setColor(Color.argb(32, 156, 255, 236));
+        path.reset();
+        path.moveTo(w * 0.50f, h * 0.10f);
+        path.lineTo(w * 0.94f, h * 0.10f);
+        path.lineTo(w * 0.86f, h * 0.16f);
+        canvas.drawPath(path, paint);
     }
 
     private void drawMedia(Canvas canvas, float w, float h) {
-        float base = h * 0.68f;
-        paint.setStyle(Paint.Style.FILL);
+        // Target-media identity graphic only. A fixed PLAY symbol is intentionally
+        // avoided so REVERIFY_REQUIRED does not look like audible playback success.
+        float cx = w * 0.76f;
+        float cy = h * 0.34f;
+        float outer = h * 0.145f;
+
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(1.4f));
+        paint.setColor(accent(180));
+        canvas.drawCircle(cx, cy, outer, paint);
+
+        paint.setStrokeWidth(dp(3.2f));
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        rect.set(cx - outer * 0.70f, cy - outer * 0.70f,
+                cx + outer * 0.70f, cy + outer * 0.70f);
         paint.setColor(accent(160));
+        canvas.drawArc(rect, 210f, 76f, false, paint);
+        canvas.drawArc(rect, 30f, 76f, false, paint);
+
+        paint.setStrokeWidth(dp(1.1f));
+        paint.setColor(accent(92));
+        rect.set(cx - outer * 0.44f, cy - outer * 0.44f,
+                cx + outer * 0.44f, cy + outer * 0.44f);
+        canvas.drawArc(rect, 195f, 150f, false, paint);
+        paint.setStrokeCap(Paint.Cap.BUTT);
+
+        float base = h * 0.73f;
+        paint.setStyle(Paint.Style.FILL);
         for (int i = 0; i < 9; i++) {
             float x = w * (0.55f + i * 0.035f);
-            float bh = h * (0.08f + (i % 4) * 0.035f);
+            float bh = h * (0.055f + ((i * 3) % 5) * 0.026f);
+            paint.setColor(accent(118 + (i % 3) * 18));
             canvas.drawRoundRect(x, base - bh, x + dp(5), base, dp(2), dp(2), paint);
         }
 
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(dp(1.5f));
-        paint.setColor(accent(180));
-        canvas.drawCircle(w * 0.76f, h * 0.32f, h * 0.14f, paint);
-
-        paint.setStyle(Paint.Style.FILL);
-        path.reset();
-        path.moveTo(w * 0.735f, h * 0.255f);
-        path.lineTo(w * 0.815f, h * 0.32f);
-        path.lineTo(w * 0.735f, h * 0.385f);
-        path.close();
-        paint.setColor(accent(210));
-        canvas.drawPath(path, paint);
+        paint.setStrokeWidth(dp(1));
+        paint.setColor(accent(86));
+        canvas.drawLine(w * 0.55f, h * 0.81f, w * 0.86f, h * 0.81f, paint);
+        paint.setStrokeWidth(dp(2));
+        paint.setColor(accent(190));
+        canvas.drawLine(w * 0.55f, h * 0.81f, w * 0.66f, h * 0.81f, paint);
     }
 
     private void drawSafety(Canvas canvas, float w, float h) {
@@ -161,47 +188,88 @@ public final class CockpitPanelGraphicView extends View {
     }
 
     private void drawVehicle(Canvas canvas, float w, float h) {
+        // Read-only ego-vehicle sculpture. Accent reflects source state only;
+        // geometry never infers gear, speed, turn state, or vehicle health.
         float cx = w * 0.76f;
-        float top = h * 0.24f;
-        float bottom = h * 0.78f;
-        float half = w * 0.09f;
+        float top = h * 0.22f;
+        float bottom = h * 0.77f;
+        float half = w * 0.092f;
 
         path.reset();
         path.moveTo(cx, top);
-        path.cubicTo(cx - half * 0.9f, top + h * 0.03f,
+        path.cubicTo(cx - half * 0.90f, top + h * 0.03f,
                 cx - half, top + h * 0.12f,
-                cx - half * 1.05f, top + h * 0.22f);
-        path.lineTo(cx - half * 0.9f, bottom);
-        path.quadTo(cx, bottom + h * 0.05f, cx + half * 0.9f, bottom);
-        path.lineTo(cx + half * 1.05f, top + h * 0.22f);
+                cx - half * 1.06f, top + h * 0.22f);
+        path.lineTo(cx - half * 0.92f, bottom);
+        path.quadTo(cx, bottom + h * 0.052f, cx + half * 0.92f, bottom);
+        path.lineTo(cx + half * 1.06f, top + h * 0.22f);
         path.cubicTo(cx + half, top + h * 0.12f,
-                cx + half * 0.9f, top + h * 0.03f, cx, top);
+                cx + half * 0.90f, top + h * 0.03f, cx, top);
         path.close();
 
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.rgb(21, 52, 62));
+        paint.setColor(accent(54));
+        rect.set(cx - half * 1.36f, bottom - h * 0.015f,
+                cx + half * 1.36f, bottom + h * 0.065f);
+        canvas.drawOval(rect, paint);
+
+        paint.setShader(new LinearGradient(
+                cx - half, top, cx + half, bottom,
+                new int[]{Color.rgb(38, 80, 91), Color.rgb(9, 26, 33), Color.rgb(28, 62, 73)},
+                null, Shader.TileMode.CLAMP));
         canvas.drawPath(path, paint);
+        paint.setShader(null);
+
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(dp(1.3f));
         paint.setColor(accent(190));
         canvas.drawPath(path, paint);
 
+        // Cabin glass stays decorative and carries no telemetry.
         paint.setStyle(Paint.Style.FILL);
-        paint.setColor(accent(220));
+        paint.setColor(Color.argb(178, 4, 16, 21));
+        path.reset();
+        path.moveTo(cx, top + h * 0.07f);
+        path.lineTo(cx - half * 0.65f, top + h * 0.145f);
+        path.lineTo(cx - half * 0.52f, top + h * 0.245f);
+        path.lineTo(cx + half * 0.52f, top + h * 0.245f);
+        path.lineTo(cx + half * 0.65f, top + h * 0.145f);
+        path.close();
+        canvas.drawPath(path, paint);
+
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(1));
+        paint.setColor(accent(92));
+        canvas.drawLine(cx - half * 0.50f, top + h * 0.255f,
+                cx + half * 0.50f, top + h * 0.255f, paint);
+
         float[][] wheels = new float[][]{
-                {cx-half*0.95f, h*0.47f},
-                {cx+half*0.95f, h*0.47f},
-                {cx-half*0.95f, h*0.72f},
-                {cx+half*0.95f, h*0.72f}
+                {cx-half*0.96f, h*0.47f},
+                {cx+half*0.96f, h*0.47f},
+                {cx-half*0.96f, h*0.71f},
+                {cx+half*0.96f, h*0.71f}
         };
         for (float[] wheel : wheels) {
-            canvas.drawCircle(wheel[0], wheel[1], dp(3.2f), paint);
             paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(dp(1));
             paint.setColor(accent(76));
             canvas.drawCircle(wheel[0], wheel[1], dp(8.5f), paint);
             paint.setStyle(Paint.Style.FILL);
             paint.setColor(accent(220));
+            canvas.drawCircle(wheel[0], wheel[1], dp(3.0f), paint);
         }
+
+        // Side brackets read as a source frame, not a normalized value.
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(dp(1.1f));
+        paint.setColor(accent(105));
+        float bx = w * 0.58f;
+        float by = h * 0.34f;
+        canvas.drawLine(bx, by, bx + w * 0.035f, by, paint);
+        canvas.drawLine(bx, by, bx, by + h * 0.10f, paint);
+        bx = w * 0.94f;
+        canvas.drawLine(bx - w * 0.035f, by, bx, by, paint);
+        canvas.drawLine(bx, by, bx, by + h * 0.10f, paint);
     }
 
     private int accent(int alpha) {
